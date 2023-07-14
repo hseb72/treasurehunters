@@ -1,0 +1,19 @@
+<footer>
+    <mat-toolbar id="footer-toolbar" color="primary">
+        <button mat-icon-button class="menu-button">
+            <mat-icon routerLink="/">home</mat-icon>
+        </button>
+        <button mat-icon-button class="menu-button">
+            <mat-icon routerLink="/hunt">map</mat-icon>
+        </button>
+        <button mat-icon-button class="menu-button">
+            <mat-icon routerLink="/personal">person_pin</mat-icon>
+        </button>
+        <button  *ngIf="isLoggedIn" mat-icon-button class="menu-button">
+            <mat-icon routerLink="/logout">logout</mat-icon>
+        </button>
+        <button *ngIf="!isLoggedIn" mat-icon-button class="menu-button">
+            <mat-icon routerLink="/login">login</mat-icon>
+        </button>
+    </mat-toolbar>
+</footer>

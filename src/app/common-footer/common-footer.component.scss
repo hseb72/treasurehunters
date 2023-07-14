@@ -1,0 +1,10 @@
+footer {
+    width: 100vw;
+    position: fixed;
+    bottom: 0px;
+
+    .mat-toolbar {
+        display: flex;
+        justify-content: space-around;
+    }
+}

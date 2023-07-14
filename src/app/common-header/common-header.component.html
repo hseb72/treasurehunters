@@ -1,0 +1,26 @@
+<header class="my-activity-theme">
+    <mat-toolbar color="primary">
+        <button mat-icon-button class="menu-button" (click)="sidenav.toggle(); andMore()">
+            <mat-icon>{{ isMenuOpen ? 'menu_open' : 'menu' }}</mat-icon>
+        </button>
+
+        <span>Activités</span>
+        <span class="spacer"></span>
+
+        <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+            <mat-icon>notifications</mat-icon>
+        </button>
+        <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+            <mat-icon>share</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <mat-sidenav-container class="sidenav-container {{ isMenuOpen ? 'expanded' : 'shrinked' }}">
+        <mat-sidenav #sidenav autoFocus="false" mode="over" [(opened)]="isMenuOpen" class="sidenav">
+        <a mat-button routerLink="/hunter/personal"><mat-icon>person_pin</mat-icon> Mes données personnelles</a>
+        <a mat-button routerLink="/hunter/quest" color="accent"><mat-icon>map</mat-icon> Mes recherches</a>
+        <a mat-button routerLink="/hunter/treasure" color="accent"><mat-icon>coin</mat-icon> Mes trésors </a>
+        <a mat-button routerLink="/logout" color="accent"><mat-icon>logout</mat-icon> Déconnexion</a>
+    </mat-sidenav>
+  </mat-sidenav-container>
+</header>

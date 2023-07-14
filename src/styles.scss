@@ -1,0 +1,71 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+#main-container {
+    position: relative;
+    float: inherit;
+    top: 64px;
+    width: 95vw;
+    margin: 5px;
+    padding: 5px;
+    height: 120vh;
+}
+
+table {
+    width: 100%;
+}
+
+header {
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 1000;
+}
+
+.sidenav-container {
+    flex: 1;
+    .sidenav {
+        min-width: 240px;
+        a {
+            display: block;
+            padding: 6px 24px;
+            width: 100%;
+            text-align: left;
+        }
+    }
+}
+
+.expanded {
+    height: calc(100vh - 108px);
+}
+
+.shrinked {
+    height: 0px;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.vertical-spacer {
+    height: 100px; 
+    display:block;
+}
+
+footer {
+    width: 100vw;
+    position: fixed;
+    bottom: 0px;
+
+    .mat-toolbar {
+        display: flex;
+        justify-content: space-around;
+    }
+}
+
+.free-icon {
+    padding-left: 4px;
+    padding-right: 4px;
+}
