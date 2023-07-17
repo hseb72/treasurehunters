@@ -4,12 +4,12 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://treasurehunter.crealcs.com/api",
-  HunApiUrl: "https://treasurehunter.crealcs.com/api/hunt",
-  HtrApiUrl: "https://treasurehunter.crealcs.com/api/hunter",
-  HstApiUrl: "https://treasurehunter.crealcs.com/api/huntstatus",
-  CodApiUrl: "https://treasurehunter.crealcs.com/api/code",
-  HtcApiUrl: "https://treasurehunter.crealcs.com/api/huntercode",
+  apiUrl: "https://treasurehunters.crealcs.com/api",
+  HunApiUrl: "https://treasurehunters.crealcs.com/api/hunt",
+  HtrApiUrl: "https://treasurehunters.crealcs.com/api/hunter",
+  HstApiUrl: "https://treasurehunters.crealcs.com/api/huntstatus",
+  CodApiUrl: "https://treasurehunters.crealcs.com/api/code",
+  HtcApiUrl: "https://treasurehunters.crealcs.com/api/huntercode",
 };
 
 /*
