@@ -1,1 +1,16 @@
-<p>personal works!</p>
+<div id="main-container" class="my-personal-theme">
+    <mat-card>
+        <mat-card-title><mat-icon>person</mat-icon> Coordonnées personnelles</mat-card-title>
+        <mat-card-content>
+            <mat-list>
+                <mat-list-item><b>Surnom</b> : {{hunter?.nickname}}</mat-list-item>
+                <mat-list-item><b>e-mail</b> : {{hunter?.email}}</mat-list-item>
+                <mat-list-item><b>e-mail de secours</b> : sebastien.raimondi@gmail.com</mat-list-item>
+                <mat-list-item><b>Téléphone</b> : 06 10 78 87 87</mat-list-item>
+            </mat-list>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Some margin to be sure to get the main container bottom visible -->
+    <div class="vertical-spacer"></div>
+</div>

@@ -31,7 +31,6 @@ export class LoginComponent implements OnInit {
       //private alertService: AlertService
     ) {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-      this.router.navigate([this.returnUrl]);
 
       this.form = this.formBuilder.group({
         username: ['', Validators.required],
@@ -46,7 +45,6 @@ export class LoginComponent implements OnInit {
           await this.router.navigate([this.returnUrl]);
         }
         /*/
-        this.router.navigate([this.returnUrl]);
     }
 
     // convenience getter for easy access to form fields

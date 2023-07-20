@@ -50,7 +50,7 @@ header {
 }
 
 .vertical-spacer {
-    height: 100px; 
+    height: 80px; 
     display:block;
 }
 
@@ -65,7 +65,22 @@ footer {
     }
 }
 
+header {
+    width: 100vw;
+    position: fixed;
+    top: 0px;
+
+    .mat-toolbar {
+        display: flex;
+        justify-content: space-around;
+    }
+}
+
 .free-icon {
     padding-left: 4px;
     padding-right: 4px;
+}
+
+.menu-button {
+    font-size: 4em;
 }
