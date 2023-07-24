@@ -1,23 +1,62 @@
-<h3>Mes prochaines Quêtes</h3>
-<p>quest works! 1</p>
-<p>quest works! 2</p>
-<p>quest works! 3</p>
-<p>quest works! 4</p>
-<p>quest works! 5</p>
-<h3>Mes Quêtes en cours</h3>
-<p>quest works! 1</p>
-<p>quest works! 2</p>
-<p>quest works! 3</p>
-<p>quest works! 4</p>
-<p>quest works! 10</p>
-<h3>Mes Quêtes Finies</h3>
-<p>quest works! 1</p>
-<p>quest works! 2</p>
-<p>quest works! 3</p>
-<p>quest works! 4</p>
-<p>quest works! 15</p>
-<p>quest works! 1</p>
-<p>quest works! 2</p>
-<p>quest works! 3</p>
-<p>quest works! 4</p>
-<p>quest works! 20</p>
+<table>
+    <tr>
+        <th colspan="6">
+            <h3>Mes prochaines Quêtes</h3>
+        </th>
+    </tr>
+    <ng-container *ngFor="let i of hunt">
+        <ng-container *ngIf="i.begin > today">
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i . name }}</td>
+                <td>{{i . begin | date: "dd/MM/yyyy"}}</td>
+                <td>{{i . end| date: "dd/MM/yyyy"}}</td>
+                <td>{{i . location}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="5">{{i . description}}</td>
+            </tr>
+        </ng-container>
+    </ng-container>
+    <tr>
+        <th colspan="6">
+            <h3>Mes Quêtes en cours</h3>
+        </th>
+    </tr>
+    <ng-container *ngFor="let i of hunt">
+        <ng-container *ngIf="i.begin <= today && today <= i.end">
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i . name }}</td>
+                <td>{{i . begin | date: "dd/MM/yyyy"}}</td>
+                <td>{{i . end| date: "dd/MM/yyyy"}}</td>
+                <td>{{i . location}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="5">{{i . description}}</td>
+            </tr>
+        </ng-container>
+    </ng-container>
+    <tr>
+        <th colspan="6">
+            <h3>Mes Quêtes Finies</h3>
+        </th>
+    </tr>
+    <ng-container *ngFor="let i of hunt">
+        <ng-container *ngIf="i.end < today">
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i . name }}</td>
+                <td>{{i . begin | date: "dd/MM/yyyy"}}</td>
+                <td>{{i . end| date: "dd/MM/yyyy"}}</td>
+                <td>{{i . location}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="5">{{i . description}}</td>
+            </tr>
+        </ng-container>
+    </ng-container>
+</table>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../../environments/environment';
+import {Hunt} from '../models/hunt'
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -37,6 +38,14 @@ export class HuntService {
 
   getHunts() {
     return this.http.get(`${environment.HunApiUrl}`);
+  }
+
+  getQuests(id: string) {
+    return this.http.get(`${environment.HunApiUrl}/questsof/${id}`);
+  }
+
+  getTreasures<Hunt>(id: string) {
+    return this.http.get(`${environment.HunApiUrl}/treasuresof/${id}`);
   }
 
 }
