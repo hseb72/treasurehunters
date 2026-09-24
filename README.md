@@ -12,6 +12,8 @@ server/       API Node.js (Fastify 5, pg, zod, argon2)
 shared/       modèles, règles du jeu et jeu de démonstration, communs au front et au serveur
 db/           schéma PostgreSQL (migrations SQL)
 docs/         conception et captures d'écran
+docker/       images web (nginx) et api (Node.js)
+deploy/       déploiement Argo CD (pattern shared de platform-patterns)
 ```
 
 Les règles du jeu (validation d'un scan, heures de départ, classement) sont écrites une seule fois, dans `shared/rules.ts`.
@@ -59,7 +61,14 @@ npm test                  # front (Vitest)
 npm --prefix server test  # règles du jeu + API sur une vraie base PostgreSQL (TEST_DATABASE_URL)
 ```
 
-## Production
+## Déploiement (Kubernetes, Argo CD)
+
+L'application suit le pattern **`shared`** de [platform-patterns](https://github.com/hseb72/platform-patterns) sur la plateforme mutualisée [homelab-platform](https://github.com/hseb72/homelab-platform) : voir **[`deploy/README.md`](deploy/README.md)**.
+- Chaque commit sur `master` construit les images `ghcr.io/hseb72/treasurehunters/{web,api}` (`.github/workflows/build-images.yml`).
+- La CI promeut leur SHA dans `deploy/values-image.yaml` (`deploy.yml`).
+- Argo CD applique ensuite ce SHA.
+
+## Production sans Kubernetes
 
 ```bash
 npm run build                  # front statique dans dist/treasurehunters/browser

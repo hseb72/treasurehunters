@@ -1,0 +1,5 @@
+# Tag d'image déployé — piloté par la CI (GitOps). Ne pas éditer à la main.
+# Argo CD, en synchronisation automatique, déploie ce SHA : l'historique de ce
+# fichier EST l'historique des déploiements.
+global:
+  imageTag: ""

@@ -1,0 +1,28 @@
+# Routes Kong de l'API — Ingress de classe `kong`, dans le namespace de
+# l'application (protocole de homelab-platform, §5 de CONSUMING.md).
+#
+# L'hôte public api.treasurehunters.crealcs.com est amené jusqu'à Kong par une
+# entrée du socle (homelab-platform/gateway/10-ingress-api-hosts.yaml). Le relais
+# /api du front utilise ce même hôte via kong-proxy.gateway.svc : une seule route.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api
+  namespace: treasurehunters
+  annotations:
+    # L'API monte ses routes sous /api : le chemin arrive tel quel.
+    konghq.com/strip-path: "false"
+    konghq.com/preserve-host: "true"
+spec:
+  ingressClassName: kong
+  rules:
+    - host: api.treasurehunters.crealcs.com
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: api
+                port:
+                  number: 5080

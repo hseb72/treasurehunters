@@ -1,0 +1,68 @@
+# Promotion GitOps : ce workflow NE déploie PAS. Il écrit le SHA des images dans
+# deploy/values-image.yaml et pousse ; Argo CD, en synchronisation automatique,
+# applique ce SHA. Aucun identifiant de cluster dans GitHub.
+#
+# Le commit est fait avec GITHUB_TOKEN, qui ne redéclenche pas de workflow, et
+# ne touche que deploy/, hors des chemins de « Build Images » : pas de boucle.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Build Images"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "SHA d'image à promouvoir (défaut : HEAD de master)"
+        required: false
+
+concurrency:
+  group: deploy-promote
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Résoudre le SHA à promouvoir
+        id: sha
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Écrire le tag dans values-image.yaml
+        env:
+          TAG: ${{ steps.sha.outputs.tag }}
+        run: |
+          cat > deploy/values-image.yaml <<YAML
+          # Tag d'image déployé — piloté par la CI (GitOps). Ne pas éditer à la main.
+          # Argo CD, en synchronisation automatique, déploie ce SHA : l'historique de ce
+          # fichier EST l'historique des déploiements.
+          global:
+            imageTag: "$TAG"
+          YAML
+      - name: Commit et push si changement
+        env:
+          TAG: ${{ steps.sha.outputs.tag }}
+        run: |
+          if git diff --quiet -- deploy/values-image.yaml; then
+            echo "Aucun changement de tag — rien à promouvoir."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deploy/values-image.yaml
+          git commit -m "deploy: promouvoir ${TAG::12}"
+          git push origin master
