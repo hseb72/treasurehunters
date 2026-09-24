@@ -1,0 +1,66 @@
+# Application Argo CD — Treasure Hunters.
+#
+# Pattern `shared` de platform-patterns : le chart `app`, publié en OCI et
+# ÉPINGLÉ, rend les workloads avec les valeurs de ce dépôt ; les manifestes
+# propres à la plateforme (Ingress nginx/kong, NetworkPolicy) viennent de
+# deploy/manifests. Modèle « pull » : Argo lit la branche d'environnement
+# `deploy-state`, que la CI tient à jour (copie de deploy/ depuis master + SHA
+# d'image promu dans deploy/values-image.yaml). master est protégée et ne change
+# que par pull request ; la CI ne peut donc pas y écrire.
+#
+# Toutes les sources du dépôt visent la MÊME révision : Argo CD refuse que deux
+# sources de référence d'un même dépôt pointent sur des révisions différentes.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: treasurehunters
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: treasurehunters
+  sources:
+    # 1. Le chart du pattern — version immuable, montée par choix explicite.
+    - repoURL: ghcr.io/hseb72/platform-patterns
+      chart: app
+      targetRevision: 0.4.0
+      helm:
+        releaseName: treasurehunters
+        valueFiles:
+          - $values/deploy/values.yaml
+          - $values/deploy/values-image.yaml
+    # 2. Les valeurs et le SHA d'image, depuis la branche d'environnement.
+    #    Son historique EST l'historique des déploiements.
+    - repoURL: https://github.com/hseb72/treasurehunters.git
+      targetRevision: deploy-state
+      ref: values
+    # 3. Les manifestes propres à la plateforme mutualisée (même révision).
+    - repoURL: https://github.com/hseb72/treasurehunters.git
+      targetRevision: deploy-state
+      path: deploy/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: treasurehunters
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    # Le chart ne possède pas le namespace : ses étiquettes d'adhésion sont
+    # posées ici (protocole de consommation de homelab-platform).
+    managedNamespaceMetadata:
+      labels:
+        # Ouvre l'accès au PostgreSQL mutualisé (NetworkPolicy du socle).
+        database-client: "true"
+        # Le chart `app` 0.4.0 ne pose pas encore de securityContext : on
+        # applique `baseline` et on signale les écarts à `restricted`.
+        pod-security.kubernetes.io/enforce: baseline
+        pod-security.kubernetes.io/warn: restricted
+        pod-security.kubernetes.io/audit: restricted
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m

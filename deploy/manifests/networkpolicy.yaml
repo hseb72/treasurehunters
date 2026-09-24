@@ -1,0 +1,21 @@
+# Le chart n'admet vers les pods que le plan de données Kong (ns `gateway`).
+# Le front est servi directement par ingress-nginx : on ouvre son port au seul
+# namespace du contrôleur. Les NetworkPolicies s'additionnent.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-controller-to-web
+  namespace: treasurehunters
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: web
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: platform-ingress
+      ports:
+        - port: 8080
+          protocol: TCP
