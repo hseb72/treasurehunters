@@ -1,12 +1,19 @@
-# Promotion GitOps : ce workflow NE déploie PAS. Il écrit le SHA des images dans
-# values-image.yaml sur la branche `deploy-state` et pousse ; Argo CD, en
-# synchronisation automatique, applique ce SHA. Aucun identifiant de cluster
-# dans GitHub.
+# Promotion GitOps : ce workflow NE déploie PAS. Il tient à jour la branche
+# d'environnement `deploy-state`, qu'Argo CD suit en synchronisation automatique :
+#   - copie de deploy/ telle qu'elle est sur master ;
+#   - SHA des images promu dans deploy/values-image.yaml.
+# Aucun identifiant de cluster dans GitHub.
 #
-# Pourquoi une branche dédiée : master est protégée (toute modification passe
-# par une pull request), la CI ne peut donc pas y écrire. `deploy-state` ne
-# contient que values-image.yaml : son historique EST l'historique des
-# déploiements, et un retour arrière est un simple `git revert` sur cette branche.
+# Pourquoi une branche : master est protégée (toute modification passe par une
+# pull request), la CI ne peut pas y écrire. Et Argo CD exige que toutes les
+# sources d'un même dépôt visent la même révision : la configuration et le SHA
+# vivent donc ensemble sur `deploy-state`. Son historique EST l'historique des
+# déploiements ; un retour arrière est un `git revert` sur cette branche.
+#
+# Déclencheurs :
+#   - fin de « Build Images » sur master → promeut le SHA construit ;
+#   - modification de deploy/ sur master → resynchronise, SHA inchangé ;
+#   - lancement manuel → SHA fourni, ou SHA courant.
 # Le push avec GITHUB_TOKEN ne redéclenche aucun workflow : pas de boucle.
 name: Deploy
 
@@ -14,10 +21,15 @@ on:
   workflow_run:
     workflows: ["Build Images"]
     types: [completed]
+  push:
+    branches: [master]
+    paths:
+      - "deploy/**"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
     inputs:
       image_tag:
-        description: "SHA d'image à promouvoir (défaut : HEAD de master)"
+        description: "SHA d'image à promouvoir (défaut : SHA actuellement déployé)"
         required: false
 
 concurrency:
@@ -33,25 +45,16 @@ env:
 jobs:
   promote:
     if: >
-      github.event_name == 'workflow_dispatch' ||
+      github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'master')
     runs-on: ubuntu-latest
     steps:
-      - name: Résoudre le SHA à promouvoir
-        id: sha
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "tag=${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
-          fi
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Se placer sur la branche d'état (créée au premier passage)
+      - name: Se placer sur la branche d'environnement (créée au premier passage)
         run: |
           if git ls-remote --exit-code --heads origin "$STATE_BRANCH" >/dev/null; then
             git switch "$STATE_BRANCH"
@@ -60,28 +63,45 @@ jobs:
             git clean -fdxq
           fi
 
-      - name: Écrire le tag dans values-image.yaml
+      - name: Résoudre le SHA à déployer
+        id: sha
+        env:
+          INPUT_TAG: ${{ github.event.inputs.image_tag }}
+          BUILT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          current="$(sed -n 's/^ *imageTag: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' deploy/values-image.yaml values-image.yaml 2>/dev/null | head -n1)"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then tag="$BUILT_SHA"
+          elif [ -n "$INPUT_TAG" ]; then tag="$INPUT_TAG"
+          else tag="$current"
+          fi
+          echo "SHA déployé : ${current:-aucun} → ${tag:-aucun}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Recopier deploy/ depuis master et écrire le SHA
         env:
           TAG: ${{ steps.sha.outputs.tag }}
         run: |
-          cat > values-image.yaml <<YAML
+          git fetch -q origin master
+          git rm -rq --ignore-unmatch deploy values-image.yaml
+          git checkout origin/master -- deploy
+          cat > deploy/values-image.yaml <<YAML
           # Tag d'image déployé — piloté par la CI (GitOps). Ne pas éditer à la main.
           # Argo CD, en synchronisation automatique, déploie ce SHA : l'historique de
           # cette branche EST l'historique des déploiements.
           global:
             imageTag: "$TAG"
           YAML
+          git add -A deploy
 
       - name: Commit et push si changement
         env:
           TAG: ${{ steps.sha.outputs.tag }}
         run: |
-          git add values-image.yaml
           if git diff --cached --quiet; then
-            echo "Aucun changement de tag — rien à promouvoir."
+            echo "Rien à changer sur $STATE_BRANCH."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "deploy: promouvoir ${TAG::12}"
+          git commit -m "deploy: ${TAG:0:12} (deploy/ de master $(git rev-parse --short origin/master))"
           git push origin "$STATE_BRANCH"
