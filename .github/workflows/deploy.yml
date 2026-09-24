@@ -1,9 +1,13 @@
 # Promotion GitOps : ce workflow NE déploie PAS. Il écrit le SHA des images dans
-# deploy/values-image.yaml et pousse ; Argo CD, en synchronisation automatique,
-# applique ce SHA. Aucun identifiant de cluster dans GitHub.
+# values-image.yaml sur la branche `deploy-state` et pousse ; Argo CD, en
+# synchronisation automatique, applique ce SHA. Aucun identifiant de cluster
+# dans GitHub.
 #
-# Le commit est fait avec GITHUB_TOKEN, qui ne redéclenche pas de workflow, et
-# ne touche que deploy/, hors des chemins de « Build Images » : pas de boucle.
+# Pourquoi une branche dédiée : master est protégée (toute modification passe
+# par une pull request), la CI ne peut donc pas y écrire. `deploy-state` ne
+# contient que values-image.yaml : son historique EST l'historique des
+# déploiements, et un retour arrière est un simple `git revert` sur cette branche.
+# Le push avec GITHUB_TOKEN ne redéclenche aucun workflow : pas de boucle.
 name: Deploy
 
 on:
@@ -23,6 +27,9 @@ concurrency:
 permissions:
   contents: write
 
+env:
+  STATE_BRANCH: deploy-state
+
 jobs:
   promote:
     if: >
@@ -39,30 +46,42 @@ jobs:
           else
             echo "tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
           fi
+
       - uses: actions/checkout@v4
         with:
-          ref: master
+          fetch-depth: 0
+
+      - name: Se placer sur la branche d'état (créée au premier passage)
+        run: |
+          if git ls-remote --exit-code --heads origin "$STATE_BRANCH" >/dev/null; then
+            git switch "$STATE_BRANCH"
+          else
+            git switch --orphan "$STATE_BRANCH"
+            git clean -fdxq
+          fi
+
       - name: Écrire le tag dans values-image.yaml
         env:
           TAG: ${{ steps.sha.outputs.tag }}
         run: |
-          cat > deploy/values-image.yaml <<YAML
+          cat > values-image.yaml <<YAML
           # Tag d'image déployé — piloté par la CI (GitOps). Ne pas éditer à la main.
-          # Argo CD, en synchronisation automatique, déploie ce SHA : l'historique de ce
-          # fichier EST l'historique des déploiements.
+          # Argo CD, en synchronisation automatique, déploie ce SHA : l'historique de
+          # cette branche EST l'historique des déploiements.
           global:
             imageTag: "$TAG"
           YAML
+
       - name: Commit et push si changement
         env:
           TAG: ${{ steps.sha.outputs.tag }}
         run: |
-          if git diff --quiet -- deploy/values-image.yaml; then
+          git add values-image.yaml
+          if git diff --cached --quiet; then
             echo "Aucun changement de tag — rien à promouvoir."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deploy/values-image.yaml
           git commit -m "deploy: promouvoir ${TAG::12}"
-          git push origin master
+          git push origin "$STATE_BRANCH"

@@ -4,7 +4,8 @@
 # ÉPINGLÉ, rend les workloads avec les valeurs de ce dépôt ; les manifestes
 # propres à la plateforme (Ingress nginx/kong, NetworkPolicy) viennent de
 # deploy/manifests. Modèle « pull » : la CI écrit le SHA d'image dans
-# deploy/values-image.yaml, Argo détecte le commit et applique.
+# values-image.yaml sur la branche `deploy-state` (master est protégée et ne
+# change que par pull request) ; Argo détecte le commit et applique.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -23,12 +24,17 @@ spec:
         releaseName: treasurehunters
         valueFiles:
           - $values/deploy/values.yaml
-          - $values/deploy/values-image.yaml
+          - $image/values-image.yaml
     # 2. Les valeurs, depuis ce dépôt.
     - repoURL: https://github.com/hseb72/treasurehunters.git
       targetRevision: master
       ref: values
-    # 3. Les manifestes propres à la plateforme mutualisée.
+    # 3. Le SHA d'image déployé, promu par la CI (.github/workflows/deploy.yml).
+    #    Branche dédiée : son historique EST l'historique des déploiements.
+    - repoURL: https://github.com/hseb72/treasurehunters.git
+      targetRevision: deploy-state
+      ref: image
+    # 4. Les manifestes propres à la plateforme mutualisée.
     - repoURL: https://github.com/hseb72/treasurehunters.git
       targetRevision: master
       path: deploy/manifests
