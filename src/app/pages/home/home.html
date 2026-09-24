@@ -1,0 +1,84 @@
+<div class="page stack">
+  <section class="hero leather">
+    <div class="hero-text">
+      @if (session.user(); as user) {
+        <p class="muted small kicker">Carnet de bord de {{ user.nickname }}</p>
+        <h1 class="display">Prêt pour l'aventure ?</h1>
+      } @else {
+        <p class="muted small kicker">Chasses au trésor &amp; jeux de piste</p>
+        <h1 class="display">Chaque indice mène au trésor</h1>
+        <p class="muted">Rejoignez une expédition, suivez les énigmes de lieu en lieu, scannez les QR cachés… et soyez les premiers à l'arrivée.</p>
+      }
+    </div>
+    <a mat-flat-button class="th-cta scan-btn" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner un indice</a>
+    <form class="code-form" (ngSubmit)="joinWithCode()">
+      <mat-form-field subscriptSizing="dynamic" class="code-field">
+        <mat-label>Code d'invitation</mat-label>
+        <input matInput name="code" [ngModel]="code()" (ngModelChange)="code.set($event)" autocomplete="off" placeholder="ex. LEZ2026" />
+      </mat-form-field>
+      <button mat-stroked-button type="submit" class="code-btn">Rejoindre</button>
+    </form>
+    @if (!session.loggedIn()) {
+      <div class="row">
+        <a mat-button routerLink="/login" class="login-link"><mat-icon>login</mat-icon>Connexion / inscription</a>
+      </div>
+    }
+  </section>
+
+  @for (hunt of running(); track hunt.id) {
+    <section>
+      <h2 class="section-title">Expédition en cours</h2>
+      <th-hunt-card [hunt]="hunt" [link]="['/play', hunt.id]">
+        <div class="resume row">
+          <span class="stamp stamp--jungle">En piste</span>
+          <span class="spacer"></span>
+          <span class="mat-mdc-button resume-btn">Reprendre <mat-icon>arrow_forward</mat-icon></span>
+        </div>
+      </th-hunt-card>
+    </section>
+  }
+
+  @if (upcoming().length) {
+    <section>
+      <h2 class="section-title">Prochaines expéditions</h2>
+      <div class="grid">
+        @for (hunt of upcoming(); track hunt.id) {
+          <th-hunt-card [hunt]="hunt">
+            <div class="countdown">
+              <mat-icon>hourglass_top</mat-icon>
+              <span>Départ dans <strong>{{ countdown(hunt.begin) }}</strong></span>
+            </div>
+          </th-hunt-card>
+        }
+      </div>
+    </section>
+  }
+
+  <section>
+    <h2 class="section-title">Expéditions ouvertes</h2>
+    <div class="grid">
+      @for (hunt of discover(); track hunt.id) {
+        <th-hunt-card [hunt]="hunt" />
+      } @empty {
+        <p class="muted center">Aucune expédition publique pour le moment.</p>
+      }
+    </div>
+  </section>
+
+  @if (archives().length) {
+    <section>
+      <h2 class="section-title">Archives</h2>
+      <div class="stack">
+        @for (hunt of archives(); track hunt.id) {
+          <a class="parchment archive row" [routerLink]="['/hunts', hunt.id, 'results']">
+            <mat-icon>history_edu</mat-icon>
+            <span class="archive-name">{{ hunt.name }}</span>
+            <span class="spacer"></span>
+            <span class="small muted">{{ hunt.begin | date: 'd MMM y' }}</span>
+            <mat-icon>chevron_right</mat-icon>
+          </a>
+        }
+      </div>
+    </section>
+  }
+</div>

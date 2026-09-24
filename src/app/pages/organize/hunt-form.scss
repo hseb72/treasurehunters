@@ -1,0 +1,92 @@
+.new-head {
+  padding: 20px;
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+  }
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.narrow {
+  max-width: 420px;
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .two:not(.narrow) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+h3 {
+  margin: 20px 0 8px;
+  font-size: 1rem;
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  margin-bottom: 12px;
+  border-color: var(--th-edge);
+
+  .mat-button-toggle {
+    --mat-button-toggle-selected-state-background-color: rgba(200, 150, 46, 0.25);
+    --mat-button-toggle-background-color: var(--th-parchment-light);
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  ::ng-deep .mat-button-toggle-label-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    line-height: 1.3;
+  }
+}
+
+.mode-title {
+  font-family: var(--th-font-title);
+  font-weight: 700;
+}
+
+.mode-text {
+  font-size: 0.8rem;
+  color: var(--th-ink-soft);
+}
+
+.short {
+  width: 260px;
+}
+
+.invite {
+  margin-top: 12px;
+}
+
+.code {
+  padding: 2px 8px;
+  font-family: var(--th-font-note);
+  letter-spacing: 0.15em;
+  border: 1px dashed var(--th-saddle);
+}
+
+.actions {
+  padding-bottom: 24px;
+}

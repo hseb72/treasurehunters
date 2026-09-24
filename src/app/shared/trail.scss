@@ -1,0 +1,76 @@
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 22px;
+  border-radius: 50%;
+  font-family: var(--th-font-title);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--th-ink-soft);
+  border: 2px dashed var(--th-edge);
+  background: var(--th-parchment-light);
+
+  // Pointillés entre deux bornes.
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    width: 22px;
+    border-top: 2px dotted var(--th-saddle);
+  }
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.marker--done {
+  color: var(--th-leather);
+  border: 2px solid var(--th-gold);
+  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
+}
+
+.marker--current {
+  color: #fff8e6;
+  border: 2px solid var(--th-brick);
+  background: var(--th-brick);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.marker:last-child .mat-icon {
+  color: var(--th-brick);
+  font-weight: 700;
+}
+
+.marker--current:last-child .mat-icon,
+.marker--done:last-child .mat-icon {
+  color: inherit;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(158, 43, 31, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker--current {
+    animation: none;
+  }
+}

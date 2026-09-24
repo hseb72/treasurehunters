@@ -1,0 +1,88 @@
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { switchMap, timer } from 'rxjs';
+import { HuntApi } from '../../core/api';
+import { Clock } from '../../core/clock';
+import { Notify } from '../../core/notify';
+import { formatDuration } from '../../core/rules';
+import { formatClock } from '../../shared/format';
+import { Trail } from '../../shared/trail';
+
+/** Rafraîchissement pour voir les scans des équipiers. */
+const REFRESH_MS = 15_000;
+
+@Component({
+  selector: 'th-play',
+  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, Trail],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './play.html',
+  styleUrl: './play.scss',
+})
+export class PlayPage {
+  private readonly api = inject(HuntApi);
+  private readonly notify = inject(Notify);
+  private readonly clock = inject(Clock);
+
+  readonly id = input.required({ transform: numberAttribute });
+
+  protected readonly state = rxResource({
+    params: () => this.id(),
+    stream: ({ params }) => timer(0, REFRESH_MS).pipe(switchMap(() => this.api.getPlay(params))),
+  });
+
+  /** Premier appui sur un joker = demande de confirmation. */
+  protected readonly confirmHint = signal(false);
+  protected readonly busy = signal(false);
+
+  /** Phase de jeu de l'équipe. */
+  protected readonly phase = computed(() => {
+    const s = this.state.value();
+    if (!s) return 'loading';
+    if (s.team.finished) return 'finished';
+    if (s.hunt.status === 'published') return 'before';
+    if (s.hunt.status !== 'running') return 'over';
+    if (!s.team.started || Date.parse(s.team.started) > this.clock.now()) return 'waiting';
+    return 'playing';
+  });
+
+  protected readonly chrono = computed(() => {
+    const s = this.state.value();
+    if (!s?.team.started) return '';
+    const end = s.team.finished ? Date.parse(s.team.finished) : this.clock.now();
+    return formatClock(end - Date.parse(s.team.started));
+  });
+
+  protected readonly finalTime = computed(() => {
+    const s = this.state.value();
+    if (!s?.team.finished || !s.team.started) return '';
+    const seconds = (Date.parse(s.team.finished) - Date.parse(s.team.started)) / 1000;
+    return formatDuration(seconds + s.hintsUsed * s.hunt.hintPenalty * 60);
+  });
+
+  protected countdown(iso: string | null): string {
+    return iso ? formatClock(Date.parse(iso) - this.clock.now()) : '';
+  }
+
+  protected revealHint(): void {
+    if (!this.confirmHint()) {
+      this.confirmHint.set(true);
+      return;
+    }
+    this.busy.set(true);
+    this.api.revealHint(this.id()).subscribe({
+      next: (s) => {
+        this.state.set(s);
+        this.confirmHint.set(false);
+        this.busy.set(false);
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.busy.set(false);
+      },
+    });
+  }
+}

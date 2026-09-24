@@ -1,0 +1,136 @@
+.head {
+  padding: 12px 16px 16px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .mat-icon {
+    color: var(--th-gold-light);
+  }
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+}
+
+.more {
+  order: 2;
+}
+
+@media (max-width: 600px) {
+  .main-action {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
+.main-action {
+  --mat-button-filled-container-color: var(--th-gold);
+  --mat-button-filled-label-text-color: var(--th-leather);
+
+  .mat-icon {
+    color: inherit;
+  }
+}
+
+.lifecycle {
+  display: flex;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+
+  li {
+    flex: 1;
+    position: relative;
+    padding-top: 22px;
+    text-align: center;
+    font-family: var(--th-font-title);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: #b9a47c;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      border: 2px solid #b9a47c;
+      background: var(--th-leather);
+      z-index: 1;
+    }
+
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      width: 100%;
+      border-top: 2px dotted #7d6647;
+    }
+  }
+
+  .done {
+    color: var(--th-gold-light);
+
+    &::before {
+      background: var(--th-gold);
+      border-color: var(--th-gold);
+    }
+  }
+
+  .current {
+    color: #fff3d6;
+    font-weight: 700;
+
+    &::before {
+      background: var(--th-brick);
+      border-color: var(--th-gold-light);
+      box-shadow: 0 0 0 4px rgba(236, 201, 112, 0.25);
+    }
+  }
+}
+
+.tabs {
+  margin-top: 8px;
+  background: transparent;
+
+  .mat-icon {
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .tab-label {
+    display: none;
+  }
+
+  .tabs .mat-icon {
+    margin: 0;
+  }
+}
+
+.panel {
+  padding-top: 16px;
+}

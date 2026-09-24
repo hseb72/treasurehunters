@@ -1,27 +1,45 @@
-# Treasurehunters
+# Treasure Hunters
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.1.4.
+Application de chasses au trésor et de jeux de piste de type « rallye » : l'organisateur trace un parcours d'étapes, dépose un QR code à chaque lieu, et les équipes progressent d'énigme en énigme jusqu'au trésor.
 
-## Development server
+- **Conception** (règles du jeu, modèle de données, API, écrans) : [`docs/conception.md`](docs/conception.md)
+- **Front-end** : Angular 22 (composants autonomes, signals), Angular Material 3, PWA.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## État actuel : maquettes
 
-## Code scaffolding
+Les écrans fonctionnent avec un **back-end simulé en mémoire** (`src/app/core/mock/`). Il applique les règles du jeu (`src/app/core/rules.ts`) exactement comme le fera le serveur. Les données sont recalculées à chaque chargement, pour que la chasse de démonstration soit toujours « en cours ».
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Après le lancement, ouvrez **Guide des maquettes** (`/demo`) : chaque raccourci vous connecte avec le bon personnage (joueur, organisatrice ou visiteur) et ouvre un écran dans un état précis. Les comptes de démonstration sont `seb@example.com` et `camille@example.com`, mot de passe `demo`.
 
-## Build
+Pour brancher le vrai back-end, il suffira de remplacer `MockHuntApi` par un client HTTP qui implémente `HuntApi` (`src/app/core/api.ts`), dans `app.config.ts`.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Développement
 
-## Running unit tests
+Prérequis : **Node.js ≥ 22.22.3 ou ≥ 24.15** (voir `.nvmrc`).
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm install
+npm start          # http://localhost:4200
+npm test           # tests unitaires (Vitest)
+npm run build      # build de production dans dist/
+```
 
-## Running end-to-end tests
+## Arborescence
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```
+src/app/
+  core/          modèles, contrat d'API, règles du jeu, session, back-end simulé
+  shared/        composants communs (carte de chasse, piste, podium, badges…)
+  pages/         un dossier par écran ; organize/ = espace organisateur
+docs/            conception
+```
 
-## Further help
+## Aperçu
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+| Carnet de bord | Carnet de route | Étape validée | Podium |
+|---|---|---|---|
+| ![](docs/maquettes/home.png) | ![](docs/maquettes/play.png) | ![](docs/maquettes/scan-ok.png) | ![](docs/maquettes/scan-closed.png) |
+
+| Pilotage en direct | Parcours | Paramètres | Planche de QR |
+|---|---|---|---|
+| ![](docs/maquettes/org-live.png) | ![](docs/maquettes/org-steps.png) | ![](docs/maquettes/org-info.png) | ![](docs/maquettes/org-qr.png) |

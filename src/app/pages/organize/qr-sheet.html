@@ -1,0 +1,26 @@
+<div class="row no-print head">
+  <p class="muted grow">
+    Imprimez une page par étape et cachez chaque QR sur son lieu. Il s'ouvre avec l'appareil photo de n'importe quel téléphone ;
+    en cas de QR abîmé, le code inscrit dessous peut être saisi à la main.
+  </p>
+  <button mat-flat-button type="button" (click)="print()"><mat-icon>print</mat-icon>Imprimer</button>
+</div>
+
+<div class="sheet">
+  @for (s of printable(); track s.id) {
+    <article class="qr-page">
+      <div class="qr-frame">
+        <div class="brand">Treasure Hunters</div>
+        <div class="title">{{ s.order === finalOrder() ? 'Arrivée' : 'Étape ' + s.order }}</div>
+        <qrcode [qrdata]="url(s)" [width]="220" [margin]="1" errorCorrectionLevel="Q" colorDark="#2b1d12ff" colorLight="#ffffffff" />
+        <div class="scan-me">Scannez-moi pour valider l'étape</div>
+        <div class="token">{{ s.token }}</div>
+        <div class="footer">{{ workspace.hunt.value()?.name }} · Merci de ne pas déplacer ce QR</div>
+      </div>
+      <div class="meta no-print">
+        <span class="small"><strong>{{ s.title }}</strong>@if (s.address) { · {{ s.address }} }</span>
+        <button mat-button type="button" (click)="regenerate(s)"><mat-icon>autorenew</mat-icon>Régénérer</button>
+      </div>
+    </article>
+  }
+</div>

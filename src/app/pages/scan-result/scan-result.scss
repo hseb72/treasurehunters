@@ -1,0 +1,86 @@
+.loading {
+  padding: 64px 0;
+
+  mat-spinner {
+    margin: 0 auto 16px;
+  }
+}
+
+.stack > a {
+  align-self: center;
+}
+
+.reveal {
+  animation: unroll 0.45s ease-out;
+}
+
+.hero-card {
+  padding: 28px 20px;
+}
+
+.hero-icon {
+  display: block;
+  margin: 0 auto 12px;
+  width: 56px;
+  height: 56px;
+  font-size: 56px;
+  color: var(--th-saddle);
+}
+
+.parchment > .stamp {
+  margin-bottom: 14px;
+}
+
+.gold {
+  color: var(--th-gold);
+}
+
+.brick {
+  color: var(--th-brick);
+}
+
+.drop {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  animation: stamp 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.2s both;
+}
+
+.arrival {
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.clue {
+  margin-top: 10px;
+  padding: 28px 20px 16px;
+}
+
+.clue-text {
+  margin-top: 12px;
+  font-size: 1.15rem;
+}
+
+.warn {
+  border-color: var(--th-brick);
+}
+
+@keyframes unroll {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scaleY(0.96);
+  }
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(2.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .drop {
+    animation: none;
+  }
+}

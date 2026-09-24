@@ -1,0 +1,38 @@
+<div class="page stack">
+  <h1 class="center"><mat-icon>qr_code_scanner</mat-icon> Scanner un indice</h1>
+
+  <div class="viewfinder leather" [class.viewfinder--on]="camera() === 'on'">
+    <video #video playsinline muted></video>
+    @if (camera() !== 'on') {
+      <div class="overlay">
+        @switch (camera()) {
+          @case ('unsupported') {
+            <p>Ce navigateur ne sait pas lire les QR codes.</p>
+            <p class="small muted">Utilisez l'appareil photo de votre téléphone : il ouvrira directement l'indice.</p>
+          }
+          @case ('denied') {
+            <p>Accès à la caméra refusé.</p>
+            <button mat-stroked-button type="button" class="light" (click)="start()">Réessayer</button>
+          }
+          @case ('starting') {
+            <p>Ouverture de la caméra…</p>
+          }
+          @default {
+            <button mat-flat-button type="button" class="th-cta cam-btn" (click)="start()"><mat-icon>photo_camera</mat-icon>Activer la caméra</button>
+          }
+        }
+      </div>
+    }
+    <div class="corners" aria-hidden="true"></div>
+  </div>
+
+  <p class="center muted small">Astuce : l'appareil photo de votre téléphone lit aussi les QR codes des expéditions.</p>
+
+  <form class="parchment row manual" (ngSubmit)="submitManual()">
+    <mat-form-field subscriptSizing="dynamic" class="spacer">
+      <mat-label>QR abîmé ? Saisissez le code inscrit dessous</mat-label>
+      <input matInput name="manual" [ngModel]="manual()" (ngModelChange)="manual.set($event)" autocomplete="off" />
+    </mat-form-field>
+    <button mat-flat-button type="submit" [disabled]="!manual().trim()">Valider</button>
+  </form>
+</div>
