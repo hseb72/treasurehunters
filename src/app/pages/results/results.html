@@ -8,6 +8,9 @@
         @if (penalties(); as p) {
           · jokers : {{ p }}
         }
+        @if (h.skipPenalty) {
+          · abandon : +{{ h.skipPenalty }} min
+        }
       </p>
     </header>
   }
@@ -45,6 +48,9 @@
               {{ r.time | duration }}
               @if (r.penalty) {
                 <span class="small penalty">dont {{ r.penalty / 60 }} min de pénalité</span>
+              }
+              @if (r.skips) {
+                <span class="small penalty">{{ r.skips }} épreuve{{ r.skips > 1 ? 's' : '' }} abandonnée{{ r.skips > 1 ? 's' : '' }}</span>
               }
             </span>
           </div>

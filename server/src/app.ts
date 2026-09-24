@@ -36,6 +36,7 @@ const huntFields = {
   startMode: z.enum(['mass', 'staggered']),
   interval: z.number().int().min(1).max(600).nullable(),
   hintPenalties: z.array(minutes).length(3),
+  skipPenalty: minutes,
   teamGame: z.boolean(),
   teamMin: z.number().int().min(1).max(50),
   teamMax: z.number().int().min(1).max(50),
@@ -190,6 +191,7 @@ export async function buildApp(pool: pg.Pool, opts: { logger?: boolean } = {}): 
   /* ----- Jeu */
   app.get('/api/hunts/:id/play', async (req) => service.getPlay(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/hints', async (req) => service.revealHint(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/skip', async (req) => service.skipStep(req.viewer, idParams.parse(req.params).id));
   // POST : un scan peut valider une étape, il ne doit jamais être déclenché par un simple préchargement.
   app.post('/api/scan/:token', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
     const { token } = z.object({ token: text(64).min(1) }).parse(req.params);

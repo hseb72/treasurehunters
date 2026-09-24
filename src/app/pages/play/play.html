@@ -22,7 +22,7 @@
           </div>
         }
       </div>
-      <th-trail [total]="s.totalSteps" [done]="s.validated.length" [active]="phase() === 'playing'" />
+      <th-trail [total]="s.totalSteps" [done]="s.validated.length" [skipped]="skippedOrders()" [active]="phase() === 'playing'" />
       <div class="board-foot small muted">
         @if (s.position; as pos) {
           <span class="position" title="Classement provisoire de votre équipe">
@@ -32,9 +32,12 @@
         {{ s.validated.length }} / {{ s.totalSteps }} étapes
         @if (s.hintsUsed) {
           · {{ s.hintsUsed }} joker{{ s.hintsUsed > 1 ? 's' : '' }}
-          @if (s.penalty) {
-            (+{{ s.penalty }} min)
-          }
+        }
+        @if (s.skipsUsed) {
+          · {{ s.skipsUsed }} abandon{{ s.skipsUsed > 1 ? 's' : '' }}
+        }
+        @if (s.penalty) {
+          (+{{ s.penalty }} min)
         }
       </div>
     </header>
@@ -106,6 +109,16 @@
                 }
               </div>
             }
+            @if (clue.canSkip) {
+              <div class="give-up">
+                <button mat-button type="button" class="give-up-btn" (click)="skip(clue.targetOrder)" [disabled]="busy()">
+                  <mat-icon>skip_next</mat-icon>Abandonner cette épreuve
+                  @if (s.hunt.skipPenalty) {
+                    <span class="small">(+{{ s.hunt.skipPenalty }} min)</span>
+                  }
+                </button>
+              </div>
+            }
           </section>
           <p class="center muted small">Vous avez trouvé le lieu ? Scannez le QR code caché sur place.</p>
         }
@@ -115,7 +128,7 @@
           <span class="stamp stamp--gold big-stamp">Trésor trouvé !</span>
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
-          <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités de jokers incluses' : '' }}</p>
+          <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités incluses (+' + s.penalty + ' min)' : '' }}</p>
           @if (s.hunt.status === 'running') {
             @if (s.position; as pos) {
               <p>Position provisoire : <strong>{{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }}</strong> sur {{ pos.total }}.</p>
@@ -143,10 +156,13 @@
               <div class="row">
                 <span class="log-order">{{ v.order }}</span>
                 <strong>{{ v.title }}</strong>
+                @if (v.skipped) {
+                  <span class="badge badge--cancelled">abandonnée</span>
+                }
                 <span class="spacer"></span>
                 <span class="small muted">{{ v.at | date: 'HH:mm' }}</span>
               </div>
-              @if (v.arrival) {
+              @if (v.arrival && !v.skipped) {
                 <p class="small muted log-text">{{ v.arrival }}</p>
               }
             </li>

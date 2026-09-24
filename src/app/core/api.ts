@@ -39,6 +39,8 @@ export abstract class HuntApi {
 
   abstract getPlay(huntId: number): Observable<PlayState>;
   abstract revealHint(huntId: number): Observable<PlayState>;
+  /** Abandonne l'épreuve en cours (« 4ᵉ joker ») : pénalité d'abandon, énigme suivante. */
+  abstract skipStep(huntId: number): Observable<PlayState>;
   abstract scan(token: string): Observable<ScanResult>;
 
   abstract getResults(huntId: number): Observable<RankingRow[]>;

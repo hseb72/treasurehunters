@@ -153,3 +153,17 @@
   --mat-fab-container-color: var(--th-brick);
   --mat-fab-foreground-color: #fff3d6;
 }
+
+.give-up {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.give-up-btn {
+  --mat-button-text-label-text-color: var(--th-ink-soft);
+
+  .small {
+    margin-left: 4px;
+  }
+}

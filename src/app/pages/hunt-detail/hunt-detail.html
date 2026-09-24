@@ -143,6 +143,14 @@
             }
           </span>
         </li>
+        <li>
+          <mat-icon>skip_next</mat-icon>
+          @if (h.skipPenalty) {
+            <span>Bloqués ? Une équipe peut <strong>abandonner une épreuve</strong> pour passer à l'énigme suivante, au prix de <strong>{{ h.skipPenalty }} min</strong> de pénalité. Seule l'arrivée ne s'abandonne pas.</span>
+          } @else {
+            <span>Bloqués ? Une équipe peut <strong>abandonner une épreuve</strong> pour passer à l'énigme suivante, sans pénalité. Seule l'arrivée ne s'abandonne pas.</span>
+          }
+        </li>
         @if (h.contribution > 0) {
           <li><mat-icon>payments</mat-icon><span>Participation : <strong>{{ h.contribution | currency: 'EUR' }}</strong> par personne, à régler sur place.</span></li>
         }

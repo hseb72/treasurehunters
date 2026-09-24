@@ -54,6 +54,7 @@ export async function seedDemo(pool: pg.Pool, opts: { reset?: boolean; now?: num
         hun_penalty1: h.hintPenalties[0],
         hun_penalty2: h.hintPenalties[1],
         hun_penalty3: h.hintPenalties[2],
+        hun_skippenalty: h.skipPenalty,
         hun_teamgame: h.teamGame,
         hun_teammin: h.teamMin,
         hun_teammax: h.teamMax,
@@ -95,12 +96,10 @@ export async function seedDemo(pool: pg.Pool, opts: { reset?: boolean; now?: num
       }
     }
     for (const v of db.validations) {
-      await c.query('INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_creation) VALUES ($1, $2, $3, $4)', [
-        v.teamId,
-        v.stepId,
-        v.hunterId,
-        v.at,
-      ]);
+      await c.query(
+        'INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_creation) VALUES ($1, $2, $3, $4, $5)',
+        [v.teamId, v.stepId, v.hunterId, v.source, v.at],
+      );
     }
     for (const u of db.hintUses) {
       await c.query('INSERT INTO th_hintuses (hiu_team_tea, hiu_code_cod, hiu_level, hiu_hunter_htr, hiu_creation) VALUES ($1, $2, $3, $4, $5)', [

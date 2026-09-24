@@ -73,6 +73,9 @@
             @if (r.hints) {
               <span>· <mat-icon inline>key</mat-icon> {{ r.hints }}</span>
             }
+            @if (r.skips) {
+              <span>· <mat-icon inline>skip_next</mat-icon> {{ r.skips }}</span>
+            }
           </div>
         </div>
       }

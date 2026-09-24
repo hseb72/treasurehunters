@@ -19,6 +19,7 @@ Ce document décrit le fonctionnement cible de l'application : le vocabulaire, l
 | **Équipe** (*team*) | Le groupe qui progresse. **Dans une chasse en solo, chaque joueur forme une équipe d'une personne.** Toutes les règles s'écrivent donc une seule fois, pour des équipes. | `th_teams` |
 | **Validation** | Le fait qu'une équipe a atteint une étape, par un scan ou manuellement par l'organisateur. | `th_validations` |
 | **Joker** | Un indice supplémentaire (1 à 3 par énigme) que l'équipe peut dévoiler, avec une pénalité en minutes qui dépend de son niveau. | `th_hintuses` |
+| **Abandon** (« 4ᵉ joker ») | L'équipe renonce au lieu qu'elle cherche et passe directement à l'énigme suivante, moyennant une pénalité de temps. L'arrivée ne s'abandonne pas. | `th_validations` (source `SKIP`) |
 
 ---
 
@@ -128,12 +129,13 @@ Par défaut, les étapes sont **linéaires** : l'étape *n* n'est acceptée que 
 
 ### 5.2 Une seule règle de classement
 
-> **Temps de course = heure d'arrivée − heure de départ + pénalités de jokers**
-> `temps = tea_finished − tea_started + Σ pénalité(niveau du joker)`
+> **Temps de course = heure d'arrivée − heure de départ + pénalités (jokers et abandons)**
+> `temps = tea_finished − tea_started + Σ pénalité(niveau du joker) + nb_abandons × hun_skippenalty`
 
 - En **départ groupé**, toutes les heures de départ sont égales, donc le plus petit temps correspond au **premier arrivé**. Une seule formule couvre les deux modes.
 - **Pénalités de jokers, par niveau** (`hun_penalty1`, `hun_penalty2`, `hun_penalty3`, en minutes, 0 par défaut). Exemple : joker 1 = +2 min, joker 2 = +5 min, joker 3 = +10 min. Les jokers d'une énigme se dévoilent dans l'ordre, donc le joker 2 n'est accessible qu'après le 1.
-- **Égalité** : on départage par l'heure d'arrivée la plus tôt, puis par le nombre de jokers utilisés.
+- **Abandon d'une épreuve** (`hun_skippenalty`, en minutes, 30 par défaut) : une équipe bloquée peut renoncer au lieu qu'elle cherche. L'étape est enregistrée comme validation de source `SKIP`, sans QR, et l'énigme suivante s'affiche aussitôt. Le QR de l'étape abandonnée, s'il est trouvé plus tard, n'apporte plus rien (« déjà validée »). **L'arrivée ne s'abandonne pas** : il faut trouver le trésor pour être classé. L'abandon est confirmé à part et se sérialise avec les scans de l'équipe.
+- **Égalité** : on départage par l'heure d'arrivée la plus tôt, puis par le nombre de jokers et d'abandons.
 - **Équipes non arrivées à la clôture** : elles sont **non classées** et apparaissent après les équipes classées. On les trie par nombre d'étapes validées (décroissant), puis par le temps écoulé entre leur départ et leur dernière validation (croissant). Ce critère reste juste en départ échelonné.
 
 ### 5.3 Visibilité des résultats
@@ -143,7 +145,7 @@ Par défaut, les étapes sont **linéaires** : l'étape *n* n'est acceptée que 
 
 ### 5.4 Où sont codées ces règles
 
-Les règles du jeu (§ 4.2 et § 5) sont écrites **une seule fois**, en TypeScript, dans `shared/rules.ts` : `evaluateScan`, `teamStartTimes`, `computeRanking`, `teamPosition`, `hintPenaltyMinutes`. Elles sont couvertes par `shared/rules.spec.ts` et utilisées à la fois par le serveur et par le back-end simulé des maquettes.
+Les règles du jeu (§ 4.2 et § 5) sont écrites **une seule fois**, en TypeScript, dans `shared/rules.ts` : `evaluateScan`, `teamStartTimes`, `computeRanking`, `teamPosition`, `hintPenaltyMinutes`, `penaltyMinutes`. Elles sont couvertes par `shared/rules.spec.ts` et utilisées à la fois par le serveur et par le back-end simulé des maquettes.
 
 ---
 
@@ -199,6 +201,7 @@ erDiagram
 | `hun_startmode` | smallint | 1 = groupé, 2 = échelonné (remplace `hun_mode`) |
 | `hun_interval` | smallint NULL | minutes entre deux départs, obligatoire en mode échelonné |
 | `hun_penalty1..3` | smallint | minutes de pénalité par niveau de joker |
+| `hun_skippenalty` | smallint | minutes de pénalité par épreuve abandonnée (migration 002) |
 | `hun_teamgame`, `hun_teammin`, `hun_teammax` | boolean, smallint | solo ou équipes, et taille des équipes |
 | `hun_public`, `hun_joincode` | boolean, varchar(12) UNIQUE | visibilité et code d'invitation |
 | `hun_contribution` | numeric(10,2) | participation, affichée seulement |
@@ -222,7 +225,7 @@ erDiagram
 
 **`th_validations`** (remplace `th_huntercodes` pour la progression)
 - `val_team_tea`, `val_code_cod` et `val_hunter_htr`, le membre qui a scanné.
-- `val_source` vaut `QR` ou `MANUAL`. `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
+- `val_source` vaut `QR`, `MANUAL` ou `SKIP` (épreuve abandonnée par l'équipe). `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
 - `val_creation` est l'**heure de passage**.
 - UNIQUE(équipe, étape).
 
@@ -255,7 +258,7 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `GET /hunts/:id/teams` · `POST /hunts/:id/teams` · `POST /hunts/:id/solo` | équipes, inscription | connecté |
 | `GET /hunts/:id/my-team` · `DELETE /hunts/:id/my-team` · `POST /teams/join` | mon équipe, quitter, rejoindre par code | connecté |
 | `PUT /hunts/:id/teams/order` · `POST /teams/:id/delay` | ordre de passage, décalage d'un départ | organisateur |
-| `GET /hunts/:id/play` · `POST /hunts/:id/hints` | carnet de route de mon équipe (avec sa position provisoire), joker suivant | membre |
+| `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours | membre |
 | `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
 | `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
 | `GET /hunts/:id/live` · `POST /teams/:id/validations` | pilotage en direct, validation manuelle | organisateur |
@@ -312,6 +315,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | Ordre des étapes | **Linéaire** |
 | Énigmes à réponse | Pas dans un premier temps ; la colonne `cod_answer` est réservée |
 | Pénalité des jokers | **Une valeur par niveau** de joker, fixée pour la chasse |
+| Abandon d'une épreuve | **« 4ᵉ joker »** : pénalité de temps réglable par chasse (30 min par défaut), accès à l'énigme suivante ; l'arrivée ne s'abandonne pas |
 | Classement pendant la course | Chaque équipe ne voit **que sa propre position** ; l'organisateur voit tout |
 | `htc_giftedby_htr` | Remplacé par la **validation manuelle** par l'organisateur (`val_source = 'MANUAL'`, `val_by_htr`) |
 | Participation (`hun_contribution`) | **Affichage seul** dans la première version |

@@ -68,13 +68,23 @@ export function hintPenaltyMinutes(hunt: Pick<Hunt, 'hintPenalties'>, uses: Pick
   return uses.reduce((sum, u) => sum + (hunt.hintPenalties[u.level - 1] ?? 0), 0);
 }
 
+/** Pénalités d'une équipe, en minutes : jokers selon leur niveau, plus chaque épreuve abandonnée (§ 5.2). */
+export function penaltyMinutes(
+  hunt: Pick<Hunt, 'hintPenalties' | 'skipPenalty'>,
+  uses: Pick<HintUse, 'level'>[],
+  validations: Pick<Validation, 'source'>[],
+): number {
+  const skips = validations.filter((v) => v.source === 'SKIP').length;
+  return hintPenaltyMinutes(hunt, uses) + skips * hunt.skipPenalty;
+}
+
 /**
- * Classement (§ 5.2) : temps = arrivée − départ + pénalités des jokers.
+ * Classement (§ 5.2) : temps = arrivée − départ + pénalités (jokers et abandons).
  * En départ groupé, cela revient à classer par ordre d'arrivée.
  * Les équipes non arrivées suivent, par nombre d'étapes puis par temps écoulé à leur dernière validation.
  */
 export function computeRanking(
-  hunt: Pick<Hunt, 'hintPenalties'>,
+  hunt: Pick<Hunt, 'hintPenalties' | 'skipPenalty'>,
   teams: Team[],
   validations: Validation[],
   hintUses: HintUse[],
@@ -83,7 +93,8 @@ export function computeRanking(
     const vals = validations.filter((v) => v.teamId === t.id);
     const uses = hintUses.filter((h) => h.teamId === t.id);
     const hints = uses.length;
-    const penalty = hintPenaltyMinutes(hunt, uses) * 60;
+    const skips = vals.filter((v) => v.source === 'SKIP').length;
+    const penalty = penaltyMinutes(hunt, uses, vals) * 60;
     const time = t.finished && t.started ? (Date.parse(t.finished) - Date.parse(t.started)) / 1000 + penalty : null;
     const lastValidation = vals.map((v) => v.at).sort().at(-1) ?? null;
     return {
@@ -95,6 +106,7 @@ export function computeRanking(
       finished: t.finished,
       steps: vals.length,
       hints,
+      skips,
       time,
       penalty,
       lastValidation,
@@ -103,7 +115,7 @@ export function computeRanking(
 
   rows.sort((a, b) => {
     if (a.time !== null && b.time !== null) {
-      return a.time - b.time || a.finished!.localeCompare(b.finished!) || a.hints - b.hints;
+      return a.time - b.time || a.finished!.localeCompare(b.finished!) || a.hints + a.skips - (b.hints + b.skips);
     }
     if (a.time !== null) return -1;
     if (b.time !== null) return 1;
