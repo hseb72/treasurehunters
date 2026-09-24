@@ -1,0 +1,72 @@
+# Intégration continue : front, serveur (sur un vrai PostgreSQL) et manifestes.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  front:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx ng test --watch=false
+      - run: npx ng build
+      - run: npx ng build --configuration mock --output-path dist/mock
+
+  server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: th
+          POSTGRES_PASSWORD: th
+          POSTGRES_DB: treasurehunters_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U th" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://th:th@localhost:5432/treasurehunters_test
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valider les manifestes Kubernetes
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
+          ./kubeconform -strict -summary -ignore-missing-schemas deploy/manifests/*.yaml
+      - name: Aucun Secret en clair dans deploy/
+        run: |
+          if grep -rlE '^kind:[[:space:]]*Secret[[:space:]]*$' deploy/; then
+            echo "::error::Un Secret en clair est versionné dans deploy/ — utiliser create-secrets.sh (SealedSecret)."
+            exit 1
+          fi

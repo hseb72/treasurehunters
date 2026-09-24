@@ -1,0 +1,117 @@
+<p class="intro muted">
+  Le parcours se lit de haut en bas : chaque carte indique <strong>ce que voit l'équipe en arrivant</strong> sur le lieu, puis
+  <strong>l'énigme qui mène au lieu suivant</strong>. Glissez les étapes pour changer leur ordre.
+</p>
+
+<ng-template #stepCard let-step let-kind="kind">
+  <div class="card parchment" [class.card--open]="editing() === step.id">
+    <div class="card-head">
+      <span class="pin pin--{{ kind }}">
+        @switch (kind) {
+          @case ('start') {
+            <mat-icon>flag</mat-icon>
+          }
+          @case ('end') {
+            <mat-icon>close</mat-icon>
+          }
+          @default {
+            {{ step.order }}
+          }
+        }
+      </span>
+      <div class="card-title">
+        <strong>{{ step.title }}</strong>
+        @if (step.address) {
+          <span class="small muted"><mat-icon inline>location_on</mat-icon> {{ step.address }}</span>
+        }
+      </div>
+      <span class="spacer"></span>
+      @if (kind === 'middle' && !locked()) {
+        <mat-icon class="grip" aria-hidden="true">drag_indicator</mat-icon>
+      }
+      @if (editing() !== step.id) {
+        <button mat-icon-button type="button" (click)="edit(step)" aria-label="Modifier"><mat-icon>edit</mat-icon></button>
+      }
+    </div>
+
+    @if (editing() === step.id) {
+      <form class="editor" [formGroup]="form" (ngSubmit)="save(step)">
+        <div class="two">
+          <mat-form-field>
+            <mat-label>{{ kind === 'start' ? 'Nom' : 'Nom du lieu' }}</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Adresse ou repère (privé)</mat-label>
+            <input matInput formControlName="address" />
+          </mat-form-field>
+        </div>
+        @if (kind !== 'start') {
+          <mat-form-field class="field-full">
+            <mat-label>Message à l'arrivée sur le lieu</mat-label>
+            <textarea matInput formControlName="arrival" rows="2"></textarea>
+          </mat-form-field>
+        }
+        @if (kind !== 'end') {
+          <mat-form-field class="field-full">
+            <mat-label>{{ kind === 'start' ? 'Première énigme' : 'Énigme vers l’étape ' + (step.order + 1) }}</mat-label>
+            <textarea matInput formControlName="instructions" rows="4" class="note"></textarea>
+          </mat-form-field>
+          <div formArrayName="hints" class="hints">
+            @for (h of hints.controls; track $index) {
+              <mat-form-field>
+                <mat-label>Joker {{ $index + 1 }}</mat-label>
+                <mat-icon matPrefix>key</mat-icon>
+                <input matInput [formControlName]="$index" />
+              </mat-form-field>
+            }
+          </div>
+        }
+        <div class="row">
+          @if (kind === 'middle' && !locked()) {
+            <button mat-button type="button" class="danger" (click)="remove(step)"><mat-icon>delete</mat-icon>Supprimer</button>
+          }
+          <span class="spacer"></span>
+          <button mat-button type="button" (click)="editing.set(null)">Annuler</button>
+          <button mat-flat-button type="submit">Enregistrer</button>
+        </div>
+      </form>
+    } @else {
+      <div class="body">
+        @if (step.arrival) {
+          <p class="arrival"><mat-icon inline>where_to_vote</mat-icon> {{ step.arrival }}</p>
+        }
+        @if (step.instructions) {
+          <p class="note clue">{{ step.instructions }}</p>
+          @if (step.hints.length) {
+            <p class="small muted"><mat-icon inline>key</mat-icon> {{ step.hints.length }} joker{{ step.hints.length > 1 ? 's' : '' }}</p>
+          }
+        } @else if (kind !== 'end') {
+          <p class="small error-text"><mat-icon inline>warning</mat-icon> Énigme à rédiger</p>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+<div class="route">
+  @if (start(); as s) {
+    <ng-container *ngTemplateOutlet="stepCard; context: { $implicit: s, kind: 'start' }" />
+  }
+
+  <div cdkDropList class="middle" (cdkDropListDropped)="drop($event)" [cdkDropListDisabled]="locked()">
+    @for (s of middle(); track s.id) {
+      <div cdkDrag class="drag" [cdkDragDisabled]="editing() === s.id" [cdkDragStartDelay]="{ touch: 250, mouse: 0 }">
+        <ng-container *ngTemplateOutlet="stepCard; context: { $implicit: s, kind: 'middle' }" />
+      </div>
+    }
+  </div>
+
+  @if (!locked()) {
+    <button mat-stroked-button type="button" class="add" (click)="add()"><mat-icon>add_location_alt</mat-icon>Ajouter une étape</button>
+  }
+
+  @if (arrival(); as a) {
+    <ng-container *ngTemplateOutlet="stepCard; context: { $implicit: a, kind: 'end' }" />
+  }
+</div>

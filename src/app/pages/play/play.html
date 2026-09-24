@@ -1,0 +1,162 @@
+@if (state.error(); as err) {
+  <div class="page">
+    <div class="parchment center">
+      <p>{{ $any(err).message }}</p>
+      <a mat-stroked-button routerLink="/">Retour au carnet de bord</a>
+    </div>
+  </div>
+}
+
+@if (state.value(); as s) {
+  <div class="page stack">
+    <header class="board leather">
+      <div class="board-head">
+        <div>
+          <div class="muted small">{{ s.hunt.name }}</div>
+          <h1>{{ s.team.name }}</h1>
+        </div>
+        @if (chrono()) {
+          <div class="chrono" [class.chrono--stopped]="s.team.finished">
+            <mat-icon>{{ s.team.finished ? 'timer_off' : 'timer' }}</mat-icon>
+            <span>{{ chrono() }}</span>
+          </div>
+        }
+      </div>
+      <th-trail [total]="s.totalSteps" [done]="s.validated.length" [active]="phase() === 'playing'" />
+      <div class="board-foot small muted">
+        @if (s.position; as pos) {
+          <span class="position" title="Classement provisoire de votre équipe">
+            <mat-icon inline>military_tech</mat-icon> {{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} / {{ pos.total }} ·
+          </span>
+        }
+        {{ s.validated.length }} / {{ s.totalSteps }} étapes
+        @if (s.hintsUsed) {
+          · {{ s.hintsUsed }} joker{{ s.hintsUsed > 1 ? 's' : '' }}
+          @if (s.penalty) {
+            (+{{ s.penalty }} min)
+          }
+        }
+      </div>
+    </header>
+
+    @switch (phase()) {
+      @case ('before') {
+        <section class="parchment center">
+          <mat-icon class="big-icon">hourglass_top</mat-icon>
+          <h2>L'expédition n'a pas commencé</h2>
+          <p class="big-number">{{ countdown(s.hunt.begin) }}</p>
+          <p class="muted">Départ prévu le {{ s.hunt.begin | date: 'EEEE d MMMM à HH:mm' }}</p>
+          @if (s.hunt.startText) {
+            <p class="note">{{ s.hunt.startText }}</p>
+          }
+        </section>
+      }
+      @case ('waiting') {
+        <section class="parchment center">
+          <mat-icon class="big-icon">flag</mat-icon>
+          <h2>Sur la ligne de départ</h2>
+          <p>Votre équipe part en <strong>position {{ s.team.startOrder }}</strong>, à {{ s.team.started | date: 'HH:mm' }}.</p>
+          <p class="big-number">{{ countdown(s.team.started) }}</p>
+          @if (s.hunt.startText) {
+            <p class="note">{{ s.hunt.startText }}</p>
+          }
+        </section>
+      }
+      @case ('playing') {
+        @if (s.clue; as clue) {
+          <section class="parchment taped clue">
+            <div class="clue-head">
+              <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
+            </div>
+            <p class="note clue-text">{{ clue.instructions }}</p>
+
+            @if (clue.hintsTotal) {
+              <div class="hints">
+                @for (hint of clue.hintsRevealed; track $index) {
+                  <div class="hint">
+                    <mat-icon>key</mat-icon>
+                    <div>
+                      <div class="hint-label">Joker {{ $index + 1 }}</div>
+                      <div class="note">{{ hint }}</div>
+                    </div>
+                  </div>
+                }
+                @if (clue.hintsRevealed.length < clue.hintsTotal) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="seal"
+                    [class.seal--confirm]="confirmHint()"
+                    (click)="revealHint()"
+                    [disabled]="busy()"
+                  >
+                    <mat-icon>{{ confirmHint() ? 'lock_open' : 'lock' }}</mat-icon>
+                    @if (confirmHint()) {
+                      Confirmer
+                      @if (nextHintPenalty()) {
+                        : +{{ nextHintPenalty() }} min
+                      }
+                    } @else {
+                      Briser le sceau du joker {{ clue.hintsRevealed.length + 1 }} / {{ clue.hintsTotal }}
+                    }
+                  </button>
+                  @if (confirmHint()) {
+                    <button mat-button type="button" (click)="confirmHint.set(false)">Non, je cherche encore</button>
+                  }
+                }
+              </div>
+            }
+          </section>
+          <p class="center muted small">Vous avez trouvé le lieu ? Scannez le QR code caché sur place.</p>
+        }
+      }
+      @case ('finished') {
+        <section class="parchment center finish">
+          <span class="stamp stamp--gold big-stamp">Trésor trouvé !</span>
+          <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
+          <div class="big-number">{{ finalTime() }}</div>
+          <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités de jokers incluses' : '' }}</p>
+          @if (s.hunt.status === 'running') {
+            @if (s.position; as pos) {
+              <p>Position provisoire : <strong>{{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }}</strong> sur {{ pos.total }}.</p>
+            }
+            <p>Le podium sera dévoilé à la clôture de l'expédition.</p>
+          } @else {
+            <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir le podium</a>
+          }
+        </section>
+      }
+      @case ('over') {
+        <section class="parchment center">
+          <h2>L'expédition est terminée</h2>
+          <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
+        </section>
+      }
+    }
+
+    @if (s.validated.length) {
+      <section>
+        <h2 class="section-title">Journal de bord</h2>
+        <ol class="log">
+          @for (v of s.validated.slice().reverse(); track v.order) {
+            <li class="parchment">
+              <div class="row">
+                <span class="log-order">{{ v.order }}</span>
+                <strong>{{ v.title }}</strong>
+                <span class="spacer"></span>
+                <span class="small muted">{{ v.at | date: 'HH:mm' }}</span>
+              </div>
+              @if (v.arrival) {
+                <p class="small muted log-text">{{ v.arrival }}</p>
+              }
+            </li>
+          }
+        </ol>
+      </section>
+    }
+  </div>
+
+  @if (phase() === 'playing') {
+    <a mat-fab extended class="scan-fab no-print" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
+  }
+}

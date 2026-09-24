@@ -1,0 +1,77 @@
+.invite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  > .mat-icon {
+    color: var(--th-saddle);
+  }
+}
+
+.code {
+  padding: 1px 6px;
+  font-family: var(--th-font-note);
+  letter-spacing: 0.12em;
+  border: 1px dashed var(--th-saddle);
+}
+
+.grow {
+  flex: 1;
+}
+
+.actions {
+  margin-bottom: 12px;
+
+  p {
+    margin: 0;
+    min-width: 220px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.team--draggable {
+  cursor: grab;
+}
+
+.pos {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  font-family: var(--th-font-title);
+  font-weight: 700;
+  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
+}
+
+.when {
+  font-family: var(--th-font-note);
+  white-space: nowrap;
+}
+
+.grip {
+  color: var(--th-ink-soft);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating,
+.list.cdk-drop-list-dragging .team:not(.cdk-drag-placeholder) {
+  transition: transform 200ms ease;
+}

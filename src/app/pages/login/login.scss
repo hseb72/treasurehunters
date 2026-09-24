@@ -1,0 +1,29 @@
+.card {
+  max-width: 440px;
+  margin: 16px auto;
+  padding: 24px;
+}
+
+.head {
+  margin-bottom: 8px;
+}
+
+.logo {
+  color: var(--th-saddle);
+}
+
+.form {
+  padding-top: 20px;
+  gap: 4px;
+}
+
+.demo {
+  max-width: 440px;
+  margin: 16px auto;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}

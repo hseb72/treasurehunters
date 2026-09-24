@@ -1,0 +1,139 @@
+<form [class.page]="isNew" class="stack" [formGroup]="form" (ngSubmit)="save()">
+  @if (isNew) {
+    <header class="leather new-head">
+      <h1 class="display">Nouvelle expédition</h1>
+      <p class="muted">Commencez par l'essentiel ; le parcours se construit à l'étape suivante.</p>
+    </header>
+  }
+
+  <section class="parchment">
+    <h2 class="section-title">L'expédition</h2>
+    <mat-form-field class="field-full">
+      <mat-label>Nom</mat-label>
+      <input matInput formControlName="name" maxlength="50" />
+      <mat-error>Nom requis (50 caractères max.)</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field-full">
+      <mat-label>Présentation</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      <mat-hint>Visible par tous avant l'inscription</mat-hint>
+    </mat-form-field>
+    <div class="two">
+      <mat-form-field>
+        <mat-label>Lieu</mat-label>
+        <input matInput formControlName="location" placeholder="34970 Lattes" />
+        <mat-icon matSuffix>location_on</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Le trésor</mat-label>
+        <input matInput formControlName="award" placeholder="Ce que gagnent les vainqueurs" />
+        <mat-icon matSuffix>diamond</mat-icon>
+      </mat-form-field>
+    </div>
+    <mat-form-field class="field-full">
+      <mat-label>Consignes de départ</mat-label>
+      <textarea matInput formControlName="startText" rows="2"></textarea>
+      <mat-hint>Lieu de rendez-vous, matériel… affichées avant le départ</mat-hint>
+    </mat-form-field>
+  </section>
+
+  <section class="parchment">
+    <h2 class="section-title">Calendrier</h2>
+    <div class="two">
+      <mat-form-field>
+        <mat-label>Départ prévu</mat-label>
+        <input matInput type="datetime-local" formControlName="begin" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Clôture prévue</mat-label>
+        <input matInput type="datetime-local" formControlName="end" />
+      </mat-form-field>
+    </div>
+    <div class="toggles">
+      <mat-slide-toggle formControlName="autoStart">Donner le départ automatiquement à l'heure prévue</mat-slide-toggle>
+      <mat-slide-toggle formControlName="autoClose">Clôturer automatiquement à l'heure prévue</mat-slide-toggle>
+    </div>
+    <p class="small muted">Sinon, c'est vous qui donnez le top départ et sifflez la fin depuis cet écran.</p>
+  </section>
+
+  <section class="parchment">
+    <h2 class="section-title">Règles du jeu</h2>
+
+    <h3>Mode de départ</h3>
+    <mat-button-toggle-group formControlName="startMode" class="modes" hideSingleSelectionIndicator aria-label="Mode de départ">
+      <mat-button-toggle value="mass">
+        <mat-icon>sprint</mat-icon>
+        <span class="mode-title">Départ groupé</span>
+        <span class="mode-text">Tout le monde part ensemble : le premier arrivé gagne.</span>
+      </mat-button-toggle>
+      <mat-button-toggle value="staggered">
+        <mat-icon>timer</mat-icon>
+        <span class="mode-title">Départs échelonnés</span>
+        <span class="mode-text">Une équipe à la fois : le meilleur temps gagne.</span>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (staggered()) {
+      <mat-form-field class="short">
+        <mat-label>Intervalle entre deux départs</mat-label>
+        <input matInput type="number" min="1" formControlName="interval" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+    }
+
+    <h3>Participants</h3>
+    <mat-slide-toggle formControlName="teamGame">Jeu en équipe</mat-slide-toggle>
+    @if (teamGame()) {
+      <div class="two narrow">
+        <mat-form-field>
+          <mat-label>Équipiers min.</mat-label>
+          <input matInput type="number" min="1" formControlName="teamMin" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Équipiers max.</mat-label>
+          <input matInput type="number" min="1" formControlName="teamMax" />
+        </mat-form-field>
+      </div>
+    }
+
+    <h3>Pénalités des jokers</h3>
+    <p class="small muted">Temps ajouté au parcours de l'équipe à chaque joker dévoilé, selon son niveau.</p>
+    <div class="three">
+      <mat-form-field>
+        <mat-label>Joker 1</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty1" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Joker 2</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty2" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Joker 3</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty3" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+    </div>
+
+    <h3>Participation et visibilité</h3>
+    <div class="two narrow">
+      <mat-form-field>
+        <mat-label>Participation</mat-label>
+        <input matInput type="number" min="0" step="0.5" formControlName="contribution" />
+        <span matTextSuffix>€</span>
+      </mat-form-field>
+      <span></span>
+    </div>
+    <mat-slide-toggle formControlName="isPublic">Expédition publique (sinon, sur invitation)</mat-slide-toggle>
+    @if (hunt(); as h) {
+      <p class="invite small">Code d'invitation : <span class="code">{{ h.joinCode }}</span></p>
+    }
+  </section>
+
+  <div class="row actions">
+    <span class="spacer"></span>
+    <button mat-flat-button class="th-cta" type="submit" [disabled]="!isNew && form.pristine">
+      {{ isNew ? 'Créer et tracer le parcours' : 'Enregistrer' }}
+    </button>
+  </div>
+</form>

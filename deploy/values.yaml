@@ -1,0 +1,64 @@
+# Valeurs du chart `app` de platform-patterns, pattern `shared`, pour la
+# plateforme mutualisée décrite dans hseb72/homelab-platform.
+#
+# Rendu : oci://ghcr.io/hseb72/platform-patterns/app (version épinglée dans
+# argocd/application.yaml). Le tag d'image vient de values-image.yaml, écrit par la CI.
+#
+# Ce que le chart rend, dans le namespace `treasurehunters` :
+#   - Deployments + Services `web` (nginx, 8080) et `api` (Node.js, 5080) ;
+#   - ConfigMap `api-config` (ci-dessous, non sensible) ;
+#   - NetworkPolicy : entrée des pods réservée à la passerelle Kong (ns `gateway`).
+# Ce qu'il ne rend pas, et qui vit dans manifests/ : l'Ingress nginx du front,
+# l'Ingress kong de l'API, l'entrée depuis ingress-nginx vers le front.
+
+mode: shared
+
+web:
+  enabled: true
+  image:
+    repository: ghcr.io/hseb72/treasurehunters/web
+  replicas: 2
+  port: 8080
+  healthPath: /healthz
+  resources:
+    requests: { cpu: 10m, memory: 32Mi }
+    limits: { cpu: 200m, memory: 128Mi }
+
+api:
+  enabled: true
+  image:
+    repository: ghcr.io/hseb72/treasurehunters/api
+  replicas: 2
+  port: 5080
+  healthPath: /api/health
+  # Configuration non sensible (ConfigMap). DATABASE_URL, elle, est dans le
+  # Secret ci-dessous : cf. deploy/README.md.
+  env:
+    NODE_ENV: production
+    HOST: 0.0.0.0
+    PORT: "5080"
+    CORS_ORIGIN: https://treasurehunters.crealcs.com
+    SESSION_DAYS: "30"
+  envFrom:
+    - treasurehunters-api-secrets
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 384Mi }
+
+shared:
+  # La plateforme expose les API par des Ingress de classe `kong` (pas de
+  # Gateway API) : l'HTTPRoute du chart est désactivée, la route Kong est dans
+  # manifests/api-kong-ingress.yaml.
+  httproute:
+    enabled: false
+  # Namespace du plan de données Kong : seule source admise vers les pods.
+  gatewayDataplaneNamespace: gateway
+  networkPolicy:
+    enabled: true
+  # La base est provisionnée par le socle (locataire déclaré dans
+  # homelab-platform/database/values.yaml), pas par l'application.
+  provisioning:
+    enabled: false

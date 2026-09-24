@@ -1,0 +1,28 @@
+# AppProject Argo CD — périmètre de Treasure Hunters.
+#
+# Un projet par application : la liste des destinations est la barrière qui
+# empêche ce déploiement d'écrire ailleurs que dans son namespace. L'hôte d'API
+# vit dans le namespace `gateway`, qui appartient au socle : on y demande une
+# entrée (homelab-platform) plutôt que d'obtenir le droit d'y écrire.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: treasurehunters
+  namespace: argocd
+spec:
+  description: Treasure Hunters — chasses au trésor (pattern shared de platform-patterns)
+  sourceRepos:
+    - https://github.com/hseb72/treasurehunters.git
+    - https://github.com/hseb72/treasurehunters
+    # Chart applicatif publié (OCI) par platform-patterns.
+    - ghcr.io/hseb72/platform-patterns
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: treasurehunters
+  # Seule ressource hors namespace : le Namespace lui-même (CreateNamespace).
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

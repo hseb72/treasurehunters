@@ -1,0 +1,52 @@
+@if (hunt(); as h) {
+  <section class="parchment invite">
+    <mat-icon>mail</mat-icon>
+    <div class="spacer">
+      <strong>Inviter des aventuriers</strong>
+      <div class="small muted">Code d'invitation <span class="code">{{ h.joinCode }}</span> ou lien direct.</div>
+    </div>
+    <button mat-stroked-button type="button" (click)="copyInvite()"><mat-icon>link</mat-icon>Copier le lien</button>
+  </section>
+
+  <div class="row toolbar">
+    <h2 class="section-title grow">{{ order().length }} {{ h.teamGame ? 'équipes inscrites' : 'joueurs inscrits' }}</h2>
+  </div>
+
+  @if (canOrder()) {
+    <div class="row actions">
+      <p class="small muted grow">
+        Départs échelonnés toutes les {{ h.interval }} min : glissez les équipes pour fixer l'ordre de passage, ou laissez le sort décider.
+      </p>
+      <button mat-stroked-button type="button" (click)="shuffle()"><mat-icon>casino</mat-icon>Tirage au sort</button>
+      <button mat-flat-button type="button" (click)="saveOrder()" [disabled]="!dirty()">Enregistrer l'ordre</button>
+    </div>
+  }
+
+  <div cdkDropList class="list" (cdkDropListDropped)="drop($event)" [cdkDropListDisabled]="!canOrder()">
+    @for (t of order(); track t.id; let i = $index) {
+      <div cdkDrag class="team parchment" [class.team--draggable]="canOrder()">
+        @if (h.startMode === 'staggered') {
+          <span class="pos">{{ i + 1 }}</span>
+        }
+        <div class="grow">
+          <strong>{{ t.name }}</strong>
+          @if (!t.solo) {
+            <div class="small muted">{{ t.members.length }} · {{ t.members.map(m => m.nickname).join(', ') }}</div>
+          }
+        </div>
+        <div class="when small">
+          @if (t.started) {
+            <mat-icon inline>flag</mat-icon> {{ t.started | date: 'HH:mm' }}
+          } @else if (h.status === 'published') {
+            <span class="muted">prévu</span> {{ plannedStart(i) | date: 'HH:mm' }}
+          }
+        </div>
+        @if (canOrder()) {
+          <mat-icon class="grip">drag_indicator</mat-icon>
+        }
+      </div>
+    } @empty {
+      <p class="parchment center muted">Aucune inscription pour l'instant. Partagez le code d'invitation !</p>
+    }
+  </div>
+}

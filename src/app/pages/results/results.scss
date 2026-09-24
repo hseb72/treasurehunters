@@ -1,0 +1,97 @@
+.head {
+  padding: 20px;
+  text-align: center;
+
+  h1 {
+    margin: 14px 0 6px;
+  }
+
+  .stamp {
+    mix-blend-mode: normal;
+  }
+}
+
+.lock {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--th-saddle);
+}
+
+.podium-card {
+  padding-top: 24px;
+}
+
+.table {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tr {
+  display: grid;
+  grid-template-columns: 40px 1fr 70px 90px 60px 150px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px dashed var(--th-edge);
+}
+
+.tr:last-child {
+  border-bottom: 0;
+}
+
+.th {
+  font-family: var(--th-font-title);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--th-saddle);
+  background: rgba(139, 90, 43, 0.1);
+}
+
+.rank {
+  font-family: var(--th-font-display);
+  font-size: 1.3rem;
+  color: var(--th-saddle);
+}
+
+.members {
+  display: block;
+}
+
+.num {
+  text-align: right;
+  font-size: 0.9rem;
+  font-family: var(--th-font-note);
+}
+
+.penalty {
+  display: block;
+  color: var(--th-brick);
+}
+
+.mine {
+  background: rgba(158, 43, 31, 0.08);
+  box-shadow: inset 4px 0 0 var(--th-brick);
+}
+
+.dnf {
+  opacity: 0.75;
+}
+
+.rule {
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .tr {
+    grid-template-columns: 28px 1fr 34px 118px;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .hide-sm {
+    display: none;
+  }
+}

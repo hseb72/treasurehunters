@@ -1,0 +1,69 @@
+# Service du front Treasure Hunters et relais de l'API.
+#
+# Les ${VARIABLES} en majuscules sont substituées au démarrage par l'image nginx
+# (envsubst) ; les variables nginx en minuscules ne sont pas touchées.
+#
+# Pourquoi un relais /api : le front appelle l'API en chemin relatif, sous la
+# même origine — ni CORS, ni hôte d'API à connaître au moment du build, et les
+# URL des QR codes restent celles du front. Le relais vise Kong, jamais l'API
+# directement : toute requête d'API traverse la passerelle du socle.
+
+# Fichiers à empreinte (immuables) : cache long. (Regex entre guillemets : ses accolades
+# seraient sinon lues comme un bloc nginx.) Le reste — index.html, le
+# manifeste et les fichiers du service worker — jamais, sinon une mise à jour
+# ne se voit pas.
+map $uri $th_cache_control {
+    default                                                      "no-store";
+    "~*-[A-Za-z0-9]{8,}\.(?:js|css)$"                            "public, max-age=31536000, immutable";
+    ~*\.(?:woff2?|ttf|png|jpe?g|gif|svg|ico|webp)$               "public, max-age=86400";
+}
+
+server {
+    listen       8080;
+    server_name  _;
+    root   /usr/share/nginx/html;
+    index  index.html;
+    server_tokens off;
+    autoindex off;
+
+    # Tous les en-têtes au niveau server : un add_header dans un location
+    # effacerait ceux hérités.
+    add_header X-Content-Type-Options    "nosniff"                          always;
+    add_header X-Frame-Options           "DENY"                             always;
+    add_header Referrer-Policy           "strict-origin-when-cross-origin"  always;
+    # camera=(self) : le scanner de QR code intégré en a besoin.
+    add_header Permissions-Policy        "camera=(self), microphone=(), geolocation=()" always;
+    add_header Cache-Control             $th_cache_control                  always;
+    add_header Content-Security-Policy   "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; media-src 'self' blob:" always;
+
+    # Sonde de vie du chart (web.healthPath).
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Relais d'API vers Kong. Résolution à la requête (resolver + variable) :
+    # nginx démarre même si l'amont n'existe pas encore, et suit ses changements d'adresse.
+    location /api/ {
+        resolver ${DNS_RESOLVER} valid=30s ipv6=off;
+        set $th_upstream "${API_UPSTREAM}";
+        proxy_pass $th_upstream$request_uri;
+
+        # Kong route par l'en-tête Host : c'est lui qui désigne l'API Treasure Hunters.
+        proxy_set_header Host              ${API_HOST};
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout    60s;
+        proxy_send_timeout    60s;
+        client_max_body_size  1m;
+    }
+
+    # SPA : toute route inconnue rend l'application (ex. /q/<jeton> d'un QR code).
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

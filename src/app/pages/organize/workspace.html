@@ -1,0 +1,59 @@
+@if (state.hunt.error()) {
+  <div class="page">
+    <div class="parchment center">
+      <p>Expédition introuvable ou réservée à son organisateur.</p>
+      <a mat-stroked-button routerLink="/organize">Mes expéditions</a>
+    </div>
+  </div>
+}
+
+@if (state.hunt.value(); as h) {
+  <div class="page page--wide">
+    <header class="leather head no-print">
+      <div class="title-row">
+        <a mat-icon-button routerLink="/organize" aria-label="Mes expéditions"><mat-icon>arrow_back</mat-icon></a>
+        <div class="title">
+          <h1>{{ h.name }}</h1>
+          <th-status-badge [status]="h.status" />
+        </div>
+        @if (nextAction(); as action) {
+          <button mat-flat-button class="th-cta main-action" type="button" (click)="run(action)">
+            <mat-icon>{{ actions[action].icon }}</mat-icon>{{ actions[action].confirm }}
+          </button>
+        }
+        <button mat-icon-button class="more" type="button" [matMenuTriggerFor]="more" aria-label="Autres actions"><mat-icon>more_vert</mat-icon></button>
+        <mat-menu #more="matMenu">
+          <a mat-menu-item [routerLink]="['/hunts', h.id]"><mat-icon>visibility</mat-icon>Voir comme un joueur</a>
+          @if (h.status === 'running' || h.status === 'closed') {
+            <a mat-menu-item [routerLink]="['/hunts', h.id, 'results']"><mat-icon>leaderboard</mat-icon>Classement</a>
+          }
+          @if (h.status === 'published') {
+            <button mat-menu-item type="button" (click)="run('unpublish')"><mat-icon>undo</mat-icon>Repasser en brouillon</button>
+          }
+          @if (h.status === 'draft' || h.status === 'published' || h.status === 'running') {
+            <button mat-menu-item type="button" (click)="run('cancel')"><mat-icon>block</mat-icon>Annuler l'expédition</button>
+          }
+        </mat-menu>
+      </div>
+
+      <ol class="lifecycle" aria-label="Cycle de vie">
+        @for (l of lifecycle; track l.status; let i = $index) {
+          <li [class.done]="i < stage()" [class.current]="i === stage()">{{ l.label }}</li>
+        }
+      </ol>
+    </header>
+
+    <nav mat-tab-nav-bar [tabPanel]="panel" class="tabs no-print" mat-stretch-tabs="false">
+      @for (t of tabs; track t.path) {
+        <a mat-tab-link [routerLink]="t.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" [attr.aria-label]="t.label">
+          <mat-icon>{{ t.icon }}</mat-icon><span class="tab-label">{{ t.label }}</span>
+        </a>
+      }
+    </nav>
+    <mat-tab-nav-panel #panel>
+      <div class="panel">
+        <router-outlet />
+      </div>
+    </mat-tab-nav-panel>
+  </div>
+}

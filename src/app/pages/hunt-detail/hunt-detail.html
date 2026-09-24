@@ -1,0 +1,168 @@
+<div class="page stack">
+  @if (hunt.error()) {
+    <div class="parchment center">
+      <h2>Expédition introuvable</h2>
+      <p class="muted">Cette chasse n'existe pas ou n'est pas encore publiée.</p>
+      <a mat-stroked-button routerLink="/">Retour au carnet de bord</a>
+    </div>
+  }
+
+  @if (hunt.value(); as h) {
+    <header class="poster leather">
+      <th-status-badge [status]="h.status" />
+      <h1 class="display">{{ h.name }}</h1>
+      <div class="facts">
+        <span><mat-icon>location_on</mat-icon>{{ h.location }}</span>
+        <span><mat-icon>event</mat-icon>{{ h.begin | date: 'EEEE d MMMM, HH:mm' }} – {{ h.end | date: 'HH:mm' }}</span>
+        <span><mat-icon>person_pin</mat-icon>Organisée par {{ h.ownerNickname }}</span>
+      </div>
+    </header>
+
+    <!-- Bloc d'action : dépend du statut et de la situation du joueur -->
+    <section class="parchment action">
+      @if (isOwner()) {
+        <p><mat-icon>map</mat-icon> Vous organisez cette expédition.</p>
+        <a mat-flat-button class="th-cta" [routerLink]="['/organize', h.id]">Espace organisateur</a>
+      } @else if (!session.loggedIn()) {
+        <p>Connectez-vous pour rejoindre l'expédition.</p>
+        <button mat-flat-button class="th-cta" type="button" (click)="login()">Connexion / inscription</button>
+      } @else if (myTeam.value(); as team) {
+        <div class="team-card">
+          <div class="row">
+            <mat-icon>{{ team.solo ? 'person' : 'groups' }}</mat-icon>
+            <h2>{{ team.solo ? 'Vous êtes inscrit' : team.name }}</h2>
+          </div>
+          @if (!team.solo) {
+            <ul class="members">
+              @for (m of team.members; track m.hunterId) {
+                <li>
+                  {{ m.nickname }}
+                  @if (m.hunterId === team.ownerId) {
+                    <span class="badge badge--gold">capitaine</span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        @switch (h.status) {
+          @case ('published') {
+            @if (!team.solo && team.members.length < h.teamMax) {
+              <div class="invite">
+                <span class="small muted">Code de l'équipe</span>
+                <span class="join-code">{{ team.joinCode }}</span>
+                <button mat-stroked-button type="button" (click)="share()"><mat-icon>share</mat-icon>Inviter des équipiers</button>
+              </div>
+            }
+            <p class="countdown"><mat-icon>hourglass_top</mat-icon>Départ dans <strong>{{ countdown(h.begin) }}</strong></p>
+            <button mat-button type="button" class="leave" (click)="leave()" [disabled]="busy()">Quitter l'expédition</button>
+          }
+          @case ('running') {
+            <a mat-flat-button class="th-cta" [routerLink]="['/play', h.id]"><mat-icon>explore</mat-icon>Ouvrir mon carnet de route</a>
+          }
+          @default {
+            <a mat-flat-button class="th-cta" [routerLink]="['/hunts', h.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
+          }
+        }
+      } @else if (h.status === 'published') {
+        @if (h.teamGame) {
+          <div class="join-options">
+            <form class="stack" (ngSubmit)="createTeam()">
+              <h3><mat-icon>flag</mat-icon> Fonder une équipe</h3>
+              <mat-form-field subscriptSizing="dynamic">
+                <mat-label>Nom de l'équipe</mat-label>
+                <input matInput name="teamName" [ngModel]="teamName()" (ngModelChange)="teamName.set($event)" />
+              </mat-form-field>
+              <button mat-flat-button type="submit" [disabled]="busy() || !teamName().trim()">Créer l'équipe</button>
+            </form>
+            <div class="or"><span>ou</span></div>
+            <form class="stack" (ngSubmit)="joinTeam()">
+              <h3><mat-icon>group_add</mat-icon> Rejoindre des équipiers</h3>
+              <mat-form-field subscriptSizing="dynamic">
+                <mat-label>Code de l'équipe</mat-label>
+                <input matInput name="teamCode" [ngModel]="teamCode()" (ngModelChange)="teamCode.set($event)" autocomplete="off" />
+              </mat-form-field>
+              <button mat-stroked-button type="submit" [disabled]="busy() || !teamCode().trim()">Rejoindre</button>
+            </form>
+          </div>
+        } @else {
+          <p>Expédition en solo : chacun pour soi !</p>
+          <button mat-flat-button class="th-cta" type="button" (click)="joinSolo()" [disabled]="busy()">Je m'inscris</button>
+        }
+      } @else if (h.status === 'running') {
+        <p class="muted">L'expédition a déjà commencé : les inscriptions sont closes.</p>
+      } @else {
+        <a mat-flat-button class="th-cta" [routerLink]="['/hunts', h.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
+      }
+    </section>
+
+    <section class="parchment">
+      <h2 class="section-title">L'expédition</h2>
+      <p class="description">{{ h.description }}</p>
+      @if (h.startText) {
+        <p class="note">{{ h.startText }}</p>
+      }
+      @if (h.award) {
+        <div class="treasure">
+          <mat-icon>diamond</mat-icon>
+          <div>
+            <div class="small muted">Le trésor</div>
+            <strong>{{ h.award }}</strong>
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="parchment">
+      <h2 class="section-title">Règles du jeu</h2>
+      <ul class="rules">
+        <li><mat-icon>route</mat-icon><span><strong>{{ h.stepCount }} étapes</strong> à trouver dans l'ordre, chacune révèle l'énigme de la suivante.</span></li>
+        <li>
+          <mat-icon>{{ h.startMode === 'mass' ? 'sprint' : 'timer' }}</mat-icon>
+          @if (h.startMode === 'staggered') {
+            <span><strong>{{ modes[h.startMode] }}</strong> : une équipe toutes les {{ h.interval }} min. Le classement se fait au temps de parcours.</span>
+          } @else {
+            <span><strong>{{ modes[h.startMode] }}</strong> : tout le monde part ensemble, le premier arrivé l'emporte.</span>
+          }
+        </li>
+        <li>
+          <mat-icon>key</mat-icon>
+          @if (penalties(); as p) {
+            <span>Des <strong>jokers</strong> pour vous débloquer, mais ils coûtent du temps : <strong>{{ p }}</strong>.</span>
+          } @else {
+            <span>Des <strong>jokers</strong> pour vous débloquer, sans pénalité.</span>
+          }
+        </li>
+        <li>
+          <mat-icon>{{ h.teamGame ? 'groups' : 'person' }}</mat-icon>
+          <span>
+            @if (h.teamGame) {
+              Équipes de <strong>{{ h.teamMin }} à {{ h.teamMax }}</strong> aventuriers ; un seul scan fait avancer toute l'équipe.
+            } @else {
+              Expédition <strong>en solo</strong>.
+            }
+          </span>
+        </li>
+        @if (h.contribution > 0) {
+          <li><mat-icon>payments</mat-icon><span>Participation : <strong>{{ h.contribution | currency: 'EUR' }}</strong> par personne, à régler sur place.</span></li>
+        }
+      </ul>
+    </section>
+
+    @if (teams.value().length) {
+      <section class="parchment">
+        <h2 class="section-title">{{ h.teamGame ? 'Équipes engagées' : 'Aventuriers inscrits' }}</h2>
+        <div class="teams">
+          @for (t of teams.value(); track t.id) {
+            <span class="team-chip" [class.team-chip--mine]="t.id === myTeam.value()?.id">
+              {{ t.name }}
+              @if (!t.solo) {
+                <span class="muted small">· {{ t.members.length }}</span>
+              }
+            </span>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

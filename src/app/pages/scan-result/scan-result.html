@@ -1,0 +1,154 @@
+<div class="page">
+  @if (result.isLoading() && !result.value()) {
+    <div class="center loading">
+      <mat-spinner diameter="48" />
+      <p class="note">Déchiffrage du parchemin…</p>
+    </div>
+  }
+
+  @if (result.value(); as r) {
+    <div class="stack reveal">
+      @switch (r.outcome) {
+        @case ('validated') {
+          <section class="parchment center hero-card">
+            @if (r.step?.isFinal) {
+              <mat-icon class="hero-icon gold">diamond</mat-icon>
+              <span class="stamp stamp--gold drop">Trésor trouvé !</span>
+            } @else {
+              <mat-icon class="hero-icon">where_to_vote</mat-icon>
+              <span class="stamp stamp--jungle drop">Étape {{ r.step?.order }} validée</span>
+            }
+            <h1>{{ r.step?.title }}</h1>
+            @if (r.step?.arrival) {
+              <p class="arrival">{{ r.step?.arrival }}</p>
+            }
+          </section>
+          @if (r.next; as next) {
+            <section class="parchment taped clue">
+              <span class="stamp">{{ next.targetOrder === r.hunt?.stepCount ? 'Vers le trésor' : 'Énigme n° ' + next.targetOrder }}</span>
+              <p class="note clue-text">{{ next.instructions }}</p>
+            </section>
+          }
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>menu_book</mat-icon>Ouvrir mon carnet de route</a>
+        }
+
+        @case ('already_validated') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon">replay</mat-icon>
+            <h1>Déjà dans votre carnet</h1>
+            <p>Votre équipe a déjà validé l'étape {{ r.step?.order }} — {{ r.step?.title }}.</p>
+          </section>
+          @if (r.next; as next) {
+            <section class="parchment taped clue">
+              <span class="stamp">Énigme en cours</span>
+              <p class="note clue-text">{{ next.instructions }}</p>
+            </section>
+          }
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>menu_book</mat-icon>Carnet de route</a>
+        }
+
+        @case ('skipped') {
+          <section class="parchment center warn">
+            <mat-icon class="hero-icon brick">wrong_location</mat-icon>
+            <h1>Fausse piste !</h1>
+            <p>Ce n'est pas l'étape que vous cherchez : il vous en manque au moins une avant celle-ci.</p>
+            <p class="muted small">Pas de raccourci pour les aventuriers : retournez à votre énigme en cours.</p>
+          </section>
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>menu_book</mat-icon>Revoir mon énigme</a>
+        }
+
+        @case ('team_finished') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon gold">diamond</mat-icon>
+            <h1>Vous avez déjà trouvé le trésor</h1>
+            <p>Profitez-en pour admirer le paysage !</p>
+          </section>
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]">Mon carnet de route</a>
+        }
+
+        @case ('team_not_started') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon">front_hand</mat-icon>
+            <h1>Pas si vite !</h1>
+            <p>Votre équipe n'est pas encore partie. Départ à {{ r.team?.started | date: 'HH:mm' }}.</p>
+            <p class="big-number">{{ countdown(r.team?.started) }}</p>
+          </section>
+        }
+
+        @case ('not_started') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon">hourglass_top</mat-icon>
+            <span class="stamp">Pas encore commencée</span>
+            <h1>{{ r.hunt?.name }}</h1>
+            <p>L'expédition débutera le {{ r.hunt?.begin | date: 'EEEE d MMMM à HH:mm' }}.</p>
+            <p class="big-number">{{ countdown(r.hunt?.begin) }}</p>
+          </section>
+          <a mat-stroked-button [routerLink]="['/hunts', r.hunt?.id]">Découvrir l'expédition</a>
+        }
+
+        @case ('closed') {
+          <section class="parchment center">
+            <span class="stamp">Expédition terminée</span>
+            <h1>{{ r.hunt?.name }}</h1>
+            <p class="muted">Close le {{ r.hunt?.closed | date: 'd MMMM y à HH:mm' }}. Voici les vainqueurs :</p>
+            <th-podium [rows]="r.podium ?? []" [highlight]="r.team?.id ?? null" />
+          </section>
+          <a mat-stroked-button [routerLink]="['/hunts', r.hunt?.id, 'results']"><mat-icon>leaderboard</mat-icon>Classement complet</a>
+        }
+
+        @case ('login_required') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon">travel_explore</mat-icon>
+            <h1>Vous avez trouvé un indice !</h1>
+            <p>Il appartient à l'expédition <strong>{{ r.hunt?.name }}</strong>. Identifiez-vous pour le valider.</p>
+          </section>
+          <a mat-flat-button class="th-cta" routerLink="/login" [queryParams]="loginLink">Connexion / inscription</a>
+        }
+
+        @case ('not_registered') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon">explore_off</mat-icon>
+            <h1>{{ r.hunt?.name }}</h1>
+            <p>Vous ne participez pas à cette expédition. Merci de laisser cet indice en place pour les autres aventuriers !</p>
+          </section>
+          <a mat-stroked-button [routerLink]="['/hunts', r.hunt?.id]">Découvrir l'expédition</a>
+        }
+
+        @case ('organizer') {
+          <section class="parchment">
+            <div class="row"><span class="stamp stamp--jungle">QR opérationnel</span></div>
+            <h1>Étape {{ r.step?.order }} — {{ r.step?.title }}</h1>
+            <p class="muted small">Mode organisateur : ce scan n'est pas enregistré. Voici ce que verront les joueurs.</p>
+            @if (r.step?.arrival) {
+              <p class="arrival">{{ r.step?.arrival }}</p>
+            }
+            @if (r.next; as next) {
+              <p class="note">{{ next.instructions }}</p>
+              @for (h of next.hintsRevealed; track $index) {
+                <p class="small"><mat-icon inline>key</mat-icon> Joker {{ $index + 1 }} : {{ h }}</p>
+              }
+            }
+          </section>
+          <a mat-stroked-button [routerLink]="['/organize', r.hunt?.id, 'live']">Pilotage en direct</a>
+        }
+
+        @case ('cancelled') {
+          <section class="parchment center">
+            <mat-icon class="hero-icon brick">block</mat-icon>
+            <h1>Expédition annulée</h1>
+            <p>{{ r.hunt?.name }} n'aura pas lieu.</p>
+          </section>
+        }
+
+        @default {
+          <section class="parchment center">
+            <mat-icon class="hero-icon brick">help</mat-icon>
+            <h1>Parchemin illisible</h1>
+            <p>Ce QR code ne correspond à aucune expédition.</p>
+          </section>
+          <a mat-stroked-button routerLink="/">Retour au carnet de bord</a>
+        }
+      }
+    </div>
+  }
+</div>

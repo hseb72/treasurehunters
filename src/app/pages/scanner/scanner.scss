@@ -1,0 +1,67 @@
+h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.viewfinder {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  overflow: hidden;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+  }
+}
+
+.viewfinder--on video {
+  opacity: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  color: #f6e7c4;
+}
+
+.corners {
+  position: absolute;
+  inset: 18%;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top left / 28px 3px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top left / 3px 28px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top right / 28px 3px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top right / 3px 28px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom left / 28px 3px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom left / 3px 28px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom right / 28px 3px,
+    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom right / 3px 28px;
+  background-repeat: no-repeat;
+}
+
+.cam-btn {
+  --mat-button-filled-container-color: var(--th-gold);
+  --mat-button-filled-label-text-color: var(--th-leather);
+}
+
+.light {
+  --mat-button-outlined-label-text-color: var(--th-gold-light);
+}
+
+.manual {
+  flex-wrap: nowrap;
+}

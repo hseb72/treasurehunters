@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+.git
+.angular
+docs
+server/test
+**/*.spec.ts
+jenkinsfile
+trigger

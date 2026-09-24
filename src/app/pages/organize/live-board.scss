@@ -1,0 +1,134 @@
+.idle {
+  padding: 40px 20px;
+
+  > .mat-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 56px;
+    color: var(--th-saddle);
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+
+    .leather {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  text-align: center;
+
+  .mat-icon {
+    color: var(--th-gold-light);
+  }
+}
+
+.value {
+  font-family: var(--th-font-note);
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.leather .value {
+  color: #fff3d6;
+}
+
+.gold {
+  color: #9a6d12;
+}
+
+.label {
+  font-family: var(--th-font-title);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.grow {
+  flex: 1;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lane {
+  padding: 10px 14px;
+}
+
+.lane--finished {
+  border-color: var(--th-gold);
+}
+
+.lane--waiting {
+  opacity: 0.8;
+}
+
+.lane-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--th-font-title);
+}
+
+.pos {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
+}
+
+.track {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 6px;
+}
+
+.seg {
+  flex: 1;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(139, 90, 43, 0.15);
+  border: 1px dashed var(--th-edge);
+}
+
+.seg--done {
+  border: 0;
+  background: linear-gradient(180deg, var(--th-gold-light), var(--th-gold));
+}
+
+.seg--next {
+  border: 1px solid var(--th-brick);
+  background: repeating-linear-gradient(45deg, rgba(158, 43, 31, 0.25) 0 4px, transparent 4px 8px);
+}
+
+.lane-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-family: var(--th-font-note);
+}

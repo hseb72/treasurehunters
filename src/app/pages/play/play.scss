@@ -1,0 +1,155 @@
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+}
+
+.board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chrono {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--th-font-note);
+  font-size: 1.5rem;
+  color: var(--th-leather);
+  background: linear-gradient(180deg, var(--th-gold-light), var(--th-gold));
+  font-variant-numeric: tabular-nums;
+}
+
+.chrono--stopped {
+  background: #d9c49b;
+}
+
+.board-foot {
+  font-family: var(--th-font-note);
+}
+
+.position {
+  color: var(--th-gold-light);
+}
+
+// La piste doit rester lisible sur le cuir.
+.board ::ng-deep .marker--todo {
+  background: rgba(249, 240, 218, 0.9);
+}
+
+.big-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--th-saddle);
+}
+
+.clue {
+  margin-top: 10px;
+  padding: 28px 20px 20px;
+  transform: rotate(-0.4deg);
+}
+
+.clue-head {
+  margin-bottom: 12px;
+}
+
+.clue-text {
+  font-size: 1.2rem;
+}
+
+.hints {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--th-edge);
+}
+
+.hint {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--th-radius);
+  background: rgba(200, 150, 46, 0.14);
+
+  .mat-icon {
+    color: var(--th-gold);
+    flex: none;
+  }
+}
+
+.hint-label {
+  font-family: var(--th-font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--th-saddle);
+}
+
+.seal {
+  align-self: flex-start;
+  --mat-button-outlined-label-text-color: var(--th-brick);
+  --mat-button-outlined-outline-color: var(--th-brick);
+}
+
+.seal--confirm {
+  --mat-button-outlined-container-color: rgba(158, 43, 31, 0.1);
+}
+
+.finish {
+  padding: 32px 20px;
+}
+
+.big-stamp {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 10px 14px;
+  }
+}
+
+.log-order {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-family: var(--th-font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
+}
+
+.log-text {
+  margin: 6px 0 0 34px;
+  font-style: italic;
+}
+
+.scan-fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  --mat-fab-container-color: var(--th-brick);
+  --mat-fab-foreground-color: #fff3d6;
+}

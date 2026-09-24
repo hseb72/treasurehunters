@@ -1,0 +1,38 @@
+.head {
+  padding: 20px;
+
+  h1 {
+    margin: 0 0 8px;
+  }
+}
+
+.reset {
+  --mat-button-outlined-label-text-color: var(--th-gold-light);
+  --mat-button-outlined-outline-color: rgba(236, 201, 112, 0.6);
+}
+
+.section-title .mat-icon {
+  flex: none;
+}
+
+.scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  strong {
+    font-family: var(--th-font-title);
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) rotate(-0.3deg);
+  }
+}

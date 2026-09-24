@@ -1,86 +1,393 @@
-/* You can add global styles to this file, and also import other style files */
+// Thème « carnet d'explorateur » : parchemin, cuir, kaki, or patiné et rouge brique.
+@use '@angular/material' as mat;
+@use './styles/theme-colors' as palettes;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+:root {
+  // Couleurs de l'univers (utilisées en plus des variables Material --mat-sys-*).
+  --th-parchment: #f1e2bf;
+  --th-parchment-light: #f9f0da;
+  --th-parchment-dark: #dcc493;
+  --th-edge: #b8965d;
+  --th-leather: #3d2413;
+  --th-leather-light: #6a4124;
+  --th-saddle: #8b5a2b;
+  --th-gold: #c8962e;
+  --th-gold-light: #ecc970;
+  --th-khaki: #6b6b3a;
+  --th-jungle: #3f5a36;
+  --th-brick: #9e2b1f;
+  --th-ink: #2b1d12;
+  --th-ink-soft: #6b5640;
 
-#main-container {
-    position: relative;
-    float: inherit;
-    top: 64px;
-    width: 95vw;
-    margin: 5px;
-    padding: 5px;
-    height: 120vh;
+  --th-font-display: 'Rye', 'Cinzel', serif;
+  --th-font-title: 'Cinzel', Georgia, serif;
+  --th-font-body: 'Lora', Georgia, serif;
+  --th-font-note: 'Special Elite', 'Courier New', monospace;
+
+  --th-radius: 6px;
+  --th-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 2px 6px rgba(61, 36, 19, 0.25);
+  // Grain de papier (bruit fractal SVG).
+  --th-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .22 0 0 0 0 .08 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-table {
-    width: 100%;
+html {
+  height: 100%;
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: palettes.$primary-palette,
+        tertiary: palettes.$tertiary-palette,
+        theme-type: light,
+      ),
+      typography: (
+        plain-family: 'Lora',
+        brand-family: 'Cinzel',
+      ),
+      density: 0,
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      surface: #f4e7c8,
+      surface-container-lowest: #fbf4e2,
+      surface-container-low: #f7ecd2,
+      surface-container: #f1e2bf,
+      surface-container-high: #ead8b0,
+      surface-container-highest: #e3cea2,
+      on-surface: #2b1d12,
+      on-surface-variant: #5b4632,
+      outline: #9c7f55,
+      outline-variant: #cdb48a,
+    )
+  );
 }
 
-header {
-    position: fixed;
-    top: 0px;
-    width: 100%;
-    z-index: 1000;
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--th-ink);
+  font: var(--mat-sys-body-large);
+  font-family: var(--th-font-body);
+  background-color: var(--th-parchment);
+  background-image:
+    var(--th-grain),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 248, 225, 0.9), transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(139, 90, 43, 0.25), transparent 55%),
+    radial-gradient(ellipse at 0% 80%, rgba(107, 107, 58, 0.18), transparent 50%);
 }
 
-.sidenav-container {
-    flex: 1;
-    .sidenav {
-        min-width: 240px;
-        a {
-            display: block;
-            padding: 6px 24px;
-            width: 100%;
-            text-align: left;
-        }
-    }
+a {
+  color: var(--th-saddle);
 }
 
-.expanded {
-    height: calc(100vh - 108px);
+h1,
+h2,
+h3 {
+  font-family: var(--th-font-title);
+  color: var(--th-leather);
+  margin: 0 0 0.5em;
+  line-height: 1.2;
 }
 
-.shrinked {
-    height: 0px;
+h1 {
+  font-size: clamp(1.6rem, 5vw, 2.3rem);
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+p {
+  margin: 0 0 0.8em;
+}
+
+/* ---------- Mise en page ---------- */
+
+.page {
+  box-sizing: border-box;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 16px 16px 96px;
+}
+
+.page--wide {
+  max-width: 1120px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .spacer {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
-.vertical-spacer {
-    height: 80px; 
-    display:block;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
-footer {
-    width: 100vw;
-    position: fixed;
-    bottom: 0px;
-
-    .mat-toolbar {
-        display: flex;
-        justify-content: space-around;
-    }
+.muted {
+  color: var(--th-ink-soft);
 }
 
-header {
-    width: 100vw;
-    position: fixed;
-    top: 0px;
-
-    .mat-toolbar {
-        display: flex;
-        justify-content: space-around;
-    }
+.small {
+  font-size: 0.875rem;
 }
 
-.free-icon {
-    padding-left: 4px;
-    padding-right: 4px;
+.center {
+  text-align: center;
 }
 
-.menu-button {
-    font-size: 4em;
+/* ---------- Typographie de l'aventure ---------- */
+
+.display {
+  font-family: var(--th-font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--th-leather);
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.7);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--th-font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--th-saddle);
+  margin: 24px 0 12px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--th-edge), transparent);
+  }
+}
+
+.note {
+  font-family: var(--th-font-note);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--th-ink);
+  white-space: pre-line;
+}
+
+.parchment > .section-title:first-child {
+  margin-top: 4px;
+}
+
+/* ---------- Surfaces ---------- */
+
+.parchment {
+  position: relative;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--th-edge);
+  border-radius: var(--th-radius);
+  background: var(--th-grain), linear-gradient(160deg, var(--th-parchment-light), #efdfb8 70%, #e6d09f);
+  box-shadow: var(--th-shadow), inset 0 0 40px rgba(139, 90, 43, 0.15);
+}
+
+a.parchment {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) rotate(-0.3deg);
+    box-shadow: var(--th-shadow), 0 8px 18px rgba(61, 36, 19, 0.3);
+  }
+}
+
+// Bandeau de cuir cousu (en-têtes d'écran).
+.leather {
+  color: #f6e7c4;
+  background: var(--th-grain), linear-gradient(170deg, var(--th-leather-light), var(--th-leather));
+  border-radius: var(--th-radius);
+  outline: 1px dashed rgba(236, 201, 112, 0.55);
+  outline-offset: -6px;
+  box-shadow: 0 3px 10px rgba(30, 15, 5, 0.35);
+
+  h1,
+  h2,
+  h3,
+  .display {
+    color: var(--th-gold-light);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  .muted {
+    color: #d9c49b;
+  }
+}
+
+// Morceau de ruban adhésif posé sur une note.
+.taped::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 90px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(236, 222, 180, 0.75);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+// Tampon encré (« VALIDÉ », « CLOSE »…).
+.stamp {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 3px double currentColor;
+  border-radius: 4px;
+  font-family: var(--th-font-title);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--th-brick);
+  transform: rotate(-6deg);
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+}
+
+.stamp--jungle {
+  color: var(--th-jungle);
+}
+
+.stamp--gold {
+  color: #9a6d12;
+}
+
+// Pastille d'état.
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-family: var(--th-font-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff8e6;
+  background: var(--th-khaki);
+  white-space: nowrap;
+
+  .mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.badge--draft {
+  background: #8a7a62;
+}
+
+.badge--published {
+  background: var(--th-saddle);
+}
+
+.badge--running {
+  background: var(--th-jungle);
+}
+
+.badge--closed,
+.badge--archived {
+  background: var(--th-leather);
+}
+
+.badge--cancelled {
+  background: var(--th-brick);
+}
+
+.badge--gold {
+  color: var(--th-leather);
+  background: linear-gradient(180deg, var(--th-gold-light), var(--th-gold));
+}
+
+// Gros chiffres (compte à rebours, chrono).
+.big-number {
+  font-family: var(--th-font-note);
+  font-size: clamp(2rem, 9vw, 3rem);
+  line-height: 1;
+  color: var(--th-leather);
+  font-variant-numeric: tabular-nums;
+}
+
+.field-full {
+  width: 100%;
+}
+
+.error-text {
+  color: var(--th-brick);
+}
+
+/* ---------- Ajustements Material ---------- */
+
+.mat-mdc-form-field {
+  margin-bottom: 6px;
+}
+
+.mat-mdc-button-base.th-cta {
+  height: 52px;
+  padding: 0 28px;
+  font-family: var(--th-font-title);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-container-color: var(--th-leather);
+  --mat-snack-bar-supporting-text-color: #f6e7c4;
+  --mat-snack-bar-button-color: var(--th-gold-light);
+}
+
+.mat-mdc-tab-nav-bar,
+.mat-mdc-tab-header {
+  --mat-tab-active-indicator-color: var(--th-gold);
+  --mat-tab-inactive-label-text-color: var(--th-ink-soft);
+}
+
+/* ---------- Impression (planche de QR codes) ---------- */
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .page {
+    max-width: none;
+    padding: 0;
+  }
 }
