@@ -52,6 +52,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     award: null,
     interval: null,
     hintPenalties: [0, 0, 0] as number[],
+    skipPenalty: 30,
     teamGame: true,
     teamMin: 1,
     teamMax: 4,

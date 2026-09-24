@@ -35,6 +35,8 @@ export interface Hunt {
   interval: number | null;
   /** Minutes de pénalité par niveau de joker : [joker 1, joker 2, joker 3]. */
   hintPenalties: number[];
+  /** Minutes de pénalité pour l'abandon d'une épreuve (« 4ᵉ joker »). */
+  skipPenalty: number;
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -87,7 +89,8 @@ export interface Validation {
   teamId: number;
   stepId: number;
   hunterId: number;
-  source: 'QR' | 'MANUAL';
+  /** QR scanné, validation manuelle de l'organisateur, ou épreuve abandonnée par l'équipe. */
+  source: 'QR' | 'MANUAL' | 'SKIP';
   at: string;
 }
 
@@ -111,6 +114,8 @@ export interface RankingRow {
   finished: string | null;
   steps: number;
   hints: number;
+  /** Épreuves abandonnées. */
+  skips: number;
   /** Temps de course en secondes, pénalités incluses ; null si non arrivée. */
   time: number | null;
   penalty: number;
@@ -122,6 +127,8 @@ export interface PlayStep {
   title: string;
   arrival: string | null;
   at: string;
+  /** Épreuve abandonnée plutôt que trouvée. */
+  skipped: boolean;
 }
 
 export interface PlayClue {
@@ -131,6 +138,8 @@ export interface PlayClue {
   instructions: string;
   hintsRevealed: string[];
   hintsTotal: number;
+  /** L'équipe peut abandonner cette épreuve (jamais l'arrivée). */
+  canSkip: boolean;
 }
 
 export interface PlayState {
@@ -141,7 +150,8 @@ export interface PlayState {
   /** Énigme en cours ; null avant le départ ou après l'arrivée. */
   clue: PlayClue | null;
   hintsUsed: number;
-  /** Pénalités cumulées, en minutes. */
+  skipsUsed: number;
+  /** Pénalités cumulées (jokers et abandons), en minutes. */
   penalty: number;
   /** Position provisoire de l'équipe (les joueurs ne voient pas celle des autres). */
   position: { rank: number; total: number } | null;
@@ -184,5 +194,6 @@ export interface LiveRow {
   lastOrder: number;
   lastAt: string | null;
   hints: number;
+  skips: number;
   status: 'waiting' | 'running' | 'finished';
 }

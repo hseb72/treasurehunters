@@ -90,6 +90,9 @@ export class HttpHuntApi extends HuntApi {
   revealHint(huntId: number): Observable<PlayState> {
     return this.http.post<PlayState>(`${this.url}/hunts/${huntId}/hints`, {});
   }
+  skipStep(huntId: number): Observable<PlayState> {
+    return this.http.post<PlayState>(`${this.url}/hunts/${huntId}/skip`, {});
+  }
   scan(token: string): Observable<ScanResult> {
     return this.http.post<ScanResult>(`${this.url}/scan/${encodeURIComponent(token)}`, {});
   }

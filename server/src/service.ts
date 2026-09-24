@@ -20,8 +20,8 @@ import {
   computeRanking,
   evaluateScan,
   finalOrder,
-  hintPenaltyMinutes,
   lastValidatedOrder,
+  penaltyMinutes,
   randomToken,
   teamPosition,
   teamStartTimes,
@@ -487,6 +487,30 @@ export class Service {
     });
   }
 
+  /**
+   * Abandon de l'épreuve en cours (« 4ᵉ joker », § 5.2) : l'étape cherchée est validée
+   * sans QR (source SKIP), l'énigme suivante se dévoile, la pénalité d'abandon s'ajoute
+   * au temps. L'arrivée ne s'abandonne pas : il faut trouver le trésor pour être classé.
+   */
+  async skipStep(viewer: Viewer, huntId: number): Promise<PlayState> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const team = await teamOf(db, huntId, me);
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      await teamById(db, team.id, true); // sérialisé avec les scans de l'équipe
+      const state = await this.playState(db, me, huntId);
+      const clue = state.clue;
+      if (!clue) throw conflict('Aucune épreuve en cours.');
+      if (!clue.canSkip) throw conflict('L’arrivée ne peut pas être abandonnée : il faut trouver le trésor.');
+      const target = (await stepsOf(db, huntId)).find((s) => s.order === clue.targetOrder)!;
+      await db.query(
+        `INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source) VALUES ($1, $2, $3, 'SKIP')`,
+        [team.id, target.id, me],
+      );
+      return this.playState(db, me, huntId);
+    });
+  }
+
   /** Scan d'un QR code : algorithme du § 4.2, journalisé dans th_scanlog. */
   async scan(viewer: Viewer, token: string, ip?: string): Promise<ScanResult> {
     return tx(this.pool, async (db) => {
@@ -520,7 +544,14 @@ export class Service {
       if (outcome === 'organizer') {
         result.step = stepInfo;
         result.next = step!.instructions
-          ? { stepId: step!.id, targetOrder: step!.order + 1, instructions: step!.instructions, hintsRevealed: step!.hints, hintsTotal: step!.hints.length }
+          ? {
+              stepId: step!.id,
+              targetOrder: step!.order + 1,
+              instructions: step!.instructions,
+              hintsRevealed: step!.hints,
+              hintsTotal: step!.hints.length,
+              canSkip: step!.order + 1 < final,
+            }
           : null;
       }
       if (outcome === 'validated' || outcome === 'already_validated') {
@@ -551,7 +582,7 @@ export class Service {
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at };
+        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP' };
       })
       .sort((a, b) => a.order - b.order);
 
@@ -567,6 +598,7 @@ export class Service {
         instructions: current.instructions ?? '',
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]).filter((h) => h !== undefined),
         hintsTotal: current.hints.length,
+        canSkip: current.order + 1 < finalOrder(steps),
       };
     }
 
@@ -584,7 +616,8 @@ export class Service {
       validated,
       clue,
       hintsUsed: hints.length,
-      penalty: hintPenaltyMinutes(hunt, hints),
+      skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
+      penalty: penaltyMinutes(hunt, hints, vals),
       position,
     };
   }
@@ -643,6 +676,7 @@ export class Service {
         lastOrder: lastValidatedOrder(steps, vals),
         lastAt: vals.map((v) => v.at).sort().at(-1) ?? null,
         hints: hints.filter((u) => u.teamId === team.id).length,
+        skips: vals.filter((v) => v.source === 'SKIP').length,
         status,
       };
     });

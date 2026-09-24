@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
         <li class="marker marker--{{ m.state }}" [attr.aria-current]="m.state === 'current' ? 'step' : null">
           @if (m.final) {
             <mat-icon>close</mat-icon>
+          } @else if (m.state === 'skipped') {
+            <mat-icon>skip_next</mat-icon>
           } @else if (m.state === 'done') {
             <mat-icon>check</mat-icon>
           } @else {
@@ -31,13 +33,22 @@ export class Trail {
   readonly total = input.required<number>();
   /** Nombre d'étapes validées. */
   readonly done = input.required<number>();
+  /** Ordres des épreuves abandonnées (« 4ᵉ joker »). */
+  readonly skipped = input<number[]>([]);
   /** Affiche la borne suivante comme « en cours ». */
   readonly active = input(true);
 
   protected readonly markers = computed(() =>
     Array.from({ length: this.total() }, (_, i) => {
       const order = i + 1;
-      const state = order <= this.done() ? 'done' : order === this.done() + 1 && this.active() ? 'current' : 'todo';
+      const state =
+        order <= this.done()
+          ? this.skipped().includes(order)
+            ? 'skipped'
+            : 'done'
+          : order === this.done() + 1 && this.active()
+            ? 'current'
+            : 'todo';
       return { order, state, final: order === this.total() };
     }),
   );

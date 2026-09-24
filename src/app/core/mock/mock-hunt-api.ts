@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, HuntAction, HuntApi, HuntScope } from '../api';
 import { AuthResult, Hunt, Hunter, LiveRow, PlayClue, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
-import { computeRanking, evaluateScan, finalOrder, hintPenaltyMinutes, lastValidatedOrder, randomToken, teamPosition, teamStartTimes } from '@shared/rules';
+import { computeRanking, evaluateScan, finalOrder, lastValidatedOrder, penaltyMinutes, randomToken, teamPosition, teamStartTimes } from '@shared/rules';
 import { Session } from '../session';
 import { buildFixtures, MockDb } from '@shared/fixtures';
 
@@ -99,6 +99,7 @@ export class MockHuntApi extends HuntApi {
         startMode: 'mass',
         interval: null,
         hintPenalties: [0, 0, 0],
+        skipPenalty: 30,
         teamGame: true,
         teamMin: 1,
         teamMax: 4,
@@ -334,6 +335,19 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  skipStep(huntId: number): Observable<PlayState> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.playState(huntId);
+      const clue = state.clue;
+      if (!clue) throw new ApiError('Aucune épreuve en cours.');
+      if (!clue.canSkip) throw new ApiError('L’arrivée ne peut pas être abandonnée : il faut trouver le trésor.');
+      const target = this.stepsOf(huntId).find((s) => s.order === clue.targetOrder)!;
+      this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'SKIP', at: new Date().toISOString() });
+      return this.playState(huntId);
+    });
+  }
+
   scan(token: string): Observable<ScanResult> {
     return this.reply(() => {
       const step = this.db.steps.find((s) => s.token === token) ?? null;
@@ -357,7 +371,14 @@ export class MockHuntApi extends HuntApi {
       if (outcome === 'organizer') {
         result.step = stepInfo;
         result.next = step!.instructions
-          ? { stepId: step!.id, targetOrder: step!.order + 1, instructions: step!.instructions, hintsRevealed: step!.hints, hintsTotal: step!.hints.length }
+          ? {
+              stepId: step!.id,
+              targetOrder: step!.order + 1,
+              instructions: step!.instructions,
+              hintsRevealed: step!.hints,
+              hintsTotal: step!.hints.length,
+              canSkip: step!.order + 1 < final,
+            }
           : null;
       }
       if (outcome === 'validated' || outcome === 'already_validated') {
@@ -492,7 +513,7 @@ export class MockHuntApi extends HuntApi {
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at };
+        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP' };
       })
       .sort((a, b) => a.order - b.order);
     const hints = this.db.hintUses.filter((u) => u.teamId === team.id);
@@ -508,6 +529,7 @@ export class MockHuntApi extends HuntApi {
         instructions: current.instructions ?? '',
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]),
         hintsTotal: current.hints.length,
+        canSkip: current.order + 1 < finalOrder(steps),
       };
     }
     const position = hunt.status === 'running' && team.started ? teamPosition(this.ranking(huntId), team.id) : null;
@@ -518,7 +540,8 @@ export class MockHuntApi extends HuntApi {
       validated,
       clue,
       hintsUsed: hints.length,
-      penalty: hintPenaltyMinutes(hunt, hints),
+      skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
+      penalty: penaltyMinutes(hunt, hints, vals),
       position,
     };
   }
@@ -548,6 +571,7 @@ export class MockHuntApi extends HuntApi {
           lastOrder: lastValidatedOrder(steps, vals),
           lastAt: vals.map((v) => v.at).sort().at(-1) ?? null,
           hints: this.db.hintUses.filter((u) => u.teamId === team.id).length,
+          skips: vals.filter((v) => v.source === 'SKIP').length,
           status,
         };
       })

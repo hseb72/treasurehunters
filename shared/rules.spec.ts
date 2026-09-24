@@ -1,5 +1,5 @@
 import { Hunt, HintUse, Step, Team, Validation } from './models.js';
-import { computeRanking, evaluateScan, randomToken, ScanContext, teamPosition, teamStartTimes } from './rules.js';
+import { computeRanking, evaluateScan, penaltyMinutes, randomToken, ScanContext, teamPosition, teamStartTimes } from './rules.js';
 
 const T0 = Date.parse('2026-09-24T10:00:00Z');
 const at = (min: number) => new Date(T0 + min * 60_000).toISOString();
@@ -12,7 +12,7 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
   return {
     id: 1, ownerId: 99, ownerNickname: 'orga', name: 'H', description: '', location: '', begin: at(0), end: at(240),
     started: at(0), closed: null, autoStart: false, autoClose: false, award: null, startMode: 'mass', interval: null,
-    hintPenalties: [0, 0, 0], teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
+    hintPenalties: [0, 0, 0], skipPenalty: 30, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
     startText: null, status: 'running', stepCount: 3, teamCount: 0, ...extra,
   };
 }
@@ -73,21 +73,38 @@ describe('computeRanking', () => {
   it('classe par temps de parcours (arrivée − départ), pas par heure d’arrivée', () => {
     // A part à 0 et arrive à 60 (60 min) ; B part à 20 et arrive à 70 (50 min).
     const teams = [team(1, { started: at(0), finished: at(60) }), team(2, { started: at(20), finished: at(70) })];
-    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, [...vals(1, 3), ...vals(2, 3)], []);
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, [...vals(1, 3), ...vals(2, 3)], []);
     expect(rows.map((r) => [r.teamId, r.rank])).toEqual([[2, 1], [1, 2]]);
   });
 
   it('en départ groupé, revient au premier arrivé', () => {
     const teams = [team(1, { started: at(0), finished: at(80) }), team(2, { started: at(0), finished: at(70) })];
-    expect(computeRanking({ hintPenalties: [0, 0, 0] }, teams, [], [])[0].teamId).toBe(2);
+    expect(computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, [], [])[0].teamId).toBe(2);
   });
 
   it('ajoute la pénalité de chaque joker selon son niveau', () => {
     const teams = [team(1, { started: at(0), finished: at(60) }), team(2, { started: at(0), finished: at(65) })];
-    const rows = computeRanking({ hintPenalties: [2, 8, 15] }, teams, [], [hint(1, 1), hint(1, 2)]);
+    const rows = computeRanking({ hintPenalties: [2, 8, 15], skipPenalty: 30 }, teams, [], [hint(1, 1), hint(1, 2)]);
     expect(rows[0].teamId).toBe(2);
     expect(rows[1].time).toBe(70 * 60);
     expect(rows[1].penalty).toBe(600);
+  });
+
+  it('ajoute la pénalité de chaque épreuve abandonnée', () => {
+    // A : 60 min avec un abandon (+30) ; B : 80 min sans abandon.
+    const teams = [team(1, { started: at(0), finished: at(60) }), team(2, { started: at(0), finished: at(80) })];
+    const v: Validation[] = [
+      { teamId: 1, stepId: 11, hunterId: 1, source: 'SKIP', at: at(20) },
+      { teamId: 1, stepId: 12, hunterId: 1, source: 'QR', at: at(40) },
+    ];
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, v, []);
+    expect(rows.map((r) => r.teamId)).toEqual([2, 1]);
+    expect(rows[1]).toMatchObject({ skips: 1, penalty: 30 * 60, time: 90 * 60 });
+  });
+
+  it('cumule jokers et abandons', () => {
+    const hunt = { hintPenalties: [2, 5, 10], skipPenalty: 20 };
+    expect(penaltyMinutes(hunt, [{ level: 1 }, { level: 2 }], [{ source: 'SKIP' }, { source: 'QR' }, { source: 'MANUAL' }])).toBe(27);
   });
 
   it('départage les non-arrivées au temps écoulé depuis leur propre départ', () => {
@@ -97,14 +114,14 @@ describe('computeRanking', () => {
       { teamId: 1, stepId: 11, hunterId: 1, source: 'QR', at: at(30) },
       { teamId: 2, stepId: 11, hunterId: 2, source: 'QR', at: at(40) },
     ];
-    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, v, []);
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, v, []);
     expect(rows.map((r) => r.teamId)).toEqual([2, 1]);
     expect(teamPosition(rows, 1)).toEqual({ rank: 2, total: 2 });
   });
 
   it('place les équipes non arrivées après, par nombre d’étapes', () => {
     const teams = [team(1, { started: at(0) }), team(2, { started: at(0) }), team(3, { started: at(0), finished: at(90) })];
-    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, [...vals(1, 1), ...vals(2, 2)], []);
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, [...vals(1, 1), ...vals(2, 2)], []);
     expect(rows.map((r) => [r.teamId, r.rank])).toEqual([[3, 1], [2, null], [1, null]]);
   });
 });

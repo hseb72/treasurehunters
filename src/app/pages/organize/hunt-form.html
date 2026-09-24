@@ -95,8 +95,11 @@
       </div>
     }
 
-    <h3>Pénalités des jokers</h3>
-    <p class="small muted">Temps ajouté au parcours de l'équipe à chaque joker dévoilé, selon son niveau.</p>
+    <h3>Pénalités</h3>
+    <p class="small muted">
+      Temps ajouté au parcours de l'équipe à chaque joker dévoilé, selon son niveau, et à chaque épreuve abandonnée (l'équipe
+      passe alors directement à l'énigme suivante ; l'arrivée ne s'abandonne pas).
+    </p>
     <div class="three">
       <mat-form-field>
         <mat-label>Joker 1</mat-label>
@@ -114,6 +117,12 @@
         <span matTextSuffix>min</span>
       </mat-form-field>
     </div>
+    <mat-form-field class="short">
+      <mat-label>Abandon d'une épreuve</mat-label>
+      <mat-icon matPrefix>skip_next</mat-icon>
+      <input matInput type="number" min="0" formControlName="skipPenalty" />
+      <span matTextSuffix>min</span>
+    </mat-form-field>
 
     <h3>Participation et visibilité</h3>
     <div class="two narrow">

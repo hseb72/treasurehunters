@@ -99,6 +99,33 @@ describe('jokers', () => {
   });
 });
 
+describe('abandon d’épreuve (4ᵉ joker)', () => {
+  it('passe à l’énigme suivante avec la pénalité d’abandon', async () => {
+    const lucas = await loginAs(ctx.app, 'lucas@example.com'); // Cap au Sud : étape 1 trouvée, 2 jokers (2 + 5 min)
+    const r = await lucas.post('/api/hunts/1/skip');
+    expect(r.status).toBe(200);
+    expect(r.body.clue.targetOrder).toBe(3);
+    expect(r.body.validated.at(-1)).toMatchObject({ order: 2, skipped: true });
+    expect(r.body.skipsUsed).toBe(1);
+    expect(r.body.penalty).toBe(2 + 5 + 30);
+    // Le QR de l'épreuve abandonnée n'apporte plus rien ; la suivante se valide normalement.
+    expect((await lucas.post(`/api/scan/${DEMO_TOKENS.nefles[2]}`)).body.outcome).toBe('already_validated');
+    expect((await lucas.post(`/api/scan/${DEMO_TOKENS.nefles[3]}`)).body.outcome).toBe('validated');
+  });
+
+  it('refuse d’abandonner l’arrivée', async () => {
+    const nathan = await loginAs(ctx.app, 'nathan@example.com'); // Les Retardataires : aucune étape
+    for (const target of [2, 3, 4, 5]) {
+      expect((await nathan.post('/api/hunts/1/skip')).body.clue.targetOrder).toBe(target);
+    }
+    const last = await nathan.post('/api/hunts/1/skip');
+    expect(last.status).toBe(409);
+    expect(last.body.message).toMatch(/arrivée/);
+    const live = (await (await loginAs(ctx.app, 'camille@example.com')).get('/api/hunts/1/live')).body;
+    expect(live.find((row: { team: { name: string } }) => row.team.name === 'Les Retardataires').skips).toBe(4);
+  });
+});
+
 describe('résultats', () => {
   it('réserve le classement complet à l’organisatrice pendant la course', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');

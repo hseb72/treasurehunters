@@ -59,6 +59,7 @@ export class HuntFormPage {
     penalty1: [2, [Validators.min(0)]],
     penalty2: [5, [Validators.min(0)]],
     penalty3: [10, [Validators.min(0)]],
+    skipPenalty: [30, [Validators.min(0)]],
     isPublic: [true],
     contribution: [0, [Validators.min(0)]],
   });
