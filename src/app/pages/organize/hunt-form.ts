@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import { HuntApi } from '../../core/api';
-import { Hunt, StartMode } from '../../core/models';
+import { Hunt, StartMode } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { WorkspaceState } from './workspace-state';
 
@@ -56,7 +56,9 @@ export class HuntFormPage {
     teamMax: [4, [Validators.min(1)]],
     startMode: ['mass' as StartMode],
     interval: [10, [Validators.min(1)]],
-    hintPenalty: [5, [Validators.min(0)]],
+    penalty1: [2, [Validators.min(0)]],
+    penalty2: [5, [Validators.min(0)]],
+    penalty3: [10, [Validators.min(0)]],
     isPublic: [true],
     contribution: [0, [Validators.min(0)]],
   });
@@ -74,6 +76,9 @@ export class HuntFormPage {
       if (!h || this.form.dirty) return;
       this.form.reset({
         ...h,
+        penalty1: h.hintPenalties[0] ?? 0,
+        penalty2: h.hintPenalties[1] ?? 0,
+        penalty3: h.hintPenalties[2] ?? 0,
         award: h.award ?? '',
         startText: h.startText ?? '',
         interval: h.interval ?? 10,
@@ -85,9 +90,10 @@ export class HuntFormPage {
 
   protected save(): void {
     if (this.form.invalid) return this.form.markAllAsTouched();
-    const v = this.form.getRawValue();
+    const { penalty1, penalty2, penalty3, ...v } = this.form.getRawValue();
     const data: Partial<Hunt> = {
       ...v,
+      hintPenalties: [penalty1, penalty2, penalty3],
       id: this.hunt()?.id,
       award: v.award || null,
       startText: v.startText || null,

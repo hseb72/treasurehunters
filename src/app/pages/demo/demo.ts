@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { HuntApi } from '../../core/api';
-import { DEMO_TOKENS } from '../../core/mock/fixtures';
+import { DEMO_TOKENS } from '@shared/fixtures';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 
@@ -88,8 +88,8 @@ export class DemoPage {
       return;
     }
     this.api.login(EMAILS[s.persona], 'demo').subscribe({
-      next: (user) => {
-        this.session.set(user);
+      next: (auth) => {
+        this.session.set(auth);
         this.router.navigateByUrl(s.url);
       },
       error: (e) => this.notify.error(e),

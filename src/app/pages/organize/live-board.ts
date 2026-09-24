@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
 import { of, switchMap, timer } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Clock } from '../../core/clock';
-import { LiveRow } from '../../core/models';
+import { LiveRow } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { formatClock } from '../../shared/format';
 import { WorkspaceState } from './workspace-state';

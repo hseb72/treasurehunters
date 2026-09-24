@@ -38,6 +38,10 @@
   font-family: var(--th-font-note);
 }
 
+.position {
+  color: var(--th-gold-light);
+}
+
 // La piste doit rester lisible sur le cuir.
 .board ::ng-deep .marker--todo {
   background: rgba(249, 240, 218, 0.9);

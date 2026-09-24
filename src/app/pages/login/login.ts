@@ -7,8 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { HuntApi } from '../../core/api';
-import { Hunter } from '../../core/models';
+import { AuthResult } from '@shared/models';
 import { Session } from '../../core/session';
 import { CompassLogo } from '../../shared/compass-logo';
 
@@ -41,6 +42,7 @@ export class LoginPage {
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
+  protected readonly demo = environment.demo;
   protected readonly demoAccounts = [
     { nickname: 'seb', email: 'seb@example.com', role: 'joueur, en pleine course' },
     { nickname: 'Camille', email: 'camille@example.com', role: 'organisatrice' },
@@ -63,12 +65,12 @@ export class LoginPage {
     this.run(this.api.register(nickname, email, password));
   }
 
-  private run(call: Observable<Hunter>): void {
+  private run(call: Observable<AuthResult>): void {
     this.busy.set(true);
     this.error.set(null);
     call.subscribe({
-      next: (user) => {
-        this.session.set(user);
+      next: (auth) => {
+        this.session.set(auth);
         this.router.navigateByUrl(this.returnUrl() || '/');
       },
       error: (e: Error) => {

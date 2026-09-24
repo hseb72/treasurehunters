@@ -15,13 +15,20 @@
           </mat-form-field>
           <mat-form-field>
             <mat-label>Mot de passe</mat-label>
-            <input matInput type="password" formControlName="password" autocomplete="current-password" />
+            <input
+              matInput
+              type="password"
+              formControlName="password"
+              autocomplete="current-password"
+            />
             <mat-error>Mot de passe requis</mat-error>
           </mat-form-field>
           @if (error(); as message) {
             <p class="error-text">{{ message }}</p>
           }
-          <button mat-flat-button class="th-cta" type="submit" [disabled]="busy()">Se connecter</button>
+          <button mat-flat-button class="th-cta" type="submit" [disabled]="busy()">
+            Se connecter
+          </button>
         </form>
       </mat-tab>
 
@@ -39,28 +46,37 @@
           </mat-form-field>
           <mat-form-field>
             <mat-label>Mot de passe</mat-label>
-            <input matInput type="password" formControlName="password" autocomplete="new-password" />
+            <input
+              matInput
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+            />
             <mat-hint>8 caractères minimum</mat-hint>
             <mat-error>8 caractères minimum</mat-error>
           </mat-form-field>
           @if (error(); as message) {
             <p class="error-text">{{ message }}</p>
           }
-          <button mat-flat-button class="th-cta" type="submit" [disabled]="busy()">Créer mon compte</button>
+          <button mat-flat-button class="th-cta" type="submit" [disabled]="busy()">
+            Créer mon compte
+          </button>
         </form>
       </mat-tab>
     </mat-tab-group>
   </div>
 
-  <div class="parchment demo">
-    <h3><mat-icon>science</mat-icon> Comptes de démonstration</h3>
-    <p class="small muted">Maquette : les données sont fictives et réinitialisées à chaque rechargement.</p>
-    <div class="row">
-      @for (a of demoAccounts; track a.email) {
-        <button mat-stroked-button type="button" (click)="useDemo(a.email)" [disabled]="busy()">
-          {{ a.nickname }} <span class="muted small">— {{ a.role }}</span>
-        </button>
-      }
+  @if (demo) {
+    <div class="parchment demo">
+      <h3><mat-icon>science</mat-icon> Comptes de démonstration</h3>
+      <p class="small muted">Données fictives du jeu de démonstration.</p>
+      <div class="row">
+        @for (a of demoAccounts; track a.email) {
+          <button mat-stroked-button type="button" (click)="useDemo(a.email)" [disabled]="busy()">
+            {{ a.nickname }} <span class="muted small">— {{ a.role }}</span>
+          </button>
+        }
+      </div>
     </div>
-  </div>
+  }
 </div>

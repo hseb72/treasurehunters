@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { HuntStatus } from '../core/models';
+import { HuntStatus } from '@shared/models';
 import { STATUS_ICONS, STATUS_LABELS } from './labels';
 
 @Component({

@@ -127,8 +127,8 @@
         </li>
         <li>
           <mat-icon>key</mat-icon>
-          @if (h.hintPenalty > 0) {
-            <span>Des <strong>jokers</strong> pour vous débloquer, mais chacun coûte <strong>{{ h.hintPenalty }} min</strong> de pénalité.</span>
+          @if (penalties(); as p) {
+            <span>Des <strong>jokers</strong> pour vous débloquer, mais ils coûtent du temps : <strong>{{ p }}</strong>.</span>
           } @else {
             <span>Des <strong>jokers</strong> pour vous débloquer, sans pénalité.</span>
           }

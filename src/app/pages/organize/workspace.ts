@@ -6,7 +6,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, switchMap } from 'rxjs';
 import { HuntAction, HuntApi } from '../../core/api';
-import { HuntStatus } from '../../core/models';
+import { HuntStatus } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { Confirm, ConfirmData } from '../../shared/confirm-dialog';
 import { StatusBadge } from '../../shared/status-badge';

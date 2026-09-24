@@ -13,7 +13,7 @@ import { Clock } from '../../core/clock';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { formatClock } from '../../shared/format';
-import { START_MODE_LABELS } from '../../shared/labels';
+import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
 import { StatusBadge } from '../../shared/status-badge';
 
 @Component({
@@ -51,6 +51,7 @@ export class HuntDetailPage {
   protected readonly busy = signal(false);
   protected readonly modes = START_MODE_LABELS;
 
+  protected readonly penalties = computed(() => penaltyText(this.hunt.value()?.hintPenalties ?? []));
   protected readonly isOwner = computed(() => this.hunt.value()?.ownerId === this.session.user()?.id);
   protected readonly inviteUrl = computed(() => {
     const team = this.myTeam.value();

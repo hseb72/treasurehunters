@@ -4,11 +4,16 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:mock": "ng serve -c mock",
     "build": "ng build",
+    "build:mock": "ng build -c mock",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "server:dev": "npm --prefix server run dev",
+    "server:test": "npm --prefix server test"
   },
   "private": true,
+  "type": "module",
   "packageManager": "npm@10.9.7",
   "dependencies": {
     "@angular/cdk": "^22.2.0",

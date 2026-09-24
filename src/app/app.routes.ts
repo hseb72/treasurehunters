@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { environment } from '../environments/environment';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -30,6 +31,6 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: 'demo', title: 'Guide des maquettes', loadComponent: () => import('./pages/demo/demo').then((m) => m.DemoPage) },
+  ...(environment.demo ? [{ path: 'demo', title: 'Guide de démonstration', loadComponent: () => import('./pages/demo/demo').then((m) => m.DemoPage) }] : []),
   { path: '**', redirectTo: '' },
 ];

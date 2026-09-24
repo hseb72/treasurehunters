@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Session } from '../../core/session';
 import { DurationPipe } from '../../shared/format';
-import { START_MODE_LABELS } from '../../shared/labels';
+import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
 import { Podium } from '../../shared/podium';
 
 @Component({
@@ -38,4 +38,5 @@ export class ResultsPage {
   protected readonly ranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank !== null));
   protected readonly unranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank === null));
   protected readonly modes = START_MODE_LABELS;
+  protected readonly penalties = computed(() => penaltyText(this.hunt.value()?.hintPenalties ?? []));
 }

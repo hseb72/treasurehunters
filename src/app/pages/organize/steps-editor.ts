@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { filter, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
-import { Step } from '../../core/models';
+import { Step } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { Confirm } from '../../shared/confirm-dialog';
 import { WorkspaceState } from './workspace-state';

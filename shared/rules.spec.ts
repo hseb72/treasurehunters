@@ -1,5 +1,5 @@
-import { Hunt, HintUse, Step, Team, Validation } from './models';
-import { computeRanking, evaluateScan, randomToken, ScanContext, teamStartTimes } from './rules';
+import { Hunt, HintUse, Step, Team, Validation } from './models.js';
+import { computeRanking, evaluateScan, randomToken, ScanContext, teamPosition, teamStartTimes } from './rules.js';
 
 const T0 = Date.parse('2026-09-24T10:00:00Z');
 const at = (min: number) => new Date(T0 + min * 60_000).toISOString();
@@ -12,7 +12,7 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
   return {
     id: 1, ownerId: 99, ownerNickname: 'orga', name: 'H', description: '', location: '', begin: at(0), end: at(240),
     started: at(0), closed: null, autoStart: false, autoClose: false, award: null, startMode: 'mass', interval: null,
-    hintPenalty: 0, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
+    hintPenalties: [0, 0, 0], teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
     startText: null, status: 'running', stepCount: 3, teamCount: 0, ...extra,
   };
 }
@@ -68,31 +68,43 @@ describe('evaluateScan', () => {
 describe('computeRanking', () => {
   const vals = (teamId: number, n: number): Validation[] =>
     Array.from({ length: n }, (_, i) => ({ teamId, stepId: i + 11, hunterId: teamId, source: 'QR', at: at(10 * (i + 1)) }));
-  const hint = (teamId: number): HintUse => ({ teamId, stepId: 10, level: 1, hunterId: teamId, at: at(1) });
+  const hint = (teamId: number, level = 1): HintUse => ({ teamId, stepId: 10, level, hunterId: teamId, at: at(1) });
 
   it('classe par temps de parcours (arrivée − départ), pas par heure d’arrivée', () => {
     // A part à 0 et arrive à 60 (60 min) ; B part à 20 et arrive à 70 (50 min).
     const teams = [team(1, { started: at(0), finished: at(60) }), team(2, { started: at(20), finished: at(70) })];
-    const rows = computeRanking({ hintPenalty: 0 }, teams, [...vals(1, 3), ...vals(2, 3)], []);
+    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, [...vals(1, 3), ...vals(2, 3)], []);
     expect(rows.map((r) => [r.teamId, r.rank])).toEqual([[2, 1], [1, 2]]);
   });
 
   it('en départ groupé, revient au premier arrivé', () => {
     const teams = [team(1, { started: at(0), finished: at(80) }), team(2, { started: at(0), finished: at(70) })];
-    expect(computeRanking({ hintPenalty: 0 }, teams, [], [])[0].teamId).toBe(2);
+    expect(computeRanking({ hintPenalties: [0, 0, 0] }, teams, [], [])[0].teamId).toBe(2);
   });
 
-  it('ajoute la pénalité des jokers', () => {
+  it('ajoute la pénalité de chaque joker selon son niveau', () => {
     const teams = [team(1, { started: at(0), finished: at(60) }), team(2, { started: at(0), finished: at(65) })];
-    const rows = computeRanking({ hintPenalty: 10 }, teams, [], [hint(1)]);
+    const rows = computeRanking({ hintPenalties: [2, 8, 15] }, teams, [], [hint(1, 1), hint(1, 2)]);
     expect(rows[0].teamId).toBe(2);
     expect(rows[1].time).toBe(70 * 60);
     expect(rows[1].penalty).toBe(600);
   });
 
+  it('départage les non-arrivées au temps écoulé depuis leur propre départ', () => {
+    // Même nombre d'étapes : 1 a validé 30 min après son départ, 2 seulement 20 min après le sien.
+    const teams = [team(1, { started: at(0) }), team(2, { started: at(20) })];
+    const v: Validation[] = [
+      { teamId: 1, stepId: 11, hunterId: 1, source: 'QR', at: at(30) },
+      { teamId: 2, stepId: 11, hunterId: 2, source: 'QR', at: at(40) },
+    ];
+    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, v, []);
+    expect(rows.map((r) => r.teamId)).toEqual([2, 1]);
+    expect(teamPosition(rows, 1)).toEqual({ rank: 2, total: 2 });
+  });
+
   it('place les équipes non arrivées après, par nombre d’étapes', () => {
     const teams = [team(1, { started: at(0) }), team(2, { started: at(0) }), team(3, { started: at(0), finished: at(90) })];
-    const rows = computeRanking({ hintPenalty: 0 }, teams, [...vals(1, 1), ...vals(2, 2)], []);
+    const rows = computeRanking({ hintPenalties: [0, 0, 0] }, teams, [...vals(1, 1), ...vals(2, 2)], []);
     expect(rows.map((r) => [r.teamId, r.rank])).toEqual([[3, 1], [2, null], [1, null]]);
   });
 });

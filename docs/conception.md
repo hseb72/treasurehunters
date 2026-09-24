@@ -1,8 +1,8 @@
 # Treasure Hunters — Document de conception
 
-> Statut : **proposition à valider** · Version 0.1 · 24/09/2026
+> Statut : **validé** · Version 0.2 · 24/09/2026 — décisions intégrées, base PostgreSQL
 
-Ce document décrit le fonctionnement cible de l'application : le vocabulaire, les règles du jeu, le modèle de données, l'API et les écrans. Il sert de référence pour la migration SQL, le back-end et le front-end. Les points encore ouverts sont regroupés à la fin (§ 10).
+Ce document décrit le fonctionnement cible de l'application : le vocabulaire, les règles du jeu, le modèle de données, l'API et les écrans. Il sert de référence pour le schéma SQL (`db/`), le back-end (`server/`) et le front-end (`src/`). Les décisions prises et les évolutions envisagées sont regroupées à la fin (§ 10).
 
 ---
 
@@ -18,7 +18,7 @@ Ce document décrit le fonctionnement cible de l'application : le vocabulaire, l
 | **Arrivée** | La dernière étape. La scanner arrête le chronomètre de l'équipe. | `th_codes` (ordre max) |
 | **Équipe** (*team*) | Le groupe qui progresse. **Dans une chasse en solo, chaque joueur forme une équipe d'une personne.** Toutes les règles s'écrivent donc une seule fois, pour des équipes. | `th_teams` |
 | **Validation** | Le fait qu'une équipe a atteint une étape, par un scan ou manuellement par l'organisateur. | `th_validations` |
-| **Joker** | Un indice supplémentaire (1 à 3 par étape) que l'équipe peut dévoiler, avec une pénalité éventuelle. | `th_hintuses` |
+| **Joker** | Un indice supplémentaire (1 à 3 par énigme) que l'équipe peut dévoiler, avec une pénalité en minutes qui dépend de son niveau. | `th_hintuses` |
 
 ---
 
@@ -128,42 +128,33 @@ Par défaut, les étapes sont **linéaires** : l'étape *n* n'est acceptée que 
 
 ### 5.2 Une seule règle de classement
 
-> **Temps de course = heure d'arrivée − heure de départ (+ pénalités de jokers)**
-> `temps = tea_finished − tea_started + nb_jokers × hun_hintpenalty`
+> **Temps de course = heure d'arrivée − heure de départ + pénalités de jokers**
+> `temps = tea_finished − tea_started + Σ pénalité(niveau du joker)`
 
-- En **départ groupé**, toutes les heures de départ sont égales, donc le plus petit temps correspond au **premier arrivé**. Une seule formule couvre les deux modes, et c'est celle que vous avez proposée.
-- **Pénalité de joker** (`hun_hintpenalty`, en minutes, 0 par défaut) : l'organisateur choisit si les jokers coûtent du temps.
+- En **départ groupé**, toutes les heures de départ sont égales, donc le plus petit temps correspond au **premier arrivé**. Une seule formule couvre les deux modes.
+- **Pénalités de jokers, par niveau** (`hun_penalty1`, `hun_penalty2`, `hun_penalty3`, en minutes, 0 par défaut). Exemple : joker 1 = +2 min, joker 2 = +5 min, joker 3 = +10 min. Les jokers d'une énigme se dévoilent dans l'ordre, donc le joker 2 n'est accessible qu'après le 1.
 - **Égalité** : on départage par l'heure d'arrivée la plus tôt, puis par le nombre de jokers utilisés.
-- **Équipes non arrivées à la clôture** : elles sont **non classées**. Elles apparaissent après les équipes classées, triées par nombre d'étapes validées (décroissant), puis par l'heure de leur dernière validation (croissante).
+- **Équipes non arrivées à la clôture** : elles sont **non classées** et apparaissent après les équipes classées. On les trie par nombre d'étapes validées (décroissant), puis par le temps écoulé entre leur départ et leur dernière validation (croissant). Ce critère reste juste en départ échelonné.
 
 ### 5.3 Visibilité des résultats
-- Pendant la course, l'**organisateur** voit un tableau en direct : étape en cours et dernier scan de chaque équipe.
-- Les **joueurs** ne voient que leur propre progression, pour garder le suspense. Un classement provisoire visible par tous est une option (§ 10).
-- Après la clôture, le **podium** et le classement complet sont publics pour les participants. Ce sont eux que montre un scan de QR après la fin.
+- Pendant la course, l'**organisateur** voit le tableau de pilotage en direct et le classement provisoire complet.
+- Chaque **joueur** voit uniquement la **position provisoire de sa propre équipe** (« 4ᵉ / 6 »), jamais celle des autres. Cette position est calculée avec les mêmes règles que le classement final.
+- Après la clôture, le **podium** et le classement complet sont publics. Ce sont eux que montre un scan de QR après la fin.
 
-### 5.4 Exemple de requête de classement
+### 5.4 Où sont codées ces règles
 
-```sql
-SELECT t.tea_id, t.tea_name, t.tea_started, t.tea_finished,
-       COUNT(DISTINCT v.val_id)                                        AS etapes,
-       COUNT(DISTINCT h.hiu_id)                                        AS jokers,
-       TIMESTAMPDIFF(SECOND, t.tea_started, t.tea_finished)
-         + COUNT(DISTINCT h.hiu_id) * hu.hun_hintpenalty * 60          AS temps_s
-FROM th_teams t
-JOIN th_hunts hu           ON hu.hun_id = t.tea_hunt_hun
-LEFT JOIN th_validations v ON v.val_team_tea = t.tea_id
-LEFT JOIN th_hintuses h    ON h.hiu_team_tea = t.tea_id
-WHERE t.tea_hunt_hun = ?
-GROUP BY t.tea_id
-ORDER BY (t.tea_finished IS NULL), temps_s, t.tea_finished, jokers,
-         etapes DESC, MAX(v.val_creation);
-```
+Les règles du jeu (§ 4.2 et § 5) sont écrites **une seule fois**, en TypeScript, dans `shared/rules.ts` : `evaluateScan`, `teamStartTimes`, `computeRanking`, `teamPosition`, `hintPenaltyMinutes`. Elles sont couvertes par `shared/rules.spec.ts` et utilisées à la fois par le serveur et par le back-end simulé des maquettes.
 
 ---
 
-## 6. Modèle de données
+## 6. Modèle de données (PostgreSQL)
 
-On garde les conventions de la base actuelle : préfixe `th_`, trigramme par table, clés étrangères nommées `<col>_<trigramme cible>`, colonnes `_creation` / `_lastupdate`. Le jeu de caractères devient `utf8mb4` pour accepter les emojis dans les énigmes.
+Le schéma est dans `db/migrations/001_initial.sql`. Le serveur l'applique au démarrage, ou via `npm run migrate`, et note les scripts appliqués dans `th_migrations`. On garde les conventions de la première version :
+- préfixe `th_` et trigramme par table ;
+- clés étrangères nommées `<col>_<trigramme cible>` ;
+- colonnes `_creation` / `_lastupdate`.
+
+Les dates sont en `timestamptz` (UTC). Les clés primaires sont des colonnes `GENERATED ALWAYS AS IDENTITY` et les booléens de vrais `boolean`. Des contraintes `CHECK` protègent les règles simples : dates cohérentes, taille d'équipe, niveau de joker de 1 à 3, etc.
 
 ```mermaid
 erDiagram
@@ -182,154 +173,155 @@ erDiagram
     th_codes ||--o{ th_scanlog : ""
 ```
 
-### 6.1 Tables et changements par rapport à l'existant
+### 6.1 Tables et différences avec la base MariaDB d'origine
 
-**`th_hunters`** (joueurs) — inchangée, plus :
-- `htr_email` passe à `NOT NULL` avec vérification de format ; `htr_emailverified` (datetime, nullable).
+**`th_hunters`** (joueurs)
+- Le pseudo et l'e-mail sont uniques sans tenir compte de la casse (index sur `lower(...)`).
+- L'e-mail est vérifié par une expression régulière.
+- Nouvelle colonne `htr_emailverified`.
 
-**`th_secrets`** — `sec_password` contient un **hash argon2id ou bcrypt**, jamais le mot de passe en clair. On ajoute une contrainte `UNIQUE(sec_hunter_htr)`.
+**`th_secrets`** — `sec_password` contient un **hash argon2id**. Il y a au plus un secret par joueur.
 
-**`th_sessions`** — On stocke le **hash** du jeton (SHA-256), pas le jeton lui-même. On ajoute `ses_expires`, `ses_useragent` et un index sur `ses_hunter_htr`. Chaque connexion génère un jeton aléatoire différent.
+**`th_sessions`**
+- On ne stocke que `ses_tokenhash`, le SHA-256 du jeton aléatoire remis au client, jamais le jeton lui-même.
+- `ses_expires` : 30 jours par défaut.
+- `ses_useragent` enregistre le navigateur utilisé.
 
-**`th_huntstatus`** — On l'alimente avec les 6 statuts du § 2.
+**`th_huntstatus`** — 6 statuts, avec un `hst_code` (`draft`, `published`, `running`, `closed`, `cancelled`, `archived`) exposé par l'API.
 
 **`th_hunts`** (chasses)
 
-| Colonne | Type | Changement | Rôle |
-|---|---|---|---|
-| `hun_begin` / `hun_end` | datetime | — | dates prévues |
-| `hun_started` / `hun_closed` | datetime NULL | **nouveau** | horodatages réels du déclenchement et de la clôture |
-| `hun_autostart` / `hun_autoclose` | tinyint | **nouveau** | déclenchement et clôture automatiques à l'heure prévue |
-| `hun_startmode` | tinyint | **nouveau**, remplace `hun_mode` | 1 = groupé, 2 = échelonné |
-| `hun_interval` | smallint NULL | **nouveau** | minutes entre deux départs (mode échelonné) |
-| `hun_hintpenalty` | smallint | **nouveau**, défaut 0 | minutes de pénalité par joker |
-| `hun_teamgame` | tinyint | — | 0 = solo, 1 = équipes |
-| `hun_teammin` / `hun_teammax` | tinyint | **nouveau** | taille des équipes |
-| `hun_joincode` | varchar(12) | **nouveau**, UNIQUE | code d'invitation d'une chasse privée |
-| `hun_contribution` | decimal(10,2) | **type corrigé** | participation demandée (affichage seul, pas de paiement en ligne) |
-| `hun_starttext` | text NULL | **nouveau** | consignes générales affichées avant le départ |
-| `hun_longid` | — | **supprimé** | l'URL publique passe par l'id ou le code d'invitation |
+| Colonne | Type | Rôle |
+|---|---|---|
+| `hun_begin` / `hun_end` | timestamptz | dates prévues, avec `hun_end > hun_begin` |
+| `hun_started` / `hun_closed` | timestamptz NULL | horodatages réels du déclenchement et de la clôture |
+| `hun_autostart` / `hun_autoclose` | boolean | déclenchement et clôture automatiques ; le serveur vérifie toutes les 30 s |
+| `hun_startmode` | smallint | 1 = groupé, 2 = échelonné (remplace `hun_mode`) |
+| `hun_interval` | smallint NULL | minutes entre deux départs, obligatoire en mode échelonné |
+| `hun_penalty1..3` | smallint | minutes de pénalité par niveau de joker |
+| `hun_teamgame`, `hun_teammin`, `hun_teammax` | boolean, smallint | solo ou équipes, et taille des équipes |
+| `hun_public`, `hun_joincode` | boolean, varchar(12) UNIQUE | visibilité et code d'invitation |
+| `hun_contribution` | numeric(10,2) | participation, affichée seulement |
+| `hun_starttext`, `hun_award` | text | consignes de départ, trésor |
 
 **`th_codes`** (étapes)
-
-| Colonne | Type | Changement | Rôle |
-|---|---|---|---|
-| `cod_order` | int | — | 0 = départ, 1..N ; UNIQUE(hunt, order) |
-| `cod_longid` | varchar(32) NULL | **devient un jeton aléatoire** | contenu du QR ; NULL pour le départ |
-| `cod_title` | varchar(255) | — | nom du lieu, visible par l'organisateur et affiché après le scan |
-| `cod_arrival` | text NULL | **nouveau** | message affiché au scan (« Bravo, vous êtes à la fontaine ! ») |
-| `cod_instructions` | text NULL | nullable | **énigme menant à l'étape suivante** ; NULL pour l'arrivée |
-| `cod_hint1..3` | text NULL | — | jokers de cette énigme |
-| `cod_answer` | varchar(255) NULL | **nouveau**, optionnel | réponse attendue avant d'afficher la suite (§ 10) |
-| `cod_latitude` / `cod_longitude` | decimal(9,6) NULL | **nouveau** | position (organisateur seulement) |
-| `cod_address` | varchar(255) NULL | **nouveau** | adresse ou repère (organisateur seulement) |
+- `cod_order` : 0 = départ, puis 1..N. La contrainte UNIQUE(chasse, ordre) est *différable*, pour pouvoir réordonner les étapes dans une transaction.
+- `cod_longid` : jeton aléatoire du QR code, NULL seulement pour le départ (contrainte `ck_cod_token`).
+- `cod_arrival` : message affiché au scan. `cod_instructions` : énigme vers l'étape suivante. `cod_hint1..3` : les jokers.
+- `cod_latitude`, `cod_longitude`, `cod_address` : position, visible par l'organisateur seulement.
+- `cod_answer` : réservé aux énigmes à réponse (§ 10.2).
 
 **`th_teams`** (équipes)
-
-| Colonne | Type | Changement | Rôle |
-|---|---|---|---|
-| `tea_owner_htr` | int | — | capitaine |
-| `tea_joincode` | varchar(12) | **nouveau**, UNIQUE | code pour rejoindre l'équipe |
-| `tea_solo` | tinyint | **nouveau** | 1 = équipe implicite d'une chasse en solo |
-| `tea_startorder` | smallint NULL | **nouveau** | ordre de passage (départ échelonné) |
-| `tea_started` | datetime NULL | **nouveau** | heure de départ réelle |
-| `tea_finished` | datetime NULL | **nouveau** | heure d'arrivée (scan de la dernière étape) |
-| — | — | **clé** | UNIQUE(`tea_hunt_hun`, `tea_name`) et UNIQUE(`tea_id`, `tea_hunt_hun`), cette dernière pour la clé composite ci-dessous |
+- `tea_joincode` UNIQUE, `tea_solo`, `tea_startorder`, `tea_started`, `tea_finished`.
+- UNIQUE(chasse, nom).
+- UNIQUE(`tea_id`, `tea_hunt_hun`) sert de cible à la clé composite de `th_teamhunters`.
 
 **`th_teamhunters`** (membres)
-- **Nouveau** : `thr_hunt_hun`, copie de la chasse de l'équipe, avec la contrainte **UNIQUE(`thr_hunt_hun`, `thr_hunter_htr`)** : un joueur appartient à une seule équipe par chasse.
-- Une clé étrangère composite (`thr_team_tea`, `thr_hunt_hun`) → `th_teams(tea_id, tea_hunt_hun)` garantit que cette copie reste cohérente.
+- `thr_hunt_hun` est une copie de la chasse, gardée cohérente par la clé étrangère composite (`thr_team_tea`, `thr_hunt_hun`).
+- La contrainte **UNIQUE(`thr_hunt_hun`, `thr_hunter_htr`)** garantit qu'un joueur n'est que dans **une seule équipe par chasse**.
 
-**`th_validations`** (nouvelle ; remplace `th_huntercodes` pour la progression)
+**`th_validations`** (remplace `th_huntercodes` pour la progression)
+- `val_team_tea`, `val_code_cod` et `val_hunter_htr`, le membre qui a scanné.
+- `val_source` vaut `QR` ou `MANUAL`. `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
+- `val_creation` est l'**heure de passage**.
+- UNIQUE(équipe, étape).
 
-| Colonne | Rôle |
-|---|---|
-| `val_team_tea` | l'équipe qui progresse |
-| `val_code_cod` | l'étape validée |
-| `val_hunter_htr` | le membre qui a scanné |
-| `val_source` | `QR` ou `MANUAL` |
-| `val_by_htr` | l'organisateur qui a validé manuellement (remplace `htc_giftedby_htr`) |
-| `val_creation` | **heure de passage**, qui sert au chrono |
-| — | UNIQUE(`val_team_tea`, `val_code_cod`) |
+**`th_hintuses`** (remplace `htc_hint1..3`) : l'équipe, l'étape, le niveau (1 à 3), le joueur qui a ouvert le joker et l'heure. UNIQUE(équipe, étape, niveau).
 
-**`th_hintuses`** (nouvelle ; remplace `htc_hint1..3`) : `hiu_team_tea`, `hiu_code_cod`, `hiu_level` (1 à 3), `hiu_hunter_htr`, `hiu_creation`, avec UNIQUE(team, code, level). Le joker *n* ne peut être dévoilé que si le joker *n-1* l'a déjà été.
+**`th_scanlog`** : toutes les tentatives de scan, avec le jeton, le joueur, l'équipe, le résultat (§ 4.2) et l'adresse IP.
 
-**`th_scanlog`** (nouvelle) : `scl_code_cod` (nullable si le jeton est inconnu), `scl_token`, `scl_hunter_htr` (nullable), `scl_team_tea` (nullable), `scl_result` (le code de résultat du § 4.2), `scl_ip`, `scl_creation`.
-
-**`th_huntercodes`** — On migre ses données vers `th_validations` et `th_hintuses`, puis on la supprime.
+### 6.2 Concurrence
+Deux équipiers peuvent scanner le même QR au même instant. Le serveur **verrouille la ligne de l'équipe** (`SELECT … FOR UPDATE`) pendant l'évaluation du scan : un seul des deux valide l'étape, l'autre obtient « déjà validée ». L'ouverture d'un joker, l'arrivée d'un équipier et le déclenchement sont protégés de la même façon.
 
 ---
 
-## 7. API REST (esquisse)
+## 7. API REST
 
-Préfixe `/api`. Authentification par `Authorization: Bearer <jeton>`. Les réponses sont en JSON avec des noms de champs en camelCase : le back-end traduit `hun_begin` en `begin`, etc.
+Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCase, types dans `shared/models.ts`.
+- **Authentification** : `Authorization: Bearer <jeton>`.
+- **Erreurs** : `{ message }` avec le statut 400, 401, 403, 404, 409 ou 429.
+- **Limitation du nombre de requêtes** : sur la connexion, l'inscription, l'arrivée dans une équipe et les scans.
 
 | Méthode & chemin | Rôle | Accès |
 |---|---|---|
-| `POST /auth/register` · `POST /auth/login` · `POST /auth/logout` | comptes et sessions | public / connecté |
-| `GET /me` · `PATCH /me` · `PATCH /me/password` | profil | connecté |
-| `GET /hunts?scope=public\|mine\|playing` | listes de chasses | public / connecté |
-| `GET /hunts/:id` | détail (sans le contenu des étapes) | selon visibilité |
-| `POST /hunts` · `PATCH /hunts/:id` · `DELETE /hunts/:id` | gestion | organisateur |
-| `POST /hunts/:id/publish` · `/start` · `/close` · `/cancel` | cycle de vie | organisateur |
-| `GET /hunts/:id/codes` · `POST` · `PATCH /codes/:id` · `DELETE` · `POST /hunts/:id/codes/reorder` | étapes | organisateur |
-| `POST /codes/:id/regenerate` | nouveau jeton QR | organisateur |
-| `GET /hunts/:id/teams` · `POST /hunts/:id/teams` | équipes | inscrit / connecté |
-| `POST /hunts/join` `{code}` · `POST /teams/join` `{code}` · `DELETE /teams/:id/members/me` | inscription | connecté |
-| `PATCH /hunts/:id/teams/order` · `PATCH /teams/:id/start` | ordre de passage, décalage d'un départ | organisateur |
-| `GET /hunts/:id/play` | état de jeu de **mon** équipe : étapes validées, énigme courante, jokers dévoilés | membre |
-| `GET /q/:token` | **scan** : applique le § 4.2 et renvoie `{result, hunt, step?, next?, podium?}` | public (plus de détails si connecté) |
-| `POST /hunts/:id/hints` `{codeId, level}` | dévoiler un joker | membre |
-| `GET /hunts/:id/live` | tableau de bord en direct | organisateur |
-| `POST /teams/:id/validations` `{codeId}` | validation manuelle | organisateur |
-| `GET /hunts/:id/results` | classement (§ 5.2) | organisateur ; tous après la clôture |
+| `POST /auth/register` · `POST /auth/login` | création de compte et connexion → `{ user, token }` | public |
+| `POST /auth/logout` · `GET /me` · `PATCH /me` | session et profil | connecté |
+| `GET /hunts?scope=public\|playing\|organized` | listes de chasses | public / connecté |
+| `GET /hunts/:id` · `GET /hunts/by-code/:code` | détail, recherche par code d'invitation (chasse ou équipe) | selon visibilité |
+| `POST /hunts` · `PATCH /hunts/:id` | création et modification ; les règles sont figées une fois la course lancée | organisateur |
+| `POST /hunts/:id/publish\|unpublish\|start\|close\|cancel` | cycle de vie | organisateur |
+| `GET /hunts/:id/steps` · `POST /hunts/:id/steps` · `PUT /hunts/:id/steps/order` | parcours | organisateur |
+| `PATCH /steps/:id` · `DELETE /steps/:id` · `POST /steps/:id/regenerate` | une étape, nouveau jeton QR | organisateur |
+| `GET /hunts/:id/teams` · `POST /hunts/:id/teams` · `POST /hunts/:id/solo` | équipes, inscription | connecté |
+| `GET /hunts/:id/my-team` · `DELETE /hunts/:id/my-team` · `POST /teams/join` | mon équipe, quitter, rejoindre par code | connecté |
+| `PUT /hunts/:id/teams/order` · `POST /teams/:id/delay` | ordre de passage, décalage d'un départ | organisateur |
+| `GET /hunts/:id/play` · `POST /hunts/:id/hints` | carnet de route de mon équipe (avec sa position provisoire), joker suivant | membre |
+| `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
+| `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
+| `GET /hunts/:id/live` · `POST /teams/:id/validations` | pilotage en direct, validation manuelle | organisateur |
 
 ---
 
 ## 8. Écrans
 
+Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs comme pour les organisateurs. Ils s'élargissent ensuite sur tablette et ordinateur.
+
 | # | Écran | Route | Qui |
 |---|---|---|---|
-| E1 | Accueil : chasses publiques, mes chasses, bouton « Scanner » | `/` | tous |
-| E2 | Connexion / inscription | `/login`, `/register` | public |
-| E3 | Détail d'une chasse et inscription (créer ou rejoindre une équipe) | `/hunts/:id` | tous |
-| E4 | **Jeu** : chrono, énigme courante, jokers, étapes validées | `/play/:huntId` | membre |
+| E1 | Carnet de bord : expédition en cours, prochaines expéditions, expéditions ouvertes, archives, code d'invitation | `/` | tous |
+| E2 | Connexion / inscription | `/login` | public |
+| E3 | Fiche d'expédition et inscription (fonder ou rejoindre une équipe, solo) | `/hunts/:id` | tous |
+| E4 | **Carnet de route** : chrono, piste, énigme, jokers sous scellés, position provisoire, journal | `/play/:huntId` | membre |
 | E5 | **Résultat de scan** : les états du § 4.2 | `/q/:token` | tous |
-| E6 | **Résultats et podium** | `/hunts/:id/results` | selon § 5.3 |
-| E7 | Scanner intégré (caméra) | `/scan` | tous |
-| E8 | Mes chasses organisées | `/organize` | organisateur |
-| E9 | Éditeur de chasse : infos, règles, mode de départ | `/organize/:id` | organisateur |
-| E10 | Éditeur d'étapes : liste réordonnable, contenu, jokers, aperçu | `/organize/:id/steps` | organisateur |
-| E11 | Planche de QR imprimable | `/organize/:id/qrcodes` | organisateur |
-| E12 | **Pilotage en direct** : démarrer, clôturer, ordre de passage, progression des équipes, validation manuelle | `/organize/:id/live` | organisateur |
-| E13 | Profil | `/me` | connecté |
+| E6 | **Podium et classement** | `/hunts/:id/results` | selon § 5.3 |
+| E7 | Scanner intégré (caméra, ou saisie du code si le QR est abîmé) | `/scan` | tous |
+| E8 | Mes expéditions | `/organize` | organisateur |
+| E9 | Espace de l'expédition, onglet **Infos** : présentation, calendrier, règles, pénalités | `/organize/:id/info` | organisateur |
+| E10 | Onglet **Étapes** : parcours réordonnable, énigmes, jokers | `/organize/:id/steps` | organisateur |
+| E11 | Onglet **Équipes** : inscrits, ordre de passage, tirage au sort | `/organize/:id/teams` | organisateur |
+| E12 | Onglet **QR codes** : planche imprimable | `/organize/:id/qrcodes` | organisateur |
+| E13 | Onglet **Direct** : progression, validation manuelle, retard de départ | `/organize/:id/live` | organisateur |
+| E14 | Profil | `/me` | connecté |
 
 ---
 
 ## 9. Choix techniques
 
-- **Front** : on passe d'Angular 16, qui n'est plus maintenu, à **Angular 22** avec des composants autonomes (*standalone*), les *signals* et Material 3. L'application reste une **PWA**, installable et avec l'écran allumé pendant le jeu. `@angular/flex-layout`, abandonné, est remplacé par du CSS grid/flex. Les maquettes (étape B) utilisent un service de données fictives, remplacé par l'API à l'étape B finale.
-- **QR codes** : génération avec `angularx-qrcode` côté front pour la planche imprimable. La lecture se fait par l'URL, qu'ouvre l'appareil photo natif, et éventuellement avec `@zxing/ngx-scanner` dans l'application.
-- **Heures** : le serveur stocke tout en **UTC**. Le front affiche l'heure locale. Le chrono se calcule sur l'heure du serveur, jamais sur celle du téléphone.
-- **Back-end** : à décider (§ 10).
-- **Sécurité** :
-  - les mots de passe sont hashés ;
-  - les jetons de session sont aléatoires, stockés hashés et expirent ;
-  - le nombre de scans est limité (*rate limiting*) par IP et par joueur ;
-  - les contrôles d'accès se font toujours côté serveur ;
-  - la position des étapes n'est jamais exposée aux joueurs.
+- **Front** (`src/`) : Angular 22 avec des composants autonomes (*standalone*), les *signals* et Material 3. C'est une PWA installable. Le thème « carnet d'explorateur » est défini dans `src/styles.scss`. Le front dialogue avec l'API via `HttpHuntApi`, ou avec `MockHuntApi` pour les maquettes autonomes (`npm run start:mock`).
+- **Back-end** (`server/`) :
+  - Node.js avec Fastify 5 ;
+  - `pg` et des requêtes SQL écrites à la main (`server/src/repo.ts`) ;
+  - `zod` pour valider les données reçues ;
+  - `@node-rs/argon2` pour hasher les mots de passe.
+- **Base** : PostgreSQL 16 ou plus.
+- **Code partagé** (`shared/`) : modèles, règles du jeu et jeu de démonstration, utilisés par les trois parties.
+- **Heures** : tout est stocké en UTC. Les horodatages de jeu (départ, passages, arrivée) viennent de l'horloge du serveur.
+- **Tests** : `shared/rules.spec.ts` pour les règles. `server/test/` contient les tests d'intégration sur une vraie base PostgreSQL : cycle de vie complet, scans simultanés, jokers, droits d'accès.
 
 ---
 
-## 10. Questions ouvertes
+## 10. Décisions et évolutions
 
-1. **Back-end** : lequel choisir ?
-   - PHP, dans la continuité du serveur `crealcs.com`, mais à moderniser : PHP 8.3 et un framework léger ;
-   - Node/TypeScript (NestJS ou Fastify), qui partagerait les types avec Angular. **C'est ma recommandation** ;
-   - un service géré comme Supabase.
-2. **Ordre des étapes** : le mode linéaire suffit-il, ou faut-il aussi un mode « ordre libre » où l'on doit toutes les trouver dans n'importe quel ordre ?
-3. **Énigme à réponse** : faut-il pouvoir exiger une réponse saisie (`cod_answer`) avant de montrer le message d'arrivée ou l'énigme suivante ?
-4. **Pénalité des jokers** : faut-il une valeur par chasse (proposée ici) ou une valeur différente par niveau de joker ?
-5. **Classement provisoire** : doit-il être visible par les joueurs pendant la course ?
-6. **`htc_giftedby_htr`** : quelle était l'intention (étape « offerte » par l'organisateur ? par un autre joueur ?) ? La proposition actuelle la remplace par la validation manuelle par l'organisateur.
-7. **`hun_contribution`** : un simple affichage, ou faudra-t-il un jour un paiement en ligne ?
+### 10.1 Décisions (septembre 2026)
+
+| Question | Décision |
+|---|---|
+| Back-end | **Node.js** (Fastify) |
+| Base de données | **PostgreSQL** |
+| Ordre des étapes | **Linéaire** |
+| Énigmes à réponse | Pas dans un premier temps ; la colonne `cod_answer` est réservée |
+| Pénalité des jokers | **Une valeur par niveau** de joker, fixée pour la chasse |
+| Classement pendant la course | Chaque équipe ne voit **que sa propre position** ; l'organisateur voit tout |
+| `htc_giftedby_htr` | Remplacé par la **validation manuelle** par l'organisateur (`val_source = 'MANUAL'`, `val_by_htr`) |
+| Participation (`hun_contribution`) | **Affichage seul** dans la première version |
+
+### 10.2 Évolutions envisagées
+
+- **Mode « neuronal »** : le parcours devient un graphe plutôt qu'une ligne. Plusieurs énigmes se résolvent **en parallèle**, et leur réunion ouvre la voie à de nouvelles énigmes. Pistes pour le modèle :
+  - une table de dépendances entre étapes `th_codelinks (cdl_from_cod, cdl_to_cod)` ;
+  - la règle « l'étape *n* n'est accessible que si l'étape *n-1* est validée » devient « toutes ses étapes prérequises sont validées » ;
+  - `evaluateScan` et `lastValidatedOrder` sont les deux fonctions à généraliser ;
+  - la piste de progression devient une petite carte.
+- **Énigmes à réponse** : l'équipe saisit la réponse (`cod_answer`) avant de voir le message d'arrivée ou l'énigme suivante. Il faudra une comparaison tolérante (casse, accents) et une limite de tentatives.
+- **Paiement en ligne** de la participation, pour une version beaucoup plus avancée.
+- **Notifications** : « votre départ est dans 5 minutes », « un équipier a trouvé l'étape 3 ».

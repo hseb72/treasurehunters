@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from './models';
+import { AuthResult, Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
 export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
@@ -11,8 +11,9 @@ export class ApiError extends Error {}
  * Implémenté par MockHuntApi pour les maquettes, puis par un client HTTP.
  */
 export abstract class HuntApi {
-  abstract login(email: string, password: string): Observable<Hunter>;
-  abstract register(nickname: string, email: string, password: string): Observable<Hunter>;
+  abstract login(email: string, password: string): Observable<AuthResult>;
+  abstract register(nickname: string, email: string, password: string): Observable<AuthResult>;
+  abstract logout(): Observable<void>;
   abstract updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email'>>): Observable<Hunter>;
 
   abstract listHunts(scope: HuntScope): Observable<Hunt[]>;

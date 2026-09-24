@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { formatDuration } from '../core/rules';
+import { formatDuration } from '@shared/rules';
 
 /** Durée en millisecondes → « 2 j 03 h 12 min », « 1:02:03 » ou « 12:34 » (comptes à rebours et chronos). */
 export function formatClock(ms: number): string {

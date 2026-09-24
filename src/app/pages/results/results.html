@@ -5,8 +5,8 @@
       <h1 class="display">{{ h.name }}</h1>
       <p class="muted small">
         {{ h.begin | date: 'EEEE d MMMM y' }} · {{ modes[h.startMode] }}
-        @if (h.hintPenalty) {
-          · joker = +{{ h.hintPenalty }} min
+        @if (penalties(); as p) {
+          · jokers : {{ p }}
         }
       </p>
     </header>

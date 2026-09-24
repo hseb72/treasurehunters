@@ -24,11 +24,16 @@
       </div>
       <th-trail [total]="s.totalSteps" [done]="s.validated.length" [active]="phase() === 'playing'" />
       <div class="board-foot small muted">
+        @if (s.position; as pos) {
+          <span class="position" title="Classement provisoire de votre équipe">
+            <mat-icon inline>military_tech</mat-icon> {{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} / {{ pos.total }} ·
+          </span>
+        }
         {{ s.validated.length }} / {{ s.totalSteps }} étapes
         @if (s.hintsUsed) {
           · {{ s.hintsUsed }} joker{{ s.hintsUsed > 1 ? 's' : '' }}
-          @if (s.hunt.hintPenalty) {
-            (+{{ s.hintsUsed * s.hunt.hintPenalty }} min)
+          @if (s.penalty) {
+            (+{{ s.penalty }} min)
           }
         }
       </div>
@@ -88,8 +93,8 @@
                     <mat-icon>{{ confirmHint() ? 'lock_open' : 'lock' }}</mat-icon>
                     @if (confirmHint()) {
                       Confirmer
-                      @if (s.hunt.hintPenalty) {
-                        : +{{ s.hunt.hintPenalty }} min
+                      @if (nextHintPenalty()) {
+                        : +{{ nextHintPenalty() }} min
                       }
                     } @else {
                       Briser le sceau du joker {{ clue.hintsRevealed.length + 1 }} / {{ clue.hintsTotal }}
@@ -110,8 +115,11 @@
           <span class="stamp stamp--gold big-stamp">Trésor trouvé !</span>
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
-          <p class="muted small">Temps de parcours{{ s.hintsUsed && s.hunt.hintPenalty ? ', pénalités de jokers incluses' : '' }}</p>
+          <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités de jokers incluses' : '' }}</p>
           @if (s.hunt.status === 'running') {
+            @if (s.position; as pos) {
+              <p>Position provisoire : <strong>{{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }}</strong> sur {{ pos.total }}.</p>
+            }
             <p>Le podium sera dévoilé à la clôture de l'expédition.</p>
           } @else {
             <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir le podium</a>

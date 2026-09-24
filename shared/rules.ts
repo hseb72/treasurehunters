@@ -2,7 +2,7 @@
  * Règles du jeu, sous forme de fonctions pures (docs/conception.md § 4 et § 5).
  * Utilisées par l'API factice des maquettes ; le back-end devra appliquer exactement les mêmes.
  */
-import { HintUse, Hunt, RankingRow, ScanOutcome, Step, Team, Validation } from './models';
+import { HintUse, Hunt, RankingRow, ScanOutcome, Step, Team, Validation } from './models.js';
 
 const MINUTE = 60_000;
 
@@ -63,20 +63,27 @@ export function evaluateScan(ctx: ScanContext): ScanOutcome {
   return 'validated';
 }
 
+/** Pénalité d'un ensemble de jokers dévoilés, en minutes (§ 5.2). */
+export function hintPenaltyMinutes(hunt: Pick<Hunt, 'hintPenalties'>, uses: Pick<HintUse, 'level'>[]): number {
+  return uses.reduce((sum, u) => sum + (hunt.hintPenalties[u.level - 1] ?? 0), 0);
+}
+
 /**
- * Classement (§ 5.2) : temps = arrivée − départ + jokers × pénalité.
+ * Classement (§ 5.2) : temps = arrivée − départ + pénalités des jokers.
  * En départ groupé, cela revient à classer par ordre d'arrivée.
+ * Les équipes non arrivées suivent, par nombre d'étapes puis par temps écoulé à leur dernière validation.
  */
 export function computeRanking(
-  hunt: Pick<Hunt, 'hintPenalty'>,
+  hunt: Pick<Hunt, 'hintPenalties'>,
   teams: Team[],
   validations: Validation[],
   hintUses: HintUse[],
 ): RankingRow[] {
   const rows: RankingRow[] = teams.map((t) => {
     const vals = validations.filter((v) => v.teamId === t.id);
-    const hints = hintUses.filter((h) => h.teamId === t.id).length;
-    const penalty = hints * hunt.hintPenalty * 60;
+    const uses = hintUses.filter((h) => h.teamId === t.id);
+    const hints = uses.length;
+    const penalty = hintPenaltyMinutes(hunt, uses) * 60;
     const time = t.finished && t.started ? (Date.parse(t.finished) - Date.parse(t.started)) / 1000 + penalty : null;
     const lastValidation = vals.map((v) => v.at).sort().at(-1) ?? null;
     return {
@@ -100,7 +107,7 @@ export function computeRanking(
     }
     if (a.time !== null) return -1;
     if (b.time !== null) return 1;
-    return b.steps - a.steps || (a.lastValidation ?? '').localeCompare(b.lastValidation ?? '');
+    return b.steps - a.steps || elapsedAtLast(a) - elapsedAtLast(b);
   });
 
   let rank = 0;
@@ -108,6 +115,18 @@ export function computeRanking(
     if (r.time !== null) r.rank = ++rank;
   });
   return rows;
+}
+
+/** Temps écoulé entre le départ de l'équipe et sa dernière validation (ms). */
+function elapsedAtLast(r: RankingRow): number {
+  if (!r.lastValidation || !r.started) return Number.MAX_SAFE_INTEGER;
+  return Date.parse(r.lastValidation) - Date.parse(r.started);
+}
+
+/** Position provisoire d'une équipe dans le classement. */
+export function teamPosition(rows: RankingRow[], teamId: number): { rank: number; total: number } | null {
+  const i = rows.findIndex((r) => r.teamId === teamId);
+  return i < 0 ? null : { rank: i + 1, total: rows.length };
 }
 
 /** Durée en secondes → « 1 h 05 min 12 s ». */

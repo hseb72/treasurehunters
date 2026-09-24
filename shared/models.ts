@@ -33,8 +33,8 @@ export interface Hunt {
   startMode: StartMode;
   /** Minutes entre deux départs (mode échelonné). */
   interval: number | null;
-  /** Minutes de pénalité par joker dévoilé. */
-  hintPenalty: number;
+  /** Minutes de pénalité par niveau de joker : [joker 1, joker 2, joker 3]. */
+  hintPenalties: number[];
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -141,6 +141,15 @@ export interface PlayState {
   /** Énigme en cours ; null avant le départ ou après l'arrivée. */
   clue: PlayClue | null;
   hintsUsed: number;
+  /** Pénalités cumulées, en minutes. */
+  penalty: number;
+  /** Position provisoire de l'équipe (les joueurs ne voient pas celle des autres). */
+  position: { rank: number; total: number } | null;
+}
+
+export interface AuthResult {
+  user: Hunter;
+  token: string;
 }
 
 /** Résultats possibles d'un scan, dans l'ordre d'évaluation (§ 4.2). */

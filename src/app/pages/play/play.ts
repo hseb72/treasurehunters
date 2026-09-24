@@ -8,7 +8,7 @@ import { switchMap, timer } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Clock } from '../../core/clock';
 import { Notify } from '../../core/notify';
-import { formatDuration } from '../../core/rules';
+import { formatDuration } from '@shared/rules';
 import { formatClock } from '../../shared/format';
 import { Trail } from '../../shared/trail';
 
@@ -60,7 +60,13 @@ export class PlayPage {
     const s = this.state.value();
     if (!s?.team.finished || !s.team.started) return '';
     const seconds = (Date.parse(s.team.finished) - Date.parse(s.team.started)) / 1000;
-    return formatDuration(seconds + s.hintsUsed * s.hunt.hintPenalty * 60);
+    return formatDuration(seconds + s.penalty * 60);
+  });
+
+  /** Pénalité du prochain joker de l'énigme en cours, en minutes. */
+  protected readonly nextHintPenalty = computed(() => {
+    const s = this.state.value();
+    return s?.clue ? (s.hunt.hintPenalties[s.clue.hintsRevealed.length] ?? 0) : 0;
   });
 
   protected countdown(iso: string | null): string {

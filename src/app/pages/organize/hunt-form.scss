@@ -16,6 +16,13 @@
   gap: 0 16px;
 }
 
+.three {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 10px;
+  max-width: 480px;
+}
+
 .narrow {
   max-width: 420px;
   margin-top: 8px;

@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, HuntAction, HuntApi, HuntScope } from '../api';
-import { Hunt, Hunter, LiveRow, PlayClue, PlayState, RankingRow, ScanResult, Step, Team } from '../models';
-import { computeRanking, evaluateScan, finalOrder, lastValidatedOrder, randomToken, teamStartTimes } from '../rules';
+import { AuthResult, Hunt, Hunter, LiveRow, PlayClue, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
+import { computeRanking, evaluateScan, finalOrder, hintPenaltyMinutes, lastValidatedOrder, randomToken, teamPosition, teamStartTimes } from '@shared/rules';
 import { Session } from '../session';
-import { buildFixtures, MockDb } from './fixtures';
+import { buildFixtures, MockDb } from '@shared/fixtures';
 
 const LATENCY_MS = 150;
 
@@ -17,23 +17,27 @@ export class MockHuntApi extends HuntApi {
   private readonly session = inject(Session);
   private readonly db: MockDb = buildFixtures();
 
+  logout(): Observable<void> {
+    return this.reply(() => undefined);
+  }
+
   /* ---------- Comptes ---------- */
 
-  login(email: string, password: string): Observable<Hunter> {
+  login(email: string, password: string): Observable<AuthResult> {
     return this.reply(() => {
       const h = this.db.hunters.find((x) => x.email.toLowerCase() === email.trim().toLowerCase());
       if (!h || h.password !== password) throw new ApiError('E-mail ou mot de passe incorrect.');
-      return this.publicHunter(h);
+      return { user: this.publicHunter(h), token: `mock-${h.id}` };
     });
   }
 
-  register(nickname: string, email: string, password: string): Observable<Hunter> {
+  register(nickname: string, email: string, password: string): Observable<AuthResult> {
     return this.reply(() => {
       if (this.db.hunters.some((h) => h.email.toLowerCase() === email.toLowerCase())) throw new ApiError('Cet e-mail est déjà utilisé.');
       if (this.db.hunters.some((h) => h.nickname.toLowerCase() === nickname.toLowerCase())) throw new ApiError('Ce pseudo est déjà pris.');
       const h = { id: this.nextId(this.db.hunters), nickname, email, password };
       this.db.hunters.push(h);
-      return this.publicHunter(h);
+      return { user: this.publicHunter(h), token: `mock-${h.id}` };
     });
   }
 
@@ -94,7 +98,7 @@ export class MockHuntApi extends HuntApi {
         award: null,
         startMode: 'mass',
         interval: null,
-        hintPenalty: 0,
+        hintPenalties: [0, 0, 0],
         teamGame: true,
         teamMin: 1,
         teamMax: 4,
@@ -506,7 +510,17 @@ export class MockHuntApi extends HuntApi {
         hintsTotal: current.hints.length,
       };
     }
-    return { hunt, team, totalSteps: finalOrder(steps), validated, clue, hintsUsed: hints.length };
+    const position = hunt.status === 'running' && team.started ? teamPosition(this.ranking(huntId), team.id) : null;
+    return {
+      hunt,
+      team,
+      totalSteps: finalOrder(steps),
+      validated,
+      clue,
+      hintsUsed: hints.length,
+      penalty: hintPenaltyMinutes(hunt, hints),
+      position,
+    };
   }
 
   private ranking(huntId: number): RankingRow[] {

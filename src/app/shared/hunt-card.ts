@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Hunt } from '../core/models';
+import { Hunt } from '@shared/models';
 import { START_MODE_LABELS } from './labels';
 import { StatusBadge } from './status-badge';
 

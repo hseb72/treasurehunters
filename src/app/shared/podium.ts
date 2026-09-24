@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { RankingRow } from '../core/models';
+import { RankingRow } from '@shared/models';
 import { DurationPipe } from './format';
 
 /** Podium des trois premières équipes (2ᵉ, 1ʳᵉ, 3ᵉ de gauche à droite). */

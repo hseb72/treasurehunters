@@ -16,9 +16,11 @@
       } @else {
         <a mat-list-item routerLink="/login" routerLinkActive="active"><mat-icon matListItemIcon>login</mat-icon>Connexion</a>
       }
-      <a mat-list-item routerLink="/demo" routerLinkActive="active" class="demo-link">
-        <mat-icon matListItemIcon>science</mat-icon>Guide des maquettes
-      </a>
+      @if (demo) {
+        <a mat-list-item routerLink="/demo" routerLinkActive="active" class="demo-link">
+          <mat-icon matListItemIcon>science</mat-icon>Guide de démonstration
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
 

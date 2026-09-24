@@ -95,18 +95,34 @@
       </div>
     }
 
-    <h3>Jokers et visibilité</h3>
-    <div class="two narrow">
+    <h3>Pénalités des jokers</h3>
+    <p class="small muted">Temps ajouté au parcours de l'équipe à chaque joker dévoilé, selon son niveau.</p>
+    <div class="three">
       <mat-form-field>
-        <mat-label>Pénalité par joker</mat-label>
-        <input matInput type="number" min="0" formControlName="hintPenalty" />
+        <mat-label>Joker 1</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty1" />
         <span matTextSuffix>min</span>
       </mat-form-field>
+      <mat-form-field>
+        <mat-label>Joker 2</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty2" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Joker 3</mat-label>
+        <input matInput type="number" min="0" formControlName="penalty3" />
+        <span matTextSuffix>min</span>
+      </mat-form-field>
+    </div>
+
+    <h3>Participation et visibilité</h3>
+    <div class="two narrow">
       <mat-form-field>
         <mat-label>Participation</mat-label>
         <input matInput type="number" min="0" step="0.5" formControlName="contribution" />
         <span matTextSuffix>€</span>
       </mat-form-field>
+      <span></span>
     </div>
     <mat-slide-toggle formControlName="isPublic">Expédition publique (sinon, sur invitation)</mat-slide-toggle>
     @if (hunt(); as h) {

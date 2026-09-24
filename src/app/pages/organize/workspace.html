@@ -45,7 +45,7 @@
 
     <nav mat-tab-nav-bar [tabPanel]="panel" class="tabs no-print" mat-stretch-tabs="false">
       @for (t of tabs; track t.path) {
-        <a mat-tab-link [routerLink]="t.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+        <a mat-tab-link [routerLink]="t.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive" [attr.aria-label]="t.label">
           <mat-icon>{{ t.icon }}</mat-icon><span class="tab-label">{{ t.label }}</span>
         </a>
       }

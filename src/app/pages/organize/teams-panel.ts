@@ -5,7 +5,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { HuntApi } from '../../core/api';
-import { Team } from '../../core/models';
+import { Team } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { WorkspaceState } from './workspace-state';
 

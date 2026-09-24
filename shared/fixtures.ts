@@ -2,7 +2,7 @@
  * Jeu de données des maquettes. Les dates sont calculées par rapport à l'heure de chargement,
  * pour que la chasse « en cours » le soit toujours.
  */
-import { HintUse, Hunt, Hunter, Step, Team, Validation } from '../models';
+import { HintUse, Hunt, Hunter, Step, Team, Validation } from './models.js';
 
 export interface MockDb {
   hunters: (Hunter & { password: string })[];
@@ -25,6 +25,9 @@ export const DEMO_TOKENS = {
   etangs: ['', 'Ui5Op1As7Df3Gh9Jk5Lz1X', 'Cv8Bn4Mq0We6Rt2Yu8Io4P'],
 };
 
+/** « Léa » → « lea », pour des adresses e-mail valides. */
+const ascii = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
 export function buildFixtures(now = Date.now()): MockDb {
   const at = (offsetMin: number) => new Date(now + offsetMin * MIN).toISOString();
   const atDay = (days: number, hour: number, minute = 0) => {
@@ -37,7 +40,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     { id: 1, nickname: 'seb', email: 'seb@example.com', password: 'demo' },
     { id: 2, nickname: 'Camille', email: 'camille@example.com', password: 'demo' },
     ...['Léa', 'Hugo', 'Inès', 'Tom', 'Jade', 'Noah', 'Zoé', 'Enzo', 'Manon', 'Lucas', 'Chloé', 'Nathan', 'Emma', 'Louis'].map(
-      (nickname, i) => ({ id: i + 3, nickname, email: `${nickname.toLowerCase()}@example.com`, password: 'demo' }),
+      (nickname, i) => ({ id: i + 3, nickname, email: `${ascii(nickname)}@example.com`, password: 'demo' }),
     ),
   ];
   const nick = (id: number) => hunters.find((h) => h.id === id)!.nickname;
@@ -48,7 +51,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     autoClose: false,
     award: null,
     interval: null,
-    hintPenalty: 0,
+    hintPenalties: [0, 0, 0] as number[],
     teamGame: true,
     teamMin: 1,
     teamMax: 4,
@@ -75,7 +78,7 @@ export function buildFixtures(now = Date.now()): MockDb {
       award: 'Un panier de nèfles et la gloire éternelle',
       startMode: 'staggered',
       interval: 10,
-      hintPenalty: 5,
+      hintPenalties: [2, 5, 10],
       teamMin: 2,
       joinCode: 'NEFLES',
       contribution: 5,
@@ -109,7 +112,7 @@ export function buildFixtures(now = Date.now()): MockDb {
       closed: atDay(-60, 13),
       award: 'Un plateau de fruits de mer',
       startMode: 'mass',
-      hintPenalty: 3,
+      hintPenalties: [3, 3, 3],
       joinCode: 'PALAVAS',
       status: 'closed',
     },

@@ -49,7 +49,7 @@ export class ProfilePage {
   protected save(): void {
     this.api.updateMe(this.form.getRawValue()).subscribe({
       next: (user) => {
-        this.session.set(user);
+        this.session.updateUser(user);
         this.form.markAsPristine();
         this.notify.info('Profil enregistré.');
       },

@@ -10,11 +10,14 @@ import {
 } from '@angular/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatIconRegistry } from '@angular/material/icon';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { HuntApi } from './core/api';
+import { apiInterceptor, HttpHuntApi } from './core/http-hunt-api';
 import { MockHuntApi } from './core/mock/mock-hunt-api';
+import { environment } from '../environments/environment';
 
 registerLocaleData(localeFr);
 
@@ -31,7 +34,8 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'fr-FR' },
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-    // Maquettes : back-end simulé. À remplacer par le client HTTP quand l'API existera.
-    { provide: HuntApi, useClass: MockHuntApi },
+    provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
+    // Vrai back-end, ou données simulées pour les maquettes (npm run start:mock).
+    { provide: HuntApi, useClass: environment.api === 'mock' ? MockHuntApi : HttpHuntApi },
   ],
 };
