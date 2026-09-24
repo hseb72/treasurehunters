@@ -37,7 +37,8 @@ relais passe par Kong, jamais directement par l'API.
 | Élément | Source |
 |---|---|
 | Deployments / Services `web` et `api`, ConfigMap `api-config`, PDB, NetworkPolicy « Kong seulement » | chart `app` de platform-patterns (OCI, **épinglé**), valeurs [`values.yaml`](values.yaml) |
-| Tag des images | `values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI (master est protégée) |
+| Tag des images | `deploy/values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI |
+| Ce qu'Argo CD lit | la branche d'environnement **`deploy-state`** : copie de `deploy/` depuis `master`, plus le tag d'image. Tenue à jour par `.github/workflows/deploy.yml` (master est protégée, et Argo exige une seule révision par dépôt) |
 | Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
 | Secret `treasurehunters-api-secrets` (`DATABASE_URL`) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
 | Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
@@ -74,7 +75,7 @@ api.treasurehunters.crealcs.com.   A   <IP>
 
 **3. Images.** Le premier passage de la CI sur `master` publie
 `ghcr.io/hseb72/treasurehunters/{web,api}:<sha>` et écrit ce SHA dans
-`values-image.yaml`, sur la branche `deploy-state` (créée au premier passage). Si les paquets GHCR sont privés, déclarer un
+`deploy/values-image.yaml`, sur la branche `deploy-state` (créée au premier passage). Si les paquets GHCR sont privés, déclarer un
 `imagePullSecret` (`global.imagePullSecrets` dans `values.yaml`) ou rendre les
 paquets publics.
 
