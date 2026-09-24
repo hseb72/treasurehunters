@@ -48,8 +48,16 @@ export function client(app: FastifyInstance, token?: string) {
   };
 }
 
+/** Une connexion par joueur et par application : la connexion est limitée à 20 par minute. */
+const sessions = new WeakMap<FastifyInstance, Map<string, string>>();
+
 export async function loginAs(app: FastifyInstance, email: string) {
-  const res = await client(app).post('/api/auth/login', { email, password: 'demo' });
-  if (res.status !== 200) throw new Error(`Connexion impossible : ${JSON.stringify(res.body)}`);
-  return client(app, res.body.token);
+  const known = sessions.get(app) ?? new Map<string, string>();
+  sessions.set(app, known);
+  if (!known.has(email)) {
+    const res = await client(app).post('/api/auth/login', { email, password: 'demo' });
+    if (res.status !== 200) throw new Error(`Connexion impossible : ${JSON.stringify(res.body)}`);
+    known.set(email, res.body.token);
+  }
+  return client(app, known.get(email));
 }

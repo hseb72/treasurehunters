@@ -63,6 +63,10 @@ export function toHunt(r: Row): Hunt {
     joinCode: r['hun_joincode'],
     contribution: r['hun_contribution'],
     startText: r['hun_starttext'],
+    validation: r['hun_validation'],
+    geoRadius: r['hun_georadius'],
+    generated: r['hun_generated'],
+    surprise: r['hun_surprise'],
     status: r['hst_code'],
     stepCount: r['step_count'],
     teamCount: r['team_count'],
@@ -99,6 +103,8 @@ export const HUNT_COLUMNS: Partial<Record<keyof Hunt, (h: Partial<Hunt>) => [str
   teamMax: (h) => [['hun_teammax', h.teamMax]],
   isPublic: (h) => [['hun_public', h.isPublic]],
   contribution: (h) => [['hun_contribution', h.contribution]],
+  validation: (h) => [['hun_validation', h.validation]],
+  geoRadius: (h) => [['hun_georadius', h.geoRadius]],
 };
 
 export function huntAssignments(data: Partial<Hunt>): [string, unknown][] {

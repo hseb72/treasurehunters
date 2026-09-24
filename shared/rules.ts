@@ -168,3 +168,22 @@ export function randomToken(length = 22): string {
   }
   return out;
 }
+
+const EARTH_RADIUS_M = 6_371_000;
+
+/** Distance à vol d'oiseau entre deux points (formule de haversine), en mètres. */
+export function distanceMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Distance maximale acceptée pour valider une arrivée par géolocalisation : le rayon de la chasse,
+ * élargi de l'imprécision annoncée par le téléphone (plafonnée à 30 m pour ne pas tout accepter).
+ */
+export function checkinAllowance(hunt: Pick<Hunt, 'geoRadius'>, accuracy: number | null | undefined): number {
+  return hunt.geoRadius + Math.min(Math.max(accuracy ?? 0, 0), 30);
+}

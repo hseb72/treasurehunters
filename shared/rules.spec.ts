@@ -1,5 +1,5 @@
 import { Hunt, HintUse, Step, Team, Validation } from './models.js';
-import { computeRanking, evaluateScan, penaltyMinutes, randomToken, ScanContext, teamPosition, teamStartTimes } from './rules.js';
+import { checkinAllowance, computeRanking, distanceMeters, evaluateScan, penaltyMinutes, randomToken, ScanContext, teamPosition, teamStartTimes } from './rules.js';
 
 const T0 = Date.parse('2026-09-24T10:00:00Z');
 const at = (min: number) => new Date(T0 + min * 60_000).toISOString();
@@ -12,7 +12,7 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
   return {
     id: 1, ownerId: 99, ownerNickname: 'orga', name: 'H', description: '', location: '', begin: at(0), end: at(240),
     started: at(0), closed: null, autoStart: false, autoClose: false, award: null, startMode: 'mass', interval: null,
-    hintPenalties: [0, 0, 0], skipPenalty: 30, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
+    hintPenalties: [0, 0, 0], skipPenalty: 30, validation: 'qr', geoRadius: 40, generated: false, surprise: false, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
     startText: null, status: 'running', stepCount: 3, teamCount: 0, ...extra,
   };
 }
@@ -131,5 +131,21 @@ describe('randomToken', () => {
     const a = randomToken();
     expect(a).toMatch(/^[0-9A-Za-z]{22}$/);
     expect(randomToken()).not.toBe(a);
+  });
+});
+
+describe('géolocalisation', () => {
+  it('mesure la distance entre deux points', () => {
+    // Place de la Comédie → Arc de triomphe du Peyrou (Montpellier) : environ 1 km.
+    const d = distanceMeters({ lat: 43.6085, lng: 3.8797 }, { lat: 43.6115, lng: 3.8704 });
+    expect(d).toBeGreaterThan(750);
+    expect(d).toBeLessThan(900);
+    expect(distanceMeters({ lat: 43.6, lng: 3.88 }, { lat: 43.6, lng: 3.88 })).toBe(0);
+  });
+
+  it('élargit le rayon de l’imprécision du GPS, dans une limite', () => {
+    expect(checkinAllowance({ geoRadius: 40 }, 12)).toBe(52);
+    expect(checkinAllowance({ geoRadius: 40 }, 500)).toBe(70);
+    expect(checkinAllowance({ geoRadius: 40 }, null)).toBe(40);
   });
 });

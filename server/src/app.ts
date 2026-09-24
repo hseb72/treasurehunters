@@ -42,6 +42,8 @@ const huntFields = {
   teamMax: z.number().int().min(1).max(50),
   isPublic: z.boolean(),
   contribution: z.number().min(0).max(100_000),
+  validation: z.enum(['qr', 'geo']),
+  geoRadius: z.number().int().min(10).max(500),
 };
 const huntCreate = z.object(huntFields).partial().required({ name: true, begin: true, end: true });
 const huntUpdate = z.object(huntFields).partial();
@@ -192,6 +194,13 @@ export async function buildApp(pool: pg.Pool, opts: { logger?: boolean } = {}): 
   app.get('/api/hunts/:id/play', async (req) => service.getPlay(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/hints', async (req) => service.revealHint(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/skip', async (req) => service.skipStep(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/self-start', async (req) => service.selfStart(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/checkin', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
+    const pos = z
+      .object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(100_000) })
+      .parse(req.body);
+    return service.checkin(req.viewer, idParams.parse(req.params).id, pos, req.ip);
+  });
   // POST : un scan peut valider une étape, il ne doit jamais être déclenché par un simple préchargement.
   app.post('/api/scan/:token', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
     const { token } = z.object({ token: text(64).min(1) }).parse(req.params);

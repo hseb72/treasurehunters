@@ -8,6 +8,9 @@ export type HuntStatus = 'draft' | 'published' | 'running' | 'closed' | 'cancell
 /** 'mass' = départ groupé, 'staggered' = départ échelonné (§ 5.1). */
 export type StartMode = 'mass' | 'staggered';
 
+/** Comment une étape se valide : QR code scanné, ou présence sur place (géolocalisation). */
+export type ValidationMode = 'qr' | 'geo';
+
 export interface Hunter {
   id: number;
   nickname: string;
@@ -37,6 +40,14 @@ export interface Hunt {
   hintPenalties: number[];
   /** Minutes de pénalité pour l'abandon d'une épreuve (« 4ᵉ joker »). */
   skipPenalty: number;
+  /** Validation des étapes : QR code, ou géolocalisation (chasses générées, sans QR). */
+  validation: ValidationMode;
+  /** Rayon d'arrivée en mètres pour la validation par géolocalisation. */
+  geoRadius: number;
+  /** Chasse inventée par le générateur (OpenStreetMap + IA). */
+  generated: boolean;
+  /** Chasse surprise : le joueur l'a générée pour lui-même et n'en voit pas le détail. */
+  surprise: boolean;
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -90,7 +101,7 @@ export interface Validation {
   stepId: number;
   hunterId: number;
   /** QR scanné, validation manuelle de l'organisateur, ou épreuve abandonnée par l'équipe. */
-  source: 'QR' | 'MANUAL' | 'SKIP';
+  source: 'QR' | 'MANUAL' | 'SKIP' | 'GEO';
   at: string;
 }
 
@@ -155,6 +166,43 @@ export interface PlayState {
   penalty: number;
   /** Position provisoire de l'équipe (les joueurs ne voient pas celle des autres). */
   position: { rank: number; total: number } | null;
+  /** Chasse surprise pas encore partie : le joueur donne lui-même le départ. */
+  selfStart: boolean;
+}
+
+/** Résultat d'un « Je suis arrivé » (validation par géolocalisation). */
+export interface CheckinResult {
+  outcome: 'validated' | 'too_far';
+  /** Distance au lieu cherché, en mètres (arrondie). */
+  distance: number;
+  /** Distance maximale acceptée pour ce check-in, en mètres. */
+  allowed: number;
+  step: { order: number; title: string; arrival: string | null; isFinal: boolean } | null;
+  state: PlayState;
+}
+
+/* ---------- Génération de chasses ---------- */
+
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+export interface GenerationRequest {
+  /** Lieu : nom de ville ou d'adresse, OU coordonnées (carte, position du téléphone). */
+  location: { query?: string; lat?: number; lng?: number };
+  /** Durée approximative de la chasse, en minutes. */
+  durationMinutes: number;
+  difficulty: Difficulty;
+  /** Nombre d'étapes à trouver (arrivée comprise) ; null = déduit de la durée. */
+  steps: number | null;
+  /** 'play' : chasse surprise pour soi ; 'organize' : l'utilisateur en devient l'organisateur. */
+  mode: 'play' | 'organize';
+}
+
+export interface GenerationJob {
+  id: string;
+  status: 'pending' | 'done' | 'error';
+  mode: 'play' | 'organize';
+  huntId: number | null;
+  error: string | null;
 }
 
 export interface AuthResult {

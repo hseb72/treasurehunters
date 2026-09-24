@@ -5,6 +5,7 @@
 import pg from 'pg';
 import {
   AuthResult,
+  CheckinResult,
   Hunt,
   HuntStatus,
   LiveRow,
@@ -17,7 +18,9 @@ import {
   Team,
 } from '../../shared/models.js';
 import {
+  checkinAllowance,
   computeRanking,
+  distanceMeters,
   evaluateScan,
   finalOrder,
   lastValidatedOrder,
@@ -50,7 +53,9 @@ import {
 export type Viewer = number | null;
 export type HuntScope = 'public' | 'playing' | 'organized';
 export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
-export type HuntInput = Partial<Omit<Hunt, 'id' | 'ownerId' | 'ownerNickname' | 'status' | 'started' | 'closed' | 'joinCode' | 'stepCount' | 'teamCount'>>;
+export type HuntInput = Partial<
+  Omit<Hunt, 'id' | 'ownerId' | 'ownerNickname' | 'status' | 'started' | 'closed' | 'joinCode' | 'stepCount' | 'teamCount' | 'generated' | 'surprise'>
+>;
 export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude'>>;
 
 /** Champs modifiables pendant la course (les autres changeraient les règles en cours de jeu). */
@@ -208,6 +213,10 @@ export class Service {
         case 'publish':
           expect('draft');
           if (hunt.stepCount < 1) throw conflict('Ajoutez au moins une étape avant de publier.');
+          if (hunt.validation === 'geo') {
+            const missing = (await stepsOf(db, id)).filter((s) => s.order > 0 && (s.latitude === null || s.longitude === null));
+            if (missing.length) throw conflict(`Validation par géolocalisation : placez sur la carte « ${missing[0].title} ».`);
+          }
           await this.setStatus(db, id, 'published');
           break;
         case 'unpublish': {
@@ -511,6 +520,74 @@ export class Service {
     });
   }
 
+  /**
+   * « Je suis arrivé » (validation par géolocalisation, § 11.3) : l'étape cherchée est
+   * validée si le joueur est dans le rayon du lieu, précision du GPS comprise (plafonnée).
+   * Journalisé dans th_scanlog comme un scan, avec le jeton « geo:<étape> ».
+   */
+  async checkin(viewer: Viewer, huntId: number, pos: { lat: number; lng: number; accuracy: number }, ip?: string): Promise<CheckinResult> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const team = await teamOf(db, huntId, me);
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      await teamById(db, team.id, true); // sérialisé avec les scans et abandons de l'équipe
+      const hunt = (await huntById(db, huntId))!;
+      if (hunt.validation !== 'geo') throw conflict('Cette chasse se joue avec les QR codes posés sur place.');
+      const state = await this.playState(db, me, huntId);
+      const clue = state.clue;
+      if (!clue) throw conflict('Aucune étape à trouver pour le moment.');
+      const steps = await stepsOf(db, huntId);
+      const target = steps.find((s) => s.order === clue.targetOrder)!;
+      if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+
+      const distance = Math.round(distanceMeters({ lat: pos.lat, lng: pos.lng }, { lat: target.latitude, lng: target.longitude }));
+      const allowed = Math.round(checkinAllowance(hunt, pos.accuracy));
+      const outcome = distance <= allowed ? 'validated' : 'too_far';
+      await db.query(
+        'INSERT INTO th_scanlog (scl_code_cod, scl_token, scl_hunter_htr, scl_team_tea, scl_result, scl_ip) VALUES ($1, $2, $3, $4, $5, $6)',
+        [target.id, `geo:${target.id}`, me, team.id, outcome, ip ?? null],
+      );
+      if (outcome === 'too_far') return { outcome, distance, allowed, step: null, state };
+
+      const final = finalOrder(steps);
+      await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source) VALUES ($1, $2, $3, 'GEO')`, [
+        team.id,
+        target.id,
+        me,
+      ]);
+      if (target.order === final) {
+        await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [team.id]);
+        // Chasse surprise : le seul joueur est arrivé, la chasse se clôt et le résultat s'affiche.
+        if (hunt.surprise) {
+          await db.query(`UPDATE th_hunts SET hun_closed = now(), hun_status_hst = $2, hun_lastupdate = now() WHERE hun_id = $1`, [
+            hunt.id,
+            STATUS_IDS.closed,
+          ]);
+        }
+      }
+      return {
+        outcome,
+        distance,
+        allowed,
+        step: { order: target.order, title: target.title, arrival: target.arrival, isFinal: target.order === final },
+        state: await this.playState(db, me, huntId),
+      };
+    });
+  }
+
+  /** Chasse surprise : le joueur donne lui-même le départ, quand il est prêt (§ 11.4). */
+  async selfStart(viewer: Viewer, huntId: number): Promise<PlayState> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const hunt = await huntById(db, huntId, true);
+      if (!hunt || !(await teamOf(db, huntId, me))) throw notFound('Chasse introuvable.');
+      if (!hunt.surprise) throw forbidden('Le départ est donné par l’organisateur.');
+      if (hunt.status !== 'published') throw conflict('Cette chasse est déjà partie.');
+      await this.start(db, hunt);
+      return this.playState(db, me, huntId);
+    });
+  }
+
   /** Scan d'un QR code : algorithme du § 4.2, journalisé dans th_scanlog. */
   async scan(viewer: Viewer, token: string, ip?: string): Promise<ScanResult> {
     return tx(this.pool, async (db) => {
@@ -619,6 +696,7 @@ export class Service {
       skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
+      selfStart: hunt.surprise && hunt.status === 'published',
     };
   }
 
