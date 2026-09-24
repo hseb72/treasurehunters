@@ -37,7 +37,7 @@ relais passe par Kong, jamais directement par l'API.
 | Élément | Source |
 |---|---|
 | Deployments / Services `web` et `api`, ConfigMap `api-config`, PDB, NetworkPolicy « Kong seulement » | chart `app` de platform-patterns (OCI, **épinglé**), valeurs [`values.yaml`](values.yaml) |
-| Tag des images | [`values-image.yaml`](values-image.yaml), écrit par la CI |
+| Tag des images | `values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI (master est protégée) |
 | Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
 | Secret `treasurehunters-api-secrets` (`DATABASE_URL`) | `manifests/sealed-api-secrets.yaml`, **scellé** ([`create-secrets.sh`](create-secrets.sh)) |
 | Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
@@ -74,7 +74,7 @@ api.treasurehunters.crealcs.com.   A   <IP>
 
 **3. Images.** Le premier passage de la CI sur `master` publie
 `ghcr.io/hseb72/treasurehunters/{web,api}:<sha>` et écrit ce SHA dans
-`values-image.yaml`. Si les paquets GHCR sont privés, déclarer un
+`values-image.yaml`, sur la branche `deploy-state` (créée au premier passage). Si les paquets GHCR sont privés, déclarer un
 `imagePullSecret` (`global.imagePullSecrets` dans `values.yaml`) ou rendre les
 paquets publics.
 
@@ -94,8 +94,8 @@ kubectl -n argocd get application treasurehunters -w
 ```
 
 À partir de là, rien ne se fait plus à la main : chaque commit sur `master`
-construit les images, la CI promeut leur SHA dans `values-image.yaml`, et Argo CD
-applique.
+construit les images, la CI promeut leur SHA sur la branche `deploy-state`, et
+Argo CD applique.
 
 ## Vérifier
 
@@ -118,7 +118,9 @@ kubectl -n treasurehunters exec deploy/api -- node dist/server/src/seed-demo.js
 ## Retour arrière
 
 ```bash
-git revert <commit de promotion de values-image.yaml>   # Argo redéploie le SHA précédent
+git switch deploy-state
+git revert <commit de promotion>   # Argo redéploie le SHA précédent
+git push origin deploy-state
 ```
 
 ## Écarts connus avec le pattern, à remonter dans platform-patterns

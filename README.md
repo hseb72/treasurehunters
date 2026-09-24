@@ -65,7 +65,7 @@ npm --prefix server test  # règles du jeu + API sur une vraie base PostgreSQL (
 
 L'application suit le pattern **`shared`** de [platform-patterns](https://github.com/hseb72/platform-patterns) sur la plateforme mutualisée [homelab-platform](https://github.com/hseb72/homelab-platform) : voir **[`deploy/README.md`](deploy/README.md)**.
 - Chaque commit sur `master` construit les images `ghcr.io/hseb72/treasurehunters/{web,api}` (`.github/workflows/build-images.yml`).
-- La CI promeut leur SHA dans `deploy/values-image.yaml` (`deploy.yml`).
+- La CI promeut leur SHA sur la branche `deploy-state` (`deploy.yml`) : `master` est protégée.
 - Argo CD applique ensuite ce SHA.
 
 ## Production sans Kubernetes

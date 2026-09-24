@@ -2,7 +2,8 @@
 # plateforme mutualisée décrite dans hseb72/homelab-platform.
 #
 # Rendu : oci://ghcr.io/hseb72/platform-patterns/app (version épinglée dans
-# argocd/application.yaml). Le tag d'image vient de values-image.yaml, écrit par la CI.
+# argocd/application.yaml). Le tag d'image (global.imageTag) vient de
+# values-image.yaml sur la branche `deploy-state`, écrit par la CI.
 #
 # Ce que le chart rend, dans le namespace `treasurehunters` :
 #   - Deployments + Services `web` (nginx, 8080) et `api` (Node.js, 5080) ;
