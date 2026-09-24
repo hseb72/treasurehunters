@@ -39,7 +39,7 @@ relais passe par Kong, jamais directement par l'API.
 | Deployments / Services `web` et `api`, ConfigMap `api-config`, PDB, NetworkPolicy « Kong seulement » | chart `app` de platform-patterns (OCI, **épinglé**), valeurs [`values.yaml`](values.yaml) |
 | Tag des images | `values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI (master est protégée) |
 | Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
-| Secret `treasurehunters-api-secrets` (`DATABASE_URL`) | `manifests/sealed-api-secrets.yaml`, **scellé** ([`create-secrets.sh`](create-secrets.sh)) |
+| Secret `treasurehunters-api-secrets` (`DATABASE_URL`) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
 | Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
 
 L'API applique elle-même les migrations SQL au démarrage. Elles sont protégées par
@@ -78,12 +78,16 @@ api.treasurehunters.crealcs.com.   A   <IP>
 `imagePullSecret` (`global.imagePullSecrets` dans `values.yaml`) ou rendre les
 paquets publics.
 
-**4. Secret de l'API, scellé :**
+**4. Secret de l'API**, créé directement dans le cluster, avec le **même** mot de
+passe que la clé `treasurehunters` de `database-tenant-keys` :
 
 ```bash
 DB_PASSWORD='<mot de passe du locataire>' ./deploy/create-secrets.sh
-git add deploy/manifests/sealed-api-secrets.yaml && git commit -m "Secret API scellé" && git push
 ```
+
+Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
+copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des
+autres applications. Elle permet de recréer le Secret si le namespace est perdu.
 
 **5. Argo CD :**
 
