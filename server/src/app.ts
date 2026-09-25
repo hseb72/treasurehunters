@@ -92,7 +92,12 @@ export interface AppOptions {
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
   const app = Fastify({ logger: opts.logger ?? false, trustProxy: true });
-  const generator = opts.generator !== undefined ? opts.generator : config.anthropicApiKey ? new OsmClaudeGenerator(config.anthropicApiKey) : null;
+  const key = config.anthropicApiKey;
+  // Une clé qui n'est pas de l'ASCII imprimable (un modèle de commande copié tel quel : « sk-ant-… »)
+  // ne peut pas partir dans un en-tête HTTP : chaque génération échouerait. On le dit une fois.
+  const keyUsable = !!key && /^[\x21-\x7e]+$/.test(key);
+  if (key && !keyUsable) app.log.error('ANTHROPIC_API_KEY invalide (caractères non ASCII ou espaces) : génération de chasses désactivée.');
+  const generator = opts.generator !== undefined ? opts.generator : keyUsable ? new OsmClaudeGenerator(key!) : null;
   const service = new Service(pool, generator, (err, msg) => app.log.error(err, msg));
 
   await app.register(cors, { origin: config.corsOrigin });
