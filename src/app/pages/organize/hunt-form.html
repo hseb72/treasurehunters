@@ -124,6 +124,29 @@
       <span matTextSuffix>min</span>
     </mat-form-field>
 
+    <h3>Validation des étapes</h3>
+    <mat-button-toggle-group formControlName="validation" class="modes" hideSingleSelectionIndicator aria-label="Validation des étapes">
+      <mat-button-toggle value="qr">
+        <mat-icon>qr_code_2</mat-icon>
+        <span class="mode-title">QR codes</span>
+        <span class="mode-text">Vous cachez un QR code sur chaque lieu ; les joueurs le scannent.</span>
+      </mat-button-toggle>
+      <mat-button-toggle value="geo">
+        <mat-icon>where_to_vote</mat-icon>
+        <span class="mode-title">Géolocalisation</span>
+        <span class="mode-text">Rien à poser : « Je suis arrivé » valide l'étape sur place.</span>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (geo()) {
+      <mat-form-field class="short">
+        <mat-label>Rayon d'arrivée</mat-label>
+        <mat-icon matPrefix>radar</mat-icon>
+        <input matInput type="number" min="10" max="500" formControlName="geoRadius" />
+        <span matTextSuffix>m</span>
+        <mat-hint>Placez chaque étape sur la carte (onglet Étapes).</mat-hint>
+      </mat-form-field>
+    }
+
     <h3>Participation et visibilité</h3>
     <div class="two narrow">
       <mat-form-field>

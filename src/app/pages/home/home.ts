@@ -43,7 +43,9 @@ export class HomePage {
   });
 
   protected readonly running = computed(() => this.mine.value().filter((h) => h.status === 'running'));
-  protected readonly upcoming = computed(() => this.mine.value().filter((h) => h.status === 'published'));
+  protected readonly upcoming = computed(() => this.mine.value().filter((h) => h.status === 'published' && !h.surprise));
+  /** Chasses surprises prêtes : le joueur donne le départ quand il veut. */
+  protected readonly surprises = computed(() => this.mine.value().filter((h) => h.status === 'published' && h.surprise));
   protected readonly archives = computed(() =>
     this.mine
       .value()

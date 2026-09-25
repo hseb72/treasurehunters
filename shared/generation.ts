@@ -73,7 +73,7 @@ export function demoPlan(center: { lat: number; lng: number }, count: number, pl
     steps.push({
       title: final ? 'Le trésor' : place[0].toUpperCase() + place.slice(1),
       arrival: final ? 'Le trésor était là, sous vos yeux. Bravo, explorateur !' : `Bien joué : vous avez trouvé ${place}.`,
-      instructions: final ? null : `Suivez l’ombre de ${places[i % places.length]} pour trouver l’étape suivante.`,
+      instructions: final ? null : `Votre boussole pointe désormais vers ${places[i % places.length]} : en route !`,
       hints: final ? [] : ['Levez les yeux.', 'Ce n’est pas loin.', `Cherchez ${places[i % places.length]}.`],
       latitude: center.lat + (Math.sin(angle) * dist) / 111_195,
       longitude: center.lng + (Math.cos(angle) * dist) / (111_195 * Math.cos((center.lat * Math.PI) / 180)),

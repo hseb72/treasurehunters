@@ -1,0 +1,112 @@
+@if (status(); as job) {
+  <div class="page">
+    <section class="parchment center waiting">
+      @if (job.status === 'error') {
+        <mat-icon class="big-icon">explore_off</mat-icon>
+        <h1>L'expédition n'a pas pu être tracée</h1>
+        <p>{{ job.error }}</p>
+        <button mat-flat-button class="th-cta" type="button" (click)="retry()"><mat-icon>refresh</mat-icon>Changer mes souhaits</button>
+      } @else {
+        <th-compass-logo class="spinning" [size]="96" />
+        <h1>Préparation de votre expédition</h1>
+        <p class="note wait-line" aria-live="polite">{{ waitLine() }}</p>
+        <p class="muted small">Cela prend en général moins d'une minute. Vous pouvez laisser cette page ouverte.</p>
+      }
+    </section>
+  </div>
+} @else {
+  <form class="page stack" (ngSubmit)="submit()">
+    <header class="leather head">
+      <p class="muted small kicker">Chasse sur mesure</p>
+      <h1 class="display">Inventez-moi une chasse</h1>
+      <p class="muted">Donnez un lieu et une durée : le maître du jeu repère de vrais lieux sur la carte et écrit les énigmes. Pas de QR code : on valide chaque étape en s'y rendant.</p>
+    </header>
+
+    <section class="parchment stack">
+      <h2 class="step-title"><span class="num">1</span> Où ?</h2>
+      <mat-button-toggle-group name="where" [value]="where()" (change)="$event.value === 'me' ? locate() : where.set($event.value)" class="choice" hideSingleSelectionIndicator>
+        <mat-button-toggle value="city"><mat-icon>location_city</mat-icon> Une ville</mat-button-toggle>
+        <mat-button-toggle value="map"><mat-icon>map</mat-icon> Sur la carte</mat-button-toggle>
+        <mat-button-toggle value="me"><mat-icon>my_location</mat-icon> Ma position</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @if (where() === 'city') {
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>Ville, quartier ou adresse</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput name="query" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="ex. Montpellier, place de la Comédie" autocomplete="off" />
+        </mat-form-field>
+      } @else {
+        @if (locating()) {
+          <p class="muted small row"><mat-icon>satellite_alt</mat-icon> Recherche de votre position…</p>
+        } @else if (!point()) {
+          <p class="muted small">Touchez la carte pour poser le point de départ.</p>
+        }
+        <th-location-map [point]="point()" [radius]="radius()" (picked)="point.set($event); where.set('map')" />
+      }
+    </section>
+
+    <section class="parchment stack">
+      <h2 class="step-title"><span class="num">2</span> Combien de temps ?</h2>
+      <div class="slider-row">
+        <mat-slider min="20" max="240" step="10" discrete [displayWith]="durationLabel" class="grow">
+          <input matSliderThumb name="duration" [ngModel]="duration()" (ngModelChange)="duration.set($event)" />
+        </mat-slider>
+        <span class="big-value">{{ durationLabel(duration()) }}</span>
+      </div>
+      <p class="muted small">Les lieux seront choisis à moins de {{ radius() >= 1000 ? (radius() / 1000).toFixed(1) + ' km' : radius() + ' m' }} du départ environ.</p>
+    </section>
+
+    <section class="parchment stack">
+      <h2 class="step-title"><span class="num">3</span> Quel défi ?</h2>
+      <mat-button-toggle-group name="difficulty" [value]="difficulty()" (change)="difficulty.set($event.value)" class="choice" hideSingleSelectionIndicator>
+        @for (d of difficulties; track d[0]) {
+          <mat-button-toggle [value]="d[0]">{{ d[1] }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+      <p class="muted small">
+        @switch (difficulty()) {
+          @case ('easy') { Énigmes directes, idéal en famille. }
+          @case ('medium') { Jeux de mots et devinettes imagées. }
+          @case ('hard') { Charades et allusions cryptiques pour aventuriers aguerris. }
+        }
+      </p>
+      <div class="steps-row">
+        <mat-button-toggle-group name="autoSteps" [value]="autoSteps()" (change)="autoSteps.set($event.value)" hideSingleSelectionIndicator>
+          <mat-button-toggle [value]="true">Étapes selon la durée</mat-button-toggle>
+          <mat-button-toggle [value]="false">Je choisis</mat-button-toggle>
+        </mat-button-toggle-group>
+        @if (autoSteps()) {
+          <span class="big-value">{{ stepCount() }} étapes</span>
+        } @else {
+          <div class="stepper">
+            <button mat-icon-button type="button" aria-label="Une étape de moins" (click)="steps.set(steps() - 1)" [disabled]="steps() <= 3"><mat-icon>remove</mat-icon></button>
+            <span class="big-value">{{ steps() }}</span>
+            <button mat-icon-button type="button" aria-label="Une étape de plus" (click)="steps.set(steps() + 1)" [disabled]="steps() >= 12"><mat-icon>add</mat-icon></button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="stack">
+      <h2 class="step-title on-paper"><span class="num">4</span> Et ensuite ?</h2>
+      <div class="modes">
+        <button type="button" class="parchment mode" [class.mode--on]="mode() === 'play'" (click)="mode.set('play')" [attr.aria-pressed]="mode() === 'play'">
+          <mat-icon>visibility_off</mat-icon>
+          <strong>Je joue — surprise !</strong>
+          <span class="small muted">Je ne vois rien du parcours : la première énigme s'affiche quand je donne le départ.</span>
+        </button>
+        <button type="button" class="parchment mode" [class.mode--on]="mode() === 'organize'" (click)="mode.set('organize')" [attr.aria-pressed]="mode() === 'organize'">
+          <mat-icon>edit_note</mat-icon>
+          <strong>J'organise</strong>
+          <span class="small muted">Je relis et ajuste les étapes, puis je propose la chasse à des joueurs.</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="actions">
+      <a mat-button routerLink="/">Annuler</a>
+      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready()"><mat-icon>auto_awesome</mat-icon>Inventer ma chasse</button>
+    </div>
+  </form>
+}

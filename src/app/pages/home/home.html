@@ -18,7 +18,9 @@
       </mat-form-field>
       <button mat-stroked-button type="submit" class="code-btn">Rejoindre</button>
     </form>
-    @if (!session.loggedIn()) {
+    @if (session.loggedIn()) {
+      <a mat-stroked-button class="invent-btn" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventez-moi une chasse</a>
+    } @else {
       <div class="row">
         <a mat-button routerLink="/login" class="login-link"><mat-icon>login</mat-icon>Connexion / inscription</a>
       </div>
@@ -33,6 +35,19 @@
           <span class="stamp stamp--jungle">En piste</span>
           <span class="spacer"></span>
           <span class="mat-mdc-button resume-btn">Reprendre <mat-icon>arrow_forward</mat-icon></span>
+        </div>
+      </th-hunt-card>
+    </section>
+  }
+
+  @for (hunt of surprises(); track hunt.id) {
+    <section>
+      <h2 class="section-title">Chasse surprise</h2>
+      <th-hunt-card [hunt]="hunt" [link]="['/play', hunt.id]">
+        <div class="resume row">
+          <span class="stamp stamp--gold">Prête</span>
+          <span class="spacer"></span>
+          <span class="mat-mdc-button resume-btn">Donner le départ <mat-icon>arrow_forward</mat-icon></span>
         </div>
       </th-hunt-card>
     </section>
