@@ -79,12 +79,22 @@ api.treasurehunters.crealcs.com.   A   <IP>
 `imagePullSecret` (`global.imagePullSecrets` dans `values.yaml`) ou rendre les
 paquets publics.
 
-**4. Secret de l'API**, créé directement dans le cluster, avec le **même** mot de
-passe que la clé `treasurehunters` de `database-tenant-keys` :
+**4. Secret de l'API**, créé directement dans le cluster. Le mot de passe est lu
+dans la clé `treasurehunters` de `database-tenant-keys` : c'est celle que le socle
+donne au rôle PostgreSQL. Il est encodé pour l'URL, donc les caractères spéciaux
+sont admis :
 
 ```bash
-DB_PASSWORD='<mot de passe du locataire>' ANTHROPIC_API_KEY='sk-ant-…' ./deploy/create-secrets.sh
+ANTHROPIC_API_KEY='sk-ant-…' ./deploy/create-secrets.sh
+kubectl -n treasurehunters rollout restart deploy/api
 ```
+
+Relancé sans `ANTHROPIC_API_KEY`, le script conserve la clé déjà en place.
+`DB_PASSWORD=…` reste possible pour forcer une valeur.
+
+En cas de `password authentication failed for user "treasurehunters"` : relancer
+le script tel quel. Si l'erreur persiste, le rôle n'a pas reçu la clé : relancer
+le provisionnement (`argocd app sync database`, cf. homelab-platform).
 
 `ANTHROPIC_API_KEY` active la **génération de chasses** (docs/conception.md § 11).
 Sans elle, tout le reste fonctionne et `POST /api/hunts/generate` répond 503.
