@@ -225,7 +225,7 @@ erDiagram
 
 **`th_validations`** (remplace `th_huntercodes` pour la progression)
 - `val_team_tea`, `val_code_cod` et `val_hunter_htr`, le membre qui a scanné.
-- `val_source` vaut `QR`, `MANUAL` ou `SKIP` (épreuve abandonnée par l'équipe). `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
+- `val_source` vaut `QR`, `MANUAL`, `SKIP` (épreuve abandonnée par l'équipe) ou `GEO` (arrivée validée par géolocalisation, § 11.3). `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
 - `val_creation` est l'**heure de passage**.
 - UNIQUE(équipe, étape).
 
@@ -259,6 +259,8 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `GET /hunts/:id/my-team` · `DELETE /hunts/:id/my-team` · `POST /teams/join` | mon équipe, quitter, rejoindre par code | connecté |
 | `PUT /hunts/:id/teams/order` · `POST /teams/:id/delay` | ordre de passage, décalage d'un départ | organisateur |
 | `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours | membre |
+| `POST /hunts/:id/checkin` · `POST /hunts/:id/self-start` | « Je suis arrivé » (validation par géolocalisation, § 11.3), départ d'une chasse surprise | membre |
+| `POST /hunts/generate` · `GET /generations/:id` | invention d'une chasse (§ 11), suivi de la génération | connecté |
 | `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
 | `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
 | `GET /hunts/:id/live` · `POST /teams/:id/validations` | pilotage en direct, validation manuelle | organisateur |
@@ -285,6 +287,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | E12 | Onglet **QR codes** : planche imprimable | `/organize/:id/qrcodes` | organisateur |
 | E13 | Onglet **Direct** : progression, validation manuelle, retard de départ | `/organize/:id/live` | organisateur |
 | E14 | Profil | `/me` | connecté |
+| E15 | **Chasse sur mesure** : lieu (ville, carte, ma position), durée, difficulté, « je joue » ou « j'organise », puis attente | `/generate` | connecté |
 
 ---
 
@@ -319,8 +322,13 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | Classement pendant la course | Chaque équipe ne voit **que sa propre position** ; l'organisateur voit tout |
 | `htc_giftedby_htr` | Remplacé par la **validation manuelle** par l'organisateur (`val_source = 'MANUAL'`, `val_by_htr`) |
 | Participation (`hun_contribution`) | **Affichage seul** dans la première version |
+| Chasse générée : validation | **Géolocalisation** (« Je suis arrivé » dans un rayon de 40 m par défaut), pas de QR code |
+| Chasse générée : lieux | **OpenStreetMap** (Nominatim, Overpass) : uniquement des lieux réels, coordonnées jamais inventées |
+| Chasse générée : énigmes | **Claude** (API Anthropic) : choix du parcours, énigmes, jokers, messages d'arrivée |
 
 ### 10.2 Évolutions envisagées
+
+- **Preuve par photo** (prochaine fonctionnalité) : si un QR a disparu ou a été abîmé, l'équipe photographie le lieu qu'elle pense être la solution. L'organisateur, ou une IA comparant avec une photo de référence, valide la photo (`val_source = 'PHOTO'`) ; l'heure d'envoi compte pour le classement.
 
 - **Mode « neuronal »** : le parcours devient un graphe plutôt qu'une ligne. Plusieurs énigmes se résolvent **en parallèle**, et leur réunion ouvre la voie à de nouvelles énigmes. Pistes pour le modèle :
   - une table de dépendances entre étapes `th_codelinks (cdl_from_cod, cdl_to_cod)` ;
@@ -330,3 +338,64 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 - **Énigmes à réponse** : l'équipe saisit la réponse (`cod_answer`) avant de voir le message d'arrivée ou l'énigme suivante. Il faudra une comparaison tolérante (casse, accents) et une limite de tentatives.
 - **Paiement en ligne** de la participation, pour une version beaucoup plus avancée.
 - **Notifications** : « votre départ est dans 5 minutes », « un équipier a trouvé l'étape 3 ».
+
+---
+
+## 11. Chasses générées
+
+Un joueur peut demander à l'application d'**inventer une chasse** à partir de trois souhaits : un lieu, une durée approximative, une difficulté (ou un nombre d'étapes). Il choisit ensuite d'y **jouer en surprise** ou d'en **devenir l'organisateur**.
+
+### 11.1 Demande
+
+| Souhait | Valeurs |
+|---|---|
+| Lieu | un nom de ville ou d'adresse (géocodé par Nominatim), un point touché sur la carte, ou la position du téléphone |
+| Durée | 20 min à 6 h ; elle fixe le rayon de recherche des lieux (≈ 15 m par minute, entre 300 m et 2,5 km) |
+| Difficulté | Balade (famille), Aventure, Expédition (énigmes cryptiques) |
+| Étapes | déduites de la durée (10, 12 ou 15 min par étape selon la difficulté), ou choisies : 3 à 12, arrivée comprise |
+| Mode | `play` : chasse surprise pour soi · `organize` : brouillon à relire et à proposer à des joueurs |
+
+Règles communes au serveur et aux maquettes : `shared/generation.ts`.
+
+### 11.2 Génération
+
+La génération dure de quelques secondes à une minute. Elle tourne **en tâche de fond** :
+
+1. `POST /hunts/generate` enregistre la demande dans `th_generations` (statut `pending`) et répond **202** avec son identifiant.
+2. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… (rayon doublé une fois s'il en manque).
+3. **Claude** reçoit au plus 60 lieux candidats. Il choisit un parcours faisable à pied et rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée).
+4. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
+5. Le front interroge `GET /generations/:id` toutes les 2,5 s. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
+
+Garde-fous : **5 générations par joueur et par 24 h** (`GENERATION_DAILY_QUOTA`) ; une génération encore `pending` après 10 min est déclarée interrompue ; sans `ANTHROPIC_API_KEY`, l'API répond **503**.
+
+Appel à Claude : modèle `claude-opus-5` (`GENERATOR_MODEL`), réflexion adaptative, effort `medium` (`GENERATOR_EFFORT`), réponse en flux. Les **replis côté serveur** sont activés (`fallbacks: "default"`) : si le modèle décline la demande, l'API la relance sur le modèle de repli recommandé. Un refus définitif devient un message d'erreur pour le joueur.
+
+### 11.3 Validation par géolocalisation
+
+Une chasse a un mode de validation (`hun_validation`) : `qr` (par défaut) ou `geo`. En mode `geo` :
+
+- chaque étape (hors départ) doit être **placée sur la carte** pour que la chasse soit publiée ;
+- le joueur appuie sur **« Je suis arrivé »** : le téléphone envoie sa position et sa précision (`POST /hunts/:id/checkin`) ;
+- l'étape cherchée est validée (`val_source = 'GEO'`) si la distance au lieu est au plus **rayon + précision**. Le rayon (`hun_georadius`) vaut 40 m par défaut. La précision est plafonnée à 30 m pour qu'un GPS très imprécis ne valide pas de loin ;
+- sinon la réponse donne la distance restante, en guise de « chaud / froid » ;
+- chaque essai est journalisé dans `th_scanlog` (jeton `geo:<étape>`, résultat `validated` ou `too_far`) ;
+- le check-in est sérialisé avec les scans et les abandons de l'équipe (verrou sur la ligne de l'équipe, § 6.2). Jokers, abandon et classement fonctionnent comme d'habitude.
+
+L'organisateur peut aussi choisir ce mode pour une chasse écrite à la main.
+
+### 11.4 Chasse surprise (mode « je joue »)
+
+- La chasse appartient au **compte système « Treasure Hunters »**, créé à la demande, sans mot de passe (le domaine `.invalid` est refusé à l'inscription). Le joueur **ne peut donc pas voir le parcours** : l'onglet Étapes est réservé à l'organisateur.
+- Elle est privée (`hun_surprise`, `hun_generated`), publiée, en solo, avec le joueur inscrit. Elle reste jouable 7 jours.
+- Le joueur **donne lui-même le départ** (« C'est parti ! », `POST /hunts/:id/self-start`) ; le chrono démarre alors.
+- À l'arrivée, la chasse se clôt et le résultat s'affiche.
+
+En mode « j'organise », la chasse est un **brouillon ordinaire** du joueur, validé par géolocalisation, prévu pour le lendemain. Il peut tout relire et ajuster (textes, points sur la carte, dates) avant de la publier.
+
+### 11.5 Données
+
+- `th_hunts` : `hun_validation`, `hun_georadius`, `hun_generated`, `hun_surprise`.
+- `th_validations.val_source` : ajout de `GEO`.
+- `th_generations` : demandeur, statut, paramètres (jsonb), chasse créée, message d'erreur.
+- Migration : `db/migrations/003_generation.sql`.

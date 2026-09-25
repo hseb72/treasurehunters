@@ -46,6 +46,8 @@ npm start
 
 La configuration du serveur passe par des variables d'environnement (`DATABASE_URL`, `PORT`, `CORS_ORIGIN`, `SESSION_DAYS`) : voir `server/.env.example`.
 
+Pour **inventer des chasses** (`/generate`, conception § 11), définissez `ANTHROPIC_API_KEY` : le serveur interroge alors OpenStreetMap (Nominatim, Overpass) et Claude. Sans clé, la génération répond 503 ; la maquette (`npm run start:mock`) la simule.
+
 Avec le jeu de démonstration, ouvrez **Guide de démonstration** (`/demo`) : chaque raccourci vous connecte avec le bon personnage et ouvre un écran dans un état précis. Les comptes sont `seb@example.com` (joueur) et `camille@example.com` (organisatrice), mot de passe `demo`.
 
 ### Maquettes sans back-end
