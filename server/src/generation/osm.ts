@@ -31,7 +31,23 @@ const KIND_TAGS = ['historic', 'tourism', 'amenity', 'man_made', 'leisure', 'art
 const unavailable = (cause: unknown) =>
   new HttpError(502, 'La carte OpenStreetMap ne répond pas pour le moment, réessayez dans un instant.', cause);
 
-async function osmFetch(url: string, init: RequestInit = {}): Promise<unknown> {
+/** Échec passager (surcharge, limite de débit, coupure) : on peut réessayer, ailleurs ou plus tard. */
+class Transient extends Error {
+  constructor(
+    message: string,
+    /** Délai demandé par le serveur (en-tête Retry-After), en millisecondes. */
+    readonly retryAfterMs: number | null = null,
+  ) {
+    super(message);
+  }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Pauses entre deux essais ; Retry-After est respecté dans la limite de 20 s. */
+const BACKOFF_MS = [2_000, 6_000];
+
+async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
+  const host = new URL(url).host;
   let res: Response;
   try {
     res = await fetch(url, {
@@ -40,19 +56,44 @@ async function osmFetch(url: string, init: RequestInit = {}): Promise<unknown> {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (e) {
-    throw unavailable(new Error(`${new URL(url).host} injoignable : ${(e as Error).message}`, { cause: e }));
+    throw new Transient(`${host} injoignable : ${(e as Error).message}`);
   }
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw unavailable(new Error(`${new URL(url).host} a répondu ${res.status} : ${body.slice(0, 300)}`));
+  const body = await res.text().catch(() => '');
+  if (res.status === 429 || res.status >= 500) {
+    const retryAfter = Number(res.headers.get('retry-after'));
+    throw new Transient(`${host} a répondu ${res.status} : ${body.slice(0, 200)}`, retryAfter > 0 ? retryAfter * 1000 : null);
   }
-  const body = await res.text();
+  if (!res.ok) throw unavailable(new Error(`${host} a répondu ${res.status} : ${body.slice(0, 300)}`));
+  let data: unknown;
   try {
-    return JSON.parse(body);
+    data = JSON.parse(body);
   } catch {
     // Page HTML de blocage ou de surcharge servie avec un statut 200.
-    throw unavailable(new Error(`${new URL(url).host} a répondu autre chose que du JSON : ${body.slice(0, 300)}`));
+    throw new Transient(`${host} a répondu autre chose que du JSON : ${body.slice(0, 200)}`);
   }
+  // Overpass surchargé répond 200 avec une remarque « runtime error » et une liste vide.
+  const remark = (data as { remark?: string }).remark;
+  if (remark && /runtime error|timed out|out of memory/i.test(remark)) throw new Transient(`${host} : ${remark.slice(0, 200)}`);
+  return data;
+}
+
+/**
+ * Appel à un service OpenStreetMap public, avec reprises : les instances publiques limitent
+ * le débit et saturent souvent. Chaque essai passe à l'adresse suivante (miroirs), en boucle.
+ */
+async function osmFetch(urls: string | string[], init: RequestInit = {}): Promise<unknown> {
+  const list = Array.isArray(urls) ? urls : [urls];
+  const failures: string[] = [];
+  for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+    try {
+      return await fetchJson(list[attempt % list.length], init);
+    } catch (e) {
+      if (!(e instanceof Transient)) throw e;
+      failures.push(e.message);
+      if (attempt < BACKOFF_MS.length) await sleep(Math.min(e.retryAfterMs ?? BACKOFF_MS[attempt], 20_000));
+    }
+  }
+  throw unavailable(new Error(failures.join(' | ')));
 }
 
 /** Nom de ville ou adresse → coordonnées. */
@@ -88,7 +129,7 @@ export async function placesAround(center: { lat: number; lng: number }, radius:
   nwr${around}[leisure~"^(park|garden)$"][name];
 );
 out center tags 300;`;
-  const data = (await osmFetch(config.overpassUrl, {
+  const data = (await osmFetch(config.overpassUrls, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `data=${encodeURIComponent(query)}`,

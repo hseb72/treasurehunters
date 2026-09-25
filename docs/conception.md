@@ -362,7 +362,7 @@ Règles communes au serveur et aux maquettes : `shared/generation.ts`.
 La génération dure de quelques secondes à une minute. Elle tourne **en tâche de fond** :
 
 1. `POST /hunts/generate` enregistre la demande dans `th_generations` (statut `pending`) et répond **202** avec son identifiant.
-2. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… (rayon doublé une fois s'il en manque).
+2. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… Une seule requête, au double du rayon visé (3 km au plus) ; les lieux du rayon visé sont préférés s'ils suffisent. Les instances publiques limitent le débit et saturent souvent : en cas de 429, 5xx, d'expiration ou de réponse illisible, le serveur réessaie (3 essais, `Retry-After` respecté) en alternant les instances de `OVERPASS_URLS`.
 3. **Claude** reçoit au plus 60 lieux candidats. Il choisit un parcours faisable à pied et rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée).
 4. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
 5. Le front interroge `GET /generations/:id` toutes les 2,5 s. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
