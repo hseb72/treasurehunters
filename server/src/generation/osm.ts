@@ -24,7 +24,8 @@ export interface Place {
   name: string;
 }
 
-const TIMEOUT_MS = 30_000;
+/** Au-delà du `timeout` de la requête Overpass (20 s), pour recevoir sa réponse d'erreur. */
+const TIMEOUT_MS = 35_000;
 const DETAIL_TAGS = ['description', 'inscription', 'start_date', 'artist_name', 'architect', 'subject', 'memorial', 'material', 'denomination', 'wikipedia', 'addr:street'];
 const KIND_TAGS = ['historic', 'tourism', 'amenity', 'man_made', 'leisure', 'artwork_type', 'memorial'];
 
@@ -119,16 +120,24 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Place> {
 
 /** Lieux remarquables et nommés dans un rayon donné, du plus proche au plus lointain. */
 export async function placesAround(center: { lat: number; lng: number }, radius: number): Promise<Poi[]> {
-  const around = `(around:${Math.round(radius)},${center.lat},${center.lng})`;
-  const query = `[out:json][timeout:25];
+  // Zone de recherche en boîte englobante (`bbox`) : indexée, donc rapide. Un filtre
+  // `around` combiné à des clés comme [historic] fait parcourir bien trop d'objets et
+  // les instances publiques abandonnent (504). Le cercle exact est appliqué ensuite.
+  const dLat = radius / 111_195;
+  const dLng = radius / (111_195 * Math.cos((center.lat * Math.PI) / 180));
+  const f = (x: number) => x.toFixed(6);
+  const bbox = [center.lat - dLat, center.lng - dLng, center.lat + dLat, center.lng + dLng].map(f).join(',');
+  // `nw` et non `nwr` : les relations (grands parcs multipolygones) coûtent cher à
+  // calculer et font rarement de bonnes étapes.
+  const query = `[out:json][timeout:20][bbox:${bbox}];
 (
-  nwr${around}[historic][name];
-  nwr${around}[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
-  nwr${around}[amenity~"^(fountain|place_of_worship|clock|library|theatre)$"][name];
-  nwr${around}[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
-  nwr${around}[leisure~"^(park|garden)$"][name];
+  nw[historic][name];
+  nw[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
+  nw[amenity~"^(fountain|place_of_worship|clock|library|theatre)$"][name];
+  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
+  nw[leisure~"^(park|garden)$"][name];
 );
-out center tags 300;`;
+out center tags 500;`;
   const data = (await osmFetch(config.overpassUrls, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -150,5 +159,5 @@ out center tags 300;`;
     const details = Object.fromEntries(DETAIL_TAGS.filter((t) => tags[t]).map((t) => [t, tags[t].slice(0, 300)]));
     pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details });
   }
-  return pois.sort((a, b) => distanceMeters(center, a) - distanceMeters(center, b));
+  return pois.filter((p) => distanceMeters(center, p) <= radius).sort((a, b) => distanceMeters(center, a) - distanceMeters(center, b));
 }

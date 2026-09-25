@@ -9,6 +9,7 @@ let server: Server;
 let base = '';
 let script: ((res: import('node:http').ServerResponse) => void)[] = [];
 const hits: string[] = [];
+const bodies: string[] = [];
 
 const ok = (elements: unknown[]) => (res: import('node:http').ServerResponse) =>
   res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ elements }));
@@ -19,7 +20,12 @@ const overloaded = (res: import('node:http').ServerResponse) =>
 beforeAll(async () => {
   server = createServer((req, res) => {
     hits.push(req.url ?? '');
-    (script.shift() ?? ok([]))(res);
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', () => {
+      bodies.push(decodeURIComponent(body.replace(/^data=/, '')));
+      (script.shift() ?? ok([]))(res);
+    });
   });
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -27,6 +33,19 @@ beforeAll(async () => {
 afterAll(() => new Promise<void>((r) => server.close(() => r())));
 
 const fountain = { type: 'node', id: 1, lat: 43.6, lon: 3.88, tags: { name: 'Fontaine', amenity: 'fountain' } };
+
+describe('OpenStreetMap : requête', () => {
+  it('interroge une boîte englobante et ne garde que les lieux du cercle', async () => {
+    config.overpassUrls = [`${base}/principal`];
+    bodies.length = 0;
+    const far = { type: 'node', id: 2, lat: 43.6045, lon: 3.8845, tags: { name: 'Coin de la boîte', historic: 'memorial' } }; // ~640 m
+    script = [ok([fountain, far])];
+    const pois = await placesAround({ lat: 43.6, lng: 3.88 }, 500);
+    expect(pois.map((p) => p.name)).toEqual(['Fontaine']);
+    expect(bodies[0]).toMatch(/\[bbox:43\.595\d+,3\.873\d+,43\.604\d+,3\.886\d+\]/);
+    expect(bodies[0]).not.toMatch(/around|nwr/);
+  });
+});
 
 describe('OpenStreetMap : reprises', () => {
   it('réessaie sur le miroir suivant après une limite de débit ou une surcharge', async () => {
