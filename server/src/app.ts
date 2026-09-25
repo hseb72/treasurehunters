@@ -6,6 +6,7 @@ import { z, ZodError } from 'zod';
 import { resolveSession } from './auth.js';
 import { config } from './config.js';
 import { HttpError } from './errors.js';
+import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -60,6 +61,20 @@ const stepFields = z
   })
   .partial();
 
+const generationRequest = z.object({
+  location: z
+    .object({
+      query: text(200).optional(),
+      lat: z.number().min(-90).max(90).optional(),
+      lng: z.number().min(-180).max(180).optional(),
+    })
+    .refine((l) => !!l.query || (l.lat !== undefined && l.lng !== undefined), 'Indiquez un lieu.'),
+  durationMinutes: z.number().int().min(20).max(360),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+  steps: z.number().int().min(3).max(12).nullable(),
+  mode: z.enum(['play', 'organize']),
+});
+
 const credentials = z.object({ email: z.email(), password: z.string().min(1).max(200) });
 const registration = z.object({
   nickname: text(50).min(1),
@@ -69,9 +84,16 @@ const registration = z.object({
 
 /* ---------------------------------------------------------------- Application */
 
-export async function buildApp(pool: pg.Pool, opts: { logger?: boolean } = {}): Promise<FastifyInstance> {
+export interface AppOptions {
+  logger?: boolean;
+  /** Générateur de chasses ; par défaut OpenStreetMap + Claude si ANTHROPIC_API_KEY est définie. */
+  generator?: HuntGenerator | null;
+}
+
+export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
   const app = Fastify({ logger: opts.logger ?? false, trustProxy: true });
-  const service = new Service(pool);
+  const generator = opts.generator !== undefined ? opts.generator : config.anthropicApiKey ? new OsmClaudeGenerator(config.anthropicApiKey) : null;
+  const service = new Service(pool, generator, (err, msg) => app.log.error(err, msg));
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -139,6 +161,15 @@ export async function buildApp(pool: pg.Pool, opts: { logger?: boolean } = {}): 
   app.post('/api/hunts/:id/:action', async (req) => {
     const p = z.object({ id, action: z.enum(['publish', 'unpublish', 'start', 'close', 'cancel']) }).parse(req.params);
     return service.huntAction(req.viewer, p.id, p.action);
+  });
+
+  /* ----- Génération (§ 11) */
+  app.post('/api/hunts/generate', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req, reply) =>
+    reply.status(202).send(await service.generate(req.viewer, generationRequest.parse(req.body))),
+  );
+  app.get('/api/generations/:id', async (req) => {
+    const { id: genId } = z.object({ id: z.uuid() }).parse(req.params);
+    return service.getGeneration(req.viewer, genId);
   });
 
   /* ----- Étapes */
@@ -211,5 +242,6 @@ export async function buildApp(pool: pg.Pool, opts: { logger?: boolean } = {}): 
   app.get('/api/hunts/:id/results', async (req) => service.getResults(req.viewer, idParams.parse(req.params).id));
   app.get('/api/hunts/:id/live', async (req) => service.getLive(req.viewer, idParams.parse(req.params).id));
 
-  return app;
+  app.addHook('onClose', () => service.settle());
+  return Object.assign(app as FastifyInstance, { service });
 }
