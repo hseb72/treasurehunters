@@ -44,6 +44,8 @@ class Transient extends Error {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Début lisible d'une réponse : les pages d'erreur Overpass sont en HTML. */
+const excerpt = (body: string, n: number) => body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
 /** Pauses entre deux essais ; Retry-After est respecté dans la limite de 20 s. */
 const BACKOFF_MS = [2_000, 6_000];
 
@@ -62,15 +64,15 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
   const body = await res.text().catch(() => '');
   if (res.status === 429 || res.status >= 500) {
     const retryAfter = Number(res.headers.get('retry-after'));
-    throw new Transient(`${host} a répondu ${res.status} : ${body.slice(0, 200)}`, retryAfter > 0 ? retryAfter * 1000 : null);
+    throw new Transient(`${host} a répondu ${res.status} : ${excerpt(body, 200)}`, retryAfter > 0 ? retryAfter * 1000 : null);
   }
-  if (!res.ok) throw unavailable(new Error(`${host} a répondu ${res.status} : ${body.slice(0, 300)}`));
+  if (!res.ok) throw unavailable(new Error(`${host} a répondu ${res.status} : ${excerpt(body, 300)}`));
   let data: unknown;
   try {
     data = JSON.parse(body);
   } catch {
     // Page HTML de blocage ou de surcharge servie avec un statut 200.
-    throw new Transient(`${host} a répondu autre chose que du JSON : ${body.slice(0, 200)}`);
+    throw new Transient(`${host} a répondu autre chose que du JSON : ${excerpt(body, 200)}`);
   }
   // Overpass surchargé répond 200 avec une remarque « runtime error » et une liste vide.
   const remark = (data as { remark?: string }).remark;
@@ -80,18 +82,24 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
 
 /**
  * Appel à un service OpenStreetMap public, avec reprises : les instances publiques limitent
- * le débit et saturent souvent. Chaque essai passe à l'adresse suivante (miroirs), en boucle.
+ * le débit et saturent souvent. Chaque essai passe à l'adresse suivante (miroirs), en boucle :
+ * chaque miroir est essayé au moins une fois, et il y a au moins trois essais en tout.
  */
 async function osmFetch(urls: string | string[], init: RequestInit = {}): Promise<unknown> {
   const list = Array.isArray(urls) ? urls : [urls];
+  const attempts = Math.max(BACKOFF_MS.length + 1, list.length);
   const failures: string[] = [];
-  for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+  let pauses = 0;
+  for (let attempt = 0; attempt < attempts; attempt++) {
     try {
       return await fetchJson(list[attempt % list.length], init);
     } catch (e) {
       if (!(e instanceof Transient)) throw e;
       failures.push(e.message);
-      if (attempt < BACKOFF_MS.length) await sleep(Math.min(e.retryAfterMs ?? BACKOFF_MS[attempt], 20_000));
+      if (attempt + 1 === attempts) break;
+      // Un miroir pas encore essayé n'a pas de raison d'attendre ; on ne patiente qu'avant d'y revenir.
+      if (attempt + 1 < list.length) continue;
+      await sleep(Math.min(e.retryAfterMs ?? BACKOFF_MS[Math.min(pauses++, BACKOFF_MS.length - 1)], 20_000));
     }
   }
   throw unavailable(new Error(failures.join(' | ')));
@@ -129,7 +137,9 @@ export async function placesAround(center: { lat: number; lng: number }, radius:
   const bbox = [center.lat - dLat, center.lng - dLng, center.lat + dLat, center.lng + dLng].map(f).join(',');
   // `nw` et non `nwr` : les relations (grands parcs multipolygones) coûtent cher à
   // calculer et font rarement de bonnes étapes.
-  const query = `[out:json][timeout:20][bbox:${bbox}];
+  // `maxsize` à 128 Mio au lieu de 512 : Overpass admet une requête selon les ressources
+  // qu'elle annonce, et un serveur chargé refuse (504) celles qui en demandent beaucoup.
+  const query = `[out:json][timeout:20][maxsize:134217728][bbox:${bbox}];
 (
   nw[historic][name];
   nw[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
