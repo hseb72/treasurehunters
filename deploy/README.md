@@ -90,6 +90,10 @@ kubectl -n treasurehunters rollout restart deploy/api
 ```
 
 Relancé sans `ANTHROPIC_API_KEY`, le script conserve la clé déjà en place.
+Si l'API répond « This API key is not scoped to a workspace », la clé n'est
+rattachée à aucun workspace : utiliser une clé créée dans un workspace, ou
+ajouter `ANTHROPIC_WORKSPACE_ID='wrkspc_…'` à la commande (identifiant visible
+dans console.anthropic.com, Settings → Workspaces). Même règle de conservation.
 `DB_PASSWORD=…` reste possible pour forcer une valeur.
 
 En cas de `password authentication failed for user "treasurehunters"` : relancer
