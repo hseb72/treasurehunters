@@ -77,15 +77,34 @@ describe('chasse générée à organiser', () => {
 });
 
 describe('limites de la génération', () => {
-  it('applique un quota quotidien par joueur', async () => {
+  it('applique un quota quotidien par joueur, sans compter les échecs', async () => {
     const lea = await loginAs(ctx.app, 'lea@example.com');
     const id = (await ctx.pool.query(`SELECT htr_id FROM th_hunters WHERE htr_email = 'lea@example.com'`)).rows[0].htr_id;
-    await ctx.pool.query(
-      `INSERT INTO th_generations (gen_hunter_htr, gen_status, gen_params) SELECT $1, 'error', '{"mode":"play"}' FROM generate_series(1, 5)`,
-      [id],
-    );
+    const add = (status: string, n: number) =>
+      ctx.pool.query(
+        `INSERT INTO th_generations (gen_hunter_htr, gen_status, gen_params) SELECT $1, $2, '{"mode":"play"}' FROM generate_series(1, $3::int)`,
+        [id, status, n],
+      );
+    await add('error', 5);
+    await add('done', 4);
+    const fifth = await lea.post('/api/hunts/generate', request('play')); // 4 réussies + 5 échecs : encore permis
+    expect(fifth.status).toBe(202);
+    await ctx.app.service.settle();
     const res = await lea.post('/api/hunts/generate', request('play'));
     expect(res.status).toBe(429);
+    expect(res.body.message).toMatch(/5 chasses/);
+  });
+
+  it('plafonne aussi les essais qui échouent', async () => {
+    const lucas = await loginAs(ctx.app, 'lucas@example.com');
+    const id = (await ctx.pool.query(`SELECT htr_id FROM th_hunters WHERE htr_email = 'lucas@example.com'`)).rows[0].htr_id;
+    await ctx.pool.query(
+      `INSERT INTO th_generations (gen_hunter_htr, gen_status, gen_params) SELECT $1, 'error', '{"mode":"play"}' FROM generate_series(1, 20)`,
+      [id],
+    );
+    const res = await lucas.post('/api/hunts/generate', request('play'));
+    expect(res.status).toBe(429);
+    expect(res.body.message).toMatch(/Trop d’essais/);
   });
 
   it('refuse une demande sans lieu et cache les générations des autres', async () => {
