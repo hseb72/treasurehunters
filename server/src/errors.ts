@@ -3,8 +3,10 @@ export class HttpError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    /** Cause technique, journalisée côté serveur mais jamais renvoyée au client. */
+    cause?: unknown,
   ) {
-    super(message);
+    super(message, cause === undefined ? undefined : { cause });
   }
 }
 

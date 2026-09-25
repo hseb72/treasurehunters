@@ -835,7 +835,8 @@ export class Service {
         ]);
       });
     } catch (e) {
-      if (!(e instanceof HttpError)) this.log(e, 'Échec de la génération de chasse');
+      // Toujours journalisé, avec la cause technique : le joueur ne voit que le message.
+      this.log(e instanceof HttpError && e.cause ? e.cause : e, `Échec de la génération ${jobId}${e instanceof HttpError ? ` : ${e.message}` : ''}`);
       const message = e instanceof HttpError ? e.message : 'La génération a échoué, réessayez dans un instant.';
       await this.pool
         .query(`UPDATE th_generations SET gen_status = 'error', gen_error = $2, gen_lastupdate = now() WHERE gen_id = $1`, [jobId, message])
