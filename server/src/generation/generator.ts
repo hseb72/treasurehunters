@@ -29,6 +29,11 @@ export class OsmClaudeGenerator implements HuntGenerator {
     this.planner = new ClaudePlanner(apiKey);
   }
 
+  /** Voir ClaudePlanner.check. */
+  check(): Promise<void> {
+    return this.planner.check();
+  }
+
   async generate(req: GenerationRequest): Promise<GeneratedHunt> {
     const place = await locate(req);
     const count = plannedStepCount(req);
