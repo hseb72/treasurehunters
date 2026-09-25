@@ -2,9 +2,14 @@
 # Crée le Secret de l'API directement dans le cluster, comme findout (cf. son
 # docs/deployment/INSTALL-K3S.md §5b). Aucun secret n'est versionné dans ce dépôt.
 #
-#   DB_PASSWORD=<mot de passe du locataire> [ANTHROPIC_API_KEY=<clé>] ./deploy/create-secrets.sh
+#   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] ./deploy/create-secrets.sh
+#
+# DB_PASSWORD, si absent, est lu dans le cluster (Secret database/database-tenant-keys,
+# clé `treasurehunters`) : c'est la valeur que le socle donne au rôle PostgreSQL,
+# on ne peut donc pas se tromper. Il est encodé pour l'URL (caractères spéciaux admis).
 #
 # ANTHROPIC_API_KEY (facultative) active la génération de chasses (conception § 11).
+# Absente, la clé déjà présente dans le Secret est conservée.
 #
 # Le mot de passe est celui du locataire `treasurehunters`, déclaré côté socle
 # dans le Secret `database-tenant-keys` du namespace `database` (clé
@@ -17,19 +22,44 @@
 # autres applications du cluster.
 set -euo pipefail
 
-: "${DB_PASSWORD:?Renseigner DB_PASSWORD (mot de passe du locataire treasurehunters)}"
 NS=treasurehunters
 NAME=treasurehunters-api-secrets
+
+# Valeur d'un Secret existant (vide s'il n'existe pas). Comme le socle
+# (`cle="$(cat …)"`), les sauts de ligne finaux sont retirés.
+secret_value() {
+  kubectl -n "$1" get secret "$2" -o "jsonpath={.data.$3}" 2>/dev/null | base64 -d 2>/dev/null || true
+}
+
+if [[ -z "${DB_PASSWORD:-}" ]]; then
+  DB_PASSWORD="$(secret_value database database-tenant-keys treasurehunters)"
+  [[ -n "$DB_PASSWORD" ]] || { echo "✗ Clé « treasurehunters » absente de database/database-tenant-keys : renseigner DB_PASSWORD." >&2; exit 1; }
+  echo "ℹ Mot de passe lu dans database/database-tenant-keys."
+fi
+
+# Encodage « pourcent » : un @, :, /, # ou % dans le mot de passe casserait l'URL.
+urlencode() {
+  local LC_ALL=C s="$1" out="" c i
+  for ((i = 0; i < ${#s}; i++)); do
+    c="${s:i:1}"
+    case "$c" in
+      [a-zA-Z0-9._~-]) out+="$c" ;;
+      *) printf -v c '%%%02X' "'$c"; out+="$c" ;;
+    esac
+  done
+  printf '%s' "$out"
+}
 
 # `sslmode=disable` et surtout pas `prefer` : les versions récentes du pilote
 # traitent `prefer` comme `verify-full` et exigent TLS, que le PostgreSQL du
 # socle n'offre pas (le cloisonnement y est assuré par les NetworkPolicies).
-DATABASE_URL="postgresql://treasurehunters:${DB_PASSWORD}@postgres.database.svc.cluster.local:5432/treasurehunters?sslmode=disable"
+DATABASE_URL="postgresql://treasurehunters:$(urlencode "$DB_PASSWORD")@postgres.database.svc.cluster.local:5432/treasurehunters?sslmode=disable"
 
 kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
 
 args=(--from-literal=DATABASE_URL="$DATABASE_URL")
-if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-$(secret_value "$NS" "$NAME" ANTHROPIC_API_KEY)}"
+if [[ -n "$ANTHROPIC_API_KEY" ]]; then
   args+=(--from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
 else
   echo "ℹ ANTHROPIC_API_KEY absente : la génération de chasses restera désactivée."
