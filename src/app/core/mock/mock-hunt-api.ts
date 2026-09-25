@@ -1,12 +1,44 @@
 import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, HuntAction, HuntApi, HuntScope } from '../api';
-import { AuthResult, Hunt, Hunter, LiveRow, PlayClue, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
-import { computeRanking, evaluateScan, finalOrder, lastValidatedOrder, penaltyMinutes, randomToken, teamPosition, teamStartTimes } from '@shared/rules';
+import {
+  AuthResult,
+  CheckinResult,
+  GenerationJob,
+  GenerationRequest,
+  Hunt,
+  Hunter,
+  LiveRow,
+  PlayClue,
+  PlayState,
+  RankingRow,
+  ScanResult,
+  Step,
+  Team,
+} from '@shared/models';
+import { demoPlan, plannedStepCount } from '@shared/generation';
+import {
+  checkinAllowance,
+  computeRanking,
+  distanceMeters,
+  evaluateScan,
+  finalOrder,
+  lastValidatedOrder,
+  penaltyMinutes,
+  randomToken,
+  teamPosition,
+  teamStartTimes,
+} from '@shared/rules';
 import { Session } from '../session';
 import { buildFixtures, MockDb } from '@shared/fixtures';
 
 const LATENCY_MS = 150;
+/** Durée simulée d'une génération de chasse. */
+const GENERATION_MS = 4000;
+/** Compte « Treasure Hunters », organisateur des chasses surprises. */
+const SYSTEM_ID = 999;
+/** Lieu par défaut quand le lieu est donné par son nom (pas de géocodage en maquette). */
+const MONTPELLIER = { lat: 43.6085, lng: 3.8795 };
 
 /**
  * Back-end simulé en mémoire pour les maquettes. Il applique les règles de docs/conception.md
@@ -16,6 +48,7 @@ const LATENCY_MS = 150;
 export class MockHuntApi extends HuntApi {
   private readonly session = inject(Session);
   private readonly db: MockDb = buildFixtures();
+  private readonly jobs = new Map<string, GenerationJob & { readyAt: number; ownerId: number }>();
 
   logout(): Observable<void> {
     return this.reply(() => undefined);
@@ -100,6 +133,8 @@ export class MockHuntApi extends HuntApi {
         interval: null,
         hintPenalties: [0, 0, 0],
         skipPenalty: 30,
+        validation: 'qr',
+        geoRadius: 40,
         teamGame: true,
         teamMin: 1,
         teamMax: 4,
@@ -107,6 +142,8 @@ export class MockHuntApi extends HuntApi {
         contribution: 0,
         startText: null,
         ...data,
+        generated: false,
+        surprise: false,
         id,
         ownerId: me,
         joinCode: randomToken(6).toUpperCase(),
@@ -133,6 +170,10 @@ export class MockHuntApi extends HuntApi {
         case 'publish':
           expect('draft');
           if (finalOrder(this.stepsOf(id)) < 1) throw new ApiError('Ajoutez au moins une étape avant de publier.');
+          if (h.validation === 'geo') {
+            const missing = this.stepsOf(id).find((s) => s.order > 0 && (s.latitude === null || s.longitude === null));
+            if (missing) throw new ApiError(`Validation par géolocalisation : placez sur la carte « ${missing.title} ».`);
+          }
           h.status = 'published';
           break;
         case 'unpublish':
@@ -140,15 +181,10 @@ export class MockHuntApi extends HuntApi {
           if (this.db.teams.some((t) => t.huntId === id)) throw new ApiError('Des équipes sont déjà inscrites.');
           h.status = 'draft';
           break;
-        case 'start': {
+        case 'start':
           expect('published');
-          h.status = 'running';
-          h.started = now;
-          const teams = this.db.teams.filter((t) => t.huntId === id);
-          const starts = teamStartTimes(h, teams, now);
-          teams.forEach((t) => (t.started = starts.get(t.id) ?? null));
+          this.start(h);
           break;
-        }
         case 'close':
           expect('running');
           h.status = 'closed';
@@ -390,6 +426,125 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  checkin(huntId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<CheckinResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const h = this.visibleHunt(huntId);
+      if (h.validation !== 'geo') throw new ApiError('Cette chasse se joue avec les QR codes posés sur place.');
+      const state = this.playState(huntId);
+      const clue = state.clue;
+      if (!clue) throw new ApiError('Aucune étape à trouver pour le moment.');
+      const steps = this.stepsOf(huntId);
+      const target = steps.find((s) => s.order === clue.targetOrder)!;
+      if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+      const distance = Math.round(distanceMeters(pos, { lat: target.latitude, lng: target.longitude }));
+      const allowed = Math.round(checkinAllowance(h, pos.accuracy));
+      if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
+      const now = new Date().toISOString();
+      const final = finalOrder(steps);
+      this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'GEO', at: now });
+      if (target.order === final) {
+        this.db.teams.find((t) => t.id === state.team.id)!.finished = now;
+        if (h.surprise) {
+          h.status = 'closed';
+          h.closed = now;
+        }
+      }
+      return {
+        outcome: 'validated',
+        distance,
+        allowed,
+        step: { order: target.order, title: target.title, arrival: target.arrival, isFinal: target.order === final },
+        state: this.playState(huntId),
+      } satisfies CheckinResult;
+    });
+  }
+
+  selfStart(huntId: number): Observable<PlayState> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const h = this.visibleHunt(huntId);
+      if (!this.teamOf(huntId, me)) throw new ApiError('Chasse introuvable.');
+      if (!h.surprise) throw new ApiError('Le départ est donné par l’organisateur.');
+      if (h.status !== 'published') throw new ApiError('Cette chasse est déjà partie.');
+      this.start(h);
+      return this.playState(huntId);
+    });
+  }
+
+  /* ---------- Génération ---------- */
+
+  generateHunt(request: GenerationRequest): Observable<GenerationJob> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const { lat, lng, query } = request.location;
+      const center = lat !== undefined && lng !== undefined ? { lat, lng } : MONTPELLIER;
+      const placeName = query?.trim() || 'votre quartier';
+      const plan = demoPlan(center, plannedStepCount(request), placeName);
+      const play = request.mode === 'play';
+      if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
+        this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '' });
+      }
+      const id = this.nextId(this.db.hunts);
+      const begin = Date.now();
+      const h: MockDb['hunts'][number] = {
+        id,
+        ownerId: play ? SYSTEM_ID : me,
+        name: plan.name,
+        description: plan.description,
+        location: placeName,
+        begin: new Date(begin).toISOString(),
+        end: new Date(begin + (play ? 7 * 86_400_000 : request.durationMinutes * 60_000 * 2)).toISOString(),
+        started: null,
+        closed: null,
+        autoStart: false,
+        autoClose: true,
+        award: plan.award,
+        startMode: 'mass',
+        interval: null,
+        hintPenalties: [2, 5, 10],
+        skipPenalty: 30,
+        validation: 'geo',
+        geoRadius: 40,
+        generated: true,
+        surprise: play,
+        teamGame: !play,
+        teamMin: 1,
+        teamMax: play ? 1 : 6,
+        isPublic: false,
+        joinCode: randomToken(6).toUpperCase(),
+        contribution: 0,
+        startText: plan.startText,
+        status: play ? 'published' : 'draft',
+      };
+      this.db.hunts.push(h);
+      plan.steps.forEach((p, order) =>
+        this.db.steps.push({
+          ...this.blankStep(id, order, p.title),
+          arrival: p.arrival,
+          instructions: p.instructions,
+          hints: p.hints,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          address: p.address,
+        }),
+      );
+      if (play) this.addTeam(h, this.nick(me), me, true);
+      const job = { id: randomToken(12), status: 'pending' as const, mode: request.mode, huntId: null, error: null };
+      this.jobs.set(job.id, { ...job, huntId: id, readyAt: Date.now() + GENERATION_MS, ownerId: me });
+      return job;
+    });
+  }
+
+  getGeneration(id: string): Observable<GenerationJob> {
+    return this.reply(() => {
+      const job = this.jobs.get(id);
+      if (!job || job.ownerId !== this.requireUser()) throw new ApiError('Génération introuvable.');
+      const done = Date.now() >= job.readyAt;
+      return { id: job.id, status: done ? 'done' : 'pending', mode: job.mode, huntId: done ? job.huntId : null, error: null } satisfies GenerationJob;
+    });
+  }
+
   /* ---------- Résultats et pilotage ---------- */
 
   getResults(huntId: number): Observable<RankingRow[]> {
@@ -436,6 +591,16 @@ export class MockHuntApi extends HuntApi {
         return throwError(() => e);
       }
     }).pipe(delay(LATENCY_MS));
+  }
+
+  /** Déclenchement : horodatage réel et heure de départ de chaque équipe (§ 5.1). */
+  private start(h: MockDb['hunts'][number]): void {
+    const now = new Date().toISOString();
+    h.status = 'running';
+    h.started = now;
+    const teams = this.db.teams.filter((t) => t.huntId === h.id);
+    const starts = teamStartTimes(h, teams, now);
+    teams.forEach((t) => (t.started = starts.get(t.id) ?? null));
   }
 
   private viewer(): number | null {
@@ -543,6 +708,7 @@ export class MockHuntApi extends HuntApi {
       skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
+      selfStart: hunt.surprise && hunt.status === 'published',
     };
   }
 

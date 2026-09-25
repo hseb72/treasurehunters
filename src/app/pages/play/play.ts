@@ -5,7 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
+import { CheckinResult } from '@shared/models';
 import { HuntApi } from '../../core/api';
+import { currentPosition } from '../../core/geo';
 import { Clock } from '../../core/clock';
 import { Notify } from '../../core/notify';
 import { formatDuration } from '@shared/rules';
@@ -39,6 +41,10 @@ export class PlayPage {
   /** Premier appui sur un joker = demande de confirmation. */
   protected readonly confirmHint = signal(false);
   protected readonly busy = signal(false);
+  /** Recherche de la position en cours (« Je suis arrivé »). */
+  protected readonly locating = signal(false);
+  /** Dernier « Je suis arrivé » : lieu trouvé, ou distance restante. */
+  protected readonly checkin = signal<CheckinResult | null>(null);
 
   /** Phase de jeu de l'équipe. */
   protected readonly phase = computed(() => {
@@ -100,6 +106,7 @@ export class PlayPage {
         next: (s) => {
           this.state.set(s);
           this.confirmHint.set(false);
+          this.checkin.set(null);
           this.busy.set(false);
           this.notify.info('Épreuve abandonnée : place à l’énigme suivante.');
         },
@@ -108,6 +115,45 @@ export class PlayPage {
           this.busy.set(false);
         },
       });
+  }
+
+  /** Chasse surprise : le joueur donne lui-même le départ. */
+  protected go(): void {
+    this.busy.set(true);
+    this.api.selfStart(this.id()).subscribe({
+      next: (s) => {
+        this.state.set(s);
+        this.busy.set(false);
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.busy.set(false);
+      },
+    });
+  }
+
+  /** « Je suis arrivé » : la position du téléphone valide l'étape cherchée si elle est assez proche. */
+  protected async arrived(): Promise<void> {
+    this.locating.set(true);
+    this.checkin.set(null);
+    try {
+      const pos = await currentPosition();
+      this.api.checkin(this.id(), pos).subscribe({
+        next: (r) => {
+          this.checkin.set(r);
+          this.state.set(r.state);
+          this.confirmHint.set(false);
+          this.locating.set(false);
+        },
+        error: (e) => {
+          this.notify.error(e);
+          this.locating.set(false);
+        },
+      });
+    } catch (e) {
+      this.notify.error(e);
+      this.locating.set(false);
+    }
   }
 
   protected revealHint(): void {

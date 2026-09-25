@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { AuthResult, Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
+import { AuthResult, CheckinResult, GenerationJob, GenerationRequest, Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiError, HuntAction, HuntApi, HuntScope } from './api';
@@ -95,6 +95,19 @@ export class HttpHuntApi extends HuntApi {
   }
   scan(token: string): Observable<ScanResult> {
     return this.http.post<ScanResult>(`${this.url}/scan/${encodeURIComponent(token)}`, {});
+  }
+  checkin(huntId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<CheckinResult> {
+    return this.http.post<CheckinResult>(`${this.url}/hunts/${huntId}/checkin`, pos);
+  }
+  selfStart(huntId: number): Observable<PlayState> {
+    return this.http.post<PlayState>(`${this.url}/hunts/${huntId}/self-start`, {});
+  }
+
+  generateHunt(request: GenerationRequest): Observable<GenerationJob> {
+    return this.http.post<GenerationJob>(`${this.url}/hunts/generate`, request);
+  }
+  getGeneration(id: string): Observable<GenerationJob> {
+    return this.http.get<GenerationJob>(`${this.url}/generations/${encodeURIComponent(id)}`);
   }
 
   getResults(huntId: number): Observable<RankingRow[]> {

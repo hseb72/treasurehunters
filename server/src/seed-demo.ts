@@ -61,6 +61,10 @@ export async function seedDemo(pool: pg.Pool, opts: { reset?: boolean; now?: num
         hun_public: h.isPublic,
         hun_joincode: h.joinCode,
         hun_contribution: h.contribution,
+        hun_validation: h.validation,
+        hun_georadius: h.geoRadius,
+        hun_generated: h.generated,
+        hun_surprise: h.surprise,
         hun_status_hst: STATUS_IDS[h.status],
       });
     }

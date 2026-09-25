@@ -126,6 +126,59 @@ describe('abandon d’épreuve (4ᵉ joker)', () => {
   });
 });
 
+describe('validation par géolocalisation (« Je suis arrivé »)', () => {
+  it('valide l’étape dans le rayon et donne la distance sinon', async () => {
+    await ctx.pool.query(`UPDATE th_hunts SET hun_validation = 'geo', hun_georadius = 40 WHERE hun_id = 1`);
+    await ctx.pool.query(`UPDATE th_codes SET cod_latitude = 43.6085, cod_longitude = 3.8795 WHERE cod_hunt_hun = 1 AND cod_order = 4`);
+    try {
+      const lucas = await loginAs(ctx.app, 'lucas@example.com'); // après son abandon puis un scan, cherche l'étape 4
+      const far = await lucas.post('/api/hunts/1/checkin', { lat: 43.6112, lng: 3.8723, accuracy: 10 });
+      expect(far.body).toMatchObject({ outcome: 'too_far', allowed: 50, step: null });
+      expect(far.body.distance).toBeGreaterThan(600);
+
+      // Précision du GPS plafonnée : un point à ~60 m passe avec 30 m d'imprécision, pas au-delà.
+      const near = { lat: 43.6085 + 60 / 111_195, lng: 3.8795 };
+      expect((await lucas.post('/api/hunts/1/checkin', { ...near, accuracy: 5 })).body.outcome).toBe('too_far');
+      const ok = await lucas.post('/api/hunts/1/checkin', { ...near, accuracy: 500 });
+      expect(ok.body).toMatchObject({ outcome: 'validated', allowed: 70, step: { order: 4 } });
+      expect(ok.body.state.clue.targetOrder).toBe(5);
+
+      const noCoords = await lucas.post('/api/hunts/1/checkin', { lat: 43.6, lng: 3.88, accuracy: 5 });
+      expect(noCoords.status).toBe(409);
+      const log = await ctx.pool.query(`SELECT scl_token, scl_result FROM th_scanlog WHERE scl_token LIKE 'geo:%' ORDER BY scl_id`);
+      expect(log.rows.map((r) => r.scl_result)).toEqual(['too_far', 'too_far', 'validated']);
+    } finally {
+      await ctx.pool.query(`UPDATE th_hunts SET hun_validation = 'qr' WHERE hun_id = 1`);
+    }
+  });
+
+  it('refuse le check-in sur une chasse à QR codes et le départ libre hors chasse surprise', async () => {
+    const seb = await loginAs(ctx.app, 'seb@example.com');
+    expect((await seb.post('/api/hunts/1/checkin', { lat: 43.6, lng: 3.88, accuracy: 5 })).status).toBe(409);
+    expect((await seb.post('/api/hunts/1/self-start')).status).toBe(403);
+    expect((await seb.get('/api/hunts/1/play')).body.selfStart).toBe(false);
+  });
+
+  it('exige des coordonnées sur chaque étape pour publier une chasse géolocalisée', async () => {
+    const camille = await loginAs(ctx.app, 'camille@example.com');
+    const hunt = (
+      await camille.post('/api/hunts', {
+        name: 'Sans QR',
+        begin: '2030-01-01T10:00:00Z',
+        end: '2030-01-01T12:00:00Z',
+        validation: 'geo',
+      })
+    ).body;
+    expect(hunt).toMatchObject({ validation: 'geo', geoRadius: 40, generated: false, surprise: false });
+    const refused = await camille.post(`/api/hunts/${hunt.id}/publish`);
+    expect(refused.status).toBe(409);
+    expect(refused.body.message).toMatch(/Arrivée/);
+    const [, arrival] = (await camille.get(`/api/hunts/${hunt.id}/steps`)).body;
+    await camille.patch(`/api/steps/${arrival.id}`, { latitude: 43.6, longitude: 3.88 });
+    expect((await camille.post(`/api/hunts/${hunt.id}/publish`)).body.status).toBe('published');
+  });
+});
+
 describe('résultats', () => {
   it('réserve le classement complet à l’organisatrice pendant la course', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');

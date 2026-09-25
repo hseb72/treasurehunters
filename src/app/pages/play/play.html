@@ -8,7 +8,7 @@
 }
 
 @if (state.value(); as s) {
-  <div class="page stack">
+  <div class="page stack" [class.with-fab]="phase() === 'playing'">
     <header class="board leather">
       <div class="board-head">
         <div>
@@ -24,7 +24,8 @@
       </div>
       <th-trail [total]="s.totalSteps" [done]="s.validated.length" [skipped]="skippedOrders()" [active]="phase() === 'playing'" />
       <div class="board-foot small muted">
-        @if (s.position; as pos) {
+        @if (s.position && !s.hunt.surprise) {
+          @let pos = s.position;
           <span class="position" title="Classement provisoire de votre équipe">
             <mat-icon inline>military_tech</mat-icon> {{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} / {{ pos.total }} ·
           </span>
@@ -44,6 +45,18 @@
 
     @switch (phase()) {
       @case ('before') {
+        @if (s.selfStart) {
+          <section class="parchment taped center surprise">
+            <span class="stamp stamp--gold">Chasse surprise</span>
+            <h2>Votre expédition est prête</h2>
+            <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}. Le chrono démarre dès que vous donnez le départ.</p>
+            @if (s.hunt.startText) {
+              <p class="note">{{ s.hunt.startText }}</p>
+            }
+            <p class="small muted">Pas de QR code : une fois sur place, appuyez sur « Je suis arrivé » (la localisation doit être autorisée).</p>
+            <button mat-flat-button class="th-cta" type="button" (click)="go()" [disabled]="busy()"><mat-icon>flag</mat-icon>C'est parti !</button>
+          </section>
+        } @else {
         <section class="parchment center">
           <mat-icon class="big-icon">hourglass_top</mat-icon>
           <h2>L'expédition n'a pas commencé</h2>
@@ -53,6 +66,7 @@
             <p class="note">{{ s.hunt.startText }}</p>
           }
         </section>
+        }
       }
       @case ('waiting') {
         <section class="parchment center">
@@ -66,6 +80,27 @@
         </section>
       }
       @case ('playing') {
+        @if (checkin(); as c) {
+          @if (c.outcome === 'validated' && c.step) {
+            <section class="parchment center found" aria-live="polite">
+              <span class="stamp stamp--jungle">Étape {{ c.step.order }} trouvée</span>
+              <h2>{{ c.step.title }}</h2>
+              @if (c.step.arrival) {
+                <p class="note">{{ c.step.arrival }}</p>
+              }
+              <button mat-button type="button" (click)="checkin.set(null)">Voir l'énigme suivante</button>
+            </section>
+          } @else if (c.outcome === 'too_far') {
+            <section class="parchment center far" aria-live="polite">
+              <mat-icon>explore</mat-icon>
+              <p>
+                Pas encore… Vous êtes à <strong>{{ c.distance >= 1000 ? (c.distance / 1000).toFixed(1) + ' km' : c.distance + ' m' }}</strong> du lieu.
+                Il faut s'en approcher à moins de {{ c.allowed }} m.
+              </p>
+              <button mat-button type="button" (click)="checkin.set(null)">Compris</button>
+            </section>
+          }
+        }
         @if (s.clue; as clue) {
           <section class="parchment taped clue">
             <div class="clue-head">
@@ -120,7 +155,13 @@
               </div>
             }
           </section>
-          <p class="center muted small">Vous avez trouvé le lieu ? Scannez le QR code caché sur place.</p>
+          <p class="center muted small">
+            @if (s.hunt.validation === 'geo') {
+              Vous pensez y être ? Appuyez sur « Je suis arrivé ».
+            } @else {
+              Vous avez trouvé le lieu ? Scannez le QR code caché sur place.
+            }
+          </p>
         }
       }
       @case ('finished') {
@@ -173,6 +214,12 @@
   </div>
 
   @if (phase() === 'playing') {
-    <a mat-fab extended class="scan-fab no-print" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
+    @if (s.hunt.validation === 'geo') {
+      <button mat-fab extended class="scan-fab no-print" type="button" (click)="arrived()" [disabled]="locating()">
+        <mat-icon>{{ locating() ? 'satellite_alt' : 'where_to_vote' }}</mat-icon>{{ locating() ? 'Localisation…' : 'Je suis arrivé' }}
+      </button>
+    } @else {
+      <a mat-fab extended class="scan-fab no-print" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
+    }
   }
 }

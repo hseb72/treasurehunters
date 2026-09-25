@@ -24,6 +24,9 @@
         @if (step.address) {
           <span class="small muted"><mat-icon inline>location_on</mat-icon> {{ step.address }}</span>
         }
+        @if (geo() && kind !== 'start' && step.latitude === null) {
+          <span class="small unplaced"><mat-icon inline>wrong_location</mat-icon> À placer sur la carte</span>
+        }
       </div>
       <span class="spacer"></span>
       @if (kind === 'middle' && !locked()) {
@@ -46,6 +49,22 @@
             <input matInput formControlName="address" />
           </mat-form-field>
         </div>
+        @if (geo() || point()) {
+          <div class="place">
+            <div class="row">
+              <span class="small muted">
+                @if (point(); as p) {
+                  <mat-icon inline>location_on</mat-icon> {{ p.lat.toFixed(5) }}, {{ p.lng.toFixed(5) }}
+                } @else {
+                  Touchez la carte pour placer {{ kind === 'start' ? 'le départ' : 'ce lieu' }}.
+                }
+              </span>
+              <span class="spacer"></span>
+              <button mat-button type="button" (click)="here()"><mat-icon>my_location</mat-icon>Je suis ici</button>
+            </div>
+            <th-location-map [point]="point()" (picked)="place($event)" />
+          </div>
+        }
         @if (kind !== 'start') {
           <mat-form-field class="field-full">
             <mat-label>Message à l'arrivée sur le lieu</mat-label>

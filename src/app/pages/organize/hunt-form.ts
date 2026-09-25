@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import { HuntApi } from '../../core/api';
-import { Hunt, StartMode } from '@shared/models';
+import { Hunt, StartMode, ValidationMode } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { WorkspaceState } from './workspace-state';
 
@@ -60,6 +60,8 @@ export class HuntFormPage {
     penalty2: [5, [Validators.min(0)]],
     penalty3: [10, [Validators.min(0)]],
     skipPenalty: [30, [Validators.min(0)]],
+    validation: ['qr' as ValidationMode],
+    geoRadius: [40, [Validators.min(10), Validators.max(500)]],
     isPublic: [true],
     contribution: [0, [Validators.min(0)]],
   });
@@ -69,6 +71,7 @@ export class HuntFormPage {
   private readonly values = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly teamGame = computed(() => this.values().teamGame);
   protected readonly staggered = computed(() => this.values().startMode === 'staggered');
+  protected readonly geo = computed(() => this.values().validation === 'geo');
 
   constructor() {
     // Chargement de la chasse existante dans le formulaire.

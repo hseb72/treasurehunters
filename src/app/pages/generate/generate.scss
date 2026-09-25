@@ -1,0 +1,110 @@
+.head {
+  padding: 20px;
+  h1 { margin: 2px 0 6px; }
+  p { margin: 0; }
+  .kicker { text-transform: uppercase; letter-spacing: 0.12em; }
+}
+
+.step-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--th-leather);
+  color: var(--th-gold-light);
+  font-family: var(--th-font-display);
+  font-size: 0.95rem;
+}
+
+.choice {
+  flex-wrap: wrap;
+  mat-icon { vertical-align: middle; margin-right: 4px; }
+}
+
+.slider-row,
+.steps-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.grow { flex: 1 1 200px; }
+
+.big-value {
+  font-family: var(--th-font-title);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--th-leather);
+  min-width: 4ch;
+}
+
+.stepper { display: flex; align-items: center; gap: 4px; }
+
+.modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 2px solid transparent;
+  mat-icon { color: var(--th-saddle); }
+  &--on {
+    border-color: var(--th-gold);
+    box-shadow: 0 0 0 3px rgba(200, 150, 46, 0.25), var(--th-shadow);
+    mat-icon { color: var(--th-brick); }
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-bottom: 24px;
+}
+
+.waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  th-compass-logo { color: var(--th-saddle); }
+  h1 { margin: 12px 0 0; }
+}
+
+.spinning { animation: search 3.2s ease-in-out infinite; }
+
+@keyframes search {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(140deg); }
+  55% { transform: rotate(95deg); }
+  80% { transform: rotate(250deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinning { animation: none; }
+}
+
+.wait-line { font-size: 1.1rem; min-height: 1.6em; }
+
+.big-icon { width: 56px; height: 56px; font-size: 56px; color: var(--th-brick); }

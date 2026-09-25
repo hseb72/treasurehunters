@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import pg from 'pg';
 import { DEMO_TOKENS } from '../../shared/fixtures.js';
 import { buildApp } from '../src/app.js';
+import { DemoGenerator } from '../src/generation/generator.js';
 import { createPool } from '../src/db.js';
 import { migrate } from '../src/migrate.js';
 import { seedDemo } from '../src/seed-demo.js';
@@ -11,7 +12,7 @@ export { DEMO_TOKENS };
 
 export interface Ctx {
   pool: pg.Pool;
-  app: FastifyInstance;
+  app: Awaited<ReturnType<typeof buildApp>>;
 }
 
 /** Base de test neuve : schéma recréé, migrations, jeu de démonstration. */
@@ -20,7 +21,7 @@ export async function setup(): Promise<Ctx> {
   await pool.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
   await migrate(pool);
   await seedDemo(pool);
-  return { pool, app: await buildApp(pool) };
+  return { pool, app: await buildApp(pool, { generator: new DemoGenerator() }) };
 }
 
 export async function teardown(ctx: Ctx): Promise<void> {
@@ -48,8 +49,16 @@ export function client(app: FastifyInstance, token?: string) {
   };
 }
 
+/** Une connexion par joueur et par application : la connexion est limitée à 20 par minute. */
+const sessions = new WeakMap<FastifyInstance, Map<string, string>>();
+
 export async function loginAs(app: FastifyInstance, email: string) {
-  const res = await client(app).post('/api/auth/login', { email, password: 'demo' });
-  if (res.status !== 200) throw new Error(`Connexion impossible : ${JSON.stringify(res.body)}`);
-  return client(app, res.body.token);
+  const known = sessions.get(app) ?? new Map<string, string>();
+  sessions.set(app, known);
+  if (!known.has(email)) {
+    const res = await client(app).post('/api/auth/login', { email, password: 'demo' });
+    if (res.status !== 200) throw new Error(`Connexion impossible : ${JSON.stringify(res.body)}`);
+    known.set(email, res.body.token);
+  }
+  return client(app, known.get(email));
 }

@@ -88,3 +88,9 @@
   font-family: var(--th-font-title);
   font-weight: 700;
 }
+
+.invent-btn {
+  align-self: center;
+  --mat-button-outlined-label-text-color: var(--th-gold-light);
+  --mat-button-outlined-outline-color: rgba(236, 201, 112, 0.6);
+}

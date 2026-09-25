@@ -9,6 +9,7 @@ export const routes: Routes = [
   { path: 'hunts/:id', title: 'Expédition', loadComponent: () => import('./pages/hunt-detail/hunt-detail').then((m) => m.HuntDetailPage) },
   { path: 'hunts/:id/results', title: 'Résultats', loadComponent: () => import('./pages/results/results').then((m) => m.ResultsPage) },
   { path: 'play/:id', title: 'Carnet de route', canActivate: [authGuard], loadComponent: () => import('./pages/play/play').then((m) => m.PlayPage) },
+  { path: 'generate', title: 'Chasse sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
   { path: 'scan', title: 'Scanner', loadComponent: () => import('./pages/scanner/scanner').then((m) => m.ScannerPage) },
   { path: 'q/:token', title: 'Indice', loadComponent: () => import('./pages/scan-result/scan-result').then((m) => m.ScanResultPage) },
   {

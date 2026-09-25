@@ -151,3 +151,12 @@
   color: var(--th-ink-soft);
   cursor: grab;
 }
+
+.place {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.unplaced { color: var(--th-brick); }

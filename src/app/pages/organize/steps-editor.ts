@@ -11,12 +11,14 @@ import { filter, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Step } from '@shared/models';
 import { Notify } from '../../core/notify';
+import { currentPosition } from '../../core/geo';
 import { Confirm } from '../../shared/confirm-dialog';
+import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -43,10 +45,17 @@ export class StepsEditorPage {
   /** Le parcours ne se restructure plus une fois la chasse lancée. */
   protected readonly locked = computed(() => !['draft', 'published'].includes(this.workspace.hunt.value()?.status ?? 'draft'));
 
+  /** Chasse validée par géolocalisation : chaque lieu doit être placé sur la carte. */
+  protected readonly geo = computed(() => this.workspace.hunt.value()?.validation === 'geo');
+
   protected readonly editing = signal<number | null>(null);
+  /** Point du lieu en cours d'édition (miroir des champs latitude / longitude). */
+  protected readonly point = signal<LatLng | null>(null);
   protected readonly form = this.fb.group({
     title: [''],
     address: [''],
+    latitude: [null as number | null],
+    longitude: [null as number | null],
     arrival: [''],
     instructions: [''],
     hints: this.fb.array(['', '', '']),
@@ -61,10 +70,29 @@ export class StepsEditorPage {
     this.form.reset({
       title: step.title,
       address: step.address ?? '',
+      latitude: step.latitude,
+      longitude: step.longitude,
       arrival: step.arrival ?? '',
       instructions: step.instructions ?? '',
       hints: [0, 1, 2].map((i) => step.hints[i] ?? ''),
     });
+    this.point.set(step.latitude !== null && step.longitude !== null ? { lat: step.latitude, lng: step.longitude } : null);
+  }
+
+  protected place(p: LatLng): void {
+    const round = (x: number) => Math.round(x * 1e6) / 1e6;
+    this.point.set(p);
+    this.form.patchValue({ latitude: round(p.lat), longitude: round(p.lng) });
+    this.form.markAsDirty();
+  }
+
+  /** Sur le terrain : le lieu est là où se tient l'organisateur. */
+  protected async here(): Promise<void> {
+    try {
+      this.place(await currentPosition());
+    } catch (e) {
+      this.notify.error(e);
+    }
   }
 
   protected save(step: Step): void {
@@ -75,6 +103,8 @@ export class StepsEditorPage {
         huntId: step.huntId,
         title: v.title,
         address: v.address || null,
+        latitude: v.latitude,
+        longitude: v.longitude,
         arrival: v.arrival || null,
         instructions: v.instructions || null,
         hints: v.hints.filter((h) => h.trim()),

@@ -1,5 +1,18 @@
 import { Observable } from 'rxjs';
-import { AuthResult, Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
+import {
+  AuthResult,
+  CheckinResult,
+  GenerationJob,
+  GenerationRequest,
+  Hunt,
+  Hunter,
+  LiveRow,
+  PlayState,
+  RankingRow,
+  ScanResult,
+  Step,
+  Team,
+} from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
 export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
@@ -42,6 +55,14 @@ export abstract class HuntApi {
   /** Abandonne l'épreuve en cours (« 4ᵉ joker ») : pénalité d'abandon, énigme suivante. */
   abstract skipStep(huntId: number): Observable<PlayState>;
   abstract scan(token: string): Observable<ScanResult>;
+  /** « Je suis arrivé » : validation de l'étape cherchée par géolocalisation. */
+  abstract checkin(huntId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<CheckinResult>;
+  /** Chasse surprise : le joueur donne lui-même le départ. */
+  abstract selfStart(huntId: number): Observable<PlayState>;
+
+  /** Demande l'invention d'une chasse (OpenStreetMap + IA) ; suivie avec getGeneration. */
+  abstract generateHunt(request: GenerationRequest): Observable<GenerationJob>;
+  abstract getGeneration(id: string): Observable<GenerationJob>;
 
   abstract getResults(huntId: number): Observable<RankingRow[]>;
   abstract getLive(huntId: number): Observable<LiveRow[]>;

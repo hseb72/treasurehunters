@@ -167,3 +167,21 @@
     margin-left: 4px;
   }
 }
+
+.surprise {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  h2 { margin: 6px 0 0; }
+}
+
+.found h2 { margin: 10px 0 4px; }
+
+.far {
+  mat-icon { color: var(--th-brick); width: 36px; height: 36px; font-size: 36px; }
+  p { margin: 6px 0; }
+}
+
+/* Le bouton flottant ne doit pas masquer le bas de la page. */
+.with-fab { padding-bottom: 96px; }
