@@ -40,7 +40,7 @@ relais passe par Kong, jamais directement par l'API.
 | Tag des images | `deploy/values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI |
 | Ce qu'Argo CD lit | la branche d'environnement **`deploy-state`** : copie de `deploy/` depuis `master`, plus le tag d'image. Tenue à jour par `.github/workflows/deploy.yml` (master est protégée, et Argo exige une seule révision par dépôt) |
 | Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
-| Secret `treasurehunters-api-secrets` (`DATABASE_URL`) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
+| Secret `treasurehunters-api-secrets` (`DATABASE_URL`, `ANTHROPIC_API_KEY` facultative) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
 | Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
 
 L'API applique elle-même les migrations SQL au démarrage. Elles sont protégées par
@@ -83,8 +83,18 @@ paquets publics.
 passe que la clé `treasurehunters` de `database-tenant-keys` :
 
 ```bash
-DB_PASSWORD='<mot de passe du locataire>' ./deploy/create-secrets.sh
+DB_PASSWORD='<mot de passe du locataire>' ANTHROPIC_API_KEY='sk-ant-…' ./deploy/create-secrets.sh
 ```
+
+`ANTHROPIC_API_KEY` active la **génération de chasses** (docs/conception.md § 11).
+Sans elle, tout le reste fonctionne et `POST /api/hunts/generate` répond 503.
+La clé se crée sur console.anthropic.com. Réglages facultatifs, dans `api.env` de
+`values.yaml` : `GENERATOR_MODEL` (`claude-opus-5`), `GENERATOR_EFFORT` (`medium`),
+`GENERATION_DAILY_QUOTA` (`5`).
+
+Le générateur sort du cluster vers `api.anthropic.com`, `nominatim.openstreetmap.org`
+et `overpass-api.de` (HTTPS). Les NetworkPolicies du chart laissent la sortie
+ouverte ; rien à faire, sauf si un pare-feu filtre la sortie de la VM.
 
 Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
 copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des
