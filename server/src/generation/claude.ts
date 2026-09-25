@@ -100,13 +100,15 @@ ${JSON.stringify(places)}`;
       });
       message = await stream.finalMessage();
     } catch (e) {
-      if (e instanceof Anthropic.RateLimitError) throw new HttpError(503, 'Le générateur est très sollicité, réessayez dans quelques minutes.');
-      if (e instanceof Anthropic.APIError) throw new HttpError(502, 'Le générateur d’énigmes ne répond pas, réessayez dans un instant.');
+      if (e instanceof Anthropic.RateLimitError) throw new HttpError(503, 'Le générateur est très sollicité, réessayez dans quelques minutes.', e);
+      if (e instanceof Anthropic.APIError) throw new HttpError(502, 'Le générateur d’énigmes ne répond pas, réessayez dans un instant.', e);
       throw e;
     }
-    if (message.stop_reason === 'refusal') throw new HttpError(422, 'Le générateur n’a pas pu inventer de chasse pour ce lieu. Essayez un autre endroit.');
+    if (message.stop_reason === 'refusal') {
+      throw new HttpError(422, 'Le générateur n’a pas pu inventer de chasse pour ce lieu. Essayez un autre endroit.', new Error(`refus : ${JSON.stringify(message.stop_details ?? null)}`));
+    }
     if (message.stop_reason === 'max_tokens' || !message.parsed_output) {
-      throw new HttpError(502, 'Le générateur a rendu une chasse incomplète, réessayez.');
+      throw new HttpError(502, 'Le générateur a rendu une chasse incomplète, réessayez.', new Error(`stop_reason=${message.stop_reason}, sortie analysée : ${!!message.parsed_output}`));
     }
     return toHuntPlan(message.parsed_output, input);
   }

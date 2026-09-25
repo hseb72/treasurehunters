@@ -28,7 +28,8 @@ const TIMEOUT_MS = 30_000;
 const DETAIL_TAGS = ['description', 'inscription', 'start_date', 'artist_name', 'architect', 'subject', 'memorial', 'material', 'denomination', 'wikipedia', 'addr:street'];
 const KIND_TAGS = ['historic', 'tourism', 'amenity', 'man_made', 'leisure', 'artwork_type', 'memorial'];
 
-const unavailable = () => new HttpError(502, 'La carte OpenStreetMap ne répond pas pour le moment, réessayez dans un instant.');
+const unavailable = (cause: unknown) =>
+  new HttpError(502, 'La carte OpenStreetMap ne répond pas pour le moment, réessayez dans un instant.', cause);
 
 async function osmFetch(url: string, init: RequestInit = {}): Promise<unknown> {
   let res: Response;
@@ -38,10 +39,13 @@ async function osmFetch(url: string, init: RequestInit = {}): Promise<unknown> {
       headers: { 'User-Agent': config.osmUserAgent, 'Accept-Language': 'fr', ...(init.headers ?? {}) },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-  } catch {
-    throw unavailable();
+  } catch (e) {
+    throw unavailable(new Error(`${new URL(url).host} injoignable : ${(e as Error).message}`, { cause: e }));
   }
-  if (!res.ok) throw unavailable();
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw unavailable(new Error(`${new URL(url).host} a répondu ${res.status} : ${body.slice(0, 300)}`));
+  }
   return res.json();
 }
 
