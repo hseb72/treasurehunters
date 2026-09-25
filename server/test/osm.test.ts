@@ -61,6 +61,22 @@ describe('OpenStreetMap : reprises', () => {
     expect(hits).toHaveLength(2);
   });
 
+  it('essaie chaque miroir une fois avant de revenir au premier, sans attendre entre eux', async () => {
+    config.overpassUrls = ['a', 'b', 'c', 'd'].map((m) => `${base}/${m}`);
+    hits.length = 0;
+    bodies.length = 0;
+    const busy = (res: import('node:http').ServerResponse) =>
+      res.writeHead(504, { 'content-type': 'text/html' }).end('<html><body><p>The server is probably too busy to handle your request.</p></body></html>');
+    script = [busy, busy, busy, busy];
+    const started = Date.now();
+    const err = await placesAround({ lat: 43.6, lng: 3.88 }, 500).catch((e) => e);
+    expect(Date.now() - started).toBeLessThan(1_000);
+    expect(hits).toEqual(['/a', '/b', '/c', '/d']);
+    expect(err.cause.message).toMatch(/504 : The server is probably too busy/);
+    expect(err.cause.message).not.toMatch(/<html>/);
+    expect(bodies[0]).toMatch(/\[maxsize:134217728\]/);
+  });
+
   it('abandonne avec un message clair après trois échecs', async () => {
     config.overpassUrls = [`${base}/principal`];
     script = [tooMany, tooMany, tooMany];
