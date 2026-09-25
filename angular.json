@@ -27,10 +27,23 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "material-symbols-outlined-latin-400-normal.woff2",
+                "input": "node_modules/@fontsource/material-symbols-outlined/files",
+                "output": "fonts"
               }
             ],
             "styles": [
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/@fontsource/cinzel/latin-500.css",
+              "node_modules/@fontsource/cinzel/latin-700.css",
+              "node_modules/@fontsource/lora/latin-400.css",
+              "node_modules/@fontsource/lora/latin-400-italic.css",
+              "node_modules/@fontsource/lora/latin-500.css",
+              "node_modules/@fontsource/lora/latin-600.css",
+              "node_modules/@fontsource/rye/latin-400.css",
+              "node_modules/@fontsource/special-elite/latin-400.css",
               "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [

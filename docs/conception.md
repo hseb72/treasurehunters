@@ -294,7 +294,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 
 ## 9. Choix techniques
 
-- **Front** (`src/`) : Angular 22 avec des composants autonomes (*standalone*), les *signals* et Material 3. C'est une PWA installable. Le thème « carnet d'explorateur » est défini dans `src/styles.scss`. Le front dialogue avec l'API via `HttpHuntApi`, ou avec `MockHuntApi` pour les maquettes autonomes (`npm run start:mock`).
+- **Front** (`src/`) : Angular 22 avec des composants autonomes (*standalone*), les *signals* et Material 3. C'est une PWA installable. Le thème « carnet d'explorateur » est défini dans `src/styles.scss`. Les polices (Cinzel, Lora, Rye, Special Elite et les icônes Material Symbols) sont **servies par l'application** depuis les paquets `@fontsource`, jamais par un CDN : un CDN bloqué ou lent faisait apparaître le nom des icônes à leur place. Le front dialogue avec l'API via `HttpHuntApi`, ou avec `MockHuntApi` pour les maquettes autonomes (`npm run start:mock`).
 - **Back-end** (`server/`) :
   - Node.js avec Fastify 5 ;
   - `pg` et des requêtes SQL écrites à la main (`server/src/repo.ts`) ;
