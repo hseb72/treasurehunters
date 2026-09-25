@@ -169,7 +169,9 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   });
 
   /* ----- Génération (§ 11) */
-  app.post('/api/hunts/generate', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req, reply) =>
+  // Compté par session (et non par adresse IP) : des joueurs derrière une même box ne se gênent pas.
+  const perSession = { max: 5, timeWindow: '1 minute', keyGenerator: (req: FastifyRequest) => req.headers.authorization ?? req.ip };
+  app.post('/api/hunts/generate', { config: { rateLimit: perSession } }, async (req, reply) =>
     reply.status(202).send(await service.generate(req.viewer, generationRequest.parse(req.body))),
   );
   app.get('/api/generations/:id', async (req) => {

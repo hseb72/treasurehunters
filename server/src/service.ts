@@ -792,13 +792,19 @@ export class Service {
     const job = await tx(this.pool, async (db) => {
       // Sérialise les demandes d'un même joueur pour que le quota tienne.
       await db.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 FOR UPDATE', [me]);
+      // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
+      // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
       const recent = await one(
         db,
-        `SELECT count(*)::int AS n FROM th_generations WHERE gen_hunter_htr = $1 AND gen_creation > now() - interval '1 day'`,
+        `SELECT count(*) FILTER (WHERE gen_status <> 'error')::int AS used, count(*)::int AS attempts
+         FROM th_generations WHERE gen_hunter_htr = $1 AND gen_creation > now() - interval '1 day'`,
         [me],
       );
-      if (recent!['n'] >= config.generationDailyQuota) {
+      if (recent!['used'] >= config.generationDailyQuota) {
         throw new HttpError(429, `Vous avez déjà inventé ${config.generationDailyQuota} chasses aujourd’hui : revenez demain !`);
+      }
+      if (recent!['attempts'] >= config.generationDailyQuota * 4) {
+        throw new HttpError(429, 'Trop d’essais aujourd’hui : le générateur semble en difficulté, réessayez demain.');
       }
       return one(db, `INSERT INTO th_generations (gen_hunter_htr, gen_params) VALUES ($1, $2) RETURNING *`, [me, JSON.stringify(req)]);
     });
