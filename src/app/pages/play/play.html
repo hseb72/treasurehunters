@@ -24,7 +24,7 @@
       </div>
       <th-trail [total]="s.totalSteps" [done]="s.validated.length" [skipped]="skippedOrders()" [active]="phase() === 'playing'" />
       <div class="board-foot small muted">
-        @if (s.position && !s.hunt.surprise) {
+        @if (s.position && (!s.hunt.surprise || s.position.total > 1)) {
           @let pos = s.position;
           <span class="position" title="Classement provisoire de votre équipe">
             <mat-icon inline>military_tech</mat-icon> {{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} / {{ pos.total }} ·
@@ -45,16 +45,43 @@
 
     @switch (phase()) {
       @case ('before') {
-        @if (s.selfStart) {
+        @if (s.hunt.surprise) {
           <section class="parchment taped center surprise">
             <span class="stamp stamp--gold">Chasse surprise</span>
             <h2>Votre expédition est prête</h2>
-            <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}. Le chrono démarre dès que vous donnez le départ.</p>
+            <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}.</p>
             @if (s.hunt.startText) {
               <p class="note">{{ s.hunt.startText }}</p>
             }
             <p class="small muted">Pas de QR code : une fois sur place, appuyez sur « Je suis arrivé » (la localisation doit être autorisée).</p>
-            <button mat-flat-button class="th-cta" type="button" (click)="go()" [disabled]="busy()"><mat-icon>flag</mat-icon>C'est parti !</button>
+
+            @if (isHost() && s.hunt.status === 'published') {
+              <div class="start-modes" role="radiogroup" aria-label="Mode de départ">
+                <button type="button" role="radio" class="start-mode" [class.start-mode--on]="s.hunt.selfPaced" [attr.aria-checked]="s.hunt.selfPaced" (click)="setSelfPaced(true)" [disabled]="busy()">
+                  <mat-icon>timer</mat-icon>
+                  <strong>Chacun son chrono</strong>
+                  <span class="small">Chaque équipe part quand elle veut, pendant 7 jours. Le meilleur temps l'emporte.</span>
+                </button>
+                <button type="button" role="radio" class="start-mode" [class.start-mode--on]="!s.hunt.selfPaced" [attr.aria-checked]="!s.hunt.selfPaced" (click)="setSelfPaced(false)" [disabled]="busy()">
+                  <mat-icon>sprint</mat-icon>
+                  <strong>Départ commun</strong>
+                  <span class="small">Vous lancez la course pour toutes les équipes en même temps.</span>
+                </button>
+              </div>
+            }
+
+            @if (s.selfStart) {
+              <p class="muted">
+                @if (s.hunt.selfPaced) {
+                  Le chrono de votre équipe démarre dès que vous donnez le départ.
+                } @else {
+                  Toutes les équipes inscrites ({{ s.hunt.teamCount }}) partiront en même temps.
+                }
+              </p>
+              <button mat-flat-button class="th-cta" type="button" (click)="go()" [disabled]="busy()"><mat-icon>flag</mat-icon>C'est parti !</button>
+            } @else {
+              <p><mat-icon inline>hourglass_top</mat-icon> {{ s.hunt.hostNickname ?? 'Le créateur de l’expédition' }} donnera le départ à toutes les équipes en même temps.</p>
+            }
           </section>
         } @else {
         <section class="parchment center">
@@ -186,6 +213,10 @@
           <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
         </section>
       }
+    }
+
+    @if (invitesOpen() && phase() !== 'playing') {
+      <th-invite-panel [hunt]="s.hunt" [team]="s.team" />
     }
 
     @if (s.validated.length) {

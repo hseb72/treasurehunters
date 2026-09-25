@@ -55,6 +55,71 @@ describe('chasse surprise (mode « je joue »)', () => {
     expect((await seb.get(`/api/hunts/${job.huntId}/results`)).body[0]).toMatchObject({ rank: 1, teamName: 'seb' });
   });
 
+  /** Parcours complet d'une équipe par « Je suis arrivé » ; renvoie le dernier check-in. */
+  async function runAll(api: Awaited<ReturnType<typeof loginAs>>, huntId: number) {
+    const steps = (await ctx.pool.query('SELECT cod_latitude, cod_longitude FROM th_codes WHERE cod_hunt_hun = $1 AND cod_order > 0 ORDER BY cod_order', [huntId])).rows;
+    let last;
+    for (const s of steps) last = (await api.post(`/api/hunts/${huntId}/checkin`, { lat: s.cod_latitude, lng: s.cod_longitude, accuracy: 8 })).body;
+    return last;
+  }
+
+  it('accueille coéquipiers et adversaires, chacun avec son chrono', async () => {
+    const tom = await loginAs(ctx.app, 'tom@example.com');
+    const job = await generate(tom, 'play');
+    const hunt = (await tom.get(`/api/hunts/${job.huntId}`)).body;
+    expect(hunt).toMatchObject({ teamGame: true, selfPaced: true, hostNickname: 'Tom' });
+    const team = (await tom.get(`/api/hunts/${job.huntId}/my-team`)).body;
+    expect(team).toMatchObject({ solo: false, name: 'Tom' });
+
+    // Code coéquipier : on rejoint l'équipe de l'hôte. Code adversaire : on fonde la sienne.
+    const jade = await loginAs(ctx.app, 'jade@example.com');
+    expect((await jade.post('/api/teams/join', { code: team.joinCode })).status).toBe(200);
+    const noah = await loginAs(ctx.app, 'noah@example.com');
+    expect((await noah.get(`/api/hunts/by-code/${hunt.joinCode}`)).body.id).toBe(job.huntId);
+    expect((await noah.post(`/api/hunts/${job.huntId}/teams`, { name: 'Les rivaux' })).status).toBe(201);
+
+    // L'équipe de l'hôte part seule ; les autres gardent la main sur leur départ.
+    const started = (await tom.post(`/api/hunts/${job.huntId}/self-start`)).body;
+    expect(started).toMatchObject({ selfStart: false, hunt: { status: 'running' } });
+    expect((await noah.get(`/api/hunts/${job.huntId}/play`)).body).toMatchObject({ selfStart: true, clue: null });
+    expect((await jade.get(`/api/hunts/${job.huntId}/play`)).body.clue.targetOrder).toBe(1);
+
+    // Inscription encore possible pendant la course ; on peut repartir tant qu'on n'est pas parti.
+    const zoe = await loginAs(ctx.app, 'zoe@example.com');
+    expect((await zoe.post(`/api/hunts/${job.huntId}/teams`, { name: 'Retardataires' })).status).toBe(201);
+    expect((await tom.del(`/api/hunts/${job.huntId}/my-team`)).status).toBe(409); // l'hôte reste
+
+    expect((await runAll(tom, job.huntId)).state.hunt.status).toBe('running'); // d'autres équipes jouent encore
+    await noah.post(`/api/hunts/${job.huntId}/self-start`);
+    expect((await runAll(noah, job.huntId)).state.hunt.status).toBe('running');
+    // La dernière équipe renonce sans être partie : tout le monde est arrivé, la chasse se clôt.
+    expect((await zoe.del(`/api/hunts/${job.huntId}/my-team`)).status).toBe(204);
+    const results = (await jade.get(`/api/hunts/${job.huntId}/results`)).body;
+    expect(results.map((r: { rank: number }) => r.rank)).toEqual([1, 2]);
+    expect(results.map((r: { teamName: string }) => r.teamName).sort()).toEqual(['Les rivaux', 'Tom']);
+  });
+
+  it('laisse l’hôte donner un départ commun', async () => {
+    const enzo = await loginAs(ctx.app, 'enzo@example.com');
+    const job = await generate(enzo, 'play');
+    const manon = await loginAs(ctx.app, 'manon@example.com');
+    expect((await manon.put(`/api/hunts/${job.huntId}/self-paced`, { selfPaced: false })).status).toBe(403);
+    expect((await enzo.put(`/api/hunts/${job.huntId}/self-paced`, { selfPaced: false })).body.selfPaced).toBe(false);
+    await manon.post(`/api/hunts/${job.huntId}/teams`, { name: 'Manon et cie' });
+
+    expect((await manon.get(`/api/hunts/${job.huntId}/play`)).body.selfStart).toBe(false);
+    const refused = await manon.post(`/api/hunts/${job.huntId}/self-start`);
+    expect(refused.status).toBe(403);
+    expect(refused.body.message).toMatch(/Enzo/);
+
+    await enzo.post(`/api/hunts/${job.huntId}/self-start`);
+    const teams = (await enzo.get(`/api/hunts/${job.huntId}/teams`)).body;
+    expect(teams.every((t: { started: string | null }) => t.started === teams[0].started && t.started)).toBe(true);
+    const late = await (await loginAs(ctx.app, 'louis@example.com')).post(`/api/hunts/${job.huntId}/teams`, { name: 'Trop tard' });
+    expect(late.status).toBe(409);
+    expect((await enzo.put(`/api/hunts/${job.huntId}/self-paced`, { selfPaced: true })).status).toBe(409);
+  });
+
   it('ne laisse personne se connecter avec le compte système', async () => {
     const res = await client(ctx.app).post('/api/auth/register', { nickname: 'pirate', email: 'generateur@treasurehunters.invalid', password: '12345678' });
     expect(res.status).toBe(400);

@@ -432,6 +432,7 @@ export class Service {
       const hunt = await this.joinableHunt(db, team.huntId, me);
       if (team.solo) throw conflict('Cette chasse se joue en solo.');
       if (team.members.length >= hunt.teamMax) throw conflict('Cette équipe est complète.');
+      if (team.finished) throw conflict('Cette équipe a déjà terminé l’expédition.');
       await db.query('INSERT INTO th_teamhunters (thr_team_tea, thr_hunt_hun, thr_hunter_htr) VALUES ($1, $2, $3)', [team.id, hunt.id, me]);
       return (await teamById(db, team.id))!;
     });
@@ -453,11 +454,14 @@ export class Service {
       const team = await teamOf(db, huntId, me);
       if (!team) return;
       const hunt = (await huntById(db, huntId, true))!;
-      if (hunt.status !== 'published') throw conflict('La chasse a déjà commencé.');
+      if (hunt.surprise && hunt.hostId === me) throw conflict('Vous avez créé cette expédition : vous ne pouvez pas la quitter.');
+      // Chasse surprise « chacun son chrono » : on peut partir tant que son équipe n'a pas donné son départ.
+      if (hunt.status !== 'published' && !(openToLateTeams(hunt) && !team.started)) throw conflict('La chasse a déjà commencé.');
       await db.query('DELETE FROM th_teamhunters WHERE thr_team_tea = $1 AND thr_hunter_htr = $2', [team.id, me]);
       const rest = team.members.filter((m) => m.hunterId !== me);
       if (rest.length === 0) await db.query('DELETE FROM th_teams WHERE tea_id = $1', [team.id]);
       else if (team.ownerId === me) await db.query('UPDATE th_teams SET tea_owner_htr = $2 WHERE tea_id = $1', [team.id, rest[0].hunterId]);
+      if (hunt.status === 'running') await this.closeSurpriseIfAllArrived(db, hunt);
     });
   }
 
@@ -580,13 +584,7 @@ export class Service {
       ]);
       if (target.order === final) {
         await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [team.id]);
-        // Chasse surprise : le seul joueur est arrivé, la chasse se clôt et le résultat s'affiche.
-        if (hunt.surprise) {
-          await db.query(`UPDATE th_hunts SET hun_closed = now(), hun_status_hst = $2, hun_lastupdate = now() WHERE hun_id = $1`, [
-            hunt.id,
-            STATUS_IDS.closed,
-          ]);
-        }
+        await this.closeSurpriseIfAllArrived(db, hunt);
       }
       return {
         outcome,
@@ -598,16 +596,50 @@ export class Service {
     });
   }
 
-  /** Chasse surprise : le joueur donne lui-même le départ, quand il est prêt (§ 11.4). */
+  /**
+   * Chasse surprise : les joueurs donnent eux-mêmes le départ, quand ils sont prêts (§ 11.4).
+   * « Chacun son chrono » : chaque équipe part pour elle-même. Départ commun : l'hôte lance
+   * toutes les équipes à la fois.
+   */
   async selfStart(viewer: Viewer, huntId: number): Promise<PlayState> {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const hunt = await huntById(db, huntId, true);
-      if (!hunt || !(await teamOf(db, huntId, me))) throw notFound('Chasse introuvable.');
+      const mine = hunt ? await teamOf(db, huntId, me) : null;
+      if (!hunt || !mine) throw notFound('Chasse introuvable.');
       if (!hunt.surprise) throw forbidden('Le départ est donné par l’organisateur.');
-      if (hunt.status !== 'published') throw conflict('Cette chasse est déjà partie.');
-      await this.start(db, hunt);
+      if (hunt.selfPaced) {
+        const team = (await teamById(db, mine.id, true))!;
+        if (team.started) throw conflict('Votre équipe est déjà partie.');
+        if (hunt.status !== 'published' && hunt.status !== 'running') throw conflict('Cette expédition est terminée.');
+        const now = (await one(db, 'SELECT now() AS now'))!['now'] as Date;
+        if (hunt.status === 'published') {
+          await db.query(`UPDATE th_hunts SET hun_started = $2, hun_status_hst = $3, hun_lastupdate = now() WHERE hun_id = $1`, [
+            hunt.id,
+            now,
+            STATUS_IDS.running,
+          ]);
+        }
+        await db.query('UPDATE th_teams SET tea_started = $2, tea_lastupdate = now() WHERE tea_id = $1', [team.id, now]);
+      } else {
+        if (hunt.hostId !== me) throw forbidden(`Le départ sera donné par ${hunt.hostNickname ?? 'le créateur de l’expédition'}.`);
+        if (hunt.status !== 'published') throw conflict('Cette expédition est déjà partie.');
+        await this.start(db, hunt);
+      }
       return this.playState(db, me, huntId);
+    });
+  }
+
+  /** Chasse surprise, avant le départ : l'hôte choisit « chacun son chrono » ou départ commun. */
+  async setSelfPaced(viewer: Viewer, huntId: number, selfPaced: boolean): Promise<Hunt> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const hunt = await huntById(db, huntId, true);
+      if (!hunt || !hunt.surprise) throw notFound('Chasse introuvable.');
+      if (hunt.hostId !== me) throw forbidden('Seul le créateur de l’expédition choisit le mode de départ.');
+      if (hunt.status !== 'published') throw conflict('L’expédition est déjà partie.');
+      await db.query('UPDATE th_hunts SET hun_selfpaced = $2, hun_lastupdate = now() WHERE hun_id = $1', [huntId, selfPaced]);
+      return (await huntById(db, huntId))!;
     });
   }
 
@@ -719,7 +751,7 @@ export class Service {
       skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
-      selfStart: hunt.surprise && hunt.status === 'published',
+      selfStart: canSelfStart(hunt, team, me),
     };
   }
 
@@ -854,7 +886,8 @@ export class Service {
 
   /**
    * Chasse inventée, validée par géolocalisation. Mode « play » : chasse surprise organisée
-   * par le compte système, le joueur inscrit en solo donne lui-même le départ. Mode
+   * par le compte système ; le joueur (l'hôte) y a son équipe, peut inviter coéquipiers et
+   * adversaires, et les départs se donnent depuis l'application. Mode
    * « organize » : brouillon ordinaire dont le joueur devient l'organisateur.
    */
   private async createFromPlan(db: Db, me: number, req: GenerationRequest, plan: HuntPlan, location: string): Promise<number> {
@@ -865,8 +898,8 @@ export class Service {
       `INSERT INTO th_hunts (hun_owner_htr, hun_joincode, hun_name, hun_description, hun_location, hun_begin, hun_end,
                              hun_autostart, hun_autoclose, hun_award, hun_starttext, hun_startmode, hun_penalty1, hun_penalty2,
                              hun_penalty3, hun_skippenalty, hun_teamgame, hun_teammin, hun_teammax, hun_public, hun_status_hst,
-                             hun_validation, hun_georadius, hun_generated, hun_surprise)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, $10, 1, $11, false, $12, 'geo', 40, true, $13)
+                             hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13)
        RETURNING hun_id`,
       [
         owner,
@@ -879,10 +912,11 @@ export class Service {
         new Date(Date.now() + (play ? 7 * 86_400_000 : 86_400_000 + Math.max(2, req.durationMinutes / 30) * 3_600_000)),
         plan.award,
         plan.startText,
-        !play,
-        play ? 1 : 6,
+        // Surprise : l'équipe du joueur, que des coéquipiers peuvent rejoindre ; des adversaires peuvent s'inscrire.
+        SURPRISE_TEAM_MAX,
         STATUS_IDS[play ? 'published' : 'draft'],
         play,
+        play ? me : null,
       ],
     );
     const huntId = r!['hun_id'] as number;
@@ -909,7 +943,7 @@ export class Service {
     }
     if (play) {
       const nickname = (await hunterById(db, me))!.nickname;
-      await this.addTeam(db, (await huntById(db, huntId))!, nickname, me, true);
+      await this.addTeam(db, (await huntById(db, huntId))!, nickname, me, false);
     }
     return huntId;
   }
@@ -949,7 +983,7 @@ export class Service {
   private async joinableHunt(db: Db, huntId: number, me: number): Promise<Hunt> {
     const hunt = await huntById(db, huntId, true);
     if (!hunt || hunt.status === 'draft') throw notFound('Chasse introuvable.');
-    if (hunt.status !== 'published') throw conflict('Les inscriptions sont fermées.');
+    if (hunt.status !== 'published' && !openToLateTeams(hunt)) throw conflict('Les inscriptions sont fermées.');
     if (hunt.ownerId === me) throw conflict('Vous organisez cette chasse.');
     if (await teamOf(db, huntId, me)) throw conflict('Vous êtes déjà inscrit à cette chasse.');
     return hunt;
@@ -963,6 +997,17 @@ export class Service {
     if (h.begin && h.end && Date.parse(h.end) <= Date.parse(h.begin)) throw badRequest('La clôture doit suivre le départ.');
     if (h.teamMin !== undefined && h.teamMax !== undefined && h.teamMax < h.teamMin) throw badRequest('Taille d’équipe incohérente.');
     if (h.startMode === 'staggered' && !h.interval) throw badRequest('Indiquez l’intervalle entre deux départs.');
+  }
+
+  /** Chasse surprise : quand toutes les équipes sont arrivées, elle se clôt et le podium s'affiche. */
+  private async closeSurpriseIfAllArrived(db: Db, hunt: Hunt): Promise<void> {
+    if (!hunt.surprise) return;
+    const waiting = await one(db, 'SELECT 1 FROM th_teams WHERE tea_hunt_hun = $1 AND tea_finished IS NULL', [hunt.id]);
+    if (waiting) return;
+    await db.query(`UPDATE th_hunts SET hun_closed = now(), hun_status_hst = $2, hun_lastupdate = now() WHERE hun_id = $1`, [
+      hunt.id,
+      STATUS_IDS.closed,
+    ]);
   }
 
   private async setStatus(db: Db, id: number, status: HuntStatus): Promise<void> {
@@ -988,4 +1033,19 @@ function toJob(r: Row): GenerationJob {
     huntId: r['gen_hunt_hun'],
     error: r['gen_error'],
   };
+}
+
+/** Taille maximale d'une équipe dans une chasse surprise. */
+const SURPRISE_TEAM_MAX = 6;
+
+/** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
+function openToLateTeams(hunt: Hunt): boolean {
+  return hunt.surprise && hunt.selfPaced && hunt.status === 'running';
+}
+
+/** Le joueur peut-il donner un départ (celui de son équipe, ou celui de tous) ? */
+function canSelfStart(hunt: Hunt, team: Team, me: number): boolean {
+  if (!hunt.surprise) return false;
+  if (hunt.selfPaced) return !team.started && (hunt.status === 'published' || hunt.status === 'running');
+  return hunt.status === 'published' && hunt.hostId === me;
 }

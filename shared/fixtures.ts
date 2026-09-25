@@ -6,7 +6,7 @@ import { HintUse, Hunt, Hunter, Step, Team, Validation } from './models.js';
 
 export interface MockDb {
   hunters: (Hunter & { password: string })[];
-  hunts: Omit<Hunt, 'stepCount' | 'teamCount' | 'ownerNickname'>[];
+  hunts: Omit<Hunt, 'stepCount' | 'teamCount' | 'ownerNickname' | 'hostNickname'>[];
   steps: Step[];
   teams: Team[];
   validations: Validation[];
@@ -57,6 +57,8 @@ export function buildFixtures(now = Date.now()): MockDb {
     geoRadius: 40,
     generated: false,
     surprise: false,
+    hostId: null,
+    selfPaced: true,
     teamGame: true,
     teamMin: 1,
     teamMax: 4,

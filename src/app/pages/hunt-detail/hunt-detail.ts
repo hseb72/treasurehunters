@@ -14,11 +14,12 @@ import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { formatClock } from '../../shared/format';
 import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
+import { InvitePanel } from '../../shared/invite-panel';
 import { StatusBadge } from '../../shared/status-badge';
 
 @Component({
   selector: 'th-hunt-detail',
-  imports: [CurrencyPipe, DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
+  imports: [CurrencyPipe, DatePipe, FormsModule, InvitePanel, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hunt-detail.html',
   styleUrl: './hunt-detail.scss',
@@ -53,9 +54,14 @@ export class HuntDetailPage {
 
   protected readonly penalties = computed(() => penaltyText(this.hunt.value()?.hintPenalties ?? []));
   protected readonly isOwner = computed(() => this.hunt.value()?.ownerId === this.session.user()?.id);
-  protected readonly inviteUrl = computed(() => {
-    const team = this.myTeam.value();
-    return team ? `${location.origin}/hunts/${this.id()}?code=${team.joinCode}` : '';
+  protected readonly isHost = computed(() => {
+    const h = this.hunt.value();
+    return !!h?.surprise && h.hostId === this.session.user()?.id;
+  });
+  /** Inscriptions ouvertes : avant le départ, ou pendant une chasse surprise « chacun son chrono ». */
+  protected readonly joinOpen = computed(() => {
+    const h = this.hunt.value();
+    return !!h && (h.status === 'published' || (h.surprise && h.selfPaced && h.status === 'running'));
   });
 
   protected countdown(iso: string): string {
@@ -76,16 +82,6 @@ export class HuntDetailPage {
 
   protected leave(): void {
     this.act(this.api.leaveHunt(this.id()), 'Vous avez quitté la chasse.');
-  }
-
-  protected share(): void {
-    const url = this.inviteUrl();
-    const team = this.myTeam.value();
-    if (navigator.share) {
-      navigator.share({ title: this.hunt.value()?.name, text: `Rejoins l'équipe ${team?.name} !`, url }).catch(() => undefined);
-    } else {
-      navigator.clipboard?.writeText(url).then(() => this.notify.info('Lien d’invitation copié.'));
-    }
   }
 
   protected login(): void {

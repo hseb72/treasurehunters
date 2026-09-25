@@ -185,3 +185,35 @@
 
 /* Le bouton flottant ne doit pas masquer le bas de la page. */
 .with-fab { padding-bottom: 96px; }
+
+.start-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.start-mode {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--th-ink-soft);
+  background: transparent;
+  border: 2px solid var(--th-edge);
+  border-radius: var(--th-radius);
+  cursor: pointer;
+
+  span {
+    grid-column: 2;
+  }
+}
+
+.start-mode--on {
+  color: var(--th-ink);
+  background: var(--th-parchment-light);
+  border-color: var(--th-saddle);
+}

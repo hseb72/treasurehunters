@@ -57,8 +57,10 @@ export abstract class HuntApi {
   abstract scan(token: string): Observable<ScanResult>;
   /** « Je suis arrivé » : validation de l'étape cherchée par géolocalisation. */
   abstract checkin(huntId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<CheckinResult>;
-  /** Chasse surprise : le joueur donne lui-même le départ. */
+  /** Chasse surprise : le joueur donne le départ (de son équipe, ou de tous en départ commun). */
   abstract selfStart(huntId: number): Observable<PlayState>;
+  /** Chasse surprise, avant le départ : l'hôte choisit « chacun son chrono » ou départ commun. */
+  abstract setSelfPaced(huntId: number, selfPaced: boolean): Observable<Hunt>;
 
   /** Demande l'invention d'une chasse (OpenStreetMap + IA) ; suivie avec getGeneration. */
   abstract generateHunt(request: GenerationRequest): Observable<GenerationJob>;
