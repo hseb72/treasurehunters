@@ -47,15 +47,14 @@
         </div>
         @switch (h.status) {
           @case ('published') {
-            @if (!team.solo && team.members.length < h.teamMax) {
-              <div class="invite">
-                <span class="small muted">Code de l'équipe</span>
-                <span class="join-code">{{ team.joinCode }}</span>
-                <button mat-stroked-button type="button" (click)="share()"><mat-icon>share</mat-icon>Inviter des équipiers</button>
-              </div>
+            @if (h.surprise) {
+              <a mat-flat-button class="th-cta" [routerLink]="['/play', h.id]"><mat-icon>flag</mat-icon>Aller au départ</a>
+            } @else {
+              <p class="countdown"><mat-icon>hourglass_top</mat-icon>Départ dans <strong>{{ countdown(h.begin) }}</strong></p>
             }
-            <p class="countdown"><mat-icon>hourglass_top</mat-icon>Départ dans <strong>{{ countdown(h.begin) }}</strong></p>
-            <button mat-button type="button" class="leave" (click)="leave()" [disabled]="busy()">Quitter l'expédition</button>
+            @if (!isHost()) {
+              <button mat-button type="button" class="leave" (click)="leave()" [disabled]="busy()">Quitter l'expédition</button>
+            }
           }
           @case ('running') {
             <a mat-flat-button class="th-cta" [routerLink]="['/play', h.id]"><mat-icon>explore</mat-icon>Ouvrir mon carnet de route</a>
@@ -64,7 +63,10 @@
             <a mat-flat-button class="th-cta" [routerLink]="['/hunts', h.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
           }
         }
-      } @else if (h.status === 'published') {
+      } @else if (joinOpen()) {
+        @if (h.surprise && h.selfPaced && h.status === 'running') {
+          <p class="small muted">La course a commencé, mais chaque équipe lance son propre chrono : il est encore temps de s'inscrire.</p>
+        }
         @if (h.teamGame) {
           <div class="join-options">
             <form class="stack" (ngSubmit)="createTeam()">
@@ -96,6 +98,10 @@
       }
     </section>
 
+    @if (!isOwner() && myTeam.value(); as team) {
+      <th-invite-panel [hunt]="h" [team]="team" />
+    }
+
     <section class="parchment">
       <h2 class="section-title">L'expédition</h2>
       <p class="description">{{ h.description }}</p>
@@ -118,8 +124,12 @@
       <ul class="rules">
         <li><mat-icon>route</mat-icon><span><strong>{{ h.stepCount }} étapes</strong> à trouver dans l'ordre, chacune révèle l'énigme de la suivante.</span></li>
         <li>
-          <mat-icon>{{ h.startMode === 'mass' ? 'sprint' : 'timer' }}</mat-icon>
-          @if (h.startMode === 'staggered') {
+          <mat-icon>{{ h.startMode === 'mass' && !(h.surprise && h.selfPaced) ? 'sprint' : 'timer' }}</mat-icon>
+          @if (h.surprise && h.selfPaced) {
+            <span><strong>Chacun son chrono</strong> : chaque équipe donne son départ quand elle veut, jusqu'au {{ h.end | date: 'd MMMM' }}. Le meilleur temps l'emporte.</span>
+          } @else if (h.surprise) {
+            <span><strong>Départ commun</strong> : {{ h.hostNickname }} lance la course pour toutes les équipes, le premier arrivé l'emporte.</span>
+          } @else if (h.startMode === 'staggered') {
             <span><strong>{{ modes[h.startMode] }}</strong> : une équipe toutes les {{ h.interval }} min. Le classement se fait au temps de parcours.</span>
           } @else {
             <span><strong>{{ modes[h.startMode] }}</strong> : tout le monde part ensemble, le premier arrivé l'emporte.</span>

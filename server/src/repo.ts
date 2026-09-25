@@ -31,6 +31,7 @@ export async function hunterById(db: Db, id: number): Promise<Hunter | null> {
 /** Chasse enrichie : statut, pseudo de l'organisateur, nombre d'étapes et d'équipes. */
 const HUNT_SELECT = `
   SELECT h.*, s.hst_code, o.htr_nickname AS owner_nickname,
+         (SELECT x.htr_nickname FROM th_hunters x WHERE x.htr_id = h.hun_host_htr) AS host_nickname,
          (SELECT coalesce(max(c.cod_order), 0) FROM th_codes c WHERE c.cod_hunt_hun = h.hun_id) AS step_count,
          (SELECT count(*) FROM th_teams t WHERE t.tea_hunt_hun = h.hun_id)::int AS team_count
   FROM th_hunts h
@@ -67,6 +68,9 @@ export function toHunt(r: Row): Hunt {
     geoRadius: r['hun_georadius'],
     generated: r['hun_generated'],
     surprise: r['hun_surprise'],
+    hostId: r['hun_host_htr'],
+    hostNickname: r['host_nickname'],
+    selfPaced: r['hun_selfpaced'],
     status: r['hst_code'],
     stepCount: r['step_count'],
     teamCount: r['team_count'],

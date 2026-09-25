@@ -260,6 +260,7 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `PUT /hunts/:id/teams/order` · `POST /teams/:id/delay` | ordre de passage, décalage d'un départ | organisateur |
 | `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours | membre |
 | `POST /hunts/:id/checkin` · `POST /hunts/:id/self-start` | « Je suis arrivé » (validation par géolocalisation, § 11.3), départ d'une chasse surprise | membre |
+| `PUT /hunts/:id/self-paced` | chasse surprise : « chacun son chrono » ou départ commun (§ 11.4) | hôte |
 | `POST /hunts/generate` · `GET /generations/:id` | invention d'une chasse (§ 11), suivi de la génération | connecté |
 | `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
 | `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
@@ -386,10 +387,17 @@ L'organisateur peut aussi choisir ce mode pour une chasse écrite à la main.
 
 ### 11.4 Chasse surprise (mode « je joue »)
 
-- La chasse appartient au **compte système « Treasure Hunters »**, créé à la demande, sans mot de passe (le domaine `.invalid` est refusé à l'inscription). Le joueur **ne peut donc pas voir le parcours** : l'onglet Étapes est réservé à l'organisateur.
-- Elle est privée (`hun_surprise`, `hun_generated`), publiée, en solo, avec le joueur inscrit. Elle reste jouable 7 jours.
-- Le joueur **donne lui-même le départ** (« C'est parti ! », `POST /hunts/:id/self-start`) ; le chrono démarre alors.
-- À l'arrivée, la chasse se clôt et le résultat s'affiche.
+- La chasse appartient au **compte système « Treasure Hunters »**, créé à la demande, sans mot de passe (le domaine `.invalid` est refusé à l'inscription). Le joueur **ne peut donc pas voir le parcours** : l'onglet Étapes est réservé à l'organisateur. Le joueur qui l'a générée en est l'**hôte** (`hun_host_htr`).
+- Elle est privée (`hun_surprise`, `hun_generated`), publiée, **en équipes de 1 à 6**, avec l'équipe de l'hôte déjà inscrite. Elle reste jouable 7 jours.
+- **Invitations** (panneau « Inviter d'autres aventuriers », carnet de route et fiche de l'expédition) :
+  - un **coéquipier** reçoit le **code de l'équipe** (`tea_joincode`) et la rejoint ;
+  - un **adversaire** reçoit le **code de l'expédition** (`hun_joincode`) et y inscrit sa propre équipe ;
+  - chaque invitation se partage par **QR code** (lien `/hunts/:id?code=…`), par le **partage du téléphone** (SMS, messageries), par **e-mail** (`mailto:`, message prérédigé, rien à configurer côté serveur) ou en copiant le lien.
+- **Deux modes de départ**, choisis par l'hôte tant que personne n'est parti (`hun_selfpaced`, `PUT /hunts/:id/self-paced`) :
+  - **Chacun son chrono** (par défaut) : chaque équipe appuie sur « C'est parti ! » (`POST /hunts/:id/self-start`) quand elle veut ; seul son chrono démarre. La chasse passe « en cours » au premier départ, et les inscriptions restent ouvertes tant qu'elle l'est. Une équipe pas encore partie peut se retirer ; l'hôte, non.
+  - **Départ commun** : l'hôte lance la course pour toutes les équipes à la fois ; les inscriptions se ferment alors.
+- Le classement est celui du § 5.2 (temps de course de chaque équipe). Pendant la course, chaque équipe voit sa position provisoire dès qu'il y a au moins deux équipes.
+- Quand **toutes les équipes sont arrivées**, la chasse se clôt et le podium s'affiche ; sinon, elle se clôt au bout des 7 jours.
 
 En mode « j'organise », la chasse est un **brouillon ordinaire** du joueur, validé par géolocalisation, prévu pour le lendemain. Il peut tout relire et ajuster (textes, points sur la carte, dates) avant de la publier.
 
@@ -399,3 +407,4 @@ En mode « j'organise », la chasse est un **brouillon ordinaire** du joueur, va
 - `th_validations.val_source` : ajout de `GEO`.
 - `th_generations` : demandeur, statut, paramètres (jsonb), chasse créée, message d'erreur.
 - Migration : `db/migrations/003_generation.sql`.
+- Chasses surprises à plusieurs : `hun_host_htr` (hôte), `hun_selfpaced` (mode de départ) ; migration `db/migrations/004_invitations.sql`, qui ouvre aussi aux équipes les chasses surprises encore jouables.

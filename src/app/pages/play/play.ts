@@ -10,9 +10,11 @@ import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { Clock } from '../../core/clock';
 import { Notify } from '../../core/notify';
+import { Session } from '../../core/session';
 import { formatDuration } from '@shared/rules';
 import { formatClock } from '../../shared/format';
 import { Confirm } from '../../shared/confirm-dialog';
+import { InvitePanel } from '../../shared/invite-panel';
 import { Trail } from '../../shared/trail';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
@@ -20,7 +22,7 @@ const REFRESH_MS = 15_000;
 
 @Component({
   selector: 'th-play',
-  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, Trail],
+  imports: [DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, Trail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrl: './play.scss',
@@ -30,6 +32,7 @@ export class PlayPage {
   private readonly notify = inject(Notify);
   private readonly clock = inject(Clock);
   private readonly confirm = inject(Confirm);
+  private readonly session = inject(Session);
 
   readonly id = input.required({ transform: numberAttribute });
 
@@ -51,7 +54,8 @@ export class PlayPage {
     const s = this.state.value();
     if (!s) return 'loading';
     if (s.team.finished) return 'finished';
-    if (s.hunt.status === 'published') return 'before';
+    // Chasse surprise « chacun son chrono » : la course a pu partir sans notre équipe.
+    if (s.hunt.status === 'published' || s.selfStart) return 'before';
     if (s.hunt.status !== 'running') return 'over';
     if (!s.team.started || Date.parse(s.team.started) > this.clock.now()) return 'waiting';
     return 'playing';
@@ -78,6 +82,32 @@ export class PlayPage {
     const s = this.state.value();
     return s?.clue ? (s.hunt.hintPenalties[s.clue.hintsRevealed.length] ?? 0) : 0;
   });
+
+  /** Chasse surprise : le joueur l'a créée, il choisit le mode de départ tant que rien n'est parti. */
+  protected readonly isHost = computed(() => {
+    const s = this.state.value();
+    return !!s?.hunt.surprise && s.hunt.hostId === this.session.user()?.id;
+  });
+
+  /** Chasse surprise encore ouverte aux inscriptions : on peut inviter pendant la course. */
+  protected readonly invitesOpen = computed(() => {
+    const h = this.state.value()?.hunt;
+    return !!h?.surprise && (h.status === 'published' || (h.selfPaced && h.status === 'running'));
+  });
+
+  protected setSelfPaced(selfPaced: boolean): void {
+    this.busy.set(true);
+    this.api.setSelfPaced(this.id(), selfPaced).subscribe({
+      next: () => {
+        this.state.reload();
+        this.busy.set(false);
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.busy.set(false);
+      },
+    });
+  }
 
   protected countdown(iso: string | null): string {
     return iso ? formatClock(Date.parse(iso) - this.clock.now()) : '';
@@ -117,7 +147,7 @@ export class PlayPage {
       });
   }
 
-  /** Chasse surprise : le joueur donne lui-même le départ. */
+  /** Chasse surprise : le joueur donne le départ (de son équipe, ou de tous en départ commun). */
   protected go(): void {
     this.busy.set(true);
     this.api.selfStart(this.id()).subscribe({

@@ -115,7 +115,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       if (data.id) {
         const h = this.ownedHunt(data.id);
-        const { id, ownerId, status, started, closed, ...editable } = data;
+        const { id, ownerId, status, started, closed, hostId, hostNickname, selfPaced, ...editable } = data;
         Object.assign(h, editable);
         return this.huntView(h);
       }
@@ -144,6 +144,8 @@ export class MockHuntApi extends HuntApi {
         ...data,
         generated: false,
         surprise: false,
+        hostId: null,
+        selfPaced: true,
         id,
         ownerId: me,
         joinCode: randomToken(6).toUpperCase(),
@@ -297,6 +299,7 @@ export class MockHuntApi extends HuntApi {
       if (!team) throw new ApiError('Code d’équipe inconnu.');
       const h = this.joinableHunt(team.huntId, me);
       if (team.members.length >= h.teamMax) throw new ApiError('Cette équipe est complète.');
+      if (team.finished) throw new ApiError('Cette équipe a déjà terminé l’expédition.');
       team.members.push({ hunterId: me, nickname: this.nick(me) });
       return team;
     });
@@ -316,10 +319,13 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const team = this.teamOf(huntId, me);
       if (!team) return;
-      if (this.db.hunts.find((h) => h.id === huntId)!.status !== 'published') throw new ApiError('La chasse a déjà commencé.');
+      const h = this.db.hunts.find((x) => x.id === huntId)!;
+      if (h.surprise && h.hostId === me) throw new ApiError('Vous avez créé cette expédition : vous ne pouvez pas la quitter.');
+      if (h.status !== 'published' && !(openToLateTeams(h) && !team.started)) throw new ApiError('La chasse a déjà commencé.');
       team.members = team.members.filter((m) => m.hunterId !== me);
       if (team.members.length === 0) this.db.teams = this.db.teams.filter((t) => t.id !== team.id);
       else if (team.ownerId === me) team.ownerId = team.members[0].hunterId;
+      if (h.status === 'running') this.closeSurpriseIfAllArrived(h);
     });
   }
 
@@ -445,10 +451,7 @@ export class MockHuntApi extends HuntApi {
       this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'GEO', at: now });
       if (target.order === final) {
         this.db.teams.find((t) => t.id === state.team.id)!.finished = now;
-        if (h.surprise) {
-          h.status = 'closed';
-          h.closed = now;
-        }
+        this.closeSurpriseIfAllArrived(h);
       }
       return {
         outcome: 'validated',
@@ -464,11 +467,36 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
-      if (!this.teamOf(huntId, me)) throw new ApiError('Chasse introuvable.');
+      const team = this.teamOf(huntId, me);
+      if (!team) throw new ApiError('Chasse introuvable.');
       if (!h.surprise) throw new ApiError('Le départ est donné par l’organisateur.');
-      if (h.status !== 'published') throw new ApiError('Cette chasse est déjà partie.');
-      this.start(h);
+      if (h.selfPaced) {
+        if (team.started) throw new ApiError('Votre équipe est déjà partie.');
+        if (h.status !== 'published' && h.status !== 'running') throw new ApiError('Cette expédition est terminée.');
+        const now = new Date().toISOString();
+        if (h.status === 'published') {
+          h.status = 'running';
+          h.started = now;
+        }
+        team.started = now;
+      } else {
+        if (h.hostId !== me) throw new ApiError(`Le départ sera donné par ${this.nick(h.hostId!)}.`);
+        if (h.status !== 'published') throw new ApiError('Cette expédition est déjà partie.');
+        this.start(h);
+      }
       return this.playState(huntId);
+    });
+  }
+
+  setSelfPaced(huntId: number, selfPaced: boolean): Observable<Hunt> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const h = this.visibleHunt(huntId);
+      if (!h.surprise) throw new ApiError('Chasse introuvable.');
+      if (h.hostId !== me) throw new ApiError('Seul le créateur de l’expédition choisit le mode de départ.');
+      if (h.status !== 'published') throw new ApiError('L’expédition est déjà partie.');
+      h.selfPaced = selfPaced;
+      return this.huntView(h);
     });
   }
 
@@ -508,9 +536,11 @@ export class MockHuntApi extends HuntApi {
         geoRadius: 40,
         generated: true,
         surprise: play,
-        teamGame: !play,
+        hostId: play ? me : null,
+        selfPaced: true,
+        teamGame: true,
         teamMin: 1,
-        teamMax: play ? 1 : 6,
+        teamMax: 6,
         isPublic: false,
         joinCode: randomToken(6).toUpperCase(),
         contribution: 0,
@@ -529,7 +559,7 @@ export class MockHuntApi extends HuntApi {
           address: p.address,
         }),
       );
-      if (play) this.addTeam(h, this.nick(me), me, true);
+      if (play) this.addTeam(h, this.nick(me), me, false);
       const job = { id: randomToken(12), status: 'pending' as const, mode: request.mode, huntId: null, error: null };
       this.jobs.set(job.id, { ...job, huntId: id, readyAt: Date.now() + GENERATION_MS, ownerId: me });
       return job;
@@ -603,6 +633,13 @@ export class MockHuntApi extends HuntApi {
     teams.forEach((t) => (t.started = starts.get(t.id) ?? null));
   }
 
+  /** Chasse surprise : quand toutes les équipes sont arrivées, elle se clôt et le podium s'affiche. */
+  private closeSurpriseIfAllArrived(h: MockDb['hunts'][number]): void {
+    if (!h.surprise || this.db.teams.some((t) => t.huntId === h.id && !t.finished)) return;
+    h.status = 'closed';
+    h.closed = new Date().toISOString();
+  }
+
   private viewer(): number | null {
     return this.session.user()?.id ?? null;
   }
@@ -627,7 +664,7 @@ export class MockHuntApi extends HuntApi {
 
   private joinableHunt(huntId: number, me: number) {
     const h = this.visibleHunt(huntId);
-    if (h.status !== 'published') throw new ApiError('Les inscriptions sont fermées.');
+    if (h.status !== 'published' && !openToLateTeams(h)) throw new ApiError('Les inscriptions sont fermées.');
     if (h.ownerId === me) throw new ApiError('Vous organisez cette chasse.');
     if (this.teamOf(huntId, me)) throw new ApiError('Vous êtes déjà inscrit à cette chasse.');
     return h;
@@ -637,6 +674,7 @@ export class MockHuntApi extends HuntApi {
     return {
       ...h,
       ownerNickname: this.nick(h.ownerId),
+      hostNickname: h.hostId === null ? null : this.nick(h.hostId),
       stepCount: finalOrder(this.stepsOf(h.id)),
       teamCount: this.db.teams.filter((t) => t.huntId === h.id).length,
     };
@@ -708,7 +746,7 @@ export class MockHuntApi extends HuntApi {
       skipsUsed: vals.filter((v) => v.source === 'SKIP').length,
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
-      selfStart: hunt.surprise && hunt.status === 'published',
+      selfStart: canSelfStart(hunt, team, me),
     };
   }
 
@@ -772,4 +810,16 @@ export class MockHuntApi extends HuntApi {
   private nextId(list: { id: number }[]): number {
     return list.reduce((max, x) => Math.max(max, x.id), 0) + 1;
   }
+}
+
+/** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
+function openToLateTeams(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status'>): boolean {
+  return h.surprise && h.selfPaced && h.status === 'running';
+}
+
+/** Le joueur peut-il donner un départ (celui de son équipe, ou celui de tous) ? */
+function canSelfStart(h: Hunt, team: Team, me: number): boolean {
+  if (!h.surprise) return false;
+  if (h.selfPaced) return !team.started && (h.status === 'published' || h.status === 'running');
+  return h.status === 'published' && h.hostId === me;
 }

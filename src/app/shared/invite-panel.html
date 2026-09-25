@@ -1,0 +1,48 @@
+@if (teammateOpen() || rivalOpen()) {
+  <section class="parchment invite-panel">
+    <h2 class="section-title">Inviter d'autres aventuriers</h2>
+
+    @if (teammateOpen() && rivalOpen()) {
+      <div class="kinds" role="tablist">
+        <button type="button" role="tab" class="kind" [class.kind--on]="kind() === 'teammate'" [attr.aria-selected]="kind() === 'teammate'" (click)="kind.set('teammate')">
+          <mat-icon>group_add</mat-icon>Un coéquipier
+        </button>
+        <button type="button" role="tab" class="kind" [class.kind--on]="kind() === 'rival'" [attr.aria-selected]="kind() === 'rival'" (click)="kind.set('rival')">
+          <mat-icon>swords</mat-icon>Un adversaire
+        </button>
+      </div>
+    }
+
+    <p class="small muted center">
+      @if (kind() === 'teammate') {
+        Il rejoint votre équipe « {{ team().name }} » : un seul « Je suis arrivé » fait avancer tout le monde.
+        Encore {{ hunt().teamMax - team().members.length }} place{{ hunt().teamMax - team().members.length > 1 ? 's' : '' }}.
+      } @else {
+        Il inscrit sa propre équipe sur le même parcours.
+        @if (hunt().surprise && hunt().selfPaced) {
+          Chacun lance son chrono quand il veut : le meilleur temps l'emporte.
+        } @else if (hunt().surprise) {
+          Le départ est donné à toutes les équipes en même temps.
+        }
+      }
+    </p>
+
+    @let i = invitation();
+    <div class="code-block">
+      <qrcode [qrdata]="i.url" [width]="180" [margin]="1" errorCorrectionLevel="M" colorDark="#2b1d12ff" colorLight="#ffffffff" />
+      <div class="code-side">
+        <span class="small muted">{{ kind() === 'teammate' ? "Code d'équipe" : "Code d'expédition" }}</span>
+        <span class="join-code">{{ i.code }}</span>
+        <span class="small muted">À scanner, ou à saisir dans l'application.</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      @if (canShare) {
+        <button mat-flat-button type="button" (click)="share()"><mat-icon>share</mat-icon>Partager</button>
+      }
+      <a mat-stroked-button [href]="mailto()"><mat-icon>mail</mat-icon>Par e-mail</a>
+      <button mat-button type="button" (click)="copy()"><mat-icon>link</mat-icon>Copier le lien</button>
+    </div>
+  </section>
+}

@@ -48,6 +48,14 @@ export interface Hunt {
   generated: boolean;
   /** Chasse surprise : le joueur l'a générée pour lui-même et n'en voit pas le détail. */
   surprise: boolean;
+  /** Chasse surprise : le joueur qui l'a générée (l'organisateur est le compte système). */
+  hostId: number | null;
+  hostNickname: string | null;
+  /**
+   * Chasse surprise : chaque équipe donne son propre départ quand elle veut (true), ou
+   * l'hôte lance la course pour toutes les équipes à la fois (false).
+   */
+  selfPaced: boolean;
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -166,7 +174,7 @@ export interface PlayState {
   penalty: number;
   /** Position provisoire de l'équipe (les joueurs ne voient pas celle des autres). */
   position: { rank: number; total: number } | null;
-  /** Chasse surprise pas encore partie : le joueur donne lui-même le départ. */
+  /** Chasse surprise : le joueur peut donner le départ (de son équipe, ou de tous en départ commun). */
   selfStart: boolean;
 }
 

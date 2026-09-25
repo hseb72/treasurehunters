@@ -102,6 +102,9 @@ export class HttpHuntApi extends HuntApi {
   selfStart(huntId: number): Observable<PlayState> {
     return this.http.post<PlayState>(`${this.url}/hunts/${huntId}/self-start`, {});
   }
+  setSelfPaced(huntId: number, selfPaced: boolean): Observable<Hunt> {
+    return this.http.put<Hunt>(`${this.url}/hunts/${huntId}/self-paced`, { selfPaced });
+  }
 
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {
     return this.http.post<GenerationJob>(`${this.url}/hunts/generate`, request);

@@ -240,6 +240,10 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.post('/api/hunts/:id/hints', async (req) => service.revealHint(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/skip', async (req) => service.skipStep(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/self-start', async (req) => service.selfStart(req.viewer, idParams.parse(req.params).id));
+  app.put('/api/hunts/:id/self-paced', async (req) => {
+    const { selfPaced } = z.object({ selfPaced: z.boolean() }).parse(req.body);
+    return service.setSelfPaced(req.viewer, idParams.parse(req.params).id, selfPaced);
+  });
   app.post('/api/hunts/:id/checkin', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
     const pos = z
       .object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(100_000) })
