@@ -64,7 +64,8 @@ export class ClaudePlanner {
   private readonly client: Anthropic;
 
   constructor(apiKey: string) {
-    this.client = new Anthropic({ apiKey });
+    const workspace = config.anthropicWorkspaceId;
+    this.client = new Anthropic({ apiKey, defaultHeaders: workspace ? { 'anthropic-workspace-id': workspace } : undefined });
   }
 
   /** Vérification au démarrage : la clé est acceptée et le modèle configuré existe. */

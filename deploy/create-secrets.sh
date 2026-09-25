@@ -2,7 +2,7 @@
 # Crée le Secret de l'API directement dans le cluster, comme findout (cf. son
 # docs/deployment/INSTALL-K3S.md §5b). Aucun secret n'est versionné dans ce dépôt.
 #
-#   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] ./deploy/create-secrets.sh
+#   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] [ANTHROPIC_WORKSPACE_ID=<wrkspc_…>] ./deploy/create-secrets.sh
 #
 # DB_PASSWORD, si absent, est lu dans le cluster (Secret database/database-tenant-keys,
 # clé `treasurehunters`) : c'est la valeur que le socle donne au rôle PostgreSQL,
@@ -10,6 +10,9 @@
 #
 # ANTHROPIC_API_KEY (facultative) active la génération de chasses (conception § 11).
 # Absente, la clé déjà présente dans le Secret est conservée.
+# ANTHROPIC_WORKSPACE_ID (facultatif) : exigé par l'API quand la clé n'est rattachée
+# à aucun workspace (« This API key is not scoped to a workspace »). Même règle de
+# conservation que la clé.
 #
 # Le mot de passe est celui du locataire `treasurehunters`, déclaré côté socle
 # dans le Secret `database-tenant-keys` du namespace `database` (clé
@@ -68,6 +71,13 @@ if [[ -n "$ANTHROPIC_API_KEY" ]]; then
 else
   echo "ℹ ANTHROPIC_API_KEY absente : la génération de chasses restera désactivée."
 fi
+
+ANTHROPIC_WORKSPACE_ID="${ANTHROPIC_WORKSPACE_ID:-$(secret_value "$NS" "$NAME" ANTHROPIC_WORKSPACE_ID)}"
+if [[ -n "$ANTHROPIC_WORKSPACE_ID" ]] && ! LC_ALL=C grep -qE '^wrkspc_[A-Za-z0-9_-]+$' <<<"$ANTHROPIC_WORKSPACE_ID"; then
+  echo "✗ ANTHROPIC_WORKSPACE_ID ne ressemble pas à un identifiant de workspace (wrkspc_…)." >&2
+  exit 1
+fi
+[[ -z "$ANTHROPIC_WORKSPACE_ID" ]] || args+=(--from-literal=ANTHROPIC_WORKSPACE_ID="$ANTHROPIC_WORKSPACE_ID")
 
 manifest="$(kubectl -n "$NS" create secret generic "$NAME" "${args[@]}" --dry-run=client -o yaml)"
 

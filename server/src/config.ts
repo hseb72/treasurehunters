@@ -9,6 +9,8 @@ export const config = {
   schedulerMs: 30_000,
   /** Génération de chasses (§ 11) : désactivée sans clé d'API Anthropic. */
   anthropicApiKey: process.env['ANTHROPIC_API_KEY'] || null,
+  /** Workspace à utiliser, exigé par l'API quand la clé n'est rattachée à aucun workspace. */
+  anthropicWorkspaceId: process.env['ANTHROPIC_WORKSPACE_ID']?.trim() || null,
   generatorModel: process.env['GENERATOR_MODEL'] ?? 'claude-opus-5',
   generatorEffort: (process.env['GENERATOR_EFFORT'] ?? 'medium') as 'low' | 'medium' | 'high',
   /** Générations autorisées par joueur sur 24 heures glissantes. */

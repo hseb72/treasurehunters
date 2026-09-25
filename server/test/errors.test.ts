@@ -4,7 +4,7 @@ import { AddressInfo } from 'node:net';
 import { describe, expect, it } from 'vitest';
 import { config } from '../src/config.js';
 import { describeError, HttpError } from '../src/errors.js';
-import { apiFailure } from '../src/generation/claude.js';
+import { apiFailure, ClaudePlanner } from '../src/generation/claude.js';
 import { placesAround } from '../src/generation/osm.js';
 
 const apiError = (status: number, type: string) =>
@@ -49,5 +49,30 @@ describe('API Anthropic : erreurs', () => {
     expect(describeError(err.cause)).toMatch(/400 .*détail invalid_request_error.*request_id req_42/);
     const other = new Error('autre');
     expect(apiFailure(other)).toBe(other);
+  });
+});
+
+describe('API Anthropic : workspace', () => {
+  it('envoie anthropic-workspace-id quand ANTHROPIC_WORKSPACE_ID est défini', async () => {
+    const headers: (string | undefined)[] = [];
+    const api = createServer((req, res) => {
+      headers.push(req.headers['anthropic-workspace-id'] as string | undefined);
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ type: 'model', id: config.generatorModel }));
+    });
+    await new Promise<void>((r) => api.listen(0, '127.0.0.1', r));
+    const saved = [process.env['ANTHROPIC_BASE_URL'], config.anthropicWorkspaceId] as const;
+    process.env['ANTHROPIC_BASE_URL'] = `http://127.0.0.1:${(api.address() as AddressInfo).port}`;
+    try {
+      config.anthropicWorkspaceId = 'wrkspc_test';
+      await new ClaudePlanner('sk-ant-test').check();
+      config.anthropicWorkspaceId = null;
+      await new ClaudePlanner('sk-ant-test').check();
+      expect(headers).toEqual(['wrkspc_test', undefined]);
+    } finally {
+      if (saved[0] === undefined) delete process.env['ANTHROPIC_BASE_URL'];
+      else process.env['ANTHROPIC_BASE_URL'] = saved[0];
+      config.anthropicWorkspaceId = saved[1];
+      await new Promise<void>((r) => api.close(() => r()));
+    }
   });
 });
