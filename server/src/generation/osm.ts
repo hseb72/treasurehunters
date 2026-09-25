@@ -46,7 +46,13 @@ async function osmFetch(url: string, init: RequestInit = {}): Promise<unknown> {
     const body = await res.text().catch(() => '');
     throw unavailable(new Error(`${new URL(url).host} a répondu ${res.status} : ${body.slice(0, 300)}`));
   }
-  return res.json();
+  const body = await res.text();
+  try {
+    return JSON.parse(body);
+  } catch {
+    // Page HTML de blocage ou de surcharge servie avec un statut 200.
+    throw unavailable(new Error(`${new URL(url).host} a répondu autre chose que du JSON : ${body.slice(0, 300)}`));
+  }
 }
 
 /** Nom de ville ou adresse → coordonnées. */
