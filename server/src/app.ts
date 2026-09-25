@@ -5,7 +5,7 @@ import pg from 'pg';
 import { z, ZodError } from 'zod';
 import { resolveSession } from './auth.js';
 import { config } from './config.js';
-import { HttpError } from './errors.js';
+import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { Service, Viewer } from './service.js';
 
@@ -98,6 +98,13 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   const keyUsable = !!key && /^[\x21-\x7e]+$/.test(key);
   if (key && !keyUsable) app.log.error('ANTHROPIC_API_KEY invalide (caractères non ASCII ou espaces) : génération de chasses désactivée.');
   const generator = opts.generator !== undefined ? opts.generator : keyUsable ? new OsmClaudeGenerator(key!) : null;
+  // Une clé refusée ou un modèle inconnu se voit dès le démarrage, pas à la première chasse.
+  if (generator instanceof OsmClaudeGenerator) {
+    generator.check().then(
+      () => app.log.info(`Générateur de chasses prêt (modèle ${config.generatorModel}).`),
+      (e) => app.log.error(e, `Générateur de chasses : ${e instanceof HttpError ? e.message : 'vérification impossible'} — ${describeError(e instanceof HttpError && e.cause ? e.cause : e)}`),
+    );
+  }
   const service = new Service(pool, generator, (err, msg) => app.log.error(err, msg));
 
   await app.register(cors, { origin: config.corsOrigin });

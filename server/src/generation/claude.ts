@@ -67,6 +67,15 @@ export class ClaudePlanner {
     this.client = new Anthropic({ apiKey });
   }
 
+  /** Vérification au démarrage : la clé est acceptée et le modèle configuré existe. */
+  async check(): Promise<void> {
+    try {
+      await this.client.models.retrieve(config.generatorModel);
+    } catch (e) {
+      throw apiFailure(e);
+    }
+  }
+
   async plan(input: ClaudePlanInput): Promise<HuntPlan> {
     const places = input.pois.map((p) => ({
       id: p.id,
@@ -100,9 +109,7 @@ ${JSON.stringify(places)}`;
       });
       message = await stream.finalMessage();
     } catch (e) {
-      if (e instanceof Anthropic.RateLimitError) throw new HttpError(503, 'Le générateur est très sollicité, réessayez dans quelques minutes.', e);
-      if (e instanceof Anthropic.APIError) throw new HttpError(502, 'Le générateur d’énigmes ne répond pas, réessayez dans un instant.', e);
-      throw e;
+      throw apiFailure(e);
     }
     if (message.stop_reason === 'refusal') {
       throw new HttpError(422, 'Le générateur n’a pas pu inventer de chasse pour ce lieu. Essayez un autre endroit.', new Error(`refus : ${JSON.stringify(message.stop_details ?? null)}`));
@@ -112,6 +119,26 @@ ${JSON.stringify(places)}`;
     }
     return toHuntPlan(message.parsed_output, input);
   }
+}
+
+/**
+ * Erreur de l'API Anthropic → message pour le joueur. Les erreurs de configuration (clé refusée,
+ * modèle inconnu, crédit épuisé) ne passeront pas en réessayant : on le dit, au lieu de « ne répond pas ».
+ */
+export function apiFailure(e: unknown): unknown {
+  if (!(e instanceof Anthropic.APIError)) return e;
+  // Le statut, le corps de l'erreur et l'identifiant de requête, pour le support Anthropic.
+  const cause = new Error(`API Anthropic : ${e.message}${e.requestID ? ` (request_id ${e.requestID})` : ''}`, { cause: e.cause });
+  const admin = 'prévenez l’administrateur.';
+  if (e instanceof Anthropic.APIConnectionError) return new HttpError(502, 'Le générateur d’énigmes ne répond pas, réessayez dans un instant.', cause);
+  if (e instanceof Anthropic.RateLimitError) return new HttpError(503, 'Le générateur est très sollicité, réessayez dans quelques minutes.', cause);
+  if (e instanceof Anthropic.AuthenticationError || e instanceof Anthropic.PermissionDeniedError) {
+    return new HttpError(503, `Le générateur d’énigmes refuse la clé d’API configurée : ${admin}`, cause);
+  }
+  if (e instanceof Anthropic.NotFoundError) return new HttpError(503, `Le modèle du générateur d’énigmes est introuvable : ${admin}`, cause);
+  if (e instanceof Anthropic.BadRequestError) return new HttpError(503, `Le générateur d’énigmes a rejeté la demande (crédit, modèle ou paramètres) : ${admin}`, cause);
+  if (e instanceof Anthropic.InternalServerError) return new HttpError(503, 'Le générateur d’énigmes est surchargé, réessayez dans quelques minutes.', cause);
+  return new HttpError(502, 'Le générateur d’énigmes ne répond pas, réessayez dans un instant.', cause);
 }
 
 /** Contrôle la réponse du modèle et y rattache les coordonnées réelles des lieux. */

@@ -4,7 +4,7 @@
  */
 import { distanceMeters } from '../../../shared/rules.js';
 import { config } from '../config.js';
-import { HttpError } from '../errors.js';
+import { describeError, HttpError } from '../errors.js';
 
 export interface Poi {
   /** Identifiant OSM, par exemple « n123456 » ou « w42 ». */
@@ -57,7 +57,7 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (e) {
-    throw new Transient(`${host} injoignable : ${(e as Error).message}`);
+    throw new Transient(`${host} injoignable : ${describeError(e)}`);
   }
   const body = await res.text().catch(() => '');
   if (res.status === 429 || res.status >= 500) {

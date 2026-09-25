@@ -34,7 +34,7 @@ import {
 import { createSession, deleteSession, hashPassword, verifyPassword } from './auth.js';
 import { config } from './config.js';
 import { Db, one, Row, rows, tx } from './db.js';
-import { badRequest, conflict, forbidden, HttpError, notFound, unauthorized } from './errors.js';
+import { badRequest, conflict, describeError, forbidden, HttpError, notFound, unauthorized } from './errors.js';
 import {
   hintUsesOfHunt,
   huntAssignments,
@@ -842,7 +842,9 @@ export class Service {
       });
     } catch (e) {
       // Toujours journalisé, avec la cause technique : le joueur ne voit que le message.
-      this.log(e instanceof HttpError && e.cause ? e.cause : e, `Échec de la génération ${jobId}${e instanceof HttpError ? ` : ${e.message}` : ''}`);
+      // La raison technique figure aussi dans le message : c'est souvent la seule ligne affichée.
+      const cause = e instanceof HttpError && e.cause ? e.cause : e;
+      this.log(cause, `Échec de la génération ${jobId}${e instanceof HttpError ? ` : ${e.message}` : ''} — ${describeError(cause)}`);
       const message = e instanceof HttpError ? e.message : 'La génération a échoué, réessayez dans un instant.';
       await this.pool
         .query(`UPDATE th_generations SET gen_status = 'error', gen_error = $2, gen_lastupdate = now() WHERE gen_id = $1`, [jobId, message])
