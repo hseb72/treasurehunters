@@ -16,5 +16,9 @@ export const config = {
   /** Identification exigée par les services OpenStreetMap (Nominatim, Overpass). */
   osmUserAgent: process.env['OSM_USER_AGENT'] ?? 'TreasureHunters/1.0 (+https://treasurehunters.crealcs.com)',
   nominatimUrl: process.env['NOMINATIM_URL'] ?? 'https://nominatim.openstreetmap.org',
-  overpassUrl: process.env['OVERPASS_URL'] ?? 'https://overpass-api.de/api/interpreter',
+  /** Instances Overpass, essayées tour à tour (séparées par des virgules). */
+  overpassUrls: (process.env['OVERPASS_URLS'] ?? 'https://overpass-api.de/api/interpreter,https://overpass.kumi.systems/api/interpreter')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
 };

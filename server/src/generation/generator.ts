@@ -4,6 +4,7 @@
  */
 import { demoPlan, HuntPlan, plannedStepCount, searchRadius } from '../../../shared/generation.js';
 import { GenerationRequest } from '../../../shared/models.js';
+import { distanceMeters } from '../../../shared/rules.js';
 import { HttpError } from '../errors.js';
 import { ClaudePlanner } from './claude.js';
 import { geocode, placesAround, Place, Poi, reverseGeocode } from './osm.js';
@@ -43,14 +44,16 @@ export class OsmClaudeGenerator implements HuntGenerator {
     return { plan, location: place.name };
   }
 
-  /** Lieux candidats ; le rayon s'élargit une fois s'il n'y en a pas assez. */
+  /**
+   * Lieux candidats : une seule requête Overpass, au double du rayon visé (les instances
+   * publiques limitent le débit), puis les lieux du rayon visé s'ils suffisent.
+   */
   private async candidates(center: Place, duration: number, count: number): Promise<Poi[]> {
-    let radius = searchRadius(duration);
-    let pois = await placesAround(center, radius);
-    if (pois.length < count + 2) {
-      radius *= 2;
-      pois = await placesAround(center, radius);
-    }
+    const radius = searchRadius(duration);
+    // Plafonné : au-delà de 3 km, une ville dense fait expirer la requête Overpass.
+    const all = await placesAround(center, Math.min(radius * 2, 3000));
+    const near = all.filter((p) => distanceMeters(center, p) <= radius);
+    const pois = near.length >= count + 2 ? near : all;
     if (pois.length < count) {
       throw new HttpError(422, 'Pas assez de lieux remarquables autour de ce point : allongez la durée, réduisez le nombre d’étapes ou choisissez un autre lieu.');
     }
