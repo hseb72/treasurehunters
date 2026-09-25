@@ -59,6 +59,10 @@ kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
 
 args=(--from-literal=DATABASE_URL="$DATABASE_URL")
 ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-$(secret_value "$NS" "$NAME" ANTHROPIC_API_KEY)}"
+if [[ -n "$ANTHROPIC_API_KEY" ]] && ! LC_ALL=C grep -qE '^sk-ant-[A-Za-z0-9_-]{20,}$' <<<"$ANTHROPIC_API_KEY"; then
+  echo "✗ ANTHROPIC_API_KEY ne ressemble pas à une clé Anthropic (sk-ant-… suivi de la clé réelle)." >&2
+  exit 1
+fi
 if [[ -n "$ANTHROPIC_API_KEY" ]]; then
   args+=(--from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
 else
