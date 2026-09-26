@@ -1,0 +1,68 @@
+.photo-review {
+  margin-top: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.photo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.photo-card--done {
+  opacity: 0.75;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  figure {
+    margin: 0;
+  }
+
+  th-auth-image,
+  .gone {
+    aspect-ratio: 1;
+  }
+}
+
+.gone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px dashed var(--th-edge);
+  border-radius: 4px;
+}
+
+.verdict {
+  margin: 0;
+}
+
+.photo-card > .badge {
+  align-self: flex-start;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.danger {
+  --mat-button-text-label-text-color: var(--th-brick);
+}

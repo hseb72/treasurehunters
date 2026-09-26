@@ -2,11 +2,14 @@ import { Observable } from 'rxjs';
 import {
   AuthResult,
   CheckinResult,
+  Features,
   GenerationJob,
   GenerationRequest,
   Hunt,
   Hunter,
   LiveRow,
+  PhotoAttempt,
+  PhotoResult,
   PlayState,
   RankingRow,
   ScanResult,
@@ -65,6 +68,21 @@ export abstract class HuntApi {
   /** Demande l'invention d'une chasse (OpenStreetMap + IA) ; suivie avec getGeneration. */
   abstract generateHunt(request: GenerationRequest): Observable<GenerationJob>;
   abstract getGeneration(id: string): Observable<GenerationJob>;
+
+  /** Fonctions activées sur le serveur (preuve par photo, génération). */
+  abstract getFeatures(): Observable<Features>;
+
+  /* Preuve par photo (§ 12) : images en « data URL » JPEG, déjà réduites par le téléphone. */
+  /** QR introuvable : photo du lieu, jugée par l'IA. */
+  abstract submitPhoto(huntId: number, image: string): Observable<PhotoResult>;
+  /** L'équipe confirme une photo que l'IA n'a pas reconnue, à ses risques. */
+  abstract insistPhoto(photoId: number): Observable<PhotoResult>;
+  abstract huntPhotos(huntId: number): Observable<PhotoAttempt[]>;
+  abstract reviewPhoto(photoId: number, approve: boolean): Observable<PhotoAttempt[]>;
+  abstract photoImage(photoId: number): Observable<Blob>;
+  abstract referenceImage(stepId: number): Observable<Blob>;
+  /** Photo de référence d'une étape ; null la retire. */
+  abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
 
   abstract getResults(huntId: number): Observable<RankingRow[]>;
   abstract getLive(huntId: number): Observable<LiveRow[]>;

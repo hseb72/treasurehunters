@@ -4,11 +4,15 @@ import { ApiError, HuntAction, HuntApi, HuntScope } from '../api';
 import {
   AuthResult,
   CheckinResult,
+  Features,
   GenerationJob,
   GenerationRequest,
   Hunt,
   Hunter,
   LiveRow,
+  PhotoAttempt,
+  PhotoResult,
+  PhotoReview,
   PlayClue,
   PlayState,
   RankingRow,
@@ -49,6 +53,9 @@ export class MockHuntApi extends HuntApi {
   private readonly session = inject(Session);
   private readonly db: MockDb = buildFixtures();
   private readonly jobs = new Map<string, GenerationJob & { readyAt: number; ownerId: number }>();
+  /** Preuve par photo : images en « data URL », gardées en mémoire. */
+  private readonly photos: MockPhoto[] = [];
+  private readonly refPhotos = new Map<number, string>();
 
   logout(): Observable<void> {
     return this.reply(() => undefined);
@@ -611,6 +618,147 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /* ---------- Preuve par photo (§ 12) ---------- */
+
+  getFeatures(): Observable<Features> {
+    return this.reply(() => ({ photos: true, generation: true }));
+  }
+
+  /** Arbitre simulé : la première photo d'une étape n'est pas reconnue, les suivantes le sont. */
+  submitPhoto(huntId: number, image: string): Observable<PhotoResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.playState(huntId);
+      if (state.hunt.validation !== 'qr') throw new ApiError('Cette chasse se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
+      if (!state.clue) throw new ApiError('Aucune étape à trouver pour le moment.');
+      const step = this.stepsOf(huntId).find((s) => s.order === state.clue!.targetOrder)!;
+      const tried = this.photos.some((p) => p.teamId === state.team.id && p.stepId === step.id);
+      const photo: MockPhoto = {
+        id: this.photos.length + 1,
+        teamId: state.team.id,
+        stepId: step.id,
+        hunterId: me,
+        image,
+        at: new Date().toISOString(),
+        verdict: tried ? 'match' : 'nomatch',
+        reason: tried ? 'Le lieu est bien reconnu.' : 'La photo ne semble pas montrer le lieu de l’énigme.',
+        insisted: false,
+        counted: false,
+        review: null,
+      };
+      this.photos.push(photo);
+      if (tried) this.validateByPhoto(photo, me);
+      return { photo: this.photoView(photo), state: this.playState(huntId) };
+    });
+  }
+
+  insistPhoto(photoId: number): Observable<PhotoResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const photo = this.photos.find((p) => p.id === photoId);
+      const team = photo && this.db.teams.find((t) => t.id === photo.teamId);
+      if (!photo || !team || !team.members.some((m) => m.hunterId === me)) throw new ApiError('Photo introuvable.');
+      if (photo.counted) throw new ApiError('Cette photo a déjà validé l’étape.');
+      const state = this.playState(team.huntId);
+      const step = this.stepsOf(team.huntId).find((s) => s.id === photo.stepId)!;
+      if (state.clue?.targetOrder !== step.order) throw new ApiError('Cette photo ne concerne plus l’énigme en cours.');
+      photo.insisted = true;
+      this.validateByPhoto(photo, me);
+      return { photo: this.photoView(photo), state: this.playState(team.huntId) };
+    });
+  }
+
+  huntPhotos(huntId: number): Observable<PhotoAttempt[]> {
+    return this.reply(() => {
+      this.ownedHunt(huntId);
+      return this.photosOf(huntId);
+    });
+  }
+
+  reviewPhoto(photoId: number, approve: boolean): Observable<PhotoAttempt[]> {
+    return this.reply(() => {
+      const photo = this.photos.find((p) => p.id === photoId);
+      const team = photo && this.db.teams.find((t) => t.id === photo.teamId);
+      if (!photo || !team) throw new ApiError('Photo introuvable.');
+      this.ownedHunt(team.huntId);
+      if (!photo.counted) throw new ApiError('Cette photo n’a pas validé d’étape : rien à contrôler.');
+      if (photo.review) throw new ApiError('Cette photo a déjà été contrôlée.');
+      photo.review = approve ? 'approved' : 'rejected';
+      if (!approve) {
+        const steps = this.stepsOf(team.huntId);
+        const val = this.db.validations.find((v) => v.teamId === team.id && v.stepId === photo.stepId)!;
+        if (steps.find((s) => s.id === photo.stepId)!.order === finalOrder(steps)) {
+          this.db.validations = this.db.validations.filter((v) => v !== val);
+          team.finished = null;
+        } else {
+          val.source = 'SKIP';
+        }
+      }
+      return this.photosOf(team.huntId);
+    });
+  }
+
+  photoImage(photoId: number): Observable<Blob> {
+    return this.blob(() => this.photos.find((p) => p.id === photoId)?.image ?? null);
+  }
+
+  referenceImage(stepId: number): Observable<Blob> {
+    return this.blob(() => this.refPhotos.get(stepId) ?? null);
+  }
+
+  setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      if (image === null) this.refPhotos.delete(stepId);
+      else this.refPhotos.set(stepId, image);
+      step.referencePhoto = image !== null;
+      return step;
+    });
+  }
+
+  private validateByPhoto(photo: MockPhoto, me: number): void {
+    const team = this.db.teams.find((t) => t.id === photo.teamId)!;
+    const steps = this.stepsOf(team.huntId);
+    const now = new Date().toISOString();
+    photo.counted = true;
+    this.db.validations.push({ teamId: team.id, stepId: photo.stepId, hunterId: me, source: 'PHOTO', at: now });
+    if (steps.find((s) => s.id === photo.stepId)!.order === finalOrder(steps)) team.finished = now;
+  }
+
+  private photosOf(huntId: number): PhotoAttempt[] {
+    const teams = new Set(this.db.teams.filter((t) => t.huntId === huntId).map((t) => t.id));
+    return this.photos.filter((p) => teams.has(p.teamId)).map((p) => this.photoView(p));
+  }
+
+  private photoView(p: MockPhoto): PhotoAttempt {
+    const step = this.db.steps.find((s) => s.id === p.stepId)!;
+    return {
+      id: p.id,
+      teamId: p.teamId,
+      teamName: this.db.teams.find((t) => t.id === p.teamId)?.name ?? '',
+      stepId: p.stepId,
+      stepOrder: step.order,
+      stepTitle: step.title,
+      nickname: this.nick(p.hunterId),
+      at: p.at,
+      verdict: p.verdict,
+      reason: p.reason,
+      insisted: p.insisted,
+      review: p.counted ? (p.review ?? 'pending') : null,
+      hasReference: this.refPhotos.has(p.stepId),
+      purged: false,
+    };
+  }
+
+  private blob(fn: () => string | null): Observable<Blob> {
+    return defer(() => {
+      const url = fn();
+      return url ? fetch(url).then((r) => r.blob()) : Promise.reject(new ApiError('Photo introuvable.'));
+    }).pipe(delay(LATENCY_MS));
+  }
+
   /* ---------- Outils internes ---------- */
 
   private reply<T>(fn: () => T): Observable<T> {
@@ -716,7 +864,8 @@ export class MockHuntApi extends HuntApi {
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP' };
+        const photo = this.photos.find((p) => p.teamId === team.id && p.stepId === s.id && p.counted);
+        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null };
       })
       .sort((a, b) => a.order - b.order);
     const hints = this.db.hintUses.filter((u) => u.teamId === team.id);
@@ -747,6 +896,7 @@ export class MockHuntApi extends HuntApi {
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
       selfStart: canSelfStart(hunt, team, me),
+      photoProof: hunt.validation === 'qr',
     };
   }
 
@@ -777,6 +927,7 @@ export class MockHuntApi extends HuntApi {
           hints: this.db.hintUses.filter((u) => u.teamId === team.id).length,
           skips: vals.filter((v) => v.source === 'SKIP').length,
           status,
+          photosToReview: this.photos.filter((p) => p.teamId === team.id && p.counted && !p.review).length,
         };
       })
       .sort((a, b) => (a.team.startOrder ?? 999) - (b.team.startOrder ?? 999) || a.team.id - b.team.id);
@@ -796,6 +947,7 @@ export class MockHuntApi extends HuntApi {
       latitude: null,
       longitude: null,
       address: null,
+      referencePhoto: false,
     };
   }
 
@@ -822,4 +974,19 @@ function canSelfStart(h: Hunt, team: Team, me: number): boolean {
   if (!h.surprise) return false;
   if (h.selfPaced) return !team.started && (h.status === 'published' || h.status === 'running');
   return h.status === 'published' && h.hostId === me;
+}
+
+interface MockPhoto {
+  id: number;
+  teamId: number;
+  stepId: number;
+  hunterId: number;
+  image: string;
+  at: string;
+  verdict: 'match' | 'nomatch';
+  reason: string;
+  insisted: boolean;
+  /** A validé l'étape (avis favorable ou insistance). */
+  counted: boolean;
+  review: Exclude<PhotoReview, 'pending'> | null;
 }

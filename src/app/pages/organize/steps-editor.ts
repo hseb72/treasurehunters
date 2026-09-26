@@ -12,13 +12,15 @@ import { HuntApi } from '../../core/api';
 import { Step } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { currentPosition } from '../../core/geo';
+import { compressPhoto } from '../../core/photo';
+import { AuthImage } from '../../shared/auth-image';
 import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -35,6 +37,13 @@ export class StepsEditorPage {
     stream: ({ params }) => this.api.getSteps(params),
     defaultValue: [],
   });
+
+  /** Preuve par photo activée sur le serveur (et chasse à QR codes) : photos de référence. */
+  private readonly features = rxResource({ stream: () => this.api.getFeatures() });
+  protected readonly photos = computed(() => !!this.features.value()?.photos && !this.geo());
+  /** Envoi d'une photo de référence en cours, et compteur pour recharger l'aperçu. */
+  protected readonly refBusy = signal(false);
+  protected readonly refVersion = signal(0);
 
   protected readonly start = computed(() => this.steps.value()[0]);
   protected readonly middle = computed(() => this.steps.value().slice(1, -1));
@@ -116,6 +125,41 @@ export class StepsEditorPage {
         },
         error: (e) => this.notify.error(e),
       });
+  }
+
+  /** Photo du lieu où le QR est posé : référence de l'IA quand une équipe envoie une photo à la place du QR. */
+  protected async setReference(step: Step, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.refBusy.set(true);
+    try {
+      this.updateReference(step, await compressPhoto(file), 'Photo de référence enregistrée.');
+    } catch (e) {
+      this.notify.error(e);
+      this.refBusy.set(false);
+    }
+  }
+
+  protected removeReference(step: Step): void {
+    this.refBusy.set(true);
+    this.updateReference(step, null, 'Photo de référence retirée.');
+  }
+
+  private updateReference(step: Step, image: string | null, done: string): void {
+    this.api.setReferencePhoto(step.id, image).subscribe({
+      next: (updated) => {
+        this.steps.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
+        this.refVersion.update((v) => v + 1);
+        this.refBusy.set(false);
+        this.notify.info(done);
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.refBusy.set(false);
+      },
+    });
   }
 
   protected add(): void {

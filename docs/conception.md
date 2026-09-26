@@ -108,7 +108,7 @@ Les tests s'appliquent dans cet ordre. Le premier qui correspond détermine la r
 
 - Le serveur n'envoie **jamais** au client l'énigme d'une étape qui n'est pas encore débloquée. Ce contrôle ne peut pas se faire uniquement dans le front.
 - Toutes les tentatives sont écrites dans `th_scanlog`. On peut ainsi détecter les tentatives de triche et aider l'organisateur en cas de litige.
-- Si un QR a été arraché ou abîmé, l'organisateur peut **valider manuellement** une étape pour une équipe depuis l'écran de pilotage. `val_source` vaut alors `MANUAL`, et `val_by_htr` enregistre qui a validé.
+- Si un QR a été arraché ou abîmé, l'organisateur peut **valider manuellement** une étape pour une équipe depuis l'écran de pilotage. `val_source` vaut alors `MANUAL`, et `val_by_htr` enregistre qui a validé. L'équipe peut aussi envoyer une **photo du lieu** à la place du QR (§ 12).
 
 ### 4.3 Ordre des étapes
 Par défaut, les étapes sont **linéaires** : l'étape *n* n'est acceptée que si l'étape *n-1* est validée. C'est le principe du rallye, où chaque énigme mène à la suivante. Un mode « ordre libre » est envisageable plus tard (§ 10).
@@ -225,7 +225,7 @@ erDiagram
 
 **`th_validations`** (remplace `th_huntercodes` pour la progression)
 - `val_team_tea`, `val_code_cod` et `val_hunter_htr`, le membre qui a scanné.
-- `val_source` vaut `QR`, `MANUAL`, `SKIP` (épreuve abandonnée par l'équipe) ou `GEO` (arrivée validée par géolocalisation, § 11.3). `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
+- `val_source` vaut `QR`, `MANUAL`, `SKIP` (épreuve abandonnée par l'équipe) `GEO` (arrivée validée par géolocalisation, § 11.3) ou `PHOTO` (photo du lieu à la place du QR, § 12). `val_by_htr` n'est rempli que pour une validation manuelle par l'organisateur ; il remplace `htc_giftedby_htr`.
 - `val_creation` est l'**heure de passage**.
 - UNIQUE(équipe, étape).
 
@@ -261,6 +261,10 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours | membre |
 | `POST /hunts/:id/checkin` · `POST /hunts/:id/self-start` | « Je suis arrivé » (validation par géolocalisation, § 11.3), départ d'une chasse surprise | membre |
 | `PUT /hunts/:id/self-paced` | chasse surprise : « chacun son chrono » ou départ commun (§ 11.4) | hôte |
+| `POST /hunts/:id/photos` · `POST /photos/:id/insist` · `GET /photos/:id/image` | preuve par photo : envoi jugé par l'IA, insistance de l'équipe, image (§ 12) | membre (image : membre ou organisateur) |
+| `GET /hunts/:id/photos` · `POST /photos/:id/review` | photos de la chasse, contrôle (tamponner ou refuser) | organisateur |
+| `GET\|PUT\|DELETE /steps/:id/reference-photo` | photo de référence d'une étape | organisateur |
+| `GET /features` | fonctions activées sur le serveur (photos, génération) | public |
 | `POST /hunts/generate` · `GET /generations/:id` | invention d'une chasse (§ 11), suivi de la génération | connecté |
 | `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
 | `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
@@ -326,10 +330,9 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | Chasse générée : validation | **Géolocalisation** (« Je suis arrivé » dans un rayon de 40 m par défaut), pas de QR code |
 | Chasse générée : lieux | **OpenStreetMap** (Nominatim, Overpass) : uniquement des lieux réels, coordonnées jamais inventées |
 | Chasse générée : énigmes | **Claude** (API Anthropic) : choix du parcours, énigmes, jokers, messages d'arrivée |
+| QR disparu ou abîmé | **Preuve par photo** (§ 12) : l'IA valide les correspondances évidentes, l'équipe peut insister à ses risques, l'organisateur tamponne ou refuse ; une photo refusée vaut abandon de l'épreuve |
 
 ### 10.2 Évolutions envisagées
-
-- **Preuve par photo** (prochaine fonctionnalité) : si un QR a disparu ou a été abîmé, l'équipe photographie le lieu qu'elle pense être la solution. L'organisateur, ou une IA comparant avec une photo de référence, valide la photo (`val_source = 'PHOTO'`) ; l'heure d'envoi compte pour le classement.
 
 - **Mode « neuronal »** : le parcours devient un graphe plutôt qu'une ligne. Plusieurs énigmes se résolvent **en parallèle**, et leur réunion ouvre la voie à de nouvelles énigmes. Pistes pour le modèle :
   - une table de dépendances entre étapes `th_codelinks (cdl_from_cod, cdl_to_cod)` ;
@@ -408,3 +411,46 @@ En mode « j'organise », la chasse est un **brouillon ordinaire** du joueur, va
 - `th_generations` : demandeur, statut, paramètres (jsonb), chasse créée, message d'erreur.
 - Migration : `db/migrations/003_generation.sql`.
 - Chasses surprises à plusieurs : `hun_host_htr` (hôte), `hun_selfpaced` (mode de départ) ; migration `db/migrations/004_invitations.sql`, qui ouvre aussi aux équipes les chasses surprises encore jouables.
+
+---
+
+## 12. Preuve par photo
+
+Un QR peut disparaître, être abîmé ou déplacé. L'équipe photographie alors le lieu ou l'objet qu'elle pense être la solution de l'énigme, et envoie la photo à la place du scan (« QR abîmé ou introuvable ? Photographiez le lieu », dans le carnet de route). Réservé aux chasses à QR codes : en géolocalisation, « Je suis arrivé » suffit.
+
+### 12.1 Photo de référence
+
+Dans l'onglet Étapes, l'organisateur peut déposer pour chaque lieu une **photo de l'endroit où il a posé le QR** (`cod_refphoto`). Elle sert de référence à l'IA. **Les joueurs ne la voient jamais** : elle dévoilerait la solution.
+
+### 12.2 Avis de l'IA, insistance de l'équipe
+
+1. Le téléphone réduit la photo (1600 px, JPEG) et l'envoie (`POST /hunts/:id/photos`). Le serveur reconnaît le format à ses octets (JPEG, PNG, WebP ; 6 Mo au plus).
+2. **Claude** compare la photo à la référence, s'il y en a une, et à la description du lieu (titre, adresse, message d'arrivée, énigme). Sa réponse suit un schéma imposé : même lieu ou non, et avec quelle certitude. Son message à l'équipe ne dévoile jamais le lieu.
+3. **Correspondance évidente** (même lieu, certitude haute) : l'étape est **validée tout de suite** (`val_source = 'PHOTO'`), l'énigme suivante s'affiche. L'heure d'envoi est l'heure de passage.
+4. **Sinon** (ou si l'IA ne répond pas) : l'équipe peut **reprendre une photo**, autant de fois qu'elle veut, ou **insister** (`POST /photos/:id/insist`). En insistant, l'étape est validée tout de suite, à ses risques. Elle n'attend jamais l'organisateur.
+
+Chaque photo est enregistrée dans `th_photos`, même non retenue : avis de l'IA, insistance, contrôle.
+
+### 12.3 Contrôle de l'organisateur
+
+Dans l'onglet Direct, les photos qui ont validé une étape (reconnues par l'IA ou confirmées par l'équipe) s'affichent à côté de la photo de référence, avec l'avis de l'IA. Pendant la course ou après la clôture, l'organisateur :
+
+- **tamponne** la photo : l'étape est définitivement validée ;
+- ou la **refuse** : l'épreuve compte comme **abandonnée** (`val_source` passe à `SKIP`, avec la pénalité d'abandon du § 5.2). L'arrivée ne s'abandonne pas : une photo d'arrivée refusée retire la validation, et l'équipe n'est plus arrivée (non classée tant qu'elle n'a pas trouvé le trésor).
+
+Le carnet de route de l'équipe montre l'état de chaque étape validée par photo : à contrôler, tamponnée, refusée.
+
+### 12.4 Stockage
+
+- Les images sont dans le **MinIO mutualisé** du socle (seau `treasurehunters`, API S3 signée en AWS Signature v4 par `server/src/photos/store.ts`, sans dépendance). La base ne garde que la clé de l'objet.
+- Elles ne sortent que par l'API, avec contrôle d'accès : les photos d'une équipe pour ses membres et l'organisateur, la référence pour l'organisateur seul.
+- Les photos des équipes sont **effacées 30 jours après la clôture** de la chasse (`PHOTO_RETENTION_DAYS`) par le planificateur ; l'historique (avis, contrôle) reste. Les photos de référence restent avec la chasse.
+- Sans stockage configuré (`PHOTO_S3_*`), la fonction est désactivée et le bouton n'apparaît pas (`GET /features`). Sans clé Anthropic, l'IA ne se prononce pas : l'équipe peut insister et l'organisateur contrôle.
+
+### 12.5 Données
+
+- `th_codes.cod_refphoto` : clé de la photo de référence.
+- `th_photos` : équipe, étape, joueur, clé de l'objet (NULL une fois effacée), avis de l'IA (`match`, `nomatch`, `unavailable`) et son message, insistance, contrôle (`approved`, `rejected`, NULL = à contrôler).
+- `th_validations.val_photo_pho` : la photo qui a validé l'étape ; `val_source` admet `PHOTO`.
+- Migration : `db/migrations/005_photos.sql`.
+

@@ -41,6 +41,10 @@ api:
     PORT: "5080"
     CORS_ORIGIN: https://treasurehunters.crealcs.com
     SESSION_DAYS: "30"
+    # Preuve par photo (§ 12) : seau du locataire `treasurehunters` sur le MinIO
+    # mutualisé ; les clés d'accès sont dans le Secret (create-secrets.sh).
+    PHOTO_S3_ENDPOINT: http://minio.object-store.svc.cluster.local:9000
+    PHOTO_S3_BUCKET: treasurehunters
   envFrom:
     - treasurehunters-api-secrets
   pdb:

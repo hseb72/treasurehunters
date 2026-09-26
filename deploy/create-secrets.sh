@@ -2,7 +2,8 @@
 # Crée le Secret de l'API directement dans le cluster, comme findout (cf. son
 # docs/deployment/INSTALL-K3S.md §5b). Aucun secret n'est versionné dans ce dépôt.
 #
-#   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] [ANTHROPIC_WORKSPACE_ID=<wrkspc_…>] ./deploy/create-secrets.sh
+#   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] [ANTHROPIC_WORKSPACE_ID=<wrkspc_…>] \
+#   [PHOTO_S3_SECRET_KEY=<clé MinIO>] ./deploy/create-secrets.sh
 #
 # DB_PASSWORD, si absent, est lu dans le cluster (Secret database/database-tenant-keys,
 # clé `treasurehunters`) : c'est la valeur que le socle donne au rôle PostgreSQL,
@@ -70,6 +71,17 @@ if [[ -n "$ANTHROPIC_API_KEY" ]]; then
   args+=(--from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY")
 else
   echo "ℹ ANTHROPIC_API_KEY absente : la génération de chasses restera désactivée."
+fi
+
+# Preuve par photo (§ 12) : clé du locataire `treasurehunters` du MinIO mutualisé, lue
+# dans le cluster (Secret object-store/object-store-tenant-keys) comme le mot de passe
+# de la base. Absente : la preuve par photo reste désactivée.
+PHOTO_S3_SECRET_KEY="${PHOTO_S3_SECRET_KEY:-$(secret_value object-store object-store-tenant-keys treasurehunters)}"
+if [[ -n "$PHOTO_S3_SECRET_KEY" ]]; then
+  args+=(--from-literal=PHOTO_S3_ACCESS_KEY=treasurehunters --from-literal=PHOTO_S3_SECRET_KEY="$PHOTO_S3_SECRET_KEY")
+  echo "ℹ Clé MinIO du locataire treasurehunters reprise : preuve par photo activée."
+else
+  echo "ℹ Pas de clé MinIO (object-store/object-store-tenant-keys, clé treasurehunters) : preuve par photo désactivée."
 fi
 
 ANTHROPIC_WORKSPACE_ID="${ANTHROPIC_WORKSPACE_ID:-$(secret_value "$NS" "$NAME" ANTHROPIC_WORKSPACE_ID)}"

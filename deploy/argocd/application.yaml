@@ -53,6 +53,8 @@ spec:
       labels:
         # Ouvre l'accès au PostgreSQL mutualisé (NetworkPolicy du socle).
         database-client: "true"
+        # Ouvre l'accès au MinIO mutualisé : photos de la preuve par photo (§ 12).
+        object-store-client: "true"
         # Le chart `app` 0.4.0 ne pose pas encore de securityContext : on
         # applique `baseline` et on signale les écarts à `restricted`.
         pod-security.kubernetes.io/enforce: baseline

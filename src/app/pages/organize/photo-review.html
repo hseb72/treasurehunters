@@ -1,0 +1,58 @@
+@if (counted().length) {
+  <section class="photo-review">
+    <h2 class="section-title">
+      Photos à la place d'un QR
+      @if (pending()) {
+        <span class="badge badge--published">{{ pending() }} à contrôler</span>
+      }
+    </h2>
+    <div class="photos">
+      @for (p of counted(); track p.id) {
+        <article class="parchment photo-card" [class.photo-card--done]="p.review !== 'pending'">
+          <div class="photo-head">
+            <strong>{{ p.teamName }}</strong>&nbsp;<span class="small muted">· étape {{ p.stepOrder }} : {{ p.stepTitle }}</span>
+          </div>
+          <div class="pair">
+            <figure>
+              @if (p.purged) {
+                <div class="gone small muted"><mat-icon>hide_image</mat-icon>Photo effacée</div>
+              } @else {
+                <th-auth-image kind="photo" [id]="p.id" [alt]="'Photo de ' + p.teamName" />
+              }
+              <figcaption class="small muted">{{ p.nickname ?? 'Équipe' }}, {{ p.at | date: 'HH:mm' }}</figcaption>
+            </figure>
+            <figure>
+              @if (p.hasReference) {
+                <th-auth-image kind="reference" [id]="p.stepId" alt="Photo de référence" />
+                <figcaption class="small muted">Votre référence</figcaption>
+              } @else {
+                <div class="gone small muted"><mat-icon>image_not_supported</mat-icon>Pas de référence</div>
+              }
+            </figure>
+          </div>
+          <p class="small verdict">
+            @if (p.insisted) {
+              <mat-icon inline>gavel</mat-icon> <strong>Confirmée par l'équipe</strong> malgré l'avis de l'IA : « {{ p.reason }} »
+            } @else {
+              <mat-icon inline>smart_toy</mat-icon> <strong>Reconnue par l'IA</strong> : « {{ p.reason }} »
+            }
+          </p>
+          @switch (p.review) {
+            @case ('pending') {
+              <div class="actions">
+                <button mat-button type="button" class="danger" (click)="reject(p)"><mat-icon>block</mat-icon>Refuser</button>
+                <button mat-flat-button type="button" (click)="approve(p)"><mat-icon>verified</mat-icon>Tamponner</button>
+              </div>
+            }
+            @case ('approved') {
+              <span class="badge badge--gold"><mat-icon>verified</mat-icon>tamponnée</span>
+            }
+            @case ('rejected') {
+              <span class="badge badge--cancelled"><mat-icon>block</mat-icon>refusée : épreuve abandonnée</span>
+            }
+          }
+        </article>
+      }
+    </div>
+  </section>
+}

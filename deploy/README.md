@@ -110,6 +110,22 @@ Le générateur sort du cluster vers `api.anthropic.com`, `nominatim.openstreetm
 et `overpass-api.de` (HTTPS). Les NetworkPolicies du chart laissent la sortie
 ouverte ; rien à faire, sauf si un pare-feu filtre la sortie de la VM.
 
+**Preuve par photo** (docs/conception.md § 12) : les photos vont dans le seau
+`treasurehunters` du MinIO mutualisé. Trois conditions :
+
+1. côté socle, le locataire `treasurehunters` est déclaré dans
+   `homelab-platform/object-store/values.yaml` (seau `treasurehunters`) et sa clé
+   ajoutée au Secret `object-store/object-store-tenant-keys` (clé `treasurehunters`) ;
+2. le namespace porte l'étiquette `object-store-client: "true"` (posée par
+   `argocd/application.yaml`) ;
+3. le Secret de l'API porte `PHOTO_S3_ACCESS_KEY` / `PHOTO_S3_SECRET_KEY` :
+   `create-secrets.sh` lit la clé dans le cluster, il suffit de le relancer puis de
+   redémarrer l'API. L'adresse et le seau sont dans `api.env` de `values.yaml`.
+
+Sans clé, tout le reste fonctionne et le bouton photo n'apparaît pas. L'avis de
+l'IA sur les photos utilise la même clé Anthropic que le générateur ; sans elle,
+les équipes peuvent quand même insister et l'organisateur contrôle chaque photo.
+
 Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
 copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des
 autres applications. Elle permet de recréer le Secret si le namespace est perdu.

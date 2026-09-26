@@ -15,6 +15,19 @@ export const config = {
   generatorEffort: (process.env['GENERATOR_EFFORT'] ?? 'medium') as 'low' | 'medium' | 'high',
   /** Générations autorisées par joueur sur 24 heures glissantes. */
   generationDailyQuota: Number(process.env['GENERATION_DAILY_QUOTA'] ?? 5),
+  /**
+   * Preuve par photo (§ 12) : stockage S3 (MinIO mutualisé). Désactivée si l'un manque.
+   * La région n'importe pas à MinIO mais entre dans la signature.
+   */
+  photoStore: {
+    endpoint: process.env['PHOTO_S3_ENDPOINT'] || null,
+    bucket: process.env['PHOTO_S3_BUCKET'] || null,
+    accessKey: process.env['PHOTO_S3_ACCESS_KEY'] || null,
+    secretKey: process.env['PHOTO_S3_SECRET_KEY'] || null,
+    region: process.env['PHOTO_S3_REGION'] ?? 'us-east-1',
+  },
+  /** Les photos des équipes sont effacées ce nombre de jours après la clôture de la chasse. */
+  photoRetentionDays: Number(process.env['PHOTO_RETENTION_DAYS'] ?? 30),
   /** Identification exigée par les services OpenStreetMap (Nominatim, Overpass). */
   osmUserAgent: process.env['OSM_USER_AGENT'] ?? 'TreasureHunters/1.0 (+https://treasurehunters.crealcs.com)',
   nominatimUrl: process.env['NOMINATIM_URL'] ?? 'https://nominatim.openstreetmap.org',
