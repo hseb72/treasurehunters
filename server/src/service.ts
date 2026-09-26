@@ -18,6 +18,10 @@ import {
   ScanResult,
   Step,
   Team,
+  Features,
+  PhotoAttempt,
+  PhotoResult,
+  PhotoReview,
 } from '../../shared/models.js';
 import {
   checkinAllowance,
@@ -43,6 +47,7 @@ import {
   huntsWhere,
   STATUS_IDS,
   stepById,
+  toStep,
   stepByToken,
   stepsOf,
   teamById,
@@ -52,6 +57,8 @@ import {
   validationsOfHunt,
 } from './repo.js';
 import { HuntGenerator } from './generation/generator.js';
+import { PhotoJudge } from './photos/judge.js';
+import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
 
 export type Viewer = number | null;
@@ -99,7 +106,14 @@ export class Service {
     private readonly pool: pg.Pool,
     private readonly generator: HuntGenerator | null = null,
     private readonly log: (err: unknown, msg: string) => void = () => {},
+    /** Preuve par photo (§ 12) : stockage et arbitre IA ; null si le stockage n'est pas configuré. */
+    private readonly photos: { store: PhotoStore; judge: PhotoJudge | null } | null = null,
   ) {}
+
+  /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
+  features(): Features {
+    return { photos: !!this.photos, generation: !!this.generator };
+  }
 
   /* ================================================================ Comptes */
 
@@ -306,7 +320,7 @@ export class Service {
        WHERE hun_status_hst = $2 AND hun_autoclose AND hun_end <= now()`,
       [STATUS_IDS.closed, STATUS_IDS.running],
     );
-    return changed + (closed.rowCount ?? 0);
+    return changed + (closed.rowCount ?? 0) + (await this.purgePhotos());
   }
 
   /* ================================================================ Étapes */
@@ -711,10 +725,17 @@ export class Service {
     const allHints = await hintUsesOfHunt(db, huntId);
     const vals = allValidations.filter((v) => v.teamId === team.id);
     const hints = allHints.filter((u) => u.teamId === team.id);
+    const photoReviews = new Map(
+      (
+        await rows(db, 'SELECT val_code_cod, pho_review FROM th_validations JOIN th_photos ON pho_id = val_photo_pho WHERE val_team_tea = $1', [
+          team.id,
+        ])
+      ).map((r) => [r['val_code_cod'] as number, (r['pho_review'] ?? 'pending') as PhotoReview]),
+    );
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP' };
+        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photoReviews.get(s.id) ?? null };
       })
       .sort((a, b) => a.order - b.order);
 
@@ -752,6 +773,7 @@ export class Service {
       penalty: penaltyMinutes(hunt, hints, vals),
       position,
       selfStart: canSelfStart(hunt, team, me),
+      photoProof: !!this.photos && hunt.validation === 'qr',
     };
   }
 
@@ -800,6 +822,12 @@ export class Service {
     const teams = await teamsWhere(db, 't.tea_hunt_hun = $1', [huntId]);
     const validations = await validationsOfHunt(db, huntId);
     const hints = await hintUsesOfHunt(db, huntId);
+    const toReview = await rows(
+      db,
+      `SELECT val_team_tea, count(*)::int AS n FROM th_validations JOIN th_photos ON pho_id = val_photo_pho
+       JOIN th_teams ON tea_id = val_team_tea WHERE tea_hunt_hun = $1 AND pho_review IS NULL GROUP BY val_team_tea`,
+      [huntId],
+    );
     const now = Date.now();
     return teams.map((team) => {
       const vals = validations.filter((v) => v.teamId === team.id);
@@ -811,8 +839,247 @@ export class Service {
         hints: hints.filter((u) => u.teamId === team.id).length,
         skips: vals.filter((v) => v.source === 'SKIP').length,
         status,
+        photosToReview: toReview.find((r) => r['val_team_tea'] === team.id)?.['n'] ?? 0,
       };
     });
+  }
+
+  /* ================================================================ Preuve par photo (§ 12) */
+
+  /**
+   * QR introuvable : l'équipe envoie une photo du lieu qu'elle pense être la solution.
+   * Si l'IA la juge évidente, l'étape est validée (sous réserve du contrôle de l'organisateur) ;
+   * sinon l'équipe peut réessayer, ou insister à ses risques (insistPhoto).
+   */
+  async submitPhoto(viewer: Viewer, huntId: number, image: string): Promise<PhotoResult> {
+    const me = requireUser(viewer);
+    const photos = this.requirePhotos();
+    const photo = decodeImage(image);
+    // Contrôles avant l'envoi au stockage et à l'IA (qui prennent du temps, hors transaction).
+    const before = await this.playState(this.pool, me, huntId);
+    const target = await this.photoTarget(this.pool, before);
+    const key = `photos/hunt-${huntId}/team-${before.team.id}/${randomToken(16)}.${photo.contentType.split('/')[1]}`;
+    await photos.store.put(key, photo);
+
+    let verdict: 'match' | 'nomatch' | 'unavailable' = 'unavailable';
+    let reason = 'L’arbitre photo n’est pas disponible : vous pouvez reprendre une photo, ou insister et l’organisateur la contrôlera.';
+    if (photos.judge) {
+      try {
+        const reference = target.refKey ? await photos.store.get(target.refKey) : null;
+        const v = await photos.judge.judge({
+          place: { title: target.step.title, arrival: target.step.arrival, address: target.step.address },
+          riddle: target.riddle,
+          reference,
+          photo,
+        });
+        verdict = v.match ? 'match' : 'nomatch';
+        reason = v.reason;
+      } catch (e) {
+        this.log(e, `Arbitre photo indisponible (chasse ${huntId}) — ${describeError(e)}`);
+      }
+    }
+
+    return tx(this.pool, async (db) => {
+      await teamById(db, before.team.id, true); // sérialisé avec les scans de l'équipe
+      const state = await this.playState(db, me, huntId);
+      // Entre-temps, un équipier a pu valider l'étape (QR retrouvé, autre photo) : la photo reste une tentative.
+      const still = state.clue?.targetOrder === target.step.order;
+      const counted = verdict === 'match' && still;
+      const r = await one(
+        db,
+        `INSERT INTO th_photos (pho_team_tea, pho_code_cod, pho_hunter_htr, pho_key, pho_verdict, pho_reason)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING pho_id`,
+        [state.team.id, target.step.id, me, key, verdict, reason],
+      );
+      const photoId = r!['pho_id'] as number;
+      if (counted) await this.validateByPhoto(db, state.team.id, target.step, me, photoId);
+      return { photo: (await this.photoAttempts(db, 'pho_id = $1', [photoId]))[0], state: await this.playState(db, me, huntId) };
+    });
+  }
+
+  /** L'équipe confirme une photo que l'IA n'a pas reconnue : si l'organisateur la refuse, l'épreuve compte comme abandonnée. */
+  async insistPhoto(viewer: Viewer, photoId: number): Promise<PhotoResult> {
+    const me = requireUser(viewer);
+    this.requirePhotos();
+    return tx(this.pool, async (db) => {
+      const p = await one(db, 'SELECT p.*, t.tea_hunt_hun FROM th_photos p JOIN th_teams t ON t.tea_id = p.pho_team_tea WHERE pho_id = $1', [photoId]);
+      const mine = p ? await teamOf(db, p['tea_hunt_hun'], me) : null;
+      if (!p || !mine || mine.id !== p['pho_team_tea']) throw notFound('Photo introuvable.');
+      await teamById(db, mine.id, true);
+      if (p['pho_verdict'] === 'match' || p['pho_insisted']) throw conflict('Cette photo a déjà validé l’étape.');
+      const state = await this.playState(db, me, p['tea_hunt_hun']);
+      const target = await this.photoTarget(db, state);
+      if (target.step.id !== p['pho_code_cod']) throw conflict('Cette photo ne concerne plus l’énigme en cours.');
+      await db.query('UPDATE th_photos SET pho_insisted = true, pho_lastupdate = now() WHERE pho_id = $1', [photoId]);
+      await this.validateByPhoto(db, mine.id, target.step, me, photoId);
+      return { photo: (await this.photoAttempts(db, 'pho_id = $1', [photoId]))[0], state: await this.playState(db, me, p['tea_hunt_hun']) };
+    });
+  }
+
+  /** Toutes les photos d'une chasse, pour le contrôle de l'organisateur. */
+  async huntPhotos(viewer: Viewer, huntId: number): Promise<PhotoAttempt[]> {
+    const hunt = await this.ownedHunt(this.pool, viewer, huntId);
+    return this.photoAttempts(this.pool, 't.tea_hunt_hun = $1', [hunt.id]);
+  }
+
+  /**
+   * Contrôle de l'organisateur, pendant la course ou après la clôture. Une photo refusée compte
+   * comme un abandon de l'épreuve (pénalité d'abandon) ; pour l'arrivée, qui ne s'abandonne pas,
+   * l'équipe n'est plus arrivée.
+   */
+  async reviewPhoto(viewer: Viewer, photoId: number, approve: boolean): Promise<PhotoAttempt[]> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const p = await one(db, 'SELECT p.*, t.tea_hunt_hun FROM th_photos p JOIN th_teams t ON t.tea_id = p.pho_team_tea WHERE pho_id = $1', [photoId]);
+      if (!p) throw notFound('Photo introuvable.');
+      const hunt = await this.ownedHunt(db, me, p['tea_hunt_hun']);
+      await teamById(db, p['pho_team_tea'], true);
+      const val = await one(db, 'SELECT * FROM th_validations WHERE val_photo_pho = $1', [photoId]);
+      if (!val) throw conflict('Cette photo n’a pas validé d’étape : rien à contrôler.');
+      if (p['pho_review']) throw conflict('Cette photo a déjà été contrôlée.');
+      if (!['running', 'closed'].includes(hunt.status)) throw conflict('La chasse n’est ni en cours ni close.');
+      await db.query('UPDATE th_photos SET pho_review = $2, pho_reviewed_by_htr = $3, pho_lastupdate = now() WHERE pho_id = $1', [
+        photoId,
+        approve ? 'approved' : 'rejected',
+        me,
+      ]);
+      if (!approve) {
+        const steps = await stepsOf(db, hunt.id);
+        const step = steps.find((s) => s.id === val['val_code_cod'])!;
+        if (step.order === finalOrder(steps)) {
+          await db.query('DELETE FROM th_validations WHERE val_id = $1', [val['val_id']]);
+          await db.query('UPDATE th_teams SET tea_finished = NULL, tea_lastupdate = now() WHERE tea_id = $1', [p['pho_team_tea']]);
+        } else {
+          await db.query(`UPDATE th_validations SET val_source = 'SKIP' WHERE val_id = $1`, [val['val_id']]);
+        }
+      }
+      return this.photoAttempts(db, 't.tea_hunt_hun = $1', [hunt.id]);
+    });
+  }
+
+  /** Image d'une photo d'équipe : pour l'équipe elle-même et l'organisateur. */
+  async photoImage(viewer: Viewer, photoId: number): Promise<StoredPhoto> {
+    const me = requireUser(viewer);
+    const photos = this.requirePhotos();
+    const p = await one(
+      this.pool,
+      `SELECT p.pho_key, p.pho_team_tea, h.hun_id, h.hun_owner_htr FROM th_photos p
+       JOIN th_teams t ON t.tea_id = p.pho_team_tea JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun WHERE pho_id = $1`,
+      [photoId],
+    );
+    const allowed = p && (p['hun_owner_htr'] === me || (await teamOf(this.pool, p['hun_id'], me))?.id === p['pho_team_tea']);
+    if (!allowed) throw notFound('Photo introuvable.');
+    const image = p['pho_key'] ? await photos.store.get(p['pho_key']) : null;
+    if (!image) throw notFound('Cette photo a été effacée.');
+    return image;
+  }
+
+  /** Photo de référence d'une étape : l'organisateur seul (elle dévoilerait la solution). */
+  async referenceImage(viewer: Viewer, stepId: number): Promise<StoredPhoto> {
+    const photos = this.requirePhotos();
+    const { key } = await this.ownedStepPhoto(viewer, stepId);
+    const image = key ? await photos.store.get(key) : null;
+    if (!image) throw notFound('Pas de photo de référence pour cette étape.');
+    return image;
+  }
+
+  async setReferencePhoto(viewer: Viewer, stepId: number, image: string | null): Promise<Step> {
+    const photos = this.requirePhotos();
+    const { step, key: old } = await this.ownedStepPhoto(viewer, stepId);
+    if (step.order === 0) throw badRequest('Le départ n’a pas de lieu à photographier.');
+    let key: string | null = null;
+    if (image !== null) {
+      const photo = decodeImage(image);
+      key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${photo.contentType.split('/')[1]}`;
+      await photos.store.put(key, photo);
+    }
+    await this.pool.query('UPDATE th_codes SET cod_refphoto = $2, cod_lastupdate = now() WHERE cod_id = $1', [stepId, key]);
+    if (old) await photos.store.delete(old).catch((e) => this.log(e, `Photo de référence ${old} non effacée`));
+    return (await stepById(this.pool, stepId))!;
+  }
+
+  /** Photos des équipes effacées quelques jours après la clôture de leur chasse. */
+  private async purgePhotos(): Promise<number> {
+    if (!this.photos) return 0;
+    const old = await rows(
+      this.pool,
+      `SELECT p.pho_id, p.pho_key FROM th_photos p JOIN th_teams t ON t.tea_id = p.pho_team_tea JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun
+       WHERE p.pho_key IS NOT NULL AND h.hun_closed < now() - make_interval(days => $1) LIMIT 200`,
+      [config.photoRetentionDays],
+    );
+    let purged = 0;
+    for (const r of old) {
+      try {
+        await this.photos.store.delete(r['pho_key']);
+        await this.pool.query('UPDATE th_photos SET pho_key = NULL, pho_lastupdate = now() WHERE pho_id = $1', [r['pho_id']]);
+        purged++;
+      } catch (e) {
+        this.log(e, `Photo ${r['pho_key']} non effacée`);
+      }
+    }
+    return purged;
+  }
+
+  private requirePhotos() {
+    if (!this.photos) throw new HttpError(503, 'La preuve par photo n’est pas activée sur ce serveur.');
+    return this.photos;
+  }
+
+  /** Étape cherchée par l'équipe, à laquelle une photo peut se substituer au QR. */
+  private async photoTarget(db: Db, state: PlayState) {
+    if (state.hunt.validation !== 'qr') throw conflict('Cette chasse se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
+    if (!state.clue) throw conflict('Aucune étape à trouver pour le moment.');
+    const r = await one(db, 'SELECT * FROM th_codes WHERE cod_hunt_hun = $1 AND cod_order = $2', [state.hunt.id, state.clue.targetOrder]);
+    return { step: toStep(r!), refKey: r!['cod_refphoto'] as string | null, riddle: state.clue.instructions || null };
+  }
+
+  private async validateByPhoto(db: Db, teamId: number, step: Step, me: number, photoId: number): Promise<void> {
+    await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_photo_pho) VALUES ($1, $2, $3, 'PHOTO', $4)`, [
+      teamId,
+      step.id,
+      me,
+      photoId,
+    ]);
+    const steps = await stepsOf(db, step.huntId);
+    if (step.order === finalOrder(steps)) await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [teamId]);
+  }
+
+  private async ownedStepPhoto(viewer: Viewer, stepId: number) {
+    const r = await one(this.pool, 'SELECT * FROM th_codes WHERE cod_id = $1', [stepId]);
+    if (!r) throw notFound('Étape introuvable.');
+    await this.ownedHunt(this.pool, viewer, r['cod_hunt_hun']);
+    return { step: toStep(r), key: r['cod_refphoto'] as string | null };
+  }
+
+  private async photoAttempts(db: Db, where: string, params: unknown[]): Promise<PhotoAttempt[]> {
+    const list = await rows(
+      db,
+      `SELECT p.*, t.tea_name, c.cod_order, c.cod_title, c.cod_refphoto, u.htr_nickname, v.val_id
+       FROM th_photos p
+       JOIN th_teams t ON t.tea_id = p.pho_team_tea
+       JOIN th_codes c ON c.cod_id = p.pho_code_cod
+       LEFT JOIN th_hunters u ON u.htr_id = p.pho_hunter_htr
+       LEFT JOIN th_validations v ON v.val_photo_pho = p.pho_id
+       WHERE ${where} ORDER BY p.pho_id`,
+      params,
+    );
+    return list.map((r) => ({
+      id: r['pho_id'],
+      teamId: r['pho_team_tea'],
+      teamName: r['tea_name'],
+      stepId: r['pho_code_cod'],
+      stepOrder: r['cod_order'],
+      stepTitle: r['cod_title'],
+      nickname: r['htr_nickname'],
+      at: (r['pho_creation'] as Date).toISOString(),
+      verdict: r['pho_verdict'],
+      reason: r['pho_reason'],
+      insisted: r['pho_insisted'],
+      // Une photo refusée pour l'arrivée n'a plus de validation, mais reste « refusée ».
+      review: r['pho_review'] ?? (r['val_id'] ? 'pending' : null),
+      hasReference: !!r['cod_refphoto'],
+      purged: !r['pho_key'],
+    }));
   }
 
   /* ================================================================ Génération (§ 11) */
@@ -1049,3 +1316,14 @@ function canSelfStart(hunt: Hunt, team: Team, me: number): boolean {
   if (hunt.selfPaced) return !team.started && (hunt.status === 'published' || hunt.status === 'running');
   return hunt.status === 'published' && hunt.hostId === me;
 }
+
+/** Photo reçue en « data URL » ou en base64 : format reconnu à ses octets, 6 Mo au plus. */
+function decodeImage(image: string): StoredPhoto {
+  const bytes = Buffer.from(image.replace(/^data:[^,]*,/, ''), 'base64');
+  if (bytes.length > MAX_PHOTO_BYTES) throw badRequest('Photo trop lourde (6 Mo au plus).');
+  const contentType = imageType(bytes);
+  if (!contentType) throw badRequest('Envoyez une photo au format JPEG, PNG ou WebP.');
+  return { bytes, contentType };
+}
+
+const MAX_PHOTO_BYTES = 6 * 1024 * 1024;

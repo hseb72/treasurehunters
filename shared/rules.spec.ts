@@ -19,7 +19,7 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
 
 const steps: Step[] = [0, 1, 2, 3].map((order) => ({
   id: order + 10, huntId: 1, order, token: order ? `tok${order}` : null, title: `S${order}`, arrival: null,
-  instructions: order < 3 ? `clue ${order}` : null, hints: [], answer: null, latitude: null, longitude: null, address: null,
+  instructions: order < 3 ? `clue ${order}` : null, hints: [], answer: null, latitude: null, longitude: null, address: null, referencePhoto: false,
 }));
 
 describe('teamStartTimes', () => {

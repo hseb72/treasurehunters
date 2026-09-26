@@ -76,9 +76,14 @@
             @if (r.skips) {
               <span>· <mat-icon inline>skip_next</mat-icon> {{ r.skips }}</span>
             }
+            @if (r.photosToReview) {
+              <span class="to-review">· <mat-icon inline>photo_camera</mat-icon> {{ r.photosToReview }} à contrôler</span>
+            }
           </div>
         </div>
       }
     </div>
+
+    <th-photo-review [hunt]="h" [finalOrder]="total()" (reviewed)="rows.reload()" />
   }
 }

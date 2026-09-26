@@ -24,6 +24,9 @@
         @if (step.address) {
           <span class="small muted"><mat-icon inline>location_on</mat-icon> {{ step.address }}</span>
         }
+        @if (photos() && step.referencePhoto) {
+          <span class="small muted"><mat-icon inline>photo_camera</mat-icon> Photo de référence</span>
+        }
         @if (geo() && kind !== 'start' && step.latitude === null) {
           <span class="small unplaced"><mat-icon inline>wrong_location</mat-icon> À placer sur la carte</span>
         }
@@ -84,6 +87,29 @@
                 <input matInput [formControlName]="$index" />
               </mat-form-field>
             }
+          </div>
+        }
+        @if (photos() && kind !== 'start') {
+          <div class="reference">
+            @if (step.referencePhoto) {
+              <th-auth-image class="reference-img" kind="reference" [id]="step.id" [version]="refVersion()" alt="Photo de référence" />
+            }
+            <div class="reference-text">
+              <strong class="small">Photo de référence</strong>
+              <span class="small muted">
+                Photographiez le lieu où vous posez le QR. Si une équipe ne le trouve pas, elle pourra envoyer sa propre photo : l'IA la comparera à
+                celle-ci. Les joueurs ne la voient jamais.
+              </span>
+              <div class="row">
+                <button mat-stroked-button type="button" (click)="refInput.click()" [disabled]="refBusy()">
+                  <mat-icon>add_a_photo</mat-icon>{{ step.referencePhoto ? 'Remplacer' : 'Ajouter' }}
+                </button>
+                @if (step.referencePhoto) {
+                  <button mat-button type="button" (click)="removeReference(step)" [disabled]="refBusy()">Retirer</button>
+                }
+              </div>
+              <input #refInput type="file" accept="image/*" capture="environment" hidden (change)="setReference(step, $event)" />
+            </div>
           </div>
         }
         <div class="row">

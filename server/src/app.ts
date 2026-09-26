@@ -1,12 +1,14 @@
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
+import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import pg from 'pg';
 import { z, ZodError } from 'zod';
 import { resolveSession } from './auth.js';
 import { config } from './config.js';
 import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
+import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
+import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -88,6 +90,10 @@ export interface AppOptions {
   logger?: boolean;
   /** Générateur de chasses ; par défaut OpenStreetMap + Claude si ANTHROPIC_API_KEY est définie. */
   generator?: HuntGenerator | null;
+  /** Stockage des photos (§ 12) ; par défaut le S3 de PHOTO_S3_*, sinon preuve par photo désactivée. */
+  photoStore?: PhotoStore | null;
+  /** Arbitre des photos ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
+  photoJudge?: PhotoJudge | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -105,7 +111,20 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
       (e) => app.log.error(e, `Générateur de chasses : ${e instanceof HttpError ? e.message : 'vérification impossible'} — ${describeError(e instanceof HttpError && e.cause ? e.cause : e)}`),
     );
   }
-  const service = new Service(pool, generator, (err, msg) => app.log.error(err, msg));
+  const s3 = config.photoStore;
+  const photoStore =
+    opts.photoStore !== undefined
+      ? opts.photoStore
+      : s3.endpoint && s3.bucket && s3.accessKey && s3.secretKey
+        ? new S3PhotoStore({ endpoint: s3.endpoint, bucket: s3.bucket, accessKey: s3.accessKey, secretKey: s3.secretKey, region: s3.region })
+        : null;
+  const photoJudge = opts.photoJudge !== undefined ? opts.photoJudge : keyUsable ? new ClaudePhotoJudge(key!) : null;
+  const service = new Service(
+    pool,
+    generator,
+    (err, msg) => app.log.error(err, msg),
+    photoStore ? { store: photoStore, judge: photoJudge } : null,
+  );
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -138,6 +157,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   const strict = { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } };
 
   app.get('/api/health', async () => ({ ok: true }));
+  app.get('/api/features', async () => service.features());
 
   /* ----- Comptes */
   app.post('/api/auth/register', strict, async (req) => {
@@ -250,6 +270,30 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
       .parse(req.body);
     return service.checkin(req.viewer, idParams.parse(req.params).id, pos, req.ip);
   });
+
+  /* ----- Preuve par photo (§ 12) : images en « data URL », 6 Mo au plus une fois décodées */
+  const photoBody = z.object({ image: z.string().min(16).max(9_000_000) });
+  const photoRoute = { bodyLimit: 9 * 1024 * 1024 };
+  const sendImage = (reply: FastifyReply, image: StoredPhoto) =>
+    reply.type(image.contentType).header('Cache-Control', 'private, max-age=3600').send(image.bytes);
+  app.post('/api/hunts/:id/photos', { ...photoRoute, config: { rateLimit: { max: 12, timeWindow: '1 minute' } } }, async (req, reply) =>
+    reply.status(201).send(await service.submitPhoto(req.viewer, idParams.parse(req.params).id, photoBody.parse(req.body).image)),
+  );
+  app.post('/api/photos/:id/insist', async (req) => service.insistPhoto(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/hunts/:id/photos', async (req) => service.huntPhotos(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/photos/:id/review', async (req) => {
+    const { approve } = z.object({ approve: z.boolean() }).parse(req.body);
+    return service.reviewPhoto(req.viewer, idParams.parse(req.params).id, approve);
+  });
+  app.get('/api/photos/:id/image', async (req, reply) => sendImage(reply, await service.photoImage(req.viewer, idParams.parse(req.params).id)));
+  app.get('/api/steps/:id/reference-photo', async (req, reply) =>
+    sendImage(reply, await service.referenceImage(req.viewer, idParams.parse(req.params).id)),
+  );
+  app.put('/api/steps/:id/reference-photo', photoRoute, async (req) =>
+    service.setReferencePhoto(req.viewer, idParams.parse(req.params).id, photoBody.parse(req.body).image),
+  );
+  app.delete('/api/steps/:id/reference-photo', async (req) => service.setReferencePhoto(req.viewer, idParams.parse(req.params).id, null));
+
   // POST : un scan peut valider une étape, il ne doit jamais être déclenché par un simple préchargement.
   app.post('/api/scan/:token', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
     const { token } = z.object({ token: text(64).min(1) }).parse(req.params);

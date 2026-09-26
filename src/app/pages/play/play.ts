@@ -5,9 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
-import { CheckinResult } from '@shared/models';
+import { CheckinResult, PhotoResult } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
+import { compressPhoto } from '../../core/photo';
 import { Clock } from '../../core/clock';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
@@ -48,6 +49,10 @@ export class PlayPage {
   protected readonly locating = signal(false);
   /** Dernier « Je suis arrivé » : lieu trouvé, ou distance restante. */
   protected readonly checkin = signal<CheckinResult | null>(null);
+  /** Preuve par photo : dernier envoi (avis de l'IA) et son aperçu local. */
+  protected readonly photo = signal<PhotoResult | null>(null);
+  protected readonly photoPreview = signal<string | null>(null);
+  protected readonly sending = signal(false);
 
   /** Phase de jeu de l'équipe. */
   protected readonly phase = computed(() => {
@@ -184,6 +189,83 @@ export class PlayPage {
       this.notify.error(e);
       this.locating.set(false);
     }
+  }
+
+  /** QR introuvable : la photo du lieu est jugée par l'IA ; si elle la reconnaît, l'étape est validée. */
+  protected async sendPhoto(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // pour pouvoir reprendre la même photo
+    if (!file) return;
+    this.sending.set(true);
+    this.photo.set(null);
+    this.checkin.set(null);
+    try {
+      const image = await compressPhoto(file);
+      this.photoPreview.set(image);
+      this.api.submitPhoto(this.id(), image).subscribe({
+        next: (r) => {
+          this.photo.set(r);
+          this.state.set(r.state);
+          this.confirmHint.set(false);
+          this.sending.set(false);
+        },
+        error: (e) => {
+          this.notify.error(e);
+          this.sending.set(false);
+        },
+      });
+    } catch (e) {
+      this.notify.error(e);
+      this.sending.set(false);
+    }
+  }
+
+  /** L'équipe confirme une photo non reconnue : validée tout de suite, contrôlée par l'organisateur. */
+  protected insist(): void {
+    const r = this.photo();
+    if (!r) return;
+    const isFinal = r.photo.stepOrder === r.state.totalSteps;
+    const penalty = r.state.hunt.skipPenalty;
+    this.confirm
+      .ask({
+        title: 'Confirmer cette photo ?',
+        message:
+          'L’étape sera validée tout de suite et l’organisateur contrôlera la photo. ' +
+          (isFinal
+            ? 'S’il la refuse, votre arrivée ne comptera pas et votre équipe ne sera pas classée.'
+            : `S’il la refuse, l’épreuve comptera comme abandonnée${penalty ? ` (+${penalty} min de pénalité)` : ''}.`),
+        confirm: 'J’insiste',
+      })
+      .pipe(
+        filter(Boolean),
+        switchMap(() => {
+          this.busy.set(true);
+          return this.api.insistPhoto(r.photo.id);
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          this.photo.set(res);
+          this.state.set(res.state);
+          this.busy.set(false);
+        },
+        error: (e) => {
+          this.notify.error(e);
+          this.busy.set(false);
+        },
+      });
+  }
+
+  /** Étape validée par la dernière photo (titre et message d'arrivée). */
+  protected readonly photoStep = computed(() => {
+    const r = this.photo();
+    return r ? (r.state.validated.find((v) => v.order === r.photo.stepOrder) ?? null) : null;
+  });
+
+  protected closePhoto(): void {
+    this.photo.set(null);
+    this.photoPreview.set(null);
   }
 
   protected revealHint(): void {

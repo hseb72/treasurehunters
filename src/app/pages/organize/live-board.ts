@@ -11,13 +11,14 @@ import { Clock } from '../../core/clock';
 import { LiveRow } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { formatClock } from '../../shared/format';
+import { PhotoReviewPanel } from './photo-review';
 import { WorkspaceState } from './workspace-state';
 
 const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'th-live-board',
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, RouterLink],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, PhotoReviewPanel, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './live-board.html',
   styleUrl: './live-board.scss',

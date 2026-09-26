@@ -1,6 +1,22 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { AuthResult, CheckinResult, GenerationJob, GenerationRequest, Hunt, Hunter, LiveRow, PlayState, RankingRow, ScanResult, Step, Team } from '@shared/models';
+import {
+  AuthResult,
+  CheckinResult,
+  Features,
+  GenerationJob,
+  GenerationRequest,
+  Hunt,
+  Hunter,
+  LiveRow,
+  PhotoAttempt,
+  PhotoResult,
+  PlayState,
+  RankingRow,
+  ScanResult,
+  Step,
+  Team,
+} from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiError, HuntAction, HuntApi, HuntScope } from './api';
@@ -104,6 +120,32 @@ export class HttpHuntApi extends HuntApi {
   }
   setSelfPaced(huntId: number, selfPaced: boolean): Observable<Hunt> {
     return this.http.put<Hunt>(`${this.url}/hunts/${huntId}/self-paced`, { selfPaced });
+  }
+
+  getFeatures(): Observable<Features> {
+    return this.http.get<Features>(`${this.url}/features`);
+  }
+  submitPhoto(huntId: number, image: string): Observable<PhotoResult> {
+    return this.http.post<PhotoResult>(`${this.url}/hunts/${huntId}/photos`, { image });
+  }
+  insistPhoto(photoId: number): Observable<PhotoResult> {
+    return this.http.post<PhotoResult>(`${this.url}/photos/${photoId}/insist`, {});
+  }
+  huntPhotos(huntId: number): Observable<PhotoAttempt[]> {
+    return this.http.get<PhotoAttempt[]>(`${this.url}/hunts/${huntId}/photos`);
+  }
+  reviewPhoto(photoId: number, approve: boolean): Observable<PhotoAttempt[]> {
+    return this.http.post<PhotoAttempt[]>(`${this.url}/photos/${photoId}/review`, { approve });
+  }
+  photoImage(photoId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/photos/${photoId}/image`, { responseType: 'blob' });
+  }
+  referenceImage(stepId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/steps/${stepId}/reference-photo`, { responseType: 'blob' });
+  }
+  setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
+    const url = `${this.url}/steps/${stepId}/reference-photo`;
+    return image === null ? this.http.delete<Step>(url) : this.http.put<Step>(url, { image });
   }
 
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {

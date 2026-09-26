@@ -84,6 +84,8 @@ export interface Step {
   latitude: number | null;
   longitude: number | null;
   address: string | null;
+  /** L'organisateur a déposé une photo du lieu, référence pour la preuve par photo. */
+  referencePhoto: boolean;
 }
 
 export interface Member {
@@ -108,8 +110,8 @@ export interface Validation {
   teamId: number;
   stepId: number;
   hunterId: number;
-  /** QR scanné, validation manuelle de l'organisateur, ou épreuve abandonnée par l'équipe. */
-  source: 'QR' | 'MANUAL' | 'SKIP' | 'GEO';
+  /** QR scanné, validation manuelle, épreuve abandonnée, géolocalisation, ou photo du lieu. */
+  source: 'QR' | 'MANUAL' | 'SKIP' | 'GEO' | 'PHOTO';
   at: string;
 }
 
@@ -148,6 +150,8 @@ export interface PlayStep {
   at: string;
   /** Épreuve abandonnée plutôt que trouvée. */
   skipped: boolean;
+  /** Étape validée par photo : contrôle de l'organisateur (une photo refusée compte comme un abandon). */
+  photo: PhotoReview | null;
 }
 
 export interface PlayClue {
@@ -176,6 +180,47 @@ export interface PlayState {
   position: { rank: number; total: number } | null;
   /** Chasse surprise : le joueur peut donner le départ (de son équipe, ou de tous en départ commun). */
   selfStart: boolean;
+  /** QR introuvable : l'équipe peut envoyer une photo du lieu (chasses à QR, stockage configuré). */
+  photoProof: boolean;
+}
+
+/* ---------- Preuve par photo (§ 12) ---------- */
+
+/** Contrôle de l'organisateur sur une photo qui a validé une étape. */
+export type PhotoReview = 'pending' | 'approved' | 'rejected';
+
+export interface PhotoAttempt {
+  id: number;
+  teamId: number;
+  teamName: string;
+  stepId: number;
+  stepOrder: number;
+  stepTitle: string;
+  nickname: string | null;
+  at: string;
+  /** Avis de l'IA : 'match' valide l'étape ; 'nomatch' ou 'unavailable' : l'équipe réessaie ou insiste. */
+  verdict: 'match' | 'nomatch' | 'unavailable';
+  reason: string | null;
+  /** L'équipe a confirmé sa photo malgré l'avis de l'IA. */
+  insisted: boolean;
+  /** La photo a validé l'étape (avis favorable, ou équipe qui a insisté) ; null sinon. */
+  review: PhotoReview | null;
+  /** L'organisateur a déposé une photo de référence pour cette étape. */
+  hasReference: boolean;
+  /** Photo effacée (clôture de la chasse + 30 jours). */
+  purged: boolean;
+}
+
+/** Réponse à l'envoi d'une photo, ou à l'insistance de l'équipe. */
+export interface PhotoResult {
+  photo: PhotoAttempt;
+  state: PlayState;
+}
+
+/** Fonctions activées sur ce serveur. */
+export interface Features {
+  photos: boolean;
+  generation: boolean;
 }
 
 /** Résultat d'un « Je suis arrivé » (validation par géolocalisation). */
@@ -252,4 +297,6 @@ export interface LiveRow {
   hints: number;
   skips: number;
   status: 'waiting' | 'running' | 'finished';
+  /** Photos qui ont validé une étape et attendent le contrôle de l'organisateur. */
+  photosToReview: number;
 }

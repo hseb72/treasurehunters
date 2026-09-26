@@ -107,6 +107,39 @@
         </section>
       }
       @case ('playing') {
+        @if (photo(); as r) {
+          <section class="parchment center photo-result" [class.found]="r.photo.review" aria-live="polite">
+            @if (photoPreview(); as src) {
+              <img class="photo-thumb" [src]="src" alt="Votre photo" />
+            }
+            @if (r.photo.review) {
+              <span class="stamp stamp--jungle">Étape {{ r.photo.stepOrder }} validée</span>
+              @if (photoStep(); as st) {
+                <h2>{{ st.title }}</h2>
+                @if (st.arrival) {
+                  <p class="note">{{ st.arrival }}</p>
+                }
+              }
+              <p class="small muted">
+                {{ r.photo.insisted ? 'Validée à votre demande' : 'Photo reconnue' }} : l'organisateur la contrôlera.
+                @if (r.photo.insisted) {
+                  S'il la refuse, l'épreuve comptera comme abandonnée.
+                }
+              </p>
+              <button mat-button type="button" (click)="closePhoto()">{{ s.clue ? "Voir l'énigme suivante" : 'Continuer' }}</button>
+            } @else {
+              <p><mat-icon inline>{{ r.photo.verdict === 'unavailable' ? 'cloud_off' : 'help' }}</mat-icon> {{ r.photo.reason }}</p>
+              <p class="small muted">Reprenez le lieu sous un autre angle, ou confirmez votre photo si vous êtes sûrs de vous : l'organisateur tranchera.</p>
+              <div class="photo-actions">
+                <button mat-flat-button type="button" (click)="camera.click()" [disabled]="sending() || busy()">
+                  <mat-icon>add_a_photo</mat-icon>Reprendre une photo
+                </button>
+                <button mat-stroked-button type="button" (click)="insist()" [disabled]="sending() || busy()"><mat-icon>gavel</mat-icon>J'insiste</button>
+              </div>
+              <button mat-button type="button" (click)="closePhoto()">Je cherche encore</button>
+            }
+          </section>
+        }
         @if (checkin(); as c) {
           @if (c.outcome === 'validated' && c.step) {
             <section class="parchment center found" aria-live="polite">
@@ -189,6 +222,14 @@
               Vous avez trouvé le lieu ? Scannez le QR code caché sur place.
             }
           </p>
+          @if (s.photoProof) {
+            <div class="center">
+              <button mat-button type="button" class="photo-btn" (click)="camera.click()" [disabled]="sending()">
+                <mat-icon>{{ sending() ? 'hourglass_top' : 'add_a_photo' }}</mat-icon>
+                {{ sending() ? 'L’arbitre examine votre photo…' : 'QR abîmé ou introuvable ? Photographiez le lieu' }}
+              </button>
+            </div>
+          }
         }
       }
       @case ('finished') {
@@ -197,6 +238,9 @@
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
           <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités incluses (+' + s.penalty + ' min)' : '' }}</p>
+          @if (s.validated.at(-1)?.photo === 'pending') {
+            <p class="small"><mat-icon inline>photo_camera</mat-icon> Arrivée validée par photo : l'organisateur doit encore la tamponner.</p>
+          }
           @if (s.hunt.status === 'running') {
             @if (s.position; as pos) {
               <p>Position provisoire : <strong>{{ pos.rank }}{{ pos.rank === 1 ? 'ʳᵉ' : 'ᵉ' }}</strong> sur {{ pos.total }}.</p>
@@ -231,6 +275,17 @@
                 @if (v.skipped) {
                   <span class="badge badge--cancelled">abandonnée</span>
                 }
+                @switch (v.photo) {
+                  @case ('pending') {
+                    <span class="badge badge--published" title="Validée par photo : l'organisateur doit encore la contrôler"><mat-icon>photo_camera</mat-icon>à contrôler</span>
+                  }
+                  @case ('approved') {
+                    <span class="badge badge--gold" title="Photo tamponnée par l'organisateur"><mat-icon>verified</mat-icon>photo tamponnée</span>
+                  }
+                  @case ('rejected') {
+                    <span class="badge badge--cancelled" title="Photo refusée par l'organisateur"><mat-icon>no_photography</mat-icon>photo refusée</span>
+                  }
+                }
                 <span class="spacer"></span>
                 <span class="small muted">{{ v.at | date: 'HH:mm' }}</span>
               </div>
@@ -254,3 +309,6 @@
     }
   }
 }
+
+<!-- Appareil photo du téléphone (capture), ou galerie sur ordinateur. -->
+<input #camera type="file" accept="image/*" capture="environment" hidden (change)="sendPhoto($event)" />

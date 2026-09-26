@@ -131,6 +131,7 @@ export function toStep(r: Row): Step {
     latitude: r['cod_latitude'],
     longitude: r['cod_longitude'],
     address: r['cod_address'],
+    referencePhoto: !!r['cod_refphoto'],
   };
 }
 
