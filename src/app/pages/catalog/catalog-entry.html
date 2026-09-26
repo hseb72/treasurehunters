@@ -1,0 +1,122 @@
+<div class="page stack">
+  @if (entry.error()) {
+    <section class="parchment center">
+      <h2>Chasse introuvable</h2>
+      <p class="muted">Elle n'est pas (ou plus) au catalogue.</p>
+      <a mat-stroked-button routerLink="/catalog">Retour au catalogue</a>
+    </section>
+  }
+
+  @if (entry.value(); as e) {
+    <header class="poster leather">
+      @if (e.withdrawn) {
+        <span class="badge badge--cancelled">retirée du catalogue</span>
+      }
+      <h1 class="display">{{ e.title }}</h1>
+      <div class="facts">
+        <span><mat-icon>location_on</mat-icon>{{ e.location }}</span>
+        <span><mat-icon>person_pin</mat-icon><a [routerLink]="['/organizers', e.authorId]">{{ e.authorNickname }}</a></span>
+        <span><mat-icon>event</mat-icon>publiée le {{ e.published | date: 'd MMMM y' }}</span>
+      </div>
+      <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
+    </header>
+
+    <section class="parchment action">
+      @if (isAuthor()) {
+        <p class="small muted">Vous êtes l'auteur de cette version.</p>
+        <div class="row actions">
+          @if (e.huntId) {
+            <a mat-stroked-button [routerLink]="['/organize', e.huntId, 'catalog']"><mat-icon>map</mat-icon>Ma chasse</a>
+          }
+          @if (!e.withdrawn) {
+            <button mat-button type="button" class="danger" (click)="withdraw()"><mat-icon>unpublished</mat-icon>Retirer du catalogue</button>
+          }
+        </div>
+      } @else if (!e.withdrawn) {
+        <button mat-flat-button class="th-cta" type="button" (click)="copy()" [disabled]="busy()">
+          <mat-icon>content_copy</mat-icon>Créer ma chasse à partir de celle-ci
+        </button>
+        <p class="small muted">
+          Vous obtenez un brouillon : parcours, énigmes, jokers et pénalités. Modifiez tout ce que vous voulez, posez vos propres QR codes,
+          et publiez à votre tour votre version si vous changez le parcours.
+        </p>
+      }
+    </section>
+
+    <section class="parchment">
+      <h2 class="section-title">La chasse</h2>
+      <p class="description">{{ e.summary }}</p>
+      <ul class="facts-list">
+        <li><mat-icon>route</mat-icon>{{ e.stepCount }} étapes, arrivée comprise</li>
+        <li>
+          <mat-icon>schedule</mat-icon>Environ {{ e.durationMinutes }} min annoncées
+          @if (e.measuredMinutes !== null) {
+            · {{ e.measuredMinutes }} min en moyenne pour les équipes arrivées
+          }
+        </li>
+        <li><mat-icon>signpost</mat-icon>{{ difficulty[e.difficulty] }}</li>
+        <li>
+          <mat-icon>{{ e.validation === 'geo' ? 'where_to_vote' : 'qr_code_2' }}</mat-icon>
+          {{ e.validation === 'geo' ? 'Validation par géolocalisation, sans QR code' : 'QR codes à poser sur les lieux' }}
+        </li>
+        <li><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }} jouée{{ e.plays > 1 ? 's' : '' }}</li>
+      </ul>
+    </section>
+
+    <section class="parchment">
+      <h2 class="section-title">Extrait</h2>
+      <p class="small muted">{{ e.sample.order === 0 ? 'La première énigme' : 'L’énigme de l’étape ' + e.sample.order }}, telle que la lisent les joueurs :</p>
+      <p class="note sample">{{ e.sample.text }}</p>
+    </section>
+
+    <section class="parchment">
+      <h2 class="section-title">L'avis des joueurs</h2>
+      @if (e.rating.count) {
+        <div class="criteria">
+          @for (c of criteria(); track c.label) {
+            <div class="criterion">
+              <span>{{ c.label }}</span>
+              <th-stars [value]="c.value" />
+            </div>
+          }
+        </div>
+        @for (r of e.reviews; track $index) {
+          <blockquote class="review">
+            <th-stars [value]="r.stars" />
+            <p>{{ r.comment }}</p>
+            <footer class="small muted">{{ r.nickname }}, {{ r.at | date: 'd MMMM y' }}</footer>
+          </blockquote>
+        }
+      } @else {
+        <p class="muted">Pas encore d'avis : les joueurs notent la chasse une fois la partie close.</p>
+      }
+    </section>
+
+    @if (e.parent || e.versions.length) {
+      <section class="parchment">
+        <h2 class="section-title">Versions</h2>
+        @if (e.parent; as p) {
+          <p>
+            <mat-icon inline>call_split</mat-icon> Version de <a [routerLink]="['/catalog', p.id]">« {{ p.title }} »</a> par {{ p.authorNickname }}.
+            @if (e.changes) {
+              <br /><span class="small muted">Ce qui change : {{ e.changes }}</span>
+            }
+          </p>
+        }
+        @if (e.versions.length) {
+          <p class="small muted">Versions publiées à partir de celle-ci :</p>
+          <ul class="versions">
+            @for (v of e.versions; track v.id) {
+              <li>
+                <a [routerLink]="['/catalog', v.id]">{{ v.title }}</a> par {{ v.authorNickname }}, {{ v.published | date: 'd MMM y' }}
+                @if (v.withdrawn) {
+                  <span class="badge badge--cancelled">retirée</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+</div>

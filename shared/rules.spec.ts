@@ -12,7 +12,7 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
   return {
     id: 1, ownerId: 99, ownerNickname: 'orga', name: 'H', description: '', location: '', begin: at(0), end: at(240),
     started: at(0), closed: null, autoStart: false, autoClose: false, award: null, startMode: 'mass', interval: null,
-    hintPenalties: [0, 0, 0], skipPenalty: 30, validation: 'qr', geoRadius: 40, generated: false, surprise: false, hostId: null, hostNickname: null, selfPaced: true, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
+    hintPenalties: [0, 0, 0], skipPenalty: 30, validation: 'qr', geoRadius: 40, generated: false, surprise: false, hostId: null, hostNickname: null, selfPaced: true, catalogId: null, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
     startText: null, status: 'running', stepCount: 3, teamCount: 0, ...extra,
   };
 }

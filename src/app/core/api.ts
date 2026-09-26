@@ -1,6 +1,9 @@
 import { Observable } from 'rxjs';
 import {
   AuthResult,
+  CatalogDetail,
+  CatalogEntry,
+  CatalogPublication,
   CheckinResult,
   Features,
   GenerationJob,
@@ -8,10 +11,13 @@ import {
   Hunt,
   Hunter,
   LiveRow,
+  OrganizerProfile,
   PhotoAttempt,
   PhotoResult,
   PlayState,
   RankingRow,
+  Rating,
+  RatingState,
   ScanResult,
   Step,
   Team,
@@ -22,6 +28,13 @@ export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
 
 export class ApiError extends Error {}
 
+export interface CatalogQuery {
+  q?: string;
+  sort?: 'rating' | 'recent' | 'plays';
+  mine?: boolean;
+  hunt?: number;
+}
+
 /**
  * Contrat entre le front et le back-end (docs/conception.md § 7).
  * Implémenté par MockHuntApi pour les maquettes, puis par un client HTTP.
@@ -30,7 +43,7 @@ export abstract class HuntApi {
   abstract login(email: string, password: string): Observable<AuthResult>;
   abstract register(nickname: string, email: string, password: string): Observable<AuthResult>;
   abstract logout(): Observable<void>;
-  abstract updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email'>>): Observable<Hunter>;
+  abstract updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email' | 'rateable'>>): Observable<Hunter>;
 
   abstract listHunts(scope: HuntScope): Observable<Hunt[]>;
   abstract getHunt(id: number): Observable<Hunt>;
@@ -83,6 +96,20 @@ export abstract class HuntApi {
   abstract referenceImage(stepId: number): Observable<Blob>;
   /** Photo de référence d'une étape ; null la retire. */
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
+
+  /* Catalogue (§ 13) */
+  /** mine : mes publications ; hunt : celles d'une de mes chasses (retirées comprises). */
+  abstract listCatalog(opts?: CatalogQuery): Observable<CatalogEntry[]>;
+  abstract getCatalogEntry(id: number): Observable<CatalogDetail>;
+  /** Crée un brouillon à partir d'une version du catalogue. */
+  abstract copyFromCatalog(id: number): Observable<Hunt>;
+  abstract withdrawFromCatalog(id: number): Observable<CatalogDetail>;
+  abstract publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail>;
+
+  /* Notations (§ 14) */
+  abstract getRating(huntId: number): Observable<RatingState>;
+  abstract rateHunt(huntId: number, rating: Rating): Observable<RatingState>;
+  abstract getOrganizer(id: number): Observable<OrganizerProfile>;
 
   abstract getResults(huntId: number): Observable<RankingRow[]>;
   abstract getLive(huntId: number): Observable<LiveRow[]>;

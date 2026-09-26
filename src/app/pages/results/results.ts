@@ -10,10 +10,11 @@ import { Session } from '../../core/session';
 import { DurationPipe } from '../../shared/format';
 import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
 import { Podium } from '../../shared/podium';
+import { RatingForm } from '../../shared/rating-form';
 
 @Component({
   selector: 'th-results',
-  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium],
+  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium, RatingForm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './results.html',
   styleUrl: './results.scss',

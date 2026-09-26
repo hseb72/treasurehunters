@@ -1,0 +1,71 @@
+@if (hunt(); as h) {
+  <div class="stack">
+    @if (origin.value(); as o) {
+      <section class="parchment origin">
+        <mat-icon>call_split</mat-icon>
+        <p>
+          Cette chasse est une copie de <a [routerLink]="['/catalog', o.id]">« {{ o.title }} »</a> par {{ o.authorNickname }}. Si vous
+          changez le parcours, vous pourrez publier votre version, rattachée à l'originale.
+        </p>
+      </section>
+    }
+
+    @if (published.value().length) {
+      <section>
+        <h2 class="section-title">Publiée au catalogue</h2>
+        <div class="grid">
+          @for (e of published.value(); track e.id) {
+            <th-catalog-card [entry]="e" />
+          }
+        </div>
+      </section>
+    }
+
+    <form class="parchment stack publish" [formGroup]="form" (ngSubmit)="publish()">
+      <h2 class="section-title">{{ isVersion() ? 'Publier une nouvelle version' : 'Publier au catalogue' }}</h2>
+      <p class="small muted">
+        Le catalogue reçoit un instantané de la chasse : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,
+        ce qui est publié ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
+        une fois copié. Dates, équipes et QR codes restent les vôtres.
+      </p>
+      <mat-form-field>
+        <mat-label>Présentation dans le catalogue</mat-label>
+        <textarea matInput formControlName="summary" rows="3"></textarea>
+      </mat-form-field>
+      <div class="two">
+        <mat-form-field>
+          <mat-label>Difficulté</mat-label>
+          <mat-select formControlName="difficulty">
+            @for (d of difficulties; track d[0]) {
+              <mat-option [value]="d[0]">{{ d[1] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Durée (minutes)</mat-label>
+          <input matInput type="number" formControlName="durationMinutes" min="10" max="1440" />
+        </mat-form-field>
+      </div>
+      <mat-form-field>
+        <mat-label>Énigme en extrait</mat-label>
+        <mat-select formControlName="sampleOrder">
+          @for (s of riddles(); track s.id) {
+            <mat-option [value]="s.order">{{ s.order === 0 ? 'Première énigme (départ)' : 'Énigme de l’étape ' + s.order + ' : ' + s.title }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Pour juger de la rédaction : les autres énigmes restent cachées.</mat-hint>
+      </mat-form-field>
+      @if (isVersion()) {
+        <mat-form-field>
+          <mat-label>Ce qui change par rapport à la version précédente</mat-label>
+          <textarea matInput formControlName="changes" rows="2" placeholder="Ex. : une étape en plus au jardin, jokers réécrits"></textarea>
+        </mat-form-field>
+      }
+      <div class="row">
+        <span class="small muted">{{ h.name }} · {{ steps.value().length ? steps.value().length - 1 : 0 }} étapes</span>
+        <span class="spacer"></span>
+        <button mat-flat-button class="th-cta" type="submit" [disabled]="form.invalid || busy()"><mat-icon>public</mat-icon>Publier</button>
+      </div>
+    </form>
+  </div>
+}

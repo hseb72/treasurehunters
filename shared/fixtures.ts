@@ -37,10 +37,10 @@ export function buildFixtures(now = Date.now()): MockDb {
   };
 
   const hunters: MockDb['hunters'] = [
-    { id: 1, nickname: 'seb', email: 'seb@example.com', password: 'demo' },
-    { id: 2, nickname: 'Camille', email: 'camille@example.com', password: 'demo' },
+    { id: 1, nickname: 'seb', email: 'seb@example.com', password: 'demo', rateable: false },
+    { id: 2, nickname: 'Camille', email: 'camille@example.com', password: 'demo', rateable: true },
     ...['Léa', 'Hugo', 'Inès', 'Tom', 'Jade', 'Noah', 'Zoé', 'Enzo', 'Manon', 'Lucas', 'Chloé', 'Nathan', 'Emma', 'Louis'].map(
-      (nickname, i) => ({ id: i + 3, nickname, email: `${ascii(nickname)}@example.com`, password: 'demo' }),
+      (nickname, i) => ({ id: i + 3, nickname, email: `${ascii(nickname)}@example.com`, password: 'demo', rateable: false }),
     ),
   ];
   const nick = (id: number) => hunters.find((h) => h.id === id)!.nickname;
@@ -59,6 +59,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     surprise: false,
     hostId: null,
     selfPaced: true,
+    catalogId: null,
     teamGame: true,
     teamMin: 1,
     teamMax: 4,
