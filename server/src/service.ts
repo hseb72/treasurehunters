@@ -2,6 +2,7 @@
  * Logique métier de l'API (docs/conception.md § 3 à § 5). Les règles du jeu viennent de shared/rules.ts,
  * les mêmes que celles utilisées par les maquettes.
  */
+import { createHash } from 'node:crypto';
 import pg from 'pg';
 import {
   AuthResult,
@@ -18,6 +19,12 @@ import {
   ScanResult,
   Step,
   Team,
+  CatalogDetail,
+  CatalogEntry,
+  CatalogPublication,
+  OrganizerProfile,
+  Rating,
+  RatingState,
   Features,
   PhotoAttempt,
   PhotoResult,
@@ -155,15 +162,16 @@ export class Service {
     return me;
   }
 
-  async updateMe(viewer: Viewer, data: { nickname?: string; email?: string }) {
+  async updateMe(viewer: Viewer, data: { nickname?: string; email?: string; rateable?: boolean }) {
     const me = requireUser(viewer);
     if (data.email) checkEmail(data.email);
     try {
       const r = await one(
         this.pool,
-        `UPDATE th_hunters SET htr_nickname = coalesce($2, htr_nickname), htr_email = coalesce($3, htr_email), htr_lastupdate = now()
+        `UPDATE th_hunters SET htr_nickname = coalesce($2, htr_nickname), htr_email = coalesce($3, htr_email),
+                htr_rateable = coalesce($4, htr_rateable), htr_lastupdate = now()
          WHERE htr_id = $1 RETURNING *`,
-        [me, data.nickname?.trim() ?? null, data.email?.trim() ?? null],
+        [me, data.nickname?.trim() ?? null, data.email?.trim() ?? null, data.rateable ?? null],
       );
       return toHunter(r!);
     } catch (e) {
@@ -1082,6 +1090,236 @@ export class Service {
     }));
   }
 
+  /* ================================================================ Catalogue (§ 13) */
+
+  /**
+   * Publie une version de la chasse au catalogue : instantané des réglages et des étapes.
+   * Une copie (ou une republication) doit avoir changé le parcours par rapport à la version
+   * dont elle vient.
+   */
+  async publishToCatalog(viewer: Viewer, huntId: number, pub: CatalogPublication): Promise<CatalogDetail> {
+    const me = requireUser(viewer);
+    const id = await tx(this.pool, async (db) => {
+      const hunt = await this.ownedHunt(db, me, huntId, true);
+      if (hunt.status === 'cancelled') throw conflict('Une chasse annulée ne se publie pas.');
+      const steps = await stepsOf(db, huntId);
+      const final = finalOrder(steps);
+      if (final < 2) throw badRequest('Il faut au moins une étape entre le départ et l’arrivée pour publier.');
+      const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
+      if (missing) throw badRequest(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
+      const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
+      if (!sample) throw badRequest('Choisissez comme extrait une énigme du parcours.');
+
+      const content = catalogContent(hunt, steps);
+      const fingerprint = contentFingerprint(content);
+      // Version précédente : la dernière publication de cette chasse, sinon la version copiée.
+      const previous = await one(db, 'SELECT cat_id FROM th_catalog WHERE cat_hunt_hun = $1 ORDER BY cat_id DESC LIMIT 1', [huntId]);
+      const parentId: number | null = previous?.['cat_id'] ?? hunt.catalogId;
+      if (parentId) {
+        const parent = (await one(db, 'SELECT cat_title, cat_fingerprint FROM th_catalog WHERE cat_id = $1', [parentId]))!;
+        if (parent['cat_fingerprint'] === fingerprint) {
+          throw conflict(
+            `Le parcours n’a pas changé depuis « ${parent['cat_title']} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de publier une nouvelle version.`,
+          );
+        }
+      }
+      const r = await one(
+        db,
+        `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
+                                 cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING cat_id`,
+        [
+          me,
+          huntId,
+          parentId,
+          hunt.name,
+          pub.summary.trim() || hunt.description,
+          hunt.location,
+          pub.difficulty,
+          pub.durationMinutes,
+          final,
+          hunt.validation,
+          sample.order,
+          sample.instructions,
+          parentId ? pub.changes?.trim() || null : null,
+          JSON.stringify(content),
+          fingerprint,
+        ],
+      );
+      return r!['cat_id'] as number;
+    });
+    return this.catalogEntry(me, id);
+  }
+
+  /** Catalogue public : versions non retirées, les mieux notées d'abord (ou les plus récentes, les plus jouées). */
+  listCatalog(viewer: Viewer, opts: { q?: string; sort?: 'rating' | 'recent' | 'plays'; mine?: boolean; hunt?: number }): Promise<CatalogEntry[]> {
+    const params: unknown[] = [];
+    const where: string[] = [];
+    if (opts.mine || opts.hunt) {
+      params.push(requireUser(viewer));
+      where.push(`c.cat_author_htr = $${params.length}`);
+      if (opts.hunt) {
+        params.push(opts.hunt);
+        where.push(`c.cat_hunt_hun = $${params.length}`);
+      }
+    } else {
+      where.push('c.cat_withdrawn IS NULL');
+    }
+    if (opts.q?.trim()) {
+      params.push(`%${opts.q.trim().replace(/[%_\\]/g, '\\$&')}%`);
+      where.push(`(c.cat_title ILIKE $${params.length} OR c.cat_location ILIKE $${params.length} OR c.cat_summary ILIKE $${params.length})`);
+    }
+    const order = {
+      rating: 'ra.stars DESC NULLS LAST, coalesce(ra.n, 0) DESC, c.cat_id DESC',
+      recent: 'c.cat_id DESC',
+      plays: 'coalesce(pl.plays, 0) DESC, c.cat_id DESC',
+    }[opts.sort ?? 'rating'];
+    return catalogEntries(this.pool, where.join(' AND '), params, order);
+  }
+
+  async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
+    const [entry] = await catalogEntries(this.pool, 'c.cat_id = $1', [id]);
+    const r = await one(this.pool, 'SELECT cat_sample_order, cat_sample, cat_hunt_hun FROM th_catalog WHERE cat_id = $1', [id]);
+    if (!entry || !r || (entry.withdrawn && entry.authorId !== viewer)) throw notFound('Cette chasse n’est pas au catalogue.');
+    const reviews = await rows(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT u.htr_nickname, r.rat_stars, r.rat_comment, r.rat_creation
+       FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id JOIN th_hunters u ON u.htr_id = r.rat_hunter_htr
+       WHERE eh.cat_id = $1 AND r.rat_comment IS NOT NULL ORDER BY r.rat_id DESC LIMIT 20`,
+      [id],
+    );
+    const versions = await rows(
+      this.pool,
+      `SELECT c.cat_id, c.cat_title, u.htr_nickname, c.cat_creation, c.cat_withdrawn FROM th_catalog c JOIN th_hunters u ON u.htr_id = c.cat_author_htr
+       WHERE c.cat_parent_cat = $1 AND (c.cat_withdrawn IS NULL OR c.cat_author_htr = $2) ORDER BY c.cat_id`,
+      [id, viewer],
+    );
+    return {
+      ...entry,
+      sample: { order: r['cat_sample_order'], text: r['cat_sample'] },
+      reviews: reviews.map((x) => ({ nickname: x['htr_nickname'], stars: x['rat_stars'], comment: x['rat_comment'], at: (x['rat_creation'] as Date).toISOString() })),
+      versions: versions.map((x) => ({
+        id: x['cat_id'],
+        title: x['cat_title'],
+        authorNickname: x['htr_nickname'],
+        published: (x['cat_creation'] as Date).toISOString(),
+        withdrawn: !!x['cat_withdrawn'],
+      })),
+      huntId: entry.authorId === viewer ? r['cat_hunt_hun'] : null,
+    };
+  }
+
+  /** Crée un brouillon à partir d'une version du catalogue : l'organisateur l'adapte ensuite librement. */
+  async copyFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const r = await one(db, 'SELECT cat_content, cat_withdrawn FROM th_catalog WHERE cat_id = $1', [id]);
+      if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
+      const content = r['cat_content'] as CatalogContent;
+      const begin = new Date(Date.now() + 7 * 86_400_000);
+      const data: Partial<Hunt> = {
+        ...content.hunt,
+        begin: begin.toISOString(),
+        end: new Date(begin.getTime() + 3 * 3_600_000).toISOString(),
+        isPublic: false,
+      };
+      const assignments = huntAssignments(data);
+      const cols = ['hun_owner_htr', 'hun_joincode', 'hun_catalog_cat', ...assignments.map(([c]) => c)];
+      const values = [me, joinCode(), id, ...assignments.map(([, v]) => v)];
+      const h = await one(db, `INSERT INTO th_hunts (${cols.join(', ')}) VALUES (${cols.map((_, i) => `$${i + 1}`).join(', ')}) RETURNING hun_id`, values);
+      const huntId = h!['hun_id'] as number;
+      for (const s of content.steps) {
+        await db.query(
+          `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
+                                 cod_latitude, cod_longitude, cod_address)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [
+            huntId,
+            s.order,
+            s.order === 0 ? null : randomToken(), // de nouveaux QR : ceux de l'auteur restent les siens
+            s.title,
+            s.arrival,
+            s.instructions,
+            s.hints[0] ?? null,
+            s.hints[1] ?? null,
+            s.hints[2] ?? null,
+            s.latitude,
+            s.longitude,
+            s.address,
+          ],
+        );
+      }
+      return (await huntById(db, huntId))!;
+    });
+  }
+
+  /** L'auteur retire une version : elle disparaît du catalogue, les copies déjà faites restent. */
+  async withdrawFromCatalog(viewer: Viewer, id: number): Promise<CatalogDetail> {
+    const me = requireUser(viewer);
+    const r = await one(this.pool, 'SELECT cat_author_htr FROM th_catalog WHERE cat_id = $1', [id]);
+    if (!r) throw notFound('Cette chasse n’est pas au catalogue.');
+    if (r['cat_author_htr'] !== me) throw forbidden('Seul l’auteur retire sa chasse du catalogue.');
+    await this.pool.query('UPDATE th_catalog SET cat_withdrawn = coalesce(cat_withdrawn, now()), cat_lastupdate = now() WHERE cat_id = $1', [id]);
+    return this.catalogEntry(me, id);
+  }
+
+  /* ================================================================ Notations (§ 14) */
+
+  /** Un joueur inscrit note la chasse après sa clôture ; l'organisateur n'est noté que s'il l'accepte. */
+  async ratingState(viewer: Viewer, huntId: number): Promise<RatingState> {
+    const hunt = await this.visibleHunt(this.pool, viewer, huntId);
+    const owner = (await one(this.pool, 'SELECT htr_nickname, htr_rateable FROM th_hunters WHERE htr_id = $1', [hunt.ownerId]))!;
+    const member = viewer !== null && !!(await teamOf(this.pool, huntId, viewer));
+    const mine = viewer === null ? null : await one(this.pool, 'SELECT * FROM th_ratings WHERE rat_hunt_hun = $1 AND rat_hunter_htr = $2', [huntId, viewer]);
+    return {
+      canRate: member && hunt.ownerId !== viewer && ['closed', 'archived'].includes(hunt.status),
+      organizerRateable: owner['htr_rateable'],
+      organizerNickname: owner['htr_nickname'],
+      mine: mine ? toRating(mine) : null,
+    };
+  }
+
+  async rateHunt(viewer: Viewer, huntId: number, rating: Rating): Promise<RatingState> {
+    const me = requireUser(viewer);
+    const state = await this.ratingState(me, huntId);
+    if (!state.canRate) throw forbidden('Seuls les joueurs de cette chasse la notent, une fois close.');
+    await this.pool.query(
+      `INSERT INTO th_ratings (rat_hunt_hun, rat_hunter_htr, rat_stars, rat_riddles, rat_route, rat_mood, rat_comment, rat_organizer)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (rat_hunt_hun, rat_hunter_htr) DO UPDATE SET rat_stars = $3, rat_riddles = $4, rat_route = $5, rat_mood = $6,
+         rat_comment = $7, rat_organizer = $8, rat_lastupdate = now()`,
+      [
+        huntId,
+        me,
+        rating.stars,
+        rating.riddles,
+        rating.route,
+        rating.mood,
+        rating.comment?.trim() || null,
+        state.organizerRateable ? rating.organizer : null,
+      ],
+    );
+    return this.ratingState(me, huntId);
+  }
+
+  /** Fiche publique d'un organisateur : ses chasses au catalogue et, s'il l'accepte, sa note. */
+  async organizerProfile(viewer: Viewer, id: number): Promise<OrganizerProfile> {
+    const h = await hunterById(this.pool, id);
+    if (!h || h.email === SYSTEM_EMAIL) throw notFound('Organisateur introuvable.');
+    let rating: OrganizerProfile['rating'] = null;
+    if (h.rateable) {
+      const r = (await one(
+        this.pool,
+        `SELECT count(r.rat_organizer)::int AS n, avg(r.rat_organizer) AS stars FROM th_ratings r JOIN th_hunts x ON x.hun_id = r.rat_hunt_hun
+         WHERE x.hun_owner_htr = $1`,
+        [id],
+      ))!;
+      rating = { count: r['n'], stars: r['stars'] === null ? null : Math.round(Number(r['stars']) * 10) / 10 };
+    }
+    const entries = await catalogEntries(this.pool, 'c.cat_author_htr = $1 AND c.cat_withdrawn IS NULL', [id]);
+    return { id: h.id, nickname: h.nickname, rateable: h.rateable, rating, entries };
+  }
+
   /* ================================================================ Génération (§ 11) */
 
   /** Lance l'invention d'une chasse en tâche de fond ; le front suit la génération. */
@@ -1327,3 +1565,146 @@ function decodeImage(image: string): StoredPhoto {
 }
 
 const MAX_PHOTO_BYTES = 6 * 1024 * 1024;
+
+/* ---------------------------------------------------------------- Catalogue (§ 13) */
+
+/** Instantané publié : de quoi recréer la chasse (sans dates, équipes ni QR). */
+interface CatalogContent {
+  hunt: Pick<
+    Hunt,
+    | 'name'
+    | 'description'
+    | 'location'
+    | 'award'
+    | 'startText'
+    | 'startMode'
+    | 'interval'
+    | 'hintPenalties'
+    | 'skipPenalty'
+    | 'teamGame'
+    | 'teamMin'
+    | 'teamMax'
+    | 'validation'
+    | 'geoRadius'
+    | 'contribution'
+  >;
+  steps: Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'>[];
+}
+
+function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
+  return {
+    hunt: {
+      name: h.name,
+      description: h.description,
+      location: h.location,
+      award: h.award,
+      startText: h.startText,
+      startMode: h.startMode,
+      interval: h.interval,
+      hintPenalties: h.hintPenalties,
+      skipPenalty: h.skipPenalty,
+      teamGame: h.teamGame,
+      teamMin: h.teamMin,
+      teamMax: h.teamMax,
+      validation: h.validation,
+      geoRadius: h.geoRadius,
+      contribution: Number(h.contribution),
+    },
+    steps: steps.map((s) => ({
+      order: s.order,
+      title: s.title,
+      arrival: s.arrival,
+      instructions: s.instructions,
+      hints: s.hints,
+      latitude: s.latitude === null ? null : Number(s.latitude),
+      longitude: s.longitude === null ? null : Number(s.longitude),
+      address: s.address,
+    })),
+  };
+}
+
+/** Empreinte du parcours et des règles de jeu (pas des textes de présentation ni du lot). */
+function contentFingerprint(c: CatalogContent): string {
+  const rules = { penalties: c.hunt.hintPenalties, skip: c.hunt.skipPenalty, validation: c.hunt.validation, radius: c.hunt.geoRadius };
+  return createHash('sha256').update(JSON.stringify({ rules, steps: c.steps })).digest('hex');
+}
+
+/**
+ * Parties qui comptent pour une version : la chasse qui l'a publiée, et les copies de la
+ * version qui n'ont rien publié elles-mêmes (une copie modifiée et republiée compte pour
+ * sa propre version).
+ */
+const ENTRY_HUNTS = `
+  WITH eh AS (
+    SELECT c.cat_id, c.cat_hunt_hun AS hun_id FROM th_catalog c WHERE c.cat_hunt_hun IS NOT NULL
+    UNION
+    SELECT h.hun_catalog_cat, h.hun_id FROM th_hunts h
+    WHERE h.hun_catalog_cat IS NOT NULL AND NOT EXISTS (SELECT 1 FROM th_catalog x WHERE x.cat_hunt_hun = h.hun_id)
+  )`;
+
+async function catalogEntries(db: Db, where: string, params: unknown[], order = 'c.cat_id DESC'): Promise<CatalogEntry[]> {
+  const list = await rows(
+    db,
+    `${ENTRY_HUNTS},
+     pl AS (
+       SELECT eh.cat_id,
+              count(DISTINCT h.hun_id) FILTER (WHERE h.hun_status_hst IN (${STATUS_IDS.closed}, ${STATUS_IDS.archived})) AS plays,
+              avg(extract(epoch FROM t.tea_finished - t.tea_started) / 60) AS measured
+       FROM eh JOIN th_hunts h ON h.hun_id = eh.hun_id
+       LEFT JOIN th_teams t ON t.tea_hunt_hun = h.hun_id AND t.tea_finished IS NOT NULL AND t.tea_started IS NOT NULL
+       GROUP BY eh.cat_id
+     ),
+     ra AS (
+       SELECT eh.cat_id, count(*) AS n, avg(r.rat_stars) AS stars, avg(r.rat_riddles) AS riddles, avg(r.rat_route) AS route, avg(r.rat_mood) AS mood
+       FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
+     )
+     SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
+            c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
+            p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
+            (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
+            coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
+     FROM th_catalog c
+     JOIN th_hunters a ON a.htr_id = c.cat_author_htr
+     LEFT JOIN th_catalog p ON p.cat_id = c.cat_parent_cat
+     LEFT JOIN th_hunters pa ON pa.htr_id = p.cat_author_htr
+     LEFT JOIN pl ON pl.cat_id = c.cat_id
+     LEFT JOIN ra ON ra.cat_id = c.cat_id
+     WHERE ${where}
+     ORDER BY ${order}
+     LIMIT 200`,
+    params,
+  );
+  const avg = (v: unknown) => (v === null || v === undefined ? null : Math.round(Number(v) * 10) / 10);
+  return list.map((r) => ({
+    id: r['cat_id'],
+    authorId: r['cat_author_htr'],
+    authorNickname: r['author_nickname'],
+    title: r['cat_title'],
+    summary: r['cat_summary'],
+    location: r['cat_location'],
+    difficulty: r['cat_difficulty'],
+    durationMinutes: r['cat_duration'],
+    measuredMinutes: r['measured'] === null ? null : Math.round(Number(r['measured'])),
+    stepCount: r['cat_stepcount'],
+    validation: r['cat_validation'],
+    plays: r['plays'],
+    rating: { count: r['rating_count'], stars: avg(r['stars']), riddles: avg(r['riddles']), route: avg(r['route']), mood: avg(r['mood']) },
+    parent: r['parent_id'] ? { id: r['parent_id'], title: r['parent_title'], authorNickname: r['parent_author'] } : null,
+    versionCount: r['version_count'],
+    changes: r['cat_changes'],
+    published: (r['cat_creation'] as Date).toISOString(),
+    withdrawn: !!r['cat_withdrawn'],
+  }));
+}
+
+function toRating(r: Row): Rating {
+  return {
+    stars: r['rat_stars'],
+    riddles: r['rat_riddles'],
+    route: r['rat_route'],
+    mood: r['rat_mood'],
+    comment: r['rat_comment'],
+    organizer: r['rat_organizer'],
+  };
+}
+

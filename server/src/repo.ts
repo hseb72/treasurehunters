@@ -18,7 +18,7 @@ const iso = (d: Date | null | undefined): string | null => (d ? d.toISOString() 
 /* ---------------------------------------------------------------- Joueurs */
 
 export function toHunter(r: Row): Hunter {
-  return { id: r['htr_id'], nickname: r['htr_nickname'], email: r['htr_email'] };
+  return { id: r['htr_id'], nickname: r['htr_nickname'], email: r['htr_email'], rateable: r['htr_rateable'] };
 }
 
 export async function hunterById(db: Db, id: number): Promise<Hunter | null> {
@@ -71,6 +71,7 @@ export function toHunt(r: Row): Hunt {
     hostId: r['hun_host_htr'],
     hostNickname: r['host_nickname'],
     selfPaced: r['hun_selfpaced'],
+    catalogId: r['hun_catalog_cat'],
     status: r['hst_code'],
     stepCount: r['step_count'],
     teamCount: r['team_count'],

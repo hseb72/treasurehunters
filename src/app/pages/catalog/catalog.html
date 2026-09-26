@@ -1,0 +1,41 @@
+<div class="page stack">
+  <header class="leather head">
+    <h1 class="display">Le catalogue des chasses</h1>
+    <p class="small">
+      Des parcours rédigés et testés par d'autres organisateurs. Choisissez-en un, adaptez-le à votre façon (étapes, énigmes, jokers,
+      pénalités, trésor), puis organisez-le avec vos joueurs.
+    </p>
+  </header>
+
+  <div class="filters">
+    <mat-form-field subscriptSizing="dynamic" class="search">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Ville, lieu ou mot-clé</mat-label>
+      <input matInput name="q" [ngModel]="query()" (ngModelChange)="query.set($event)" autocomplete="off" />
+    </mat-form-field>
+    <mat-button-toggle-group [value]="sort()" (change)="sort.set($event.value)" hideSingleSelectionIndicator aria-label="Trier">
+      <mat-button-toggle value="rating">Mieux notées</mat-button-toggle>
+      <mat-button-toggle value="plays">Plus jouées</mat-button-toggle>
+      <mat-button-toggle value="recent">Récentes</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (entries.value().length) {
+    <div class="grid">
+      @for (e of entries.value(); track e.id) {
+        <th-catalog-card [entry]="e" />
+      }
+    </div>
+  } @else if (!entries.isLoading()) {
+    <section class="parchment center">
+      <mat-icon>travel_explore</mat-icon>
+      <p class="muted">
+        @if (query()) {
+          Aucune chasse ne correspond à « {{ query() }} ».
+        } @else {
+          Le catalogue est encore vide : publiez la première chasse depuis votre espace organisateur !
+        }
+      </p>
+    </section>
+  }
+</div>

@@ -15,6 +15,8 @@ export interface Hunter {
   id: number;
   nickname: string;
   email: string;
+  /** Accepte d'être noté en tant qu'organisateur (§ 14). */
+  rateable: boolean;
 }
 
 export interface Hunt {
@@ -56,6 +58,8 @@ export interface Hunt {
    * l'hôte lance la course pour toutes les équipes à la fois (false).
    */
   selfPaced: boolean;
+  /** Entrée du catalogue dont la chasse est une copie (§ 13). */
+  catalogId: number | null;
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -300,3 +304,95 @@ export interface LiveRow {
   /** Photos qui ont validé une étape et attendent le contrôle de l'organisateur. */
   photosToReview: number;
 }
+
+/* ---------- Catalogue (§ 13) et notations (§ 14) ---------- */
+
+/** Moyennes des avis des joueurs (sur 5), null s'il n'y en a pas. */
+export interface RatingSummary {
+  count: number;
+  stars: number | null;
+  riddles: number | null;
+  route: number | null;
+  mood: number | null;
+}
+
+/** Une version publiée au catalogue, telle que la liste la présente. */
+export interface CatalogEntry {
+  id: number;
+  authorId: number;
+  authorNickname: string;
+  title: string;
+  summary: string;
+  location: string;
+  difficulty: Difficulty;
+  /** Durée annoncée par l'auteur, en minutes. */
+  durationMinutes: number;
+  /** Durée moyenne constatée des équipes arrivées, en minutes (null sans partie). */
+  measuredMinutes: number | null;
+  stepCount: number;
+  validation: ValidationMode;
+  /** Parties jouées et closes (chasse d'origine et copies de cette version). */
+  plays: number;
+  rating: RatingSummary;
+  parent: { id: number; title: string; authorNickname: string } | null;
+  /** Versions publiées à partir de celle-ci. */
+  versionCount: number;
+  changes: string | null;
+  published: string;
+  withdrawn: boolean;
+}
+
+export interface CatalogReview {
+  nickname: string;
+  stars: number;
+  comment: string;
+  at: string;
+}
+
+/** Fiche d'une version : la liste, plus l'extrait, les avis et les versions dérivées. */
+export interface CatalogDetail extends CatalogEntry {
+  sample: { order: number; text: string };
+  reviews: CatalogReview[];
+  versions: { id: number; title: string; authorNickname: string; published: string; withdrawn: boolean }[];
+  /** Chasse d'où vient la publication, si le lecteur en est l'auteur. */
+  huntId: number | null;
+}
+
+export interface CatalogPublication {
+  summary: string;
+  difficulty: Difficulty;
+  durationMinutes: number;
+  /** Étape dont l'énigme sert d'extrait (0 = énigme de départ). */
+  sampleOrder: number;
+  changes: string | null;
+}
+
+/** Avis d'un joueur sur une chasse jouée, après sa clôture. */
+export interface Rating {
+  stars: number;
+  riddles: number;
+  route: number;
+  mood: number;
+  comment: string | null;
+  /** Note de l'organisateur, s'il accepte d'être noté. */
+  organizer: number | null;
+}
+
+/** Ce qu'un joueur peut noter pour une chasse, et son avis s'il l'a déjà donné. */
+export interface RatingState {
+  canRate: boolean;
+  /** L'organisateur accepte d'être noté. */
+  organizerRateable: boolean;
+  organizerNickname: string;
+  mine: Rating | null;
+}
+
+export interface OrganizerProfile {
+  id: number;
+  nickname: string;
+  rateable: boolean;
+  /** Moyenne des notes d'organisateur (sur 5), s'il accepte d'être noté. */
+  rating: { count: number; stars: number | null } | null;
+  entries: CatalogEntry[];
+}
+

@@ -18,6 +18,7 @@ import { HuntCard } from '../../shared/hunt-card';
           <p class="muted">Tracez le parcours, cachez les indices, lâchez les aventuriers.</p>
         </div>
         <div class="head-actions">
+          <a mat-stroked-button routerLink="/catalog"><mat-icon>menu_book</mat-icon>Partir du catalogue</a>
           <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer avec l'IA</a>
           <a mat-flat-button class="th-cta new" routerLink="/organize/new"><mat-icon>add_location_alt</mat-icon>Nouvelle chasse</a>
         </div>

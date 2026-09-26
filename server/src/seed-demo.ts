@@ -7,7 +7,7 @@ import { config } from './config.js';
 import { createPool, tx } from './db.js';
 import { STATUS_IDS } from './repo.js';
 
-const TABLES = ['th_scanlog', 'th_hintuses', 'th_validations', 'th_teamhunters', 'th_teams', 'th_codes', 'th_hunts', 'th_sessions', 'th_secrets', 'th_hunters'];
+const TABLES = ['th_ratings', 'th_photos', 'th_scanlog', 'th_hintuses', 'th_validations', 'th_teamhunters', 'th_teams', 'th_codes', 'th_hunts', 'th_sessions', 'th_secrets', 'th_hunters'];
 
 /**
  * Charge le jeu de démonstration des maquettes (shared/fixtures.ts) : mêmes comptes (mot de passe « demo »),
@@ -31,7 +31,7 @@ export async function seedDemo(pool: pg.Pool, opts: { reset?: boolean; now?: num
     };
 
     for (const h of db.hunters) {
-      await insert('th_hunters', { htr_id: h.id, htr_nickname: h.nickname, htr_email: h.email });
+      await insert('th_hunters', { htr_id: h.id, htr_nickname: h.nickname, htr_email: h.email, htr_rateable: h.rateable });
       await c.query('INSERT INTO th_secrets (sec_hunter_htr, sec_password) VALUES ($1, $2)', [h.id, password]);
     }
     for (const h of db.hunts) {

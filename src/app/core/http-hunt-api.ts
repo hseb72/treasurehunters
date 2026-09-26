@@ -2,6 +2,9 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import {
   AuthResult,
+  CatalogDetail,
+  CatalogEntry,
+  CatalogPublication,
   CheckinResult,
   Features,
   GenerationJob,
@@ -9,17 +12,20 @@ import {
   Hunt,
   Hunter,
   LiveRow,
+  OrganizerProfile,
   PhotoAttempt,
   PhotoResult,
   PlayState,
   RankingRow,
+  Rating,
+  RatingState,
   ScanResult,
   Step,
   Team,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiError, HuntAction, HuntApi, HuntScope } from './api';
+import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
 
 /** Client de l'API REST (server/src/app.ts). */
@@ -37,7 +43,7 @@ export class HttpHuntApi extends HuntApi {
   logout(): Observable<void> {
     return this.http.post<void>(`${this.url}/auth/logout`, {});
   }
-  updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email'>>): Observable<Hunter> {
+  updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email' | 'rateable'>>): Observable<Hunter> {
     return this.http.patch<Hunter>(`${this.url}/me`, data);
   }
 
@@ -120,6 +126,36 @@ export class HttpHuntApi extends HuntApi {
   }
   setSelfPaced(huntId: number, selfPaced: boolean): Observable<Hunt> {
     return this.http.put<Hunt>(`${this.url}/hunts/${huntId}/self-paced`, { selfPaced });
+  }
+
+  listCatalog(opts: CatalogQuery = {}): Observable<CatalogEntry[]> {
+    const params: Record<string, string> = {};
+    if (opts.q?.trim()) params['q'] = opts.q.trim();
+    if (opts.sort) params['sort'] = opts.sort;
+    if (opts.mine) params['mine'] = '1';
+    if (opts.hunt) params['hunt'] = String(opts.hunt);
+    return this.http.get<CatalogEntry[]>(`${this.url}/catalog`, { params });
+  }
+  getCatalogEntry(id: number): Observable<CatalogDetail> {
+    return this.http.get<CatalogDetail>(`${this.url}/catalog/${id}`);
+  }
+  copyFromCatalog(id: number): Observable<Hunt> {
+    return this.http.post<Hunt>(`${this.url}/catalog/${id}/copy`, {});
+  }
+  withdrawFromCatalog(id: number): Observable<CatalogDetail> {
+    return this.http.delete<CatalogDetail>(`${this.url}/catalog/${id}`);
+  }
+  publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail> {
+    return this.http.post<CatalogDetail>(`${this.url}/hunts/${huntId}/catalog`, pub);
+  }
+  getRating(huntId: number): Observable<RatingState> {
+    return this.http.get<RatingState>(`${this.url}/hunts/${huntId}/rating`);
+  }
+  rateHunt(huntId: number, rating: Rating): Observable<RatingState> {
+    return this.http.put<RatingState>(`${this.url}/hunts/${huntId}/rating`, rating);
+  }
+  getOrganizer(id: number): Observable<OrganizerProfile> {
+    return this.http.get<OrganizerProfile>(`${this.url}/organizers/${id}`);
   }
 
   getFeatures(): Observable<Features> {

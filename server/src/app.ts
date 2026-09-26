@@ -174,7 +174,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   });
   app.get('/api/me', async (req) => service.me(req.viewer));
   app.patch('/api/me', async (req) => {
-    const b = z.object({ nickname: text(50).min(1), email: z.email() }).partial().parse(req.body);
+    const b = z.object({ nickname: text(50).min(1), email: z.email(), rateable: z.boolean() }).partial().parse(req.body);
     return service.updateMe(req.viewer, b);
   });
 
@@ -270,6 +270,40 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
       .parse(req.body);
     return service.checkin(req.viewer, idParams.parse(req.params).id, pos, req.ip);
   });
+
+  /* ----- Catalogue (§ 13) et notations (§ 14) */
+  app.get('/api/catalog', async (req) => {
+    const q = z
+      .object({ q: text(100), sort: z.enum(['rating', 'recent', 'plays']), mine: z.enum(['1', 'true']), hunt: id })
+      .partial()
+      .parse(req.query);
+    // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
+    return service.listCatalog(req.viewer, { q: q.q, sort: q.sort, mine: !!q.mine, hunt: q.hunt });
+  });
+  app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.delete('/api/catalog/:id', async (req) => service.withdrawFromCatalog(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/catalog', async (req, reply) => {
+    const pub = z
+      .object({
+        summary: text(5000),
+        difficulty: z.enum(['easy', 'medium', 'hard']),
+        durationMinutes: z.number().int().min(10).max(1440),
+        sampleOrder: z.number().int().min(0),
+        changes: text(2000).nullable(),
+      })
+      .parse(req.body);
+    return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));
+  });
+  const star = z.number().int().min(1).max(5);
+  app.get('/api/hunts/:id/rating', async (req) => service.ratingState(req.viewer, idParams.parse(req.params).id));
+  app.put('/api/hunts/:id/rating', async (req) => {
+    const rating = z
+      .object({ stars: star, riddles: star, route: star, mood: star, comment: text(2000).nullable(), organizer: star.nullable() })
+      .parse(req.body);
+    return service.rateHunt(req.viewer, idParams.parse(req.params).id, rating);
+  });
+  app.get('/api/organizers/:id', async (req) => service.organizerProfile(req.viewer, idParams.parse(req.params).id));
 
   /* ----- Preuve par photo (§ 12) : images en « data URL », 6 Mo au plus une fois décodées */
   const photoBody = z.object({ image: z.string().min(16).max(9_000_000) });

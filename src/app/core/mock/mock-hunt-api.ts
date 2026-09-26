@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
-import { ApiError, HuntAction, HuntApi, HuntScope } from '../api';
+import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from '../api';
 import {
   AuthResult,
+  CatalogDetail,
+  CatalogEntry,
+  CatalogPublication,
   CheckinResult,
   Features,
   GenerationJob,
@@ -10,12 +13,15 @@ import {
   Hunt,
   Hunter,
   LiveRow,
+  OrganizerProfile,
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
   PlayClue,
   PlayState,
   RankingRow,
+  Rating,
+  RatingState,
   ScanResult,
   Step,
   Team,
@@ -56,6 +62,14 @@ export class MockHuntApi extends HuntApi {
   /** Preuve par photo : images en « data URL », gardées en mémoire. */
   private readonly photos: MockPhoto[] = [];
   private readonly refPhotos = new Map<number, string>();
+  /** Catalogue (§ 13) et avis (§ 14). */
+  private readonly catalog: MockEntry[] = [];
+  private readonly ratings: { huntId: number; hunterId: number; rating: Rating; at: string }[] = [];
+
+  constructor() {
+    super();
+    this.seedCatalog();
+  }
 
   logout(): Observable<void> {
     return this.reply(() => undefined);
@@ -75,13 +89,13 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       if (this.db.hunters.some((h) => h.email.toLowerCase() === email.toLowerCase())) throw new ApiError('Cet e-mail est déjà utilisé.');
       if (this.db.hunters.some((h) => h.nickname.toLowerCase() === nickname.toLowerCase())) throw new ApiError('Ce pseudo est déjà pris.');
-      const h = { id: this.nextId(this.db.hunters), nickname, email, password };
+      const h = { id: this.nextId(this.db.hunters), nickname, email, password, rateable: false };
       this.db.hunters.push(h);
       return { user: this.publicHunter(h), token: `mock-${h.id}` };
     });
   }
 
-  updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email'>>): Observable<Hunter> {
+  updateMe(data: Partial<Pick<Hunter, 'nickname' | 'email' | 'rateable'>>): Observable<Hunter> {
     return this.reply(() => {
       const me = this.db.hunters.find((h) => h.id === this.requireUser())!;
       Object.assign(me, data);
@@ -122,7 +136,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       if (data.id) {
         const h = this.ownedHunt(data.id);
-        const { id, ownerId, status, started, closed, hostId, hostNickname, selfPaced, ...editable } = data;
+        const { id, ownerId, status, started, closed, hostId, hostNickname, selfPaced, catalogId, ...editable } = data;
         Object.assign(h, editable);
         return this.huntView(h);
       }
@@ -153,6 +167,7 @@ export class MockHuntApi extends HuntApi {
         surprise: false,
         hostId: null,
         selfPaced: true,
+        catalogId: null,
         id,
         ownerId: me,
         joinCode: randomToken(6).toUpperCase(),
@@ -518,7 +533,7 @@ export class MockHuntApi extends HuntApi {
       const plan = demoPlan(center, plannedStepCount(request), placeName);
       const play = request.mode === 'play';
       if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
-        this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '' });
+        this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
       }
       const id = this.nextId(this.db.hunts);
       const begin = Date.now();
@@ -544,6 +559,7 @@ export class MockHuntApi extends HuntApi {
         generated: true,
         surprise: play,
         hostId: play ? me : null,
+        catalogId: null,
         selfPaced: true,
         teamGame: true,
         teamMin: 1,
@@ -616,6 +632,253 @@ export class MockHuntApi extends HuntApi {
       if (step.order === finalOrder(steps)) t.finished = now;
       return this.liveRows(h.id);
     });
+  }
+
+  /* ---------- Catalogue (§ 13) ---------- */
+
+  listCatalog(opts: CatalogQuery = {}): Observable<CatalogEntry[]> {
+    return this.reply(() => {
+      let list = this.catalog;
+      if (opts.mine || opts.hunt) {
+        const me = this.requireUser();
+        list = list.filter((e) => e.authorId === me && (!opts.hunt || e.huntId === opts.hunt));
+      } else {
+        list = list.filter((e) => !e.withdrawn);
+      }
+      const q = opts.q?.trim().toLowerCase();
+      if (q) list = list.filter((e) => [e.title, e.location, e.summary].some((t) => t.toLowerCase().includes(q)));
+      const views = list.map((e) => this.entryView(e));
+      const sort = opts.sort ?? 'rating';
+      return views.sort((a, b) =>
+        sort === 'recent'
+          ? b.id - a.id
+          : sort === 'plays'
+            ? b.plays - a.plays || b.id - a.id
+            : (b.rating.stars ?? -1) - (a.rating.stars ?? -1) || b.rating.count - a.rating.count || b.id - a.id,
+      );
+    });
+  }
+
+  getCatalogEntry(id: number): Observable<CatalogDetail> {
+    return this.reply(() => this.entryDetail(id));
+  }
+
+  copyFromCatalog(id: number): Observable<Hunt> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
+      if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+      const begin = Date.now() + 7 * 86_400_000;
+      const h: MockDb['hunts'][number] = {
+        ...structuredClone(e.content.hunt),
+        id: this.nextId(this.db.hunts),
+        ownerId: me,
+        begin: new Date(begin).toISOString(),
+        end: new Date(begin + 3 * 3_600_000).toISOString(),
+        started: null,
+        closed: null,
+        autoStart: false,
+        autoClose: false,
+        generated: false,
+        surprise: false,
+        hostId: null,
+        selfPaced: true,
+        catalogId: id,
+        isPublic: false,
+        joinCode: randomToken(6).toUpperCase(),
+        status: 'draft',
+      };
+      this.db.hunts.push(h);
+      for (const s of e.content.steps) this.db.steps.push({ ...this.blankStep(h.id, s.order, s.title), ...structuredClone(s) });
+      return this.huntView(h);
+    });
+  }
+
+  withdrawFromCatalog(id: number): Observable<CatalogDetail> {
+    return this.reply(() => {
+      const e = this.catalog.find((x) => x.id === id);
+      if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+      if (e.authorId !== this.requireUser()) throw new ApiError('Seul l’auteur retire sa chasse du catalogue.');
+      e.withdrawn = true;
+      return this.entryDetail(id);
+    });
+  }
+
+  publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail> {
+    return this.reply(() => this.entryDetail(this.publish(this.ownedHunt(huntId), pub).id));
+  }
+
+  /* ---------- Notations (§ 14) ---------- */
+
+  getRating(huntId: number): Observable<RatingState> {
+    return this.reply(() => this.ratingState(huntId));
+  }
+
+  rateHunt(huntId: number, rating: Rating): Observable<RatingState> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.ratingState(huntId);
+      if (!state.canRate) throw new ApiError('Seuls les joueurs de cette chasse la notent, une fois close.');
+      const value = { ...rating, comment: rating.comment?.trim() || null, organizer: state.organizerRateable ? rating.organizer : null };
+      const existing = this.ratings.find((r) => r.huntId === huntId && r.hunterId === me);
+      if (existing) existing.rating = value;
+      else this.ratings.push({ huntId, hunterId: me, rating: value, at: new Date().toISOString() });
+      return this.ratingState(huntId);
+    });
+  }
+
+  getOrganizer(id: number): Observable<OrganizerProfile> {
+    return this.reply(() => {
+      const h = this.db.hunters.find((x) => x.id === id && x.id !== SYSTEM_ID);
+      if (!h) throw new ApiError('Organisateur introuvable.');
+      const owned = new Set(this.db.hunts.filter((x) => x.ownerId === id).map((x) => x.id));
+      const notes = this.ratings.filter((r) => owned.has(r.huntId) && r.rating.organizer !== null).map((r) => r.rating.organizer!);
+      return {
+        id,
+        nickname: h.nickname,
+        rateable: h.rateable,
+        rating: h.rateable ? { count: notes.length, stars: average(notes) } : null,
+        entries: this.catalog.filter((e) => e.authorId === id && !e.withdrawn).map((e) => this.entryView(e)),
+      };
+    });
+  }
+
+  private ratingState(huntId: number): RatingState {
+    const me = this.viewer();
+    const h = this.visibleHunt(huntId);
+    const owner = this.db.hunters.find((x) => x.id === h.ownerId)!;
+    return {
+      canRate: me !== null && !!this.teamOf(huntId, me) && h.ownerId !== me && ['closed', 'archived'].includes(h.status),
+      organizerRateable: owner.rateable,
+      organizerNickname: owner.nickname,
+      mine: this.ratings.find((r) => r.huntId === huntId && r.hunterId === me)?.rating ?? null,
+    };
+  }
+
+  private publish(h: MockDb['hunts'][number], pub: CatalogPublication, authorId = h.ownerId): MockEntry {
+    const steps = this.stepsOf(h.id);
+    const final = finalOrder(steps);
+    if (final < 2) throw new ApiError('Il faut au moins une étape entre le départ et l’arrivée pour publier.');
+    const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
+    if (missing) throw new ApiError(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
+    const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
+    if (!sample) throw new ApiError('Choisissez comme extrait une énigme du parcours.');
+    const { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution } = h;
+    const content: MockEntry['content'] = {
+      hunt: { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution },
+      steps: steps.map(({ order, title, arrival, instructions, hints, latitude, longitude, address }) => ({ order, title, arrival, instructions, hints, latitude, longitude, address })),
+    };
+    const fingerprint = JSON.stringify({ rules: [hintPenalties, skipPenalty, validation, geoRadius], steps: content.steps });
+    const previous = this.catalog.filter((e) => e.huntId === h.id).at(-1);
+    const parentId = previous?.id ?? h.catalogId;
+    const parent = this.catalog.find((e) => e.id === parentId);
+    if (parent && parent.fingerprint === fingerprint) {
+      throw new ApiError(`Le parcours n’a pas changé depuis « ${parent.title} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de publier une nouvelle version.`);
+    }
+    const entry: MockEntry = {
+      id: this.catalog.length + 1,
+      authorId,
+      huntId: h.id,
+      parentId: parent?.id ?? null,
+      title: h.name,
+      summary: pub.summary.trim() || h.description,
+      location: h.location,
+      difficulty: pub.difficulty,
+      durationMinutes: pub.durationMinutes,
+      stepCount: final,
+      validation: h.validation,
+      sampleOrder: sample.order,
+      sample: sample.instructions!,
+      changes: parent ? pub.changes?.trim() || null : null,
+      content: structuredClone(content),
+      fingerprint,
+      published: new Date().toISOString(),
+      withdrawn: false,
+    };
+    this.catalog.push(entry);
+    return entry;
+  }
+
+  /** Parties qui comptent pour une version : la chasse qui l'a publiée et ses copies non republiées. */
+  private entryHunts(e: MockEntry): number[] {
+    const copies = this.db.hunts.filter((h) => h.catalogId === e.id && !this.catalog.some((x) => x.huntId === h.id)).map((h) => h.id);
+    return [...(e.huntId ? [e.huntId] : []), ...copies];
+  }
+
+  private entryView(e: MockEntry): CatalogEntry {
+    const hunts = new Set(this.entryHunts(e));
+    const played = this.db.hunts.filter((h) => hunts.has(h.id) && ['closed', 'archived'].includes(h.status));
+    const times = this.db.teams
+      .filter((t) => hunts.has(t.huntId) && t.started && t.finished)
+      .map((t) => (Date.parse(t.finished!) - Date.parse(t.started!)) / 60_000);
+    const notes = this.ratings.filter((r) => hunts.has(r.huntId)).map((r) => r.rating);
+    const parent = this.catalog.find((x) => x.id === e.parentId);
+    return {
+      id: e.id,
+      authorId: e.authorId,
+      authorNickname: this.nick(e.authorId),
+      title: e.title,
+      summary: e.summary,
+      location: e.location,
+      difficulty: e.difficulty,
+      durationMinutes: e.durationMinutes,
+      measuredMinutes: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null,
+      stepCount: e.stepCount,
+      validation: e.validation,
+      plays: played.length,
+      rating: {
+        count: notes.length,
+        stars: average(notes.map((n) => n.stars)),
+        riddles: average(notes.map((n) => n.riddles)),
+        route: average(notes.map((n) => n.route)),
+        mood: average(notes.map((n) => n.mood)),
+      },
+      parent: parent ? { id: parent.id, title: parent.title, authorNickname: this.nick(parent.authorId) } : null,
+      versionCount: this.catalog.filter((x) => x.parentId === e.id && !x.withdrawn).length,
+      changes: e.changes,
+      published: e.published,
+      withdrawn: e.withdrawn,
+    };
+  }
+
+  private entryDetail(id: number): CatalogDetail {
+    const me = this.viewer();
+    const e = this.catalog.find((x) => x.id === id);
+    if (!e || (e.withdrawn && e.authorId !== me)) throw new ApiError('Cette chasse n’est pas au catalogue.');
+    const hunts = new Set(this.entryHunts(e));
+    return {
+      ...this.entryView(e),
+      sample: { order: e.sampleOrder, text: e.sample },
+      reviews: this.ratings
+        .filter((r) => hunts.has(r.huntId) && r.rating.comment)
+        .reverse()
+        .map((r) => ({ nickname: this.nick(r.hunterId), stars: r.rating.stars, comment: r.rating.comment!, at: r.at })),
+      versions: this.catalog
+        .filter((x) => x.parentId === id && (!x.withdrawn || x.authorId === me))
+        .map((x) => ({ id: x.id, title: x.title, authorNickname: this.nick(x.authorId), published: x.published, withdrawn: x.withdrawn })),
+      huntId: e.authorId === me ? e.huntId : null,
+    };
+  }
+
+  /** Démonstration : la chasse close de Camille est au catalogue, avec quelques avis de ses joueurs. */
+  private seedCatalog(): void {
+    const closed = this.db.hunts.find((h) => h.status === 'closed');
+    if (!closed) return;
+    try {
+      this.publish(closed, { summary: '', difficulty: 'medium', durationMinutes: 90, sampleOrder: 1, changes: null });
+    } catch {
+      return; // jeu de démonstration incomplet : catalogue vide
+    }
+    const players = this.db.teams.filter((t) => t.huntId === closed.id).flatMap((t) => t.members.map((m) => m.hunterId));
+    const comments = ['Énigmes malignes, parcours superbe au bord de l’eau.', null, 'Un joker un peu trop facile, mais quelle ambiance !'];
+    players.slice(0, 3).forEach((hunterId, i) =>
+      this.ratings.push({
+        huntId: closed.id,
+        hunterId,
+        rating: { stars: 5 - (i % 2), riddles: 4 + (i % 2), route: 5, mood: 4, comment: comments[i] ?? null, organizer: 5 },
+        at: new Date(Date.now() - (i + 1) * 3_600_000).toISOString(),
+      }),
+    );
   }
 
   /* ---------- Preuve par photo (§ 12) ---------- */
@@ -956,7 +1219,7 @@ export class MockHuntApi extends HuntApi {
   }
 
   private publicHunter(h: Hunter): Hunter {
-    return { id: h.id, nickname: h.nickname, email: h.email };
+    return { id: h.id, nickname: h.nickname, email: h.email, rateable: h.rateable };
   }
 
   private nextId(list: { id: number }[]): number {
@@ -990,3 +1253,48 @@ interface MockPhoto {
   counted: boolean;
   review: Exclude<PhotoReview, 'pending'> | null;
 }
+
+interface MockEntry {
+  id: number;
+  authorId: number;
+  huntId: number | null;
+  parentId: number | null;
+  title: string;
+  summary: string;
+  location: string;
+  difficulty: CatalogPublication['difficulty'];
+  durationMinutes: number;
+  stepCount: number;
+  validation: Hunt['validation'];
+  sampleOrder: number;
+  sample: string;
+  changes: string | null;
+  content: {
+    hunt: Pick<
+      Hunt,
+      | 'name'
+      | 'description'
+      | 'location'
+      | 'award'
+      | 'startText'
+      | 'startMode'
+      | 'interval'
+      | 'hintPenalties'
+      | 'skipPenalty'
+      | 'teamGame'
+      | 'teamMin'
+      | 'teamMax'
+      | 'validation'
+      | 'geoRadius'
+      | 'contribution'
+    >;
+    steps: Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'>[];
+  };
+  fingerprint: string;
+  published: string;
+  withdrawn: boolean;
+}
+
+const average = (values: number[]): number | null =>
+  values.length ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10 : null;
+

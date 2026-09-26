@@ -72,4 +72,10 @@
       <p class="small muted rule">Temps = heure d'arrivée − heure de départ + pénalités de jokers. Les équipes non arrivées à la clôture sont classées ensuite par nombre d'étapes trouvées.</p>
     </section>
   }
+
+  @if (hunt.value(); as h) {
+    @if (h.status === 'closed' || h.status === 'archived') {
+      <th-rating-form [huntId]="h.id" />
+    }
+  }
 </div>

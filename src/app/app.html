@@ -10,6 +10,7 @@
       </a>
       <a mat-list-item routerLink="/scan" routerLinkActive="active"><mat-icon matListItemIcon>qr_code_scanner</mat-icon>Scanner un indice</a>
       <a mat-list-item routerLink="/organize" routerLinkActive="active"><mat-icon matListItemIcon>map</mat-icon>Organiser une chasse</a>
+      <a mat-list-item routerLink="/catalog" routerLinkActive="active"><mat-icon matListItemIcon>menu_book</mat-icon>Catalogue des chasses</a>
       @if (session.loggedIn()) {
         <a mat-list-item routerLink="/me" routerLinkActive="active"><mat-icon matListItemIcon>badge</mat-icon>Mon profil</a>
         <button mat-list-item type="button" (click)="logout()"><mat-icon matListItemIcon>logout</mat-icon>Déconnexion</button>

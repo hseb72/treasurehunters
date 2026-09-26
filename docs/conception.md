@@ -265,6 +265,11 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `GET /hunts/:id/photos` · `POST /photos/:id/review` | photos de la chasse, contrôle (tamponner ou refuser) | organisateur |
 | `GET\|PUT\|DELETE /steps/:id/reference-photo` | photo de référence d'une étape | organisateur |
 | `GET /features` | fonctions activées sur le serveur (photos, génération) | public |
+| `GET /catalog?q=&sort=rating\|plays\|recent` · `GET /catalog/:id` | catalogue et fiche d'une version (§ 13) | public |
+| `GET /catalog?mine=1` · `GET /catalog?hunt=:id` | mes publications, celles d'une de mes chasses (retirées comprises) | connecté |
+| `POST /hunts/:id/catalog` · `DELETE /catalog/:id` | publier une version, la retirer | auteur |
+| `POST /catalog/:id/copy` | créer un brouillon à partir d'une version | connecté |
+| `GET\|PUT /hunts/:id/rating` · `GET /organizers/:id` | avis d'un joueur sur une chasse close, fiche d'organisateur (§ 14) | joueur / public |
 | `POST /hunts/generate` · `GET /generations/:id` | invention d'une chasse (§ 11), suivi de la génération | connecté |
 | `POST /scan/:token` | **scan** : § 4.2, journalisé. En POST, parce qu'un scan peut valider une étape | public (plus de détails si connecté) |
 | `GET /hunts/:id/results` | classement : l'organisateur pendant la course, tout le monde après la clôture | selon § 5.3 |
@@ -293,6 +298,10 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | E13 | Onglet **Direct** : progression, validation manuelle, retard de départ | `/organize/:id/live` | organisateur |
 | E14 | Profil | `/me` | connecté |
 | E15 | **Chasse sur mesure** : lieu (ville, carte, ma position), durée, difficulté, « je joue » ou « j'organise », puis attente | `/generate` | connecté |
+| E16 | **Catalogue** : recherche, tri (mieux notées, plus jouées, récentes) | `/catalog` | tous |
+| E17 | **Fiche d'une version** : présentation, extrait, avis, versions, « Créer ma chasse à partir de celle-ci » | `/catalog/:id` | tous |
+| E18 | Onglet **Catalogue** de l'espace organisateur : origine, publications, publier une version | `/organize/:id/catalog` | organisateur |
+| E19 | **Fiche d'organisateur** : sa note (s'il l'accepte), ses chasses au catalogue | `/organizers/:id` | tous |
 
 ---
 
@@ -341,6 +350,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
   - la piste de progression devient une petite carte.
 - **Énigmes à réponse** : l'équipe saisit la réponse (`cod_answer`) avant de voir le message d'arrivée ou l'énigme suivante. Il faudra une comparaison tolérante (casse, accents) et une limite de tentatives.
 - **Paiement en ligne** de la participation, pour une version beaucoup plus avancée.
+- **Vente de chasses au catalogue** : voir § 13.4.
 - **Notifications** : « votre départ est dans 5 minutes », « un équipier a trouvé l'étape 3 ».
 
 ---
@@ -453,4 +463,69 @@ Le carnet de route de l'équipe montre l'état de chaque étape validée par pho
 - `th_photos` : équipe, étape, joueur, clé de l'objet (NULL une fois effacée), avis de l'IA (`match`, `nomatch`, `unavailable`) et son message, insistance, contrôle (`approved`, `rejected`, NULL = à contrôler).
 - `th_validations.val_photo_pho` : la photo qui a validé l'étape ; `val_source` admet `PHOTO`.
 - Migration : `db/migrations/005_photos.sql`.
+
+---
+
+## 13. Catalogue de chasses
+
+### 13.1 Publier
+
+Depuis l'onglet **Catalogue** de son espace, un organisateur publie sa chasse (`POST /hunts/:id/catalog`), par exemple une fois qu'il l'a testée avec des joueurs. Il fixe :
+
+- la **présentation** (par défaut, celle de la chasse), la **difficulté** et la **durée annoncée** ;
+- l'**énigme en extrait** : une énigme du parcours, montrée à tous pour juger de la rédaction ;
+- pour une nouvelle version, **ce qui change** par rapport à la précédente.
+
+Le catalogue reçoit un **instantané** (`cat_content`, jsonb) : réglages de jeu, étapes, énigmes, jokers et positions. L'auteur peut continuer à modifier sa chasse, ce qui est publié ne change pas. Dates, équipes, QR codes et photos restent les siens.
+
+Conditions : au moins une étape entre le départ et l'arrivée, et toutes les énigmes rédigées.
+
+### 13.2 Copier, adapter, republier
+
+- Tout organisateur connecté peut **créer sa chasse à partir d'une version** (`POST /catalog/:id/copy`). Il obtient un **brouillon** privé, avec de nouveaux jetons de QR, daté de la semaine suivante, qu'il modifie librement : étapes, énigmes, jokers, pénalités, trésor, participation. `hun_catalog_cat` garde le lien avec la version copiée.
+- Il peut ensuite **publier sa version**, rattachée à l'originale (`cat_parent_cat`), à condition d'avoir **changé le parcours ou les règles de jeu** : étapes, énigmes, jokers, positions, pénalités, mode de validation. Une copie identique est refusée : on compare l'**empreinte** du parcours (`cat_fingerprint`), qui ignore les textes de présentation et le trésor.
+- L'auteur d'une chasse déjà publiée qui la republie crée de même une nouvelle version de sa publication précédente.
+- La fiche d'une version montre la version dont elle dérive (et ce qui change), et les versions publiées à partir d'elle.
+- L'auteur peut **retirer** une version (`DELETE /catalog/:id`) : elle disparaît du catalogue, les copies déjà faites ne changent pas.
+
+### 13.3 Ce que montre le catalogue
+
+La liste (`GET /catalog`) et la fiche (`GET /catalog/:id`) montrent, **sans le parcours** : titre, lieu, auteur, présentation, nombre d'étapes, difficulté, durée annoncée et **durée moyenne constatée** des équipes arrivées, mode de validation, nombre de **parties jouées**, **notes** (§ 14), l'extrait et les derniers avis. Recherche par mot-clé (titre, lieu, présentation) ; tri par note, par nombre de parties ou par date.
+
+**Parties qui comptent pour une version** : celles de la chasse qui l'a publiée, et celles des copies de la version qui n'ont rien publié elles-mêmes. Une copie modifiée et republiée compte pour sa propre version, pas pour l'originale.
+
+### 13.4 Vente (à venir)
+
+Décidé, pas encore réalisé :
+
+- un organisateur pourra fixer un **prix** à sa publication ; l'acheteur d'une chasse payante ne pourra pas la republier gratuitement ;
+- la plateforme prélèvera une **commission** sur chaque vente ;
+- paiements par **Stripe Connect** : Stripe encaisse, vérifie l'identité des vendeurs, prélève la commission, reverse leurs gains et fournit les données fiscales. Le « portefeuille » affiché dans l'application reflétera ces soldes. Un portefeuille de crédits retirables en argent, tenu par la plateforme elle-même, relèverait de la monnaie électronique (agrément de l'ACPR) : c'est ce que le prestataire évite ;
+- obligations à cadrer avec un conseil : facturation de la commission, déclaration des revenus des vendeurs à l'administration fiscale (directive DAC7), information des vendeurs sur leurs obligations fiscales, conditions générales de vente.
+
+### 13.5 Données
+
+- `th_catalog` : auteur, chasse d'origine, version précédente, présentation, lieu, difficulté, durée, nombre d'étapes, mode de validation, extrait, ce qui change, instantané, empreinte, retrait.
+- `th_hunts.hun_catalog_cat` : version dont la chasse est une copie.
+- Migration : `db/migrations/006_catalog.sql`.
+
+---
+
+## 14. Notations
+
+### 14.1 Noter une chasse
+
+Une fois la chasse **close**, chaque joueur inscrit (pas l'organisateur) peut donner son avis depuis la page des résultats (`PUT /hunts/:id/rating`) : une **note globale** sur 5, une note par **critère** (énigmes, parcours, ambiance) et un **commentaire** facultatif. Il peut le modifier ensuite ; un seul avis par joueur et par chasse.
+
+Les avis remontent à la **version du catalogue** dont la chasse compte (§ 13.3) : moyennes par critère et derniers commentaires sur sa fiche, pour aider les organisateurs à choisir.
+
+### 14.2 Noter un organisateur
+
+Un second fil, **indépendant et sur option** : dans son profil, un organisateur choisit d'**être noté** (`htr_rateable`). Les joueurs de ses chasses donnent alors, avec leur avis, une note de son organisation (`rat_organizer`). La moyenne s'affiche sur sa **fiche publique** (`/organizers/:id`), avec ses chasses au catalogue. Sans son accord, aucune note d'organisateur n'est recueillie ni affichée.
+
+### 14.3 Données
+
+- `th_ratings` : chasse, joueur, note globale, critères, commentaire, note d'organisateur ; UNIQUE(chasse, joueur).
+- `th_hunters.htr_rateable`.
+- Migration : `db/migrations/006_catalog.sql`.
 

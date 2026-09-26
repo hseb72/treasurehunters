@@ -68,6 +68,7 @@ export class WorkspacePage {
     { path: 'teams', label: 'Équipes', icon: 'groups' },
     { path: 'qrcodes', label: 'QR codes', icon: 'qr_code_2' },
     { path: 'live', label: 'Direct', icon: 'radar' },
+    { path: 'catalog', label: 'Catalogue', icon: 'public' },
   ];
 
   protected readonly stage = computed(() => {
