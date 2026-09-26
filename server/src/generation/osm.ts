@@ -16,6 +16,41 @@ export interface Poi {
   lng: number;
   /** Tags utiles pour inventer une énigme (inscription, date, artiste…). */
   details: Record<string, string>;
+  /** Correspond au thème demandé par le joueur. */
+  themed: boolean;
+}
+
+/**
+ * Catégorie OpenStreetMap tirée d'un thème libre : une clé (shop, leisure…) et ses valeurs
+ * (null = toute valeur). Validée avant d'entrer dans la requête Overpass.
+ */
+export interface ThemeFilter {
+  key: string;
+  values: string[] | null;
+}
+
+/** Clés OpenStreetMap qu'un thème peut viser. */
+export const THEME_KEYS = [
+  'amenity', 'shop', 'leisure', 'tourism', 'historic', 'man_made', 'natural', 'craft', 'sport',
+  'building', 'landuse', 'highway', 'route', 'waterway', 'heritage', 'memorial', 'artwork_type', 'cuisine',
+] as const;
+const THEME_VALUE = /^[a-z0-9_:-]{1,40}$/;
+
+/** Ne garde que des filtres sûrs : clés connues, valeurs simples (rien qui s'échappe de la requête). */
+export function safeThemeFilters(filters: ThemeFilter[]): ThemeFilter[] {
+  return filters
+    .filter((f) => (THEME_KEYS as readonly string[]).includes(f.key))
+    .map((f) => ({ key: f.key, values: f.values === null ? null : f.values.filter((v) => THEME_VALUE.test(v)).slice(0, 10) }))
+    .filter((f) => f.values === null || f.values.length > 0)
+    .slice(0, 6);
+}
+
+function themeClause(f: ThemeFilter): string {
+  return f.values === null ? `nw[${f.key}][name]` : `nw[${f.key}~"^(${f.values.join('|')})$"][name]`;
+}
+
+function matchesTheme(tags: Record<string, string>, filters: ThemeFilter[]): boolean {
+  return filters.some((f) => tags[f.key] !== undefined && (f.values === null || f.values.includes(tags[f.key])));
 }
 
 export interface Place {
@@ -27,7 +62,7 @@ export interface Place {
 /** Au-delà du `timeout` de la requête Overpass (20 s), pour recevoir sa réponse d'erreur. */
 const TIMEOUT_MS = 35_000;
 const DETAIL_TAGS = ['description', 'inscription', 'start_date', 'artist_name', 'architect', 'subject', 'memorial', 'material', 'denomination', 'wikipedia', 'addr:street'];
-const KIND_TAGS = ['historic', 'tourism', 'amenity', 'man_made', 'leisure', 'artwork_type', 'memorial'];
+const KIND_TAGS = ['historic', 'tourism', 'amenity', 'shop', 'man_made', 'leisure', 'natural', 'craft', 'sport', 'artwork_type', 'memorial'];
 
 const unavailable = (cause: unknown) =>
   new HttpError(502, 'La carte OpenStreetMap ne répond pas pour le moment, réessayez dans un instant.', cause);
@@ -126,8 +161,20 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Place> {
   }
 }
 
-/** Lieux remarquables et nommés dans un rayon donné, du plus proche au plus lointain. */
-export async function placesAround(center: { lat: number; lng: number }, radius: number): Promise<Poi[]> {
+/** Au-delà de ce rayon, la zone est trop vaste pour tout ramener : seulement les lieux marquants. */
+const PROMINENT_FROM = 4000;
+
+/**
+ * Lieux remarquables et nommés dans un rayon donné, du plus proche au plus lointain, plus ceux
+ * du thème demandé. Sur une grande zone (expédition motorisée), on ne garde que les lieux
+ * marquants (référencés dans Wikidata, points de vue, musées, phares…) : une ville entière de
+ * statues et de parcs dépasserait ce qu'Overpass accepte et ce que l'IA peut lire.
+ */
+export async function placesAround(
+  center: { lat: number; lng: number },
+  radius: number,
+  theme: ThemeFilter[] = [],
+): Promise<Poi[]> {
   // Zone de recherche en boîte englobante (`bbox`) : indexée, donc rapide. Un filtre
   // `around` combiné à des clés comme [historic] fait parcourir bien trop d'objets et
   // les instances publiques abandonnent (504). Le cercle exact est appliqué ensuite.
@@ -139,13 +186,24 @@ export async function placesAround(center: { lat: number; lng: number }, radius:
   // calculer et font rarement de bonnes étapes.
   // `maxsize` à 128 Mio au lieu de 512 : Overpass admet une requête selon les ressources
   // qu'elle annonce, et un serveur chargé refuse (504) celles qui en demandent beaucoup.
-  const query = `[out:json][timeout:20][maxsize:134217728][bbox:${bbox}];
-(
-  nw[historic][name];
+  const base =
+    radius > PROMINENT_FROM
+      ? `  nw[historic][name][wikidata];
+  nw[tourism~"^(viewpoint|attraction|museum)$"][name];
+  nw[amenity~"^(place_of_worship|theatre)$"][name][wikidata];
+  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
+  nw[leisure~"^(park|garden)$"][name][wikidata];`
+      : `  nw[historic][name];
   nw[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
   nw[amenity~"^(fountain|place_of_worship|clock|library|theatre)$"][name];
   nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
-  nw[leisure~"^(park|garden)$"][name];
+  nw[leisure~"^(park|garden)$"][name];`;
+  const filters = safeThemeFilters(theme);
+  // Deux jeux de résultats : les lieux du thème ne doivent pas être évincés par la limite.
+  const themed = filters.length ? `(\n${filters.map((f) => `  ${themeClause(f)};`).join('\n')}\n)->.theme;\n.theme out center tags 200;\n` : '';
+  const query = `[out:json][timeout:25][maxsize:134217728][bbox:${bbox}];
+${themed}(
+${base}
 );
 out center tags 500;`;
   const data = (await osmFetch(config.overpassUrls, {
@@ -167,7 +225,7 @@ out center tags 500;`;
     seen.add(key);
     const kind = KIND_TAGS.filter((t) => tags[t] && tags[t] !== 'yes').map((t) => tags[t]).join(', ') || 'lieu';
     const details = Object.fromEntries(DETAIL_TAGS.filter((t) => tags[t]).map((t) => [t, tags[t].slice(0, 300)]));
-    pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details });
+    pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details, themed: matchesTheme(tags, filters) });
   }
   return pois.filter((p) => distanceMeters(center, p) <= radius).sort((a, b) => distanceMeters(center, a) - distanceMeters(center, b));
 }

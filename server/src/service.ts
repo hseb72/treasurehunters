@@ -1369,12 +1369,13 @@ export class Service {
 
   private async runGeneration(jobId: string, me: number, req: GenerationRequest): Promise<void> {
     try {
-      const { plan, location } = await this.generator!.generate(req);
+      const { plan, location, note } = await this.generator!.generate(req);
       await tx(this.pool, async (db) => {
         const huntId = await this.createFromPlan(db, me, req, plan, location);
-        await db.query(`UPDATE th_generations SET gen_status = 'done', gen_hunt_hun = $2, gen_lastupdate = now() WHERE gen_id = $1`, [
+        await db.query(`UPDATE th_generations SET gen_status = 'done', gen_hunt_hun = $2, gen_note = $3, gen_lastupdate = now() WHERE gen_id = $1`, [
           jobId,
           huntId,
+          note ?? null,
         ]);
       });
     } catch (e) {
@@ -1537,6 +1538,7 @@ function toJob(r: Row): GenerationJob {
     mode: r['gen_params']['mode'],
     huntId: r['gen_hunt_hun'],
     error: r['gen_error'],
+    note: r['gen_note'] ?? null,
   };
 }
 

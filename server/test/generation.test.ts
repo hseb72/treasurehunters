@@ -14,7 +14,9 @@ afterAll(() => teardown(ctx));
 const request = (mode: GenerationRequest['mode']): GenerationRequest => ({
   location: { query: 'Montpellier', lat: 43.6085, lng: 3.8795 },
   durationMinutes: 45,
+  travel: 'walk',
   difficulty: 'medium',
+  theme: null,
   steps: null,
   mode,
 });
@@ -139,6 +141,19 @@ describe('chasse générée à organiser', () => {
     expect(steps.at(-1).instructions).toBeNull();
     expect((await camille.post(`/api/hunts/${job.huntId}/publish`)).body.status).toBe('published');
   });
+
+  it('adapte le nombre d’étapes au déplacement et rend compte du thème', async () => {
+    const camille = await loginAs(ctx.app, 'camille@example.com');
+    const body = { ...request('organize'), durationMinutes: 120, travel: 'motor', theme: '  Parcs et coulées vertes ' };
+    expect((await camille.post('/api/hunts/generate', { ...body, travel: 'plane' })).status).toBe(400);
+    const started = await camille.post('/api/hunts/generate', body);
+    expect(started.status).toBe(202);
+    await ctx.app.service.settle();
+    const job = (await camille.get(`/api/generations/${started.body.id}`)).body;
+    expect(job.status).toBe('done');
+    expect(job.note).toMatch(/Parcs et coulées vertes/);
+    expect((await camille.get(`/api/hunts/${job.huntId}`)).body.stepCount).toBe(6); // 120 min / 20 min par étape en véhicule
+  });
 });
 
 describe('limites de la génération', () => {
@@ -195,9 +210,9 @@ describe('limites de la génération', () => {
 });
 
 describe('réponse du modèle', () => {
-  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {} });
+  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false });
   const place = (poiId: string) => ({ poiId, title: `Étape ${poiId}`, riddle: `Énigme vers ${poiId}`, hints: ['a', 'b', 'c', 'd'], arrival: `Bravo ${poiId}` });
-  const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603)], count: 3, difficulty: 'easy' as const, durationMinutes: 30 };
+  const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603)], count: 3, difficulty: 'easy' as const, durationMinutes: 30, travel: 'walk' as const, theme: null };
 
   it('enchaîne les énigmes et reprend les coordonnées d’OpenStreetMap', () => {
     const plan = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: 'A', places: [place('n2'), place('n1'), place('n3')] }, input);

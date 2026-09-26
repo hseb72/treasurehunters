@@ -583,8 +583,10 @@ export class MockHuntApi extends HuntApi {
         }),
       );
       if (play) this.addTeam(h, this.nick(me), me, false);
-      const job = { id: randomToken(12), status: 'pending' as const, mode: request.mode, huntId: null, error: null };
-      this.jobs.set(job.id, { ...job, huntId: id, readyAt: Date.now() + GENERATION_MS, ownerId: me });
+      const theme = request.theme?.trim();
+      const note = theme ? `Thème « ${theme} » : la maquette ne cherche pas de vrais lieux, elle ne l’a pas suivi.` : null;
+      const job = { id: randomToken(12), status: 'pending' as const, mode: request.mode, huntId: null, error: null, note: null };
+      this.jobs.set(job.id, { ...job, huntId: id, note, readyAt: Date.now() + GENERATION_MS, ownerId: me });
       return job;
     });
   }
@@ -594,7 +596,7 @@ export class MockHuntApi extends HuntApi {
       const job = this.jobs.get(id);
       if (!job || job.ownerId !== this.requireUser()) throw new ApiError('Génération introuvable.');
       const done = Date.now() >= job.readyAt;
-      return { id: job.id, status: done ? 'done' : 'pending', mode: job.mode, huntId: done ? job.huntId : null, error: null } satisfies GenerationJob;
+      return { id: job.id, status: done ? 'done' : 'pending', mode: job.mode, huntId: done ? job.huntId : null, error: null, note: done ? job.note : null } satisfies GenerationJob;
     });
   }
 

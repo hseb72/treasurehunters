@@ -22,7 +22,7 @@ import { Stars } from './stars';
       <div class="row small meta">
         <span class="row"><mat-icon>route</mat-icon>{{ e.stepCount }} étapes</span>
         <span class="row"><mat-icon>schedule</mat-icon>{{ e.measuredMinutes ?? e.durationMinutes }} min</span>
-        <span class="row"><mat-icon>signpost</mat-icon>{{ difficulty[e.difficulty] }}</span>
+        <span class="row"><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</span>
         <span class="row"><mat-icon>{{ e.validation === 'geo' ? 'where_to_vote' : 'qr_code_2' }}</mat-icon>{{ e.validation === 'geo' ? 'géolocalisation' : 'QR codes' }}</span>
         <span class="row"><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }}</span>
       </div>

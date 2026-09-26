@@ -72,7 +72,12 @@ const generationRequest = z.object({
     })
     .refine((l) => !!l.query || (l.lat !== undefined && l.lng !== undefined), 'Indiquez un lieu.'),
   durationMinutes: z.number().int().min(20).max(360),
+  // Absent des anciens clients : une balade à pied, sans thème.
+  travel: z.enum(['walk', 'active', 'motor']).default('walk'),
   difficulty: z.enum(['easy', 'medium', 'hard']),
+  theme: text(120)
+    .nullish()
+    .transform((t) => t || null),
   steps: z.number().int().min(3).max(12).nullable(),
   mode: z.enum(['play', 'organize']),
 });

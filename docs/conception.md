@@ -357,17 +357,27 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 
 ## 11. Chasses générées
 
-Un joueur peut demander à l'application d'**inventer une chasse** à partir de trois souhaits : un lieu, une durée approximative, une difficulté (ou un nombre d'étapes). Il choisit ensuite d'y **jouer en surprise** ou d'en **devenir l'organisateur**.
+Un joueur peut demander à l'application d'**inventer une chasse** à partir de quelques souhaits : un lieu, un moyen de déplacement, une durée approximative, la difficulté des énigmes (ou un nombre d’étapes) et, s’il le veut, un thème. Il choisit ensuite d'y **jouer en surprise** ou d'en **devenir l'organisateur**.
 
 ### 11.1 Demande
 
 | Souhait | Valeurs |
 |---|---|
 | Lieu | un nom de ville ou d'adresse (géocodé par Nominatim), un point touché sur la carte, ou la position du téléphone |
-| Durée | 20 min à 6 h ; elle fixe le rayon de recherche des lieux (≈ 15 m par minute, entre 300 m et 2,5 km) |
-| Difficulté | Balade (famille), Aventure, Expédition (énigmes cryptiques) |
-| Étapes | déduites de la durée (10, 12 ou 15 min par étape selon la difficulté), ou choisies : 3 à 12, arrivée comprise |
+| Déplacement | **Balade** (`walk`) : à pied, en détente · **Aventure** (`active`) : à pied d'un bon pas, à vélo, en trottinette · **Expédition** (`motor`) : en véhicule motorisé (moto, voiture…) |
+| Durée | 20 min à 6 h ; avec le déplacement, elle fixe le rayon de recherche des lieux (tableau ci-dessous) |
+| Énigmes | Faciles (famille), Intermédiaires (jeux de mots), Corsées (allusions cryptiques) |
+| Thème | facultatif, texte libre de 120 caractères (ex. « circuit touristique insolite », « parcs et coulées vertes », « magasins de chaussures ») : suivi seulement s'il est réalisable |
+| Étapes | déduites de la durée, ou choisies : 3 à 12, arrivée comprise |
 | Mode | `play` : chasse surprise pour soi · `organize` : brouillon à relire et à proposer à des joueurs |
+
+| Déplacement | Rayon (par minute de jeu) | Bornes | Minutes par étape |
+|---|---|---|---|
+| Balade | ≈ 15 m | 300 m – 2,5 km | 12 |
+| Aventure | ≈ 45 m | 800 m – 8 km | 10 |
+| Expédition | ≈ 250 m | 3 km – 30 km | 20 (stationnement compris) |
+
+Les minutes par étape varient avec les énigmes : −2 si faciles, +3 si corsées. Un ancien client qui n'envoie pas le déplacement obtient une Balade.
 
 Règles communes au serveur et aux maquettes : `shared/generation.ts`.
 
@@ -376,10 +386,11 @@ Règles communes au serveur et aux maquettes : `shared/generation.ts`.
 La génération dure de quelques secondes à une minute. Elle tourne **en tâche de fond** :
 
 1. `POST /hunts/generate` enregistre la demande dans `th_generations` (statut `pending`) et répond **202** avec son identifiant.
-2. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… Une seule requête, au double du rayon visé (3 km au plus), sur une **boîte englobante** (`bbox`, indexée : un filtre `around` sur ces clés fait expirer les instances publiques) ; le cercle exact est appliqué ensuite ; les lieux du rayon visé sont préférés s'ils suffisent. Les instances publiques limitent le débit et saturent souvent : en cas de 429, 5xx, d'expiration ou de réponse illisible, le serveur réessaie (3 essais, `Retry-After` respecté) en alternant les instances de `OVERPASS_URLS`.
-3. **Claude** reçoit au plus 60 lieux candidats. Il choisit un parcours faisable à pied et rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée).
-4. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
-5. Le front interroge `GET /generations/:id` toutes les 2,5 s. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
+2. Si un thème est demandé, **Claude le traduit d'abord en catégories OpenStreetMap** (ex. `shop=shoes`, `leisure=park`, `tourism=artwork`), en effort `low`. Le serveur ne garde que des clés d'une liste blanche (`tourism`, `historic`, `amenity`, `leisure`, `shop`, `natural`, `craft`, `sport`, `man_made`, `memorial`, `artwork_type`…) et des valeurs simples (`[a-z0-9_:-]`, 6 filtres et 10 valeurs au plus) : le texte du joueur n'entre jamais tel quel dans la requête Overpass. Un échec de cette étape n'empêche pas la génération : le thème est alors ignoré.
+3. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… plus les lieux du thème, marqués comme tels et placés en tête des candidats. Au-delà de 4 km de rayon, seuls les lieux les plus notables (fiche Wikidata, points de vue, musées…) sont retenus hors thème, pour que la réponse reste raisonnable. Une seule requête, sur une zone élargie selon le déplacement (×2 jusqu'à 3 km en Balade, ×1,5 jusqu'à 8 km en Aventure, ×1,2 jusqu'à 30 km en Expédition), sur une **boîte englobante** (`bbox`, indexée : un filtre `around` sur ces clés fait expirer les instances publiques) ; le cercle exact est appliqué ensuite ; les lieux du rayon visé sont préférés s'ils suffisent. Les instances publiques limitent le débit et saturent souvent : en cas de 429, 5xx, d'expiration ou de réponse illisible, le serveur réessaie (3 essais, `Retry-After` respecté) en alternant les instances de `OVERPASS_URLS`.
+4. **Claude** reçoit au plus 60 lieux candidats, le déplacement et le thème. Il choisit un parcours faisable avec ce moyen de déplacement (en Expédition : lieux accessibles par la route, où l'on peut se garer, énigmes lues à l'arrêt) et, s'il y a un thème, construit le parcours autour des lieux du thème autant que possible. Le thème reste un souhait : le modèle ne suit aucune instruction qu'il contiendrait. Il rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée) ; elle comprend une phrase qui dit comment le thème a été suivi, ou pourquoi il ne l'a été qu'en partie, sans nommer de lieu du parcours. Cette phrase est gardée dans `gen_note` et rendue dans `note`.
+5. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
+6. Le front interroge `GET /generations/:id` toutes les 2,5 s ; à la fin, il affiche la `note` sur le thème s'il y en a une. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
 
 Garde-fous : **5 générations par joueur et par 24 h** (`GENERATION_DAILY_QUOTA`) ; une génération encore `pending` après 10 min est déclarée interrompue ; sans `ANTHROPIC_API_KEY`, l'API répond **503**.
 

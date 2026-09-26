@@ -240,14 +240,24 @@ export interface CheckinResult {
 
 /* ---------- Génération de chasses ---------- */
 
+/** Difficulté des énigmes. */
 export type Difficulty = 'easy' | 'medium' | 'hard';
+
+/**
+ * Déplacement : 'walk' = Balade (à pied, détente) ; 'active' = Aventure (à pied d'un bon pas,
+ * vélo, trottinette) ; 'motor' = Expédition (véhicule motorisé : moto, voiture…).
+ */
+export type Travel = 'walk' | 'active' | 'motor';
 
 export interface GenerationRequest {
   /** Lieu : nom de ville ou d'adresse, OU coordonnées (carte, position du téléphone). */
   location: { query?: string; lat?: number; lng?: number };
   /** Durée approximative de la chasse, en minutes. */
   durationMinutes: number;
+  travel: Travel;
   difficulty: Difficulty;
+  /** Thème libre (« boutiques de chaussures », « parcs et coulées vertes »…), suivi s'il est réalisable. */
+  theme: string | null;
   /** Nombre d'étapes à trouver (arrivée comprise) ; null = déduit de la durée. */
   steps: number | null;
   /** 'play' : chasse surprise pour soi ; 'organize' : l'utilisateur en devient l'organisateur. */
@@ -260,6 +270,8 @@ export interface GenerationJob {
   mode: 'play' | 'organize';
   huntId: number | null;
   error: string | null;
+  /** Comment le thème demandé a été suivi, ou pourquoi il n'a pas pu l'être. */
+  note: string | null;
 }
 
 export interface AuthResult {
