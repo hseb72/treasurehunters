@@ -8,8 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription, switchMap, takeWhile, timer } from 'rxjs';
-import { DIFFICULTY_LABELS, plannedStepCount, searchRadius } from '@shared/generation';
-import { Difficulty, GenerationJob, GenerationRequest } from '@shared/models';
+import { DIFFICULTY_HINTS, DIFFICULTY_LABELS, plannedStepCount, searchRadius, TRAVEL_HINTS, TRAVEL_LABELS } from '@shared/generation';
+import { Difficulty, GenerationJob, GenerationRequest, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { Notify } from '../../core/notify';
@@ -60,15 +60,27 @@ export class GeneratePage {
   protected readonly point = signal<LatLng | null>(null);
   protected readonly locating = signal(false);
   protected readonly duration = signal(60);
+  protected readonly travel = signal<Travel>('walk');
   protected readonly difficulty = signal<Difficulty>('medium');
+  protected readonly theme = signal('');
   protected readonly autoSteps = signal(true);
   protected readonly steps = signal(5);
   protected readonly mode = signal<GenerationRequest['mode']>('play');
 
+  protected readonly travels = Object.entries(TRAVEL_LABELS) as [Travel, string][];
+  protected readonly travelHints = TRAVEL_HINTS;
+  protected readonly travelIcons: Record<Travel, string> = { walk: 'directions_walk', active: 'directions_bike', motor: 'directions_car' };
   protected readonly difficulties = Object.entries(DIFFICULTY_LABELS) as [Difficulty, string][];
-  protected readonly radius = computed(() => searchRadius(this.duration()));
+  protected readonly difficultyHints = DIFFICULTY_HINTS;
+  protected readonly themeIdeas = ['Circuit touristique insolite', 'Parcs et coulées vertes', 'Magasins de chaussures', 'Street art'];
+  protected readonly radius = computed(() => searchRadius(this.duration(), this.travel()));
   protected readonly stepCount = computed(() =>
-    plannedStepCount({ steps: this.autoSteps() ? null : this.steps(), durationMinutes: this.duration(), difficulty: this.difficulty() }),
+    plannedStepCount({
+      steps: this.autoSteps() ? null : this.steps(),
+      durationMinutes: this.duration(),
+      travel: this.travel(),
+      difficulty: this.difficulty(),
+    }),
   );
   protected readonly ready = computed(() => (this.where() === 'city' ? this.query().trim().length > 1 : this.point() !== null));
 
@@ -108,7 +120,9 @@ export class GeneratePage {
     const request: GenerationRequest = {
       location: this.where() === 'city' ? { query: this.query().trim() } : { lat: p!.lat, lng: p!.lng },
       durationMinutes: this.duration(),
+      travel: this.travel(),
       difficulty: this.difficulty(),
+      theme: this.theme().trim() || null,
       steps: this.autoSteps() ? null : this.steps(),
       mode: this.mode(),
     };
@@ -129,7 +143,7 @@ export class GeneratePage {
 
   private follow(id: string): void {
     this.polling?.unsubscribe();
-    this.status.set({ id, status: 'pending', mode: this.mode(), huntId: null, error: null });
+    this.status.set({ id, status: 'pending', mode: this.mode(), huntId: null, error: null, note: null });
     let tick = 0;
     this.polling = timer(0, POLL_MS)
       .pipe(
@@ -143,12 +157,13 @@ export class GeneratePage {
         next: (job) => {
           this.status.set(job);
           if (job.status === 'done' && job.huntId) {
+            if (job.note) this.notify.info(job.note, 12000);
             // « Je joue » : direction le carnet de route, sans rien dévoiler. « J'organise » : l'éditeur d'étapes.
             this.router.navigate(job.mode === 'play' ? ['/play', job.huntId] : ['/organize', job.huntId, 'steps'], { replaceUrl: true });
           }
         },
         error: (e) => {
-          this.status.set({ id, status: 'error', mode: this.mode(), huntId: null, error: (e as Error).message });
+          this.status.set({ id, status: 'error', mode: this.mode(), huntId: null, error: (e as Error).message, note: null });
         },
       });
   }

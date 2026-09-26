@@ -54,7 +54,7 @@
             · {{ e.measuredMinutes }} min en moyenne pour les équipes arrivées
           }
         </li>
-        <li><mat-icon>signpost</mat-icon>{{ difficulty[e.difficulty] }}</li>
+        <li><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</li>
         <li>
           <mat-icon>{{ e.validation === 'geo' ? 'where_to_vote' : 'qr_code_2' }}</mat-icon>
           {{ e.validation === 'geo' ? 'Validation par géolocalisation, sans QR code' : 'QR codes à poser sur les lieux' }}

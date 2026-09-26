@@ -2,7 +2,7 @@
  * Génération de chasses (docs/conception.md § 11) : règles communes au serveur
  * (générateur OpenStreetMap + IA) et au back-end simulé des maquettes.
  */
-import { Difficulty, GenerationRequest } from './models.js';
+import { Difficulty, GenerationRequest, Travel } from './models.js';
 
 /** Étape d'une chasse inventée ; la première est le départ (ordre 0). */
 export interface PlannedStep {
@@ -26,26 +26,59 @@ export interface HuntPlan {
   steps: PlannedStep[];
 }
 
-/** Minutes moyennes par étape (marche + réflexion), selon la difficulté. */
-export const MINUTES_PER_STEP: Record<Difficulty, number> = { easy: 10, medium: 12, hard: 15 };
+/** Minutes moyennes par étape (trajet + réflexion) selon le déplacement : un trajet en voiture compte le stationnement. */
+export const MINUTES_PER_STEP: Record<Travel, number> = { walk: 12, active: 10, motor: 20 };
+/** Des énigmes plus corsées demandent plus de réflexion à chaque étape. */
+const DIFFICULTY_EXTRA_MINUTES: Record<Difficulty, number> = { easy: -2, medium: 0, hard: 3 };
 export const MIN_STEPS = 3;
 export const MAX_STEPS = 12;
 
 /** Nombre d'étapes à trouver (arrivée comprise) : demandé, ou déduit de la durée. */
-export function plannedStepCount(req: Pick<GenerationRequest, 'steps' | 'durationMinutes' | 'difficulty'>): number {
-  const n = req.steps ?? Math.round(req.durationMinutes / MINUTES_PER_STEP[req.difficulty]);
+export function plannedStepCount(req: Pick<GenerationRequest, 'steps' | 'durationMinutes' | 'travel' | 'difficulty'>): number {
+  const perStep = MINUTES_PER_STEP[req.travel] + DIFFICULTY_EXTRA_MINUTES[req.difficulty];
+  const n = req.steps ?? Math.round(req.durationMinutes / perStep);
   return Math.min(MAX_STEPS, Math.max(MIN_STEPS, n));
 }
 
-/** Rayon de recherche des lieux autour du point de départ, en mètres (≈ 15 m par minute de jeu). */
-export function searchRadius(durationMinutes: number): number {
-  return Math.min(2500, Math.max(300, Math.round(durationMinutes * 15)));
+/**
+ * Rayon de recherche des lieux autour du point de départ, en mètres : environ 15 m par minute
+ * de jeu à pied, 45 m à vélo ou trottinette, 250 m en véhicule (arrêts et recherche compris).
+ */
+const SEARCH: Record<Travel, { perMinute: number; min: number; max: number }> = {
+  walk: { perMinute: 15, min: 300, max: 2500 },
+  active: { perMinute: 45, min: 800, max: 8000 },
+  motor: { perMinute: 250, min: 3000, max: 30000 },
+};
+
+export function searchRadius(durationMinutes: number, travel: Travel = 'walk'): number {
+  const s = SEARCH[travel];
+  return Math.min(s.max, Math.max(s.min, Math.round(durationMinutes * s.perMinute)));
 }
 
+/** Déplacement : les trois formules de chasse. */
+export const TRAVEL_LABELS: Record<Travel, string> = {
+  walk: 'Balade',
+  active: 'Aventure',
+  motor: 'Expédition',
+};
+
+export const TRAVEL_HINTS: Record<Travel, string> = {
+  walk: 'À pied, en toute détente : les lieux sont à quelques rues les uns des autres.',
+  active: 'À pied d’un bon pas, à vélo ou en trottinette : un parcours plus étendu, sur plusieurs quartiers.',
+  motor: 'En véhicule motorisé (moto, voiture…) : les étapes sont à plusieurs kilomètres, avec de quoi se garer.',
+};
+
+/** Difficulté des énigmes. */
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  easy: 'Balade',
-  medium: 'Aventure',
-  hard: 'Expédition',
+  easy: 'Faciles',
+  medium: 'Intermédiaires',
+  hard: 'Corsées',
+};
+
+export const DIFFICULTY_HINTS: Record<Difficulty, string> = {
+  easy: 'Énigmes directes, idéal en famille.',
+  medium: 'Jeux de mots et devinettes imagées.',
+  hard: 'Charades et allusions cryptiques pour aventuriers aguerris.',
 };
 
 /**

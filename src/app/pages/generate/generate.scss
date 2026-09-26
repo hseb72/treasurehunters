@@ -48,6 +48,24 @@
   min-width: 4ch;
 }
 
+.label { font-weight: 600; color: var(--th-leather); margin-bottom: -6px; }
+
+.optional { font-family: var(--th-font-body); font-weight: 400; }
+
+.ideas { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.idea {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--th-saddle);
+  background: transparent;
+  color: var(--th-leather);
+  cursor: pointer;
+  &:hover, &:focus-visible { background: rgba(200, 150, 46, 0.18); }
+}
+
 .stepper { display: flex; align-items: center; gap: 4px; }
 
 .modes {
