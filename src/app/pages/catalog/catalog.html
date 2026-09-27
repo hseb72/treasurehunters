@@ -7,18 +7,55 @@
     </p>
   </header>
 
-  <div class="filters">
-    <mat-form-field subscriptSizing="dynamic" class="search">
-      <mat-icon matPrefix>search</mat-icon>
-      <mat-label>Ville, lieu ou mot-clé</mat-label>
-      <input matInput name="q" [ngModel]="query()" (ngModelChange)="query.set($event)" autocomplete="off" />
-    </mat-form-field>
-    <mat-button-toggle-group [value]="sort()" (change)="sort.set($event.value)" hideSingleSelectionIndicator aria-label="Trier">
-      <mat-button-toggle value="rating">Mieux notées</mat-button-toggle>
-      <mat-button-toggle value="plays">Plus jouées</mat-button-toggle>
-      <mat-button-toggle value="recent">Récentes</mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
+  <section class="parchment filters">
+    <div class="line">
+      <mat-form-field subscriptSizing="dynamic" class="search">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Ville, lieu ou mot-clé</mat-label>
+        <input matInput name="q" [ngModel]="query()" (ngModelChange)="query.set($event)" autocomplete="off" />
+      </mat-form-field>
+      <mat-button-toggle-group [value]="sort()" (change)="sort.set($event.value)" hideSingleSelectionIndicator aria-label="Trier">
+        <mat-button-toggle value="rating">Mieux notées</mat-button-toggle>
+        <mat-button-toggle value="plays">Plus jouées</mat-button-toggle>
+        <mat-button-toggle value="recent">Récentes</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <div class="criteria">
+      <div class="criterion">
+        <span class="label">Déplacement</span>
+        <mat-button-toggle-group multiple [value]="travel()" (change)="travel.set($event.value)" hideMultipleSelectionIndicator aria-label="Déplacement">
+          @for (t of travels; track t.value) {
+            <mat-button-toggle [value]="t.value" [aria-label]="t.label"><mat-icon>{{ t.icon }}</mat-icon> <span class="toggle-text">{{ t.label }}</span></mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion">
+        <span class="label">Énigmes</span>
+        <mat-button-toggle-group multiple [value]="difficulty()" (change)="difficulty.set($event.value)" hideMultipleSelectionIndicator aria-label="Difficulté des énigmes">
+          @for (d of difficulties; track d[0]) {
+            <mat-button-toggle [value]="d[0]">{{ d[1] }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion duration">
+        <span class="label">Durée prévue <span class="muted">· {{ durationText() }}</span></span>
+        <mat-slider [min]="durationBounds.min" [max]="durationBounds.max" step="15" discrete [displayWith]="durationLabel">
+          <input matSliderStartThumb aria-label="Durée minimale" [ngModel]="minDuration()" (ngModelChange)="minDuration.set($event)" />
+          <input matSliderEndThumb aria-label="Durée maximale" [ngModel]="maxDuration()" (ngModelChange)="maxDuration.set($event)" />
+        </mat-slider>
+      </div>
+    </div>
+
+    @if (filtered()) {
+      <div class="line end">
+        <span class="small muted">{{ entries.value().length }} chasse{{ entries.value().length > 1 ? 's' : '' }}</span>
+        <button mat-button type="button" (click)="reset()"><mat-icon>filter_alt_off</mat-icon>Tous les critères</button>
+      </div>
+    }
+  </section>
 
   @if (entries.value().length) {
     <div class="grid">
@@ -30,8 +67,8 @@
     <section class="parchment center">
       <mat-icon>travel_explore</mat-icon>
       <p class="muted">
-        @if (query()) {
-          Aucune chasse ne correspond à « {{ query() }} ».
+        @if (query() || filtered()) {
+          Aucune chasse ne correspond à ces critères.
         } @else {
           Le catalogue est encore vide : publiez la première chasse depuis votre espace organisateur !
         }

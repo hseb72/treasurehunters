@@ -50,6 +50,9 @@
             <span class="stamp stamp--gold">Chasse surprise</span>
             <h2>Votre expédition est prête</h2>
             <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}.</p>
+            @if (s.start; as start) {
+              <th-start-place [start]="start" />
+            }
             @if (s.hunt.startText) {
               <p class="note">{{ s.hunt.startText }}</p>
             }
@@ -89,6 +92,9 @@
           <h2>L'expédition n'a pas commencé</h2>
           <p class="big-number">{{ countdown(s.hunt.begin) }}</p>
           <p class="muted">Départ prévu le {{ s.hunt.begin | date: 'EEEE d MMMM à HH:mm' }}</p>
+          @if (s.start; as start) {
+            <th-start-place [start]="start" />
+          }
           @if (s.hunt.startText) {
             <p class="note">{{ s.hunt.startText }}</p>
           }
@@ -101,6 +107,9 @@
           <h2>Sur la ligne de départ</h2>
           <p>Votre équipe part en <strong>position {{ s.team.startOrder }}</strong>, à {{ s.team.started | date: 'HH:mm' }}.</p>
           <p class="big-number">{{ countdown(s.team.started) }}</p>
+          @if (s.start; as start) {
+            <th-start-place [start]="start" />
+          }
           @if (s.hunt.startText) {
             <p class="note">{{ s.hunt.startText }}</p>
           }
@@ -166,6 +175,9 @@
             <div class="clue-head">
               <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
             </div>
+            @if (clue.targetOrder === 1 && s.start; as start) {
+              <th-start-place class="small" [start]="start" />
+            }
             <p class="note clue-text">{{ clue.instructions }}</p>
 
             @if (clue.hintsTotal) {

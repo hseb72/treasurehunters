@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription, switchMap, takeWhile, timer } from 'rxjs';
-import { DIFFICULTY_HINTS, DIFFICULTY_LABELS, plannedStepCount, searchRadius, TRAVEL_HINTS, TRAVEL_LABELS } from '@shared/generation';
+import { DIFFICULTY_HINTS, DIFFICULTY_LABELS, plannedStepCount, searchRadius, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { Difficulty, GenerationJob, GenerationRequest, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
@@ -69,7 +69,7 @@ export class GeneratePage {
 
   protected readonly travels = Object.entries(TRAVEL_LABELS) as [Travel, string][];
   protected readonly travelHints = TRAVEL_HINTS;
-  protected readonly travelIcons: Record<Travel, string> = { walk: 'directions_walk', active: 'directions_bike', motor: 'directions_car' };
+  protected readonly travelIcons = TRAVEL_ICONS;
   protected readonly difficulties = Object.entries(DIFFICULTY_LABELS) as [Difficulty, string][];
   protected readonly difficultyHints = DIFFICULTY_HINTS;
   protected readonly themeIdeas = ['Circuit touristique insolite', 'Parcs et coulées vertes', 'Magasins de chaussures', 'Street art'];

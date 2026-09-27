@@ -161,6 +161,8 @@
 
 .unplaced { color: var(--th-brick); }
 
+.place .hint { margin: 0; }
+
 .reference {
   display: flex;
   flex-wrap: wrap;

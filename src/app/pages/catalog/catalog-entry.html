@@ -47,11 +47,12 @@
       <h2 class="section-title">La chasse</h2>
       <p class="description">{{ e.summary }}</p>
       <ul class="facts-list">
+        <li><mat-icon>{{ icons[e.travel] }}</mat-icon>{{ travel[e.travel] }} : {{ travelHints[e.travel] }}</li>
         <li><mat-icon>route</mat-icon>{{ e.stepCount }} étapes, arrivée comprise</li>
         <li>
-          <mat-icon>schedule</mat-icon>Environ {{ e.durationMinutes }} min annoncées
+          <mat-icon>schedule</mat-icon>Environ {{ minutes(e.durationMinutes) }} prévues
           @if (e.measuredMinutes !== null) {
-            · {{ e.measuredMinutes }} min en moyenne pour les équipes arrivées
+            · {{ minutes(e.measuredMinutes) }} en moyenne pour les équipes arrivées
           }
         </li>
         <li><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</li>

@@ -162,6 +162,9 @@ export class MockHuntApi extends HuntApi {
         isPublic: true,
         contribution: 0,
         startText: null,
+        travel: 'walk',
+        difficulty: null,
+        durationMinutes: null,
         ...data,
         generated: false,
         surprise: false,
@@ -238,8 +241,10 @@ export class MockHuntApi extends HuntApi {
       if (step.id) {
         const s = this.db.steps.find((x) => x.id === step.id && x.huntId === step.huntId);
         if (!s) throw new ApiError('Étape introuvable.');
-        const { id, huntId, order, token, ...editable } = step;
-        Object.assign(s, editable);
+        const { id, huntId, order, token, entrances, ...editable } = step;
+        // Déplacer l'étape, c'est changer de lieu : les entrées de l'ancien ne valent plus.
+        const moved = (editable.latitude !== undefined && editable.latitude !== s.latitude) || (editable.longitude !== undefined && editable.longitude !== s.longitude);
+        Object.assign(s, editable, moved ? { entrances: [] } : {});
         return s;
       }
       // Une nouvelle étape s'insère juste avant l'arrivée.
@@ -465,7 +470,8 @@ export class MockHuntApi extends HuntApi {
       const steps = this.stepsOf(huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
       if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-      const distance = Math.round(distanceMeters(pos, { lat: target.latitude, lng: target.longitude }));
+      const points = [{ lat: target.latitude, lng: target.longitude }, ...target.entrances];
+      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
       const allowed = Math.round(checkinAllowance(h, pos.accuracy));
       if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
       const now = new Date().toISOString();
@@ -558,6 +564,9 @@ export class MockHuntApi extends HuntApi {
         geoRadius: 40,
         generated: true,
         surprise: play,
+        travel: request.travel,
+        difficulty: request.difficulty,
+        durationMinutes: request.durationMinutes,
         hostId: play ? me : null,
         catalogId: null,
         selfPaced: true,
@@ -649,6 +658,10 @@ export class MockHuntApi extends HuntApi {
       }
       const q = opts.q?.trim().toLowerCase();
       if (q) list = list.filter((e) => [e.title, e.location, e.summary].some((t) => t.toLowerCase().includes(q)));
+      if (opts.travel?.length) list = list.filter((e) => opts.travel!.includes(e.travel));
+      if (opts.difficulty?.length) list = list.filter((e) => opts.difficulty!.includes(e.difficulty));
+      if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
+      if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       const views = list.map((e) => this.entryView(e));
       const sort = opts.sort ?? 'rating';
       return views.sort((a, b) =>
@@ -686,6 +699,9 @@ export class MockHuntApi extends HuntApi {
         hostId: null,
         selfPaced: true,
         catalogId: id,
+        travel: e.travel,
+        difficulty: e.difficulty,
+        durationMinutes: e.durationMinutes,
         isPublic: false,
         joinCode: randomToken(6).toUpperCase(),
         status: 'draft',
@@ -772,6 +788,18 @@ export class MockHuntApi extends HuntApi {
     };
     const fingerprint = JSON.stringify({ rules: [hintPenalties, skipPenalty, validation, geoRadius], steps: content.steps });
     const previous = this.catalog.filter((e) => e.huntId === h.id).at(-1);
+    Object.assign(h, { travel: pub.travel, difficulty: pub.difficulty, durationMinutes: pub.durationMinutes });
+    // Même parcours que sa dernière publication : on en corrige la fiche.
+    if (previous && !previous.withdrawn && previous.fingerprint === fingerprint) {
+      return Object.assign(previous, {
+        summary: pub.summary.trim() || h.description,
+        travel: pub.travel,
+        difficulty: pub.difficulty,
+        durationMinutes: pub.durationMinutes,
+        sampleOrder: sample.order,
+        sample: sample.instructions!,
+      });
+    }
     const parentId = previous?.id ?? h.catalogId;
     const parent = this.catalog.find((e) => e.id === parentId);
     if (parent && parent.fingerprint === fingerprint) {
@@ -785,6 +813,7 @@ export class MockHuntApi extends HuntApi {
       title: h.name,
       summary: pub.summary.trim() || h.description,
       location: h.location,
+      travel: pub.travel,
       difficulty: pub.difficulty,
       durationMinutes: pub.durationMinutes,
       stepCount: final,
@@ -822,6 +851,7 @@ export class MockHuntApi extends HuntApi {
       title: e.title,
       summary: e.summary,
       location: e.location,
+      travel: e.travel,
       difficulty: e.difficulty,
       durationMinutes: e.durationMinutes,
       measuredMinutes: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null,
@@ -867,7 +897,7 @@ export class MockHuntApi extends HuntApi {
     const closed = this.db.hunts.find((h) => h.status === 'closed');
     if (!closed) return;
     try {
-      this.publish(closed, { summary: '', difficulty: 'medium', durationMinutes: 90, sampleOrder: 1, changes: null });
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -1162,6 +1192,10 @@ export class MockHuntApi extends HuntApi {
       position,
       selfStart: canSelfStart(hunt, team, me),
       photoProof: hunt.validation === 'qr',
+      start: (() => {
+        const s = steps.find((x) => x.order === 0);
+        return s && s.latitude !== null && s.longitude !== null ? { name: s.address?.trim() || null, lat: s.latitude, lng: s.longitude } : null;
+      })(),
     };
   }
 
@@ -1213,6 +1247,7 @@ export class MockHuntApi extends HuntApi {
       longitude: null,
       address: null,
       referencePhoto: false,
+      entrances: [],
     };
   }
 
@@ -1264,6 +1299,7 @@ interface MockEntry {
   title: string;
   summary: string;
   location: string;
+  travel: CatalogPublication['travel'];
   difficulty: CatalogPublication['difficulty'];
   durationMinutes: number;
   stepCount: number;

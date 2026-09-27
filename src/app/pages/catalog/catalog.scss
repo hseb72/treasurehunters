@@ -16,9 +16,42 @@
 
 .filters {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.line {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+  &.end { justify-content: flex-end; }
+}
+
+.criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: flex-start;
+}
+
+.criterion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  mat-button-toggle-group { align-self: flex-start; }
+  mat-icon { vertical-align: middle; }
+}
+
+.label { font-weight: 600; color: var(--th-leather); font-size: 0.9rem; }
+
+.duration { flex: 1 1 260px; }
+.duration mat-slider { width: 100%; margin: 0; }
+
+/* Sur téléphone, les icônes suffisent pour le déplacement. */
+@media (max-width: 420px) {
+  .toggle-text { display: none; }
 }
 
 .search {

@@ -41,7 +41,7 @@ describe('chasse surprise (mode « je joue »)', () => {
     expect((await seb.get(`/api/hunts/${job.huntId}/steps`)).status).toBe(403); // le parcours reste secret
 
     const before = (await seb.get(`/api/hunts/${job.huntId}/play`)).body;
-    expect(before).toMatchObject({ selfStart: true, clue: null });
+    expect(before).toMatchObject({ selfStart: true, clue: null, start: { lat: expect.any(Number), lng: expect.any(Number) } });
     const started = (await seb.post(`/api/hunts/${job.huntId}/self-start`)).body;
     expect(started.selfStart).toBe(false);
     expect(started.clue.targetOrder).toBe(1);
@@ -210,20 +210,33 @@ describe('limites de la génération', () => {
 });
 
 describe('réponse du modèle', () => {
-  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false });
+  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false, gated: false });
   const place = (poiId: string) => ({ poiId, title: `Étape ${poiId}`, riddle: `Énigme vers ${poiId}`, hints: ['a', 'b', 'c', 'd'], arrival: `Bravo ${poiId}` });
-  const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603)], count: 3, difficulty: 'easy' as const, durationMinutes: 30, travel: 'walk' as const, theme: null };
+  const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603), poi('n4', 43.6005)], count: 3, difficulty: 'easy' as const, durationMinutes: 30, travel: 'walk' as const, theme: null };
+
+  const start = { poiId: 'n4', meeting: 'Rendez-vous devant le lieu n4.' };
 
   it('enchaîne les énigmes et reprend les coordonnées d’OpenStreetMap', () => {
-    const plan = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: 'A', places: [place('n2'), place('n1'), place('n3')] }, input);
+    const plan = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: 'A', start, places: [place('n2'), place('n1'), place('n3')] }, input);
     expect(plan.steps.map((s) => s.instructions)).toEqual(['Énigme vers n2', 'Énigme vers n1', 'Énigme vers n3', null]);
     expect(plan.steps[1]).toMatchObject({ latitude: 43.602, address: 'Lieu n2', arrival: 'Bravo n2' });
     expect(plan.steps[0].hints).toHaveLength(3);
     expect(plan.steps[3].hints).toEqual([]);
+    // Le départ est le lieu de rendez-vous, annoncé en tête du texte de départ.
+    expect(plan.steps[0]).toMatchObject({ latitude: 43.6005, address: 'Lieu n4' });
+    expect(plan.startText).toBe('Rendez-vous devant le lieu n4.\n\nS');
+  });
+
+  it('se rabat sur le lieu libre le plus proche si le rendez-vous est inventé ou déjà pris', () => {
+    for (const poiId of ['x9', 'n1']) {
+      const plan = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', start: { poiId, meeting: 'Ailleurs.' }, places: [place('n1'), place('n2'), place('n3')] }, input);
+      expect(plan.steps[0].address).toBe('Lieu n4');
+      expect(plan.startText).toBe('Rendez-vous : Lieu n4.\n\nS');
+    }
   });
 
   it('écarte les lieux inventés ou répétés', () => {
     const places = [place('n1'), place('x9'), place('n1'), place('n2')];
-    expect(() => toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', places }, input)).toThrow(/incomplète/);
+    expect(() => toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', start, places }, input)).toThrow(/incomplète/);
   });
 });

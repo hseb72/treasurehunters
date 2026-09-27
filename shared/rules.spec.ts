@@ -12,14 +12,14 @@ function hunt(extra: Partial<Hunt> = {}): Hunt {
   return {
     id: 1, ownerId: 99, ownerNickname: 'orga', name: 'H', description: '', location: '', begin: at(0), end: at(240),
     started: at(0), closed: null, autoStart: false, autoClose: false, award: null, startMode: 'mass', interval: null,
-    hintPenalties: [0, 0, 0], skipPenalty: 30, validation: 'qr', geoRadius: 40, generated: false, surprise: false, hostId: null, hostNickname: null, selfPaced: true, catalogId: null, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
+    hintPenalties: [0, 0, 0], skipPenalty: 30, validation: 'qr', geoRadius: 40, generated: false, surprise: false, hostId: null, hostNickname: null, selfPaced: true, catalogId: null, travel: 'walk', difficulty: null, durationMinutes: null, teamGame: true, teamMin: 1, teamMax: 4, isPublic: true, joinCode: 'X', contribution: 0,
     startText: null, status: 'running', stepCount: 3, teamCount: 0, ...extra,
   };
 }
 
 const steps: Step[] = [0, 1, 2, 3].map((order) => ({
   id: order + 10, huntId: 1, order, token: order ? `tok${order}` : null, title: `S${order}`, arrival: null,
-  instructions: order < 3 ? `clue ${order}` : null, hints: [], answer: null, latitude: null, longitude: null, address: null, referencePhoto: false,
+  instructions: order < 3 ? `clue ${order}` : null, hints: [], answer: null, latitude: null, longitude: null, address: null, referencePhoto: false, entrances: [],
 }));
 
 describe('teamStartTimes', () => {

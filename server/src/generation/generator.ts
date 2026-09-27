@@ -7,7 +7,7 @@ import { GenerationRequest, Travel } from '../../../shared/models.js';
 import { distanceMeters } from '../../../shared/rules.js';
 import { HttpError } from '../errors.js';
 import { ClaudePlanner } from './claude.js';
-import { geocode, placesAround, Place, Poi, reverseGeocode, ThemeFilter } from './osm.js';
+import { Access, accessOf, geocode, placesAround, Place, Poi, reverseGeocode, ThemeFilter } from './osm.js';
 
 export interface GeneratedHunt {
   plan: HuntPlan;
@@ -64,7 +64,12 @@ export class OsmClaudeGenerator implements HuntGenerator {
       durationMinutes: req.durationMinutes,
       theme,
     });
-    return { plan, location: place.name, note };
+    // Parcs, musées, églises… : l'étape se valide depuis leurs entrées, pour rester jouable
+    // quand ils sont fermés. Sans réponse d'Overpass, l'étape garde le point du lieu.
+    const chosen = new Set(plan.steps.map((s) => s.source));
+    const gated = pois.filter((p) => p.gated && chosen.has(p.id));
+    const access = gated.length ? await accessOf(gated).catch(() => new Map<string, Access>()) : new Map<string, Access>();
+    return { plan: placeAtEntrances(plan, access), location: place.name, note };
   }
 
   /**
@@ -78,7 +83,8 @@ export class OsmClaudeGenerator implements HuntGenerator {
     const all = await placesAround(center, Math.min(Math.round(radius * area.factor), area.max), theme);
     const near = all.filter((p) => distanceMeters(center, p) <= radius);
     const pois = near.length >= count + 2 ? near : all;
-    if (pois.length < count) {
+    // Un lieu de plus : le rendez-vous.
+    if (pois.length < count + 1) {
       throw new HttpError(422, 'Pas assez de lieux remarquables autour de ce point : allongez la durée, réduisez le nombre d’étapes ou choisissez un autre lieu.');
     }
     // Les plus proches, en privilégiant ceux du thème puis ceux qui ont de quoi nourrir une énigme.
@@ -89,6 +95,26 @@ export class OsmClaudeGenerator implements HuntGenerator {
       .slice(0, MAX_CANDIDATES)
       .map(({ p }) => p);
   }
+}
+
+/**
+ * Place chaque étape d'un lieu clos sur l'entrée la plus proche du lieu précédent (celle par
+ * laquelle on arrive), les autres entrées restant valables. Le départ prend l'entrée la plus
+ * proche de la première étape.
+ */
+export function placeAtEntrances(plan: HuntPlan, access: Map<string, Access>): HuntPlan {
+  const steps = plan.steps.map((s) => ({ ...s }));
+  steps.forEach((step, i) => {
+    const a = step.source ? access.get(step.source) : undefined;
+    const from = i === 0 ? steps[1] : steps[i - 1];
+    if (!a?.points.length || !from) return;
+    const origin = { lat: from.latitude, lng: from.longitude };
+    const [nearest, ...others] = [...a.points].sort((p, q) => distanceMeters(origin, p) - distanceMeters(origin, q));
+    step.latitude = nearest.lat;
+    step.longitude = nearest.lng;
+    step.entrances = others;
+  });
+  return { ...plan, steps };
 }
 
 async function locate(req: GenerationRequest): Promise<Place> {

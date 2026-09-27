@@ -60,6 +60,9 @@ export function buildFixtures(now = Date.now()): MockDb {
     hostId: null,
     selfPaced: true,
     catalogId: null,
+    travel: 'walk',
+    difficulty: null,
+    durationMinutes: null,
     teamGame: true,
     teamMin: 1,
     teamMax: 4,
@@ -175,6 +178,7 @@ export function buildFixtures(now = Date.now()): MockDb {
         longitude: null,
         address,
         referencePhoto: false,
+        entrances: [],
       }),
     );
 

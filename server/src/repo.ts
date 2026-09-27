@@ -72,6 +72,9 @@ export function toHunt(r: Row): Hunt {
     hostNickname: r['host_nickname'],
     selfPaced: r['hun_selfpaced'],
     catalogId: r['hun_catalog_cat'],
+    travel: r['hun_travel'],
+    difficulty: r['hun_difficulty'],
+    durationMinutes: r['hun_duration'],
     status: r['hst_code'],
     stepCount: r['step_count'],
     teamCount: r['team_count'],
@@ -110,6 +113,9 @@ export const HUNT_COLUMNS: Partial<Record<keyof Hunt, (h: Partial<Hunt>) => [str
   contribution: (h) => [['hun_contribution', h.contribution]],
   validation: (h) => [['hun_validation', h.validation]],
   geoRadius: (h) => [['hun_georadius', h.geoRadius]],
+  travel: (h) => [['hun_travel', h.travel]],
+  difficulty: (h) => [['hun_difficulty', h.difficulty]],
+  durationMinutes: (h) => [['hun_duration', h.durationMinutes]],
 };
 
 export function huntAssignments(data: Partial<Hunt>): [string, unknown][] {
@@ -132,6 +138,7 @@ export function toStep(r: Row): Step {
     latitude: r['cod_latitude'],
     longitude: r['cod_longitude'],
     address: r['cod_address'],
+    entrances: r['cod_entrances'] ?? [],
     referencePhoto: !!r['cod_refphoto'],
   };
 }
