@@ -1,20 +1,20 @@
 @if (hunt(); as h) {
   @if (h.status === 'draft' || h.status === 'published') {
-    <section class="parchment center idle">
+    <section class="surface center idle">
       <mat-icon>radar</mat-icon>
       <h2>Le radar s'allumera au départ</h2>
       <p class="muted">Quand vous donnerez le top départ, vous suivrez ici la progression de chaque équipe en temps réel.</p>
     </section>
   } @else {
     <div class="stats">
-      <div class="stat leather">
+      <div class="stat banner">
         <mat-icon>timer</mat-icon>
         <span class="value">{{ elapsed() }}</span>
         <span class="label">{{ h.closed ? 'durée totale' : 'depuis le départ' }}</span>
       </div>
-      <div class="stat parchment"><span class="value">{{ stats().waiting }}</span><span class="label">sur la ligne</span></div>
-      <div class="stat parchment"><span class="value">{{ stats().running }}</span><span class="label">en piste</span></div>
-      <div class="stat parchment"><span class="value gold">{{ stats().finished }}</span><span class="label">arrivées</span></div>
+      <div class="stat surface"><span class="value">{{ stats().waiting }}</span><span class="label">sur la ligne</span></div>
+      <div class="stat surface"><span class="value">{{ stats().running }}</span><span class="label">en piste</span></div>
+      <div class="stat surface"><span class="value gold">{{ stats().finished }}</span><span class="label">arrivées</span></div>
     </div>
 
     <div class="row">
@@ -24,7 +24,7 @@
 
     <div class="board">
       @for (r of rows.value(); track r.team.id) {
-        <div class="lane parchment lane--{{ r.status }}">
+        <div class="lane surface lane--{{ r.status }}">
           <div class="lane-head">
             @if (r.team.startOrder) {
               <span class="pos">{{ r.team.startOrder }}</span>
@@ -32,7 +32,7 @@
             <strong class="grow">{{ r.team.name }}</strong>
             @switch (r.status) {
               @case ('finished') {
-                <span class="badge badge--gold"><mat-icon>diamond</mat-icon>arrivée {{ r.team.finished | date: 'HH:mm' }}</span>
+                <span class="badge badge--accent"><mat-icon>diamond</mat-icon>arrivée {{ r.team.finished | date: 'HH:mm' }}</span>
               }
               @case ('waiting') {
                 <span class="badge badge--published"><mat-icon>hourglass_top</mat-icon>départ dans {{ startsIn(r.team.started) }}</span>

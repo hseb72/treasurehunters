@@ -9,7 +9,7 @@
   flex-wrap: wrap;
 
   .mat-icon {
-    color: var(--th-gold-light);
+    color: var(--th-accent-light);
   }
 }
 
@@ -42,8 +42,8 @@
 }
 
 .main-action {
-  --mat-button-filled-container-color: var(--th-gold);
-  --mat-button-filled-label-text-color: var(--th-leather);
+  --mat-button-filled-container-color: var(--th-accent);
+  --mat-button-filled-label-text-color: var(--th-primary);
 
   .mat-icon {
     color: inherit;
@@ -65,7 +65,7 @@
     font-family: var(--th-font-title);
     font-size: 0.72rem;
     letter-spacing: 0.05em;
-    color: #b9a47c;
+    color: var(--th-border);
 
     &::before {
       content: '';
@@ -76,8 +76,8 @@
       height: 12px;
       transform: translateX(-50%);
       border-radius: 50%;
-      border: 2px solid #b9a47c;
-      background: var(--th-leather);
+      border: 2px solid var(--th-border);
+      background: var(--th-primary);
       z-index: 1;
     }
 
@@ -87,27 +87,27 @@
       top: 11px;
       left: 50%;
       width: 100%;
-      border-top: 2px dotted #7d6647;
+      border-top: 2px dotted var(--th-neutral);
     }
   }
 
   .done {
-    color: var(--th-gold-light);
+    color: var(--th-accent-light);
 
     &::before {
-      background: var(--th-gold);
-      border-color: var(--th-gold);
+      background: var(--th-accent);
+      border-color: var(--th-accent);
     }
   }
 
   .current {
-    color: #fff3d6;
+    color: var(--th-on-primary);
     font-weight: 700;
 
     &::before {
-      background: var(--th-brick);
-      border-color: var(--th-gold-light);
-      box-shadow: 0 0 0 4px rgba(236, 201, 112, 0.25);
+      background: var(--th-danger);
+      border-color: var(--th-accent-light);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--th-accent-light) 25%, transparent);
     }
   }
 }

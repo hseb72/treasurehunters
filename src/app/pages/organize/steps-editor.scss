@@ -16,7 +16,7 @@
     left: 8px;
     top: 24px;
     bottom: 24px;
-    border-left: 3px dashed var(--th-saddle);
+    border-left: 3px dashed var(--th-secondary);
     opacity: 0.6;
   }
 }
@@ -33,8 +33,8 @@
 }
 
 .card--open {
-  border-color: var(--th-gold);
-  box-shadow: var(--th-shadow), 0 0 0 2px rgba(200, 150, 46, 0.35);
+  border-color: var(--th-accent);
+  box-shadow: var(--th-shadow), 0 0 0 2px color-mix(in srgb, var(--th-accent) 35%, transparent);
 }
 
 .card-head {
@@ -55,9 +55,9 @@
   border-radius: 50%;
   font-family: var(--th-font-title);
   font-weight: 700;
-  color: var(--th-leather);
-  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
-  border: 2px solid var(--th-parchment);
+  color: var(--th-primary);
+  background: radial-gradient(circle at 35% 30%, var(--th-accent-light), var(--th-accent));
+  border: 2px solid var(--th-surface);
 
   .mat-icon {
     width: 18px;
@@ -67,13 +67,13 @@
 }
 
 .pin--start {
-  color: #fff3d6;
-  background: var(--th-jungle);
+  color: var(--th-on-primary);
+  background: var(--th-success);
 }
 
 .pin--end {
-  color: #fff3d6;
-  background: var(--th-brick);
+  color: var(--th-on-primary);
+  background: var(--th-danger);
 }
 
 .card-title {
@@ -98,8 +98,8 @@
 
 .clue {
   padding: 8px 12px;
-  border-left: 3px solid var(--th-gold);
-  background: rgba(255, 250, 235, 0.6);
+  border-left: 3px solid var(--th-accent);
+  background: color-mix(in srgb, var(--th-surface-raised) 60%, transparent);
 }
 
 .editor {
@@ -126,7 +126,7 @@
 }
 
 .danger {
-  --mat-button-text-label-text-color: var(--th-brick);
+  --mat-button-text-label-text-color: var(--th-danger);
 }
 
 .add {
@@ -135,7 +135,7 @@
 }
 
 .cdk-drag-preview {
-  box-shadow: 0 10px 24px rgba(61, 36, 19, 0.35);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--th-primary) 35%, transparent);
 }
 
 .cdk-drag-placeholder {
@@ -159,7 +159,7 @@
   margin-bottom: 12px;
 }
 
-.unplaced { color: var(--th-brick); }
+.unplaced { color: var(--th-danger); }
 
 .place .hint { margin: 0; }
 
@@ -170,7 +170,7 @@
   align-items: flex-start;
   margin: 0 0 12px;
   padding: 10px;
-  border: 1px dashed var(--th-edge);
+  border: 1px dashed var(--th-border);
   border-radius: var(--th-radius);
 }
 

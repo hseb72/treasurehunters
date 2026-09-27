@@ -12,9 +12,11 @@ import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
 import { Podium } from '../../shared/podium';
 import { RatingForm } from '../../shared/rating-form';
 
+import { SkinDirective } from '../../shared/skin';
+
 @Component({
   selector: 'th-results',
-  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium, RatingForm],
+  imports: [SkinDirective, DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium, RatingForm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './results.html',
   styleUrl: './results.scss',
@@ -26,6 +28,8 @@ export class ResultsPage {
   readonly id = input.required({ transform: numberAttribute });
 
   protected readonly hunt = rxResource({ params: () => this.id(), stream: ({ params }) => this.api.getHunt(params) });
+  /** Skin de la chasse, dès qu'elle est connue. */
+  protected readonly skin = computed(() => this.hunt.value()?.skin);
   protected readonly rows = rxResource({
     params: () => ({ id: this.id(), user: this.session.user()?.id }),
     stream: ({ params }) => this.api.getResults(params.id),

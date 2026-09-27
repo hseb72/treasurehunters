@@ -10,7 +10,7 @@
 
   p {
     margin: 0;
-    color: var(--th-parchment-light);
+    color: var(--th-surface-raised);
   }
 }
 
@@ -44,7 +44,7 @@
   mat-icon { vertical-align: middle; }
 }
 
-.label { font-weight: 600; color: var(--th-leather); font-size: 0.9rem; }
+.label { font-weight: 600; color: var(--th-primary); font-size: 0.9rem; }
 
 .duration { flex: 1 1 260px; }
 .duration mat-slider { width: 100%; margin: 0; }

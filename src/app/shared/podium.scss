@@ -25,7 +25,7 @@
   font-family: var(--th-font-title);
   font-weight: 700;
   font-size: 0.9rem;
-  color: var(--th-leather);
+  color: var(--th-primary);
   overflow-wrap: anywhere;
 }
 
@@ -42,9 +42,9 @@
   width: 100%;
   font-family: var(--th-font-display);
   font-size: 1.8rem;
-  color: var(--th-leather);
+  color: var(--th-primary);
   border-radius: 4px 4px 0 0;
-  border: 1px solid rgba(61, 36, 19, 0.35);
+  border: 1px solid color-mix(in srgb, var(--th-primary) 35%, transparent);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45);
 }
 
@@ -76,5 +76,5 @@
 }
 
 .place--mine .team {
-  color: var(--th-brick);
+  color: var(--th-danger);
 }

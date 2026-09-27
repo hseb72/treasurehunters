@@ -1,6 +1,8 @@
+<!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
+<div [thSkin]="skin()">
 <div class="page stack">
   @if (hunt.error()) {
-    <div class="parchment center">
+    <div class="surface center">
       <h2>Expédition introuvable</h2>
       <p class="muted">Cette chasse n'existe pas ou n'est pas encore publiée.</p>
       <a mat-stroked-button routerLink="/">Retour au carnet de bord</a>
@@ -8,7 +10,7 @@
   }
 
   @if (hunt.value(); as h) {
-    <header class="poster leather">
+    <header class="poster banner">
       <th-status-badge [status]="h.status" />
       <h1 class="display">{{ h.name }}</h1>
       <div class="facts">
@@ -19,7 +21,7 @@
     </header>
 
     <!-- Bloc d'action : dépend du statut et de la situation du joueur -->
-    <section class="parchment action">
+    <section class="surface action">
       @if (isOwner()) {
         <p><mat-icon>map</mat-icon> Vous organisez cette expédition.</p>
         <a mat-flat-button class="th-cta" [routerLink]="['/organize', h.id]">Espace organisateur</a>
@@ -38,7 +40,7 @@
                 <li>
                   {{ m.nickname }}
                   @if (m.hunterId === team.ownerId) {
-                    <span class="badge badge--gold">capitaine</span>
+                    <span class="badge badge--accent">capitaine</span>
                   }
                 </li>
               }
@@ -102,7 +104,7 @@
       <th-invite-panel [hunt]="h" [team]="team" />
     }
 
-    <section class="parchment">
+    <section class="surface">
       <h2 class="section-title">L'expédition</h2>
       <p class="description">{{ h.description }}</p>
       @if (h.startText) {
@@ -119,7 +121,7 @@
       }
     </section>
 
-    <section class="parchment">
+    <section class="surface">
       <h2 class="section-title">Règles du jeu</h2>
       <ul class="rules">
         <li><mat-icon>route</mat-icon><span><strong>{{ h.stepCount }} étapes</strong> à trouver dans l'ordre, chacune révèle l'énigme de la suivante.</span></li>
@@ -168,7 +170,7 @@
     </section>
 
     @if (teams.value().length) {
-      <section class="parchment">
+      <section class="surface">
         <h2 class="section-title">{{ h.teamGame ? 'Équipes engagées' : 'Aventuriers inscrits' }}</h2>
         <div class="teams">
           @for (t of teams.value(); track t.id) {
@@ -183,4 +185,5 @@
       </section>
     }
   }
+</div>
 </div>

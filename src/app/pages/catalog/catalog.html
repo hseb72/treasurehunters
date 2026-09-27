@@ -1,5 +1,5 @@
 <div class="page stack">
-  <header class="leather head">
+  <header class="banner head">
     <h1 class="display">Le catalogue des chasses</h1>
     <p class="small">
       Des parcours rédigés et testés par d'autres organisateurs. Choisissez-en un, adaptez-le à votre façon (étapes, énigmes, jokers,
@@ -7,7 +7,7 @@
     </p>
   </header>
 
-  <section class="parchment filters">
+  <section class="surface filters">
     <div class="line">
       <mat-form-field subscriptSizing="dynamic" class="search">
         <mat-icon matPrefix>search</mat-icon>
@@ -64,7 +64,7 @@
       }
     </div>
   } @else if (!entries.isLoading()) {
-    <section class="parchment center">
+    <section class="surface center">
       <mat-icon>travel_explore</mat-icon>
       <p class="muted">
         @if (query() || filtered()) {

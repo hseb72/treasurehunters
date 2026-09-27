@@ -19,7 +19,7 @@ const FRANCE: LatLng = { lat: 46.6, lng: 2.4 };
   template: `<div #host class="map" role="application" aria-label="Carte : touchez pour choisir le point de départ"></div>`,
   styles: `
     :host { display: block; }
-    .map { height: 280px; border-radius: var(--th-radius); border: 2px solid var(--th-edge); box-shadow: var(--th-shadow); z-index: 0; }
+    .map { height: 280px; border-radius: var(--th-radius); border: 2px solid var(--th-border); box-shadow: var(--th-shadow); z-index: 0; }
   `,
 })
 export class LocationMap {

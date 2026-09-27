@@ -73,6 +73,7 @@ export function toHunt(r: Row): Hunt {
     selfPaced: r['hun_selfpaced'],
     catalogId: r['hun_catalog_cat'],
     travel: r['hun_travel'],
+    skin: r['hun_skin'],
     difficulty: r['hun_difficulty'],
     durationMinutes: r['hun_duration'],
     status: r['hst_code'],
@@ -114,6 +115,7 @@ export const HUNT_COLUMNS: Partial<Record<keyof Hunt, (h: Partial<Hunt>) => [str
   validation: (h) => [['hun_validation', h.validation]],
   geoRadius: (h) => [['hun_georadius', h.geoRadius]],
   travel: (h) => [['hun_travel', h.travel]],
+  skin: (h) => [['hun_skin', h.skin]],
   difficulty: (h) => [['hun_difficulty', h.difficulty]],
   durationMinutes: (h) => [['hun_duration', h.durationMinutes]],
 };

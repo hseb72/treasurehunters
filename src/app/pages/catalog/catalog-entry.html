@@ -1,6 +1,6 @@
 <div class="page stack">
   @if (entry.error()) {
-    <section class="parchment center">
+    <section class="surface center">
       <h2>Chasse introuvable</h2>
       <p class="muted">Elle n'est pas (ou plus) au catalogue.</p>
       <a mat-stroked-button routerLink="/catalog">Retour au catalogue</a>
@@ -8,7 +8,7 @@
   }
 
   @if (entry.value(); as e) {
-    <header class="poster leather">
+    <header class="poster banner">
       @if (e.withdrawn) {
         <span class="badge badge--cancelled">retirée du catalogue</span>
       }
@@ -21,7 +21,7 @@
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
 
-    <section class="parchment action">
+    <section class="surface action">
       @if (isAuthor()) {
         <p class="small muted">Vous êtes l'auteur de cette version.</p>
         <div class="row actions">
@@ -43,7 +43,7 @@
       }
     </section>
 
-    <section class="parchment">
+    <section class="surface">
       <h2 class="section-title">La chasse</h2>
       <p class="description">{{ e.summary }}</p>
       <ul class="facts-list">
@@ -64,13 +64,13 @@
       </ul>
     </section>
 
-    <section class="parchment">
+    <section class="surface">
       <h2 class="section-title">Extrait</h2>
       <p class="small muted">{{ e.sample.order === 0 ? 'La première énigme' : 'L’énigme de l’étape ' + e.sample.order }}, telle que la lisent les joueurs :</p>
       <p class="note sample">{{ e.sample.text }}</p>
     </section>
 
-    <section class="parchment">
+    <section class="surface">
       <h2 class="section-title">L'avis des joueurs</h2>
       @if (e.rating.count) {
         <div class="criteria">
@@ -94,7 +94,7 @@
     </section>
 
     @if (e.parent || e.versions.length) {
-      <section class="parchment">
+      <section class="surface">
         <h2 class="section-title">Versions</h2>
         @if (e.parent; as p) {
           <p>

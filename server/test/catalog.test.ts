@@ -94,9 +94,11 @@ describe('catalogue', () => {
     expect(bike).toMatchObject({ id: original, travel: 'active', difficulty: 'hard', durationMinutes: 150, summary: 'Une balade au bord de l’eau.' });
     expect((await camille.get(`/api/hunts/${PALAVAS}`)).body).toMatchObject({ travel: 'active', difficulty: 'hard', durationMinutes: 150 });
 
-    // … et une copie en hérite.
+    // … et une copie en hérite, comme du skin de la chasse publiée.
     const lea = await loginAs(ctx.app, 'lea@example.com');
-    expect((await lea.post(`/api/catalog/${bike.id}/copy`)).body).toMatchObject({ travel: 'active', difficulty: 'hard', durationMinutes: 150 });
+    expect(bike.skin).toBe('aventure');
+    expect((await lea.post(`/api/catalog/${bike.id}/copy`)).body).toMatchObject({ travel: 'active', difficulty: 'hard', durationMinutes: 150, skin: 'aventure' });
+    expect((await camille.patch(`/api/hunts/${PALAVAS}`, { skin: 'inconnu' })).status).toBe(400);
 
     const ids = async (query: string) => (await client(ctx.app).get(`/api/catalog?${query}`)).body.map((e: { id: number }) => e.id);
     expect(await ids('travel=active')).toEqual([original]);

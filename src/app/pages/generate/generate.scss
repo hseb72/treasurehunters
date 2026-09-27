@@ -19,8 +19,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--th-leather);
-  color: var(--th-gold-light);
+  background: var(--th-primary);
+  color: var(--th-accent-light);
   font-family: var(--th-font-display);
   font-size: 0.95rem;
 }
@@ -44,11 +44,11 @@
   font-family: var(--th-font-title);
   font-weight: 700;
   font-size: 1.25rem;
-  color: var(--th-leather);
+  color: var(--th-primary);
   min-width: 4ch;
 }
 
-.label { font-weight: 600; color: var(--th-leather); margin-bottom: -6px; }
+.label { font-weight: 600; color: var(--th-primary); margin-bottom: -6px; }
 
 .optional { font-family: var(--th-font-body); font-weight: 400; }
 
@@ -59,11 +59,11 @@
   font-size: 0.85rem;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--th-saddle);
+  border: 1px solid var(--th-secondary);
   background: transparent;
-  color: var(--th-leather);
+  color: var(--th-primary);
   cursor: pointer;
-  &:hover, &:focus-visible { background: rgba(200, 150, 46, 0.18); }
+  &:hover, &:focus-visible { background: color-mix(in srgb, var(--th-accent) 18%, transparent); }
 }
 
 .stepper { display: flex; align-items: center; gap: 4px; }
@@ -84,11 +84,11 @@
   color: inherit;
   cursor: pointer;
   border: 2px solid transparent;
-  mat-icon { color: var(--th-saddle); }
+  mat-icon { color: var(--th-secondary); }
   &--on {
-    border-color: var(--th-gold);
-    box-shadow: 0 0 0 3px rgba(200, 150, 46, 0.25), var(--th-shadow);
-    mat-icon { color: var(--th-brick); }
+    border-color: var(--th-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--th-accent) 25%, transparent), var(--th-shadow);
+    mat-icon { color: var(--th-danger); }
   }
 }
 
@@ -105,7 +105,7 @@
   align-items: center;
   gap: 8px;
   padding: 40px 20px;
-  th-compass-logo { color: var(--th-saddle); }
+  th-compass-logo { color: var(--th-secondary); }
   h1 { margin: 12px 0 0; }
 }
 
@@ -125,4 +125,4 @@
 
 .wait-line { font-size: 1.1rem; min-height: 1.6em; }
 
-.big-icon { width: 56px; height: 56px; font-size: 56px; color: var(--th-brick); }
+.big-icon { width: 56px; height: 56px; font-size: 56px; color: var(--th-danger); }

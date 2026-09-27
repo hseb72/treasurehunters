@@ -1,5 +1,5 @@
 @if (hunt(); as h) {
-  <section class="parchment invite">
+  <section class="surface invite">
     <mat-icon>mail</mat-icon>
     <div class="spacer">
       <strong>Inviter des aventuriers</strong>
@@ -24,7 +24,7 @@
 
   <div cdkDropList class="list" (cdkDropListDropped)="drop($event)" [cdkDropListDisabled]="!canOrder()">
     @for (t of order(); track t.id; let i = $index) {
-      <div cdkDrag class="team parchment" [class.team--draggable]="canOrder()">
+      <div cdkDrag class="team surface" [class.team--draggable]="canOrder()">
         @if (h.startMode === 'staggered') {
           <span class="pos">{{ i + 1 }}</span>
         }
@@ -46,7 +46,7 @@
         }
       </div>
     } @empty {
-      <p class="parchment center muted">Aucune inscription pour l'instant. Partagez le code d'invitation !</p>
+      <p class="surface center muted">Aucune inscription pour l'instant. Partagez le code d'invitation !</p>
     }
   </div>
 }

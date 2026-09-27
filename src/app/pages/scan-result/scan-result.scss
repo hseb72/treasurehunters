@@ -24,19 +24,19 @@
   width: 56px;
   height: 56px;
   font-size: 56px;
-  color: var(--th-saddle);
+  color: var(--th-secondary);
 }
 
-.parchment > .stamp {
+.surface > .stamp {
   margin-bottom: 14px;
 }
 
 .gold {
-  color: var(--th-gold);
+  color: var(--th-accent);
 }
 
-.brick {
-  color: var(--th-brick);
+.danger {
+  color: var(--th-danger);
 }
 
 .drop {
@@ -61,7 +61,7 @@
 }
 
 .warn {
-  border-color: var(--th-brick);
+  border-color: var(--th-danger);
 }
 
 @keyframes unroll {

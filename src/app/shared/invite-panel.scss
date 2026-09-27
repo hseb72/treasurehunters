@@ -20,15 +20,15 @@
   font-weight: 600;
   color: var(--th-ink-soft);
   background: transparent;
-  border: 2px solid var(--th-edge);
+  border: 2px solid var(--th-border);
   border-radius: var(--th-radius);
   cursor: pointer;
 }
 
 .kind--on {
   color: var(--th-ink);
-  background: var(--th-parchment-light);
-  border-color: var(--th-saddle);
+  background: var(--th-surface-raised);
+  border-color: var(--th-secondary);
 }
 
 .code-block {
@@ -59,9 +59,9 @@
   font-family: var(--th-font-note);
   font-size: 1.6rem;
   letter-spacing: 0.2em;
-  border: 2px dashed var(--th-saddle);
+  border: 2px dashed var(--th-secondary);
   border-radius: 4px;
-  background: var(--th-parchment-light);
+  background: var(--th-surface-raised);
 }
 
 .actions {

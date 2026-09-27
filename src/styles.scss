@@ -1,4 +1,4 @@
-// Thème « carnet d'explorateur » : parchemin, cuir, kaki, or patiné et rouge brique.
+// Thème de base : clair et sobre. Chaque chasse porte ensuite son propre skin (shared/skins.ts).
 @use '@angular/material' as mat;
 @use './styles/theme-colors' as palettes;
 
@@ -31,32 +31,59 @@
   text-rendering: optimizeLegibility;
 }
 
+// Jetons de style. Valeurs de base : l'application, sobre et claire. Un skin de chasse
+// (shared/skins.ts) redéfinit ces mêmes jetons sur le conteneur de ses pages (directive
+// thSkin) : parchemin, cuir et tampons ne sont que des valeurs de jetons.
 :root {
-  // Couleurs de l'univers (utilisées en plus des variables Material --mat-sys-*).
-  --th-parchment: #f1e2bf;
-  --th-parchment-light: #f9f0da;
-  --th-parchment-dark: #dcc493;
-  --th-edge: #b8965d;
-  --th-leather: #3d2413;
-  --th-leather-light: #6a4124;
-  --th-saddle: #8b5a2b;
-  --th-gold: #c8962e;
-  --th-gold-light: #ecc970;
-  --th-khaki: #6b6b3a;
-  --th-jungle: #3f5a36;
-  --th-brick: #9e2b1f;
-  --th-ink: #2b1d12;
-  --th-ink-soft: #6b5640;
+  --th-page-bg: #f5f7fb;
+  --th-ink: #0f1f3d;
+  --th-ink-soft: #5b6b85;
+  --th-primary: #13294b;
+  --th-primary-light: #1d4ed8;
+  --th-on-primary: #ffffff;
+  --th-secondary: #1d4ed8;
+  --th-accent: #f2a93b;
+  --th-accent-light: #fde7b8;
+  --th-success: #15803d;
+  --th-danger: #dc2626;
+  --th-neutral: #64748b;
+  --th-border: #e3e8f0;
+  --th-surface: #eef2f8;
+  --th-surface-raised: #ffffff;
+  --th-surface-sunken: #e2e8f0;
 
-  --th-font-display: 'Rye', 'Cinzel', serif;
-  --th-font-title: 'Cinzel', Georgia, serif;
-  --th-font-body: 'Lora', Georgia, serif;
-  --th-font-note: 'Special Elite', 'Courier New', monospace;
+  --th-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --th-font-title: var(--th-font-body);
+  --th-font-display: var(--th-font-body);
+  --th-font-note: var(--th-font-body);
 
-  --th-radius: 6px;
-  --th-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 2px 6px rgba(61, 36, 19, 0.25);
-  // Grain de papier (bruit fractal SVG).
-  --th-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .22 0 0 0 0 .08 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --th-radius: 16px;
+  --th-shadow: 0 1px 2px rgba(15, 31, 61, 0.06), 0 6px 18px rgba(15, 31, 61, 0.06);
+  --th-texture: linear-gradient(transparent, transparent);
+
+  // Surfaces (cartes) et bandeaux (en-têtes d'écran).
+  --th-surface-bg: var(--th-surface-raised);
+  --th-surface-border: 1px solid var(--th-border);
+  --th-surface-shadow: var(--th-shadow);
+  --th-banner-bg: linear-gradient(135deg, #1d3b6e, var(--th-primary));
+  --th-banner-ink: #d6e0f2;
+  --th-banner-title: #ffffff;
+  --th-banner-outline: none;
+  // Titres.
+  --th-heading-ink: var(--th-ink);
+  --th-title-weight: 700;
+  --th-title-case: none;
+  --th-title-spacing: 0;
+  --th-display-weight: 800;
+  --th-display-spacing: -0.01em;
+  --th-display-shadow: none;
+  --th-section-rules: none;
+  --th-section-ink: var(--th-ink-soft);
+  // Notes (énigmes) et tampons.
+  --th-note-size: 1rem;
+  --th-stamp-rotate: 0deg;
+  --th-stamp-border: 2px solid currentColor;
+  --th-tape: none;
 }
 
 html {
@@ -70,24 +97,24 @@ html {
         theme-type: light,
       ),
       typography: (
-        plain-family: 'Lora',
-        brand-family: 'Cinzel',
+        plain-family: 'Inter',
+        brand-family: 'Inter',
       ),
       density: 0,
     )
   );
   @include mat.theme-overrides(
     (
-      surface: #f4e7c8,
-      surface-container-lowest: #fbf4e2,
-      surface-container-low: #f7ecd2,
-      surface-container: #f1e2bf,
-      surface-container-high: #ead8b0,
-      surface-container-highest: #e3cea2,
-      on-surface: #2b1d12,
-      on-surface-variant: #5b4632,
-      outline: #9c7f55,
-      outline-variant: #cdb48a,
+      surface: #ffffff,
+      surface-container-lowest: #ffffff,
+      surface-container-low: #f8fafd,
+      surface-container: #f1f4f9,
+      surface-container-high: #eaeef5,
+      surface-container-highest: #e2e8f0,
+      on-surface: #0f1f3d,
+      on-surface-variant: #5b6b85,
+      outline: #9aa7bd,
+      outline-variant: #d5dce8,
     )
   );
 }
@@ -98,23 +125,19 @@ body {
   color: var(--th-ink);
   font: var(--mat-sys-body-large);
   font-family: var(--th-font-body);
-  background-color: var(--th-parchment);
-  background-image:
-    var(--th-grain),
-    radial-gradient(ellipse at 50% 0%, rgba(255, 248, 225, 0.9), transparent 60%),
-    radial-gradient(ellipse at 100% 100%, rgba(139, 90, 43, 0.25), transparent 55%),
-    radial-gradient(ellipse at 0% 80%, rgba(107, 107, 58, 0.18), transparent 50%);
+  background: var(--th-page-bg);
 }
 
 a {
-  color: var(--th-saddle);
+  color: var(--th-secondary);
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--th-font-title);
-  color: var(--th-leather);
+  font-weight: var(--th-title-weight);
+  color: var(--th-heading-ink);
   margin: 0 0 0.5em;
   line-height: 1.2;
 }
@@ -183,14 +206,14 @@ p {
   text-align: center;
 }
 
-/* ---------- Typographie de l'aventure ---------- */
+/* ---------- Typographie ---------- */
 
 .display {
   font-family: var(--th-font-display);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: var(--th-leather);
-  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.7);
+  font-weight: var(--th-display-weight);
+  letter-spacing: var(--th-display-spacing);
+  color: var(--th-heading-ink);
+  text-shadow: var(--th-display-shadow);
 }
 
 .section-title {
@@ -200,45 +223,47 @@ p {
   font-family: var(--th-font-title);
   font-size: 0.95rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--th-saddle);
+  text-transform: var(--th-title-case);
+  letter-spacing: var(--th-title-spacing);
+  color: var(--th-section-ink);
   margin: 24px 0 12px;
 
+  // Filets de part et d'autre (skins), absents par défaut : titre aligné à gauche.
   &::before,
   &::after {
     content: '';
+    display: var(--th-section-rules);
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--th-edge), transparent);
+    background: linear-gradient(90deg, transparent, var(--th-border), transparent);
   }
 }
 
 .note {
   font-family: var(--th-font-note);
-  font-size: 1.05rem;
+  font-size: var(--th-note-size);
   line-height: 1.55;
   color: var(--th-ink);
   white-space: pre-line;
 }
 
-.parchment > .section-title:first-child {
+.surface > .section-title:first-child {
   margin-top: 4px;
 }
 
 /* ---------- Surfaces ---------- */
 
-.parchment {
+.surface {
   position: relative;
   box-sizing: border-box;
   padding: 16px;
-  border: 1px solid var(--th-edge);
+  border: var(--th-surface-border);
   border-radius: var(--th-radius);
-  background: var(--th-grain), linear-gradient(160deg, var(--th-parchment-light), #efdfb8 70%, #e6d09f);
-  box-shadow: var(--th-shadow), inset 0 0 40px rgba(139, 90, 43, 0.15);
+  background: var(--th-texture), var(--th-surface-bg);
+  box-shadow: var(--th-surface-shadow);
 }
 
-a.parchment {
+a.surface {
   display: block;
   color: inherit;
   text-decoration: none;
@@ -248,36 +273,37 @@ a.parchment {
 
   &:hover,
   &:focus-visible {
-    transform: translateY(-2px) rotate(-0.3deg);
-    box-shadow: var(--th-shadow), 0 8px 18px rgba(61, 36, 19, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--th-surface-shadow), 0 10px 22px rgba(15, 31, 61, 0.12);
   }
 }
 
-// Bandeau de cuir cousu (en-têtes d'écran).
-.leather {
-  color: #f6e7c4;
-  background: var(--th-grain), linear-gradient(170deg, var(--th-leather-light), var(--th-leather));
+// Bandeau d'en-tête d'écran.
+.banner {
+  color: var(--th-banner-ink);
+  background: var(--th-texture), var(--th-banner-bg);
   border-radius: var(--th-radius);
-  outline: 1px dashed rgba(236, 201, 112, 0.55);
+  outline: var(--th-banner-outline);
   outline-offset: -6px;
-  box-shadow: 0 3px 10px rgba(30, 15, 5, 0.35);
+  box-shadow: var(--th-shadow);
 
   h1,
   h2,
   h3,
   .display {
-    color: var(--th-gold-light);
-    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    color: var(--th-banner-title);
   }
 
   .muted {
-    color: #d9c49b;
+    color: var(--th-banner-ink);
+    opacity: 0.85;
   }
 }
 
-// Morceau de ruban adhésif posé sur une note.
+// Ruban adhésif posé sur une note (skins).
 .taped::before {
   content: '';
+  display: var(--th-tape);
   position: absolute;
   top: -10px;
   left: 50%;
@@ -288,28 +314,27 @@ a.parchment {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
-// Tampon encré (« VALIDÉ », « CLOSE »…).
+// Tampon (« VALIDÉ », « CLOSE »…).
 .stamp {
   display: inline-block;
   padding: 4px 12px;
-  border: 3px double currentColor;
-  border-radius: 4px;
+  border: var(--th-stamp-border);
+  border-radius: 999px;
   font-family: var(--th-font-title);
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--th-brick);
-  transform: rotate(-6deg);
-  opacity: 0.85;
-  mix-blend-mode: multiply;
+  letter-spacing: 0.1em;
+  color: var(--th-danger);
+  transform: rotate(var(--th-stamp-rotate));
 }
 
-.stamp--jungle {
-  color: var(--th-jungle);
+.stamp--success {
+  color: var(--th-success);
 }
 
-.stamp--gold {
-  color: #9a6d12;
+.stamp--accent {
+  color: var(--th-accent);
 }
 
 // Pastille d'état.
@@ -319,13 +344,11 @@ a.parchment {
   gap: 4px;
   padding: 2px 10px;
   border-radius: 999px;
-  font-family: var(--th-font-title);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #fff8e6;
-  background: var(--th-khaki);
+  font-family: var(--th-font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--th-neutral);
   white-space: nowrap;
 
   .mat-icon {
@@ -336,37 +359,38 @@ a.parchment {
 }
 
 .badge--draft {
-  background: #8a7a62;
+  background: #8a94a6;
 }
 
 .badge--published {
-  background: var(--th-saddle);
+  background: var(--th-secondary);
 }
 
 .badge--running {
-  background: var(--th-jungle);
+  background: var(--th-success);
 }
 
 .badge--closed,
 .badge--archived {
-  background: var(--th-leather);
+  background: var(--th-primary);
 }
 
 .badge--cancelled {
-  background: var(--th-brick);
+  background: var(--th-danger);
 }
 
-.badge--gold {
-  color: var(--th-leather);
-  background: linear-gradient(180deg, var(--th-gold-light), var(--th-gold));
+.badge--accent {
+  color: var(--th-primary);
+  background: linear-gradient(180deg, var(--th-accent-light), var(--th-accent));
 }
 
 // Gros chiffres (compte à rebours, chrono).
 .big-number {
   font-family: var(--th-font-note);
   font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 700;
   line-height: 1;
-  color: var(--th-leather);
+  color: var(--th-heading-ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -375,7 +399,65 @@ a.parchment {
 }
 
 .error-text {
-  color: var(--th-brick);
+  color: var(--th-danger);
+}
+
+/* ---------- Skins de chasse (directive thSkin) ---------- */
+
+// Le conteneur d'une page de chasse prend le fond, l'encre et la police du skin, et
+// relaie ses couleurs aux composants Material qu'il contient.
+.skin {
+  display: block;
+  // Toute la hauteur sous la barre de l'application.
+  min-height: calc(100dvh - 60px);
+  color: var(--th-ink);
+  font-family: var(--th-font-body);
+  background: var(--th-texture), var(--th-page-bg);
+  --mat-sys-primary: var(--th-cta, var(--th-primary-light));
+  --mat-sys-on-primary: var(--th-on-cta, var(--th-on-primary));
+  --mat-sys-surface: var(--th-surface-raised);
+  --mat-sys-on-surface: var(--th-ink);
+  --mat-sys-on-surface-variant: var(--th-ink-soft);
+  --mat-sys-outline: var(--th-border);
+  --mat-sys-outline-variant: var(--th-border);
+}
+
+// Animations de validation (SkinEffects).
+.fx-stamp {
+  animation: fx-stamp 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.fx-pulse {
+  animation: fx-pulse 0.6s ease-out;
+}
+
+@keyframes fx-stamp {
+  0% {
+    transform: scale(2.2) rotate(var(--th-stamp-rotate));
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(var(--th-stamp-rotate));
+    opacity: 1;
+  }
+}
+
+@keyframes fx-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--th-success) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 18px transparent;
+  }
+}
+
+.fx-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2000;
 }
 
 /* ---------- Ajustements Material ---------- */
@@ -387,20 +469,21 @@ a.parchment {
 .mat-mdc-button-base.th-cta {
   height: 52px;
   padding: 0 28px;
+  border-radius: 999px;
   font-family: var(--th-font-title);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 
 .mat-mdc-snack-bar-container {
-  --mat-snack-bar-container-color: var(--th-leather);
-  --mat-snack-bar-supporting-text-color: #f6e7c4;
-  --mat-snack-bar-button-color: var(--th-gold-light);
+  --mat-snack-bar-container-color: var(--th-primary);
+  --mat-snack-bar-supporting-text-color: #eef3fb;
+  --mat-snack-bar-button-color: var(--th-accent-light);
 }
 
 .mat-mdc-tab-nav-bar,
 .mat-mdc-tab-header {
-  --mat-tab-active-indicator-color: var(--th-gold);
+  --mat-tab-active-indicator-color: var(--th-primary-light);
   --mat-tab-inactive-label-text-color: var(--th-ink-soft);
 }
 

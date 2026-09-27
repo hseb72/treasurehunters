@@ -12,7 +12,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: #e9d7ad;
+  color: var(--th-on-primary);
 
   span {
     display: inline-flex;
@@ -21,7 +21,7 @@
   }
 
   .mat-icon {
-    color: var(--th-gold-light);
+    color: var(--th-accent-light);
     width: 18px;
     height: 18px;
     font-size: 18px;
@@ -34,7 +34,7 @@
   align-items: center;
   gap: 12px;
   text-align: center;
-  border: 2px solid var(--th-gold);
+  border: 2px solid var(--th-accent);
 
   p {
     display: flex;
@@ -60,7 +60,7 @@
 
 .countdown {
   font-family: var(--th-font-note);
-  color: var(--th-brick);
+  color: var(--th-danger);
 }
 
 .leave {
@@ -106,10 +106,10 @@
   margin-top: 12px;
   padding: 12px;
   border-radius: var(--th-radius);
-  background: rgba(200, 150, 46, 0.15);
+  background: color-mix(in srgb, var(--th-accent) 15%, transparent);
 
   .mat-icon {
-    color: var(--th-gold);
+    color: var(--th-accent);
     font-size: 32px;
     width: 32px;
     height: 32px;
@@ -132,7 +132,7 @@
 
   .mat-icon {
     flex: none;
-    color: var(--th-saddle);
+    color: var(--th-secondary);
   }
 }
 
@@ -144,14 +144,14 @@
 
 .team-chip {
   padding: 4px 12px;
-  border: 1px solid var(--th-edge);
+  border: 1px solid var(--th-border);
   border-radius: 999px;
-  background: var(--th-parchment-light);
+  background: var(--th-surface-raised);
   font-family: var(--th-font-title);
   font-size: 0.85rem;
 }
 
 .team-chip--mine {
-  border-color: var(--th-brick);
-  color: var(--th-brick);
+  border-color: var(--th-danger);
+  color: var(--th-danger);
 }

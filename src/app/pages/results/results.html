@@ -1,7 +1,9 @@
+<!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
+<div [thSkin]="skin()">
 <div class="page stack">
   @if (hunt.value(); as h) {
-    <header class="leather head">
-      <span class="stamp stamp--gold">{{ h.status === 'running' ? 'Classement provisoire' : 'Résultats officiels' }}</span>
+    <header class="banner head">
+      <span class="stamp stamp--accent">{{ h.status === 'running' ? 'Classement provisoire' : 'Résultats officiels' }}</span>
       <h1 class="display">{{ h.name }}</h1>
       <p class="muted small">
         {{ h.begin | date: 'EEEE d MMMM y' }} · {{ modes[h.startMode] }}
@@ -16,7 +18,7 @@
   }
 
   @if (rows.error(); as err) {
-    <section class="parchment center">
+    <section class="surface center">
       <mat-icon class="lock">lock_clock</mat-icon>
       <p>{{ $any(err).message }}</p>
       <a mat-stroked-button [routerLink]="['/hunts', id()]">Retour à l'expédition</a>
@@ -24,13 +26,13 @@
   }
 
   @if (rows.value(); as all) {
-    <section class="parchment podium-card">
+    <section class="surface podium-card">
       <th-podium [rows]="all" [highlight]="myTeamId()" />
     </section>
 
     <section>
       <h2 class="section-title">Classement</h2>
-      <div class="table parchment">
+      <div class="table surface">
         <div class="tr th">
           <span>#</span><span>Équipe</span><span class="hide-sm">Départ</span><span class="hide-sm">Arrivée</span><span title="Jokers"><mat-icon inline>key</mat-icon></span><span class="num">Temps</span>
         </div>
@@ -78,4 +80,5 @@
       <th-rating-form [huntId]="h.id" />
     }
   }
+</div>
 </div>

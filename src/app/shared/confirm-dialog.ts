@@ -22,7 +22,7 @@ export interface ConfirmData {
       <button mat-flat-button type="button" [class.danger]="data.danger" [mat-dialog-close]="true">{{ data.confirm }}</button>
     </mat-dialog-actions>
   `,
-  styles: `.danger { --mat-button-filled-container-color: var(--th-brick); }`,
+  styles: `.danger { --mat-button-filled-container-color: var(--th-danger); }`,
 })
 export class ConfirmDialog {
   protected readonly data = inject<ConfirmData>(MAT_DIALOG_DATA);

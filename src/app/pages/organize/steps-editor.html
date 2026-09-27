@@ -4,7 +4,7 @@
 </p>
 
 <ng-template #stepCard let-step let-kind="kind">
-  <div class="card parchment" [class.card--open]="editing() === step.id">
+  <div class="card surface" [class.card--open]="editing() === step.id">
     <div class="card-head">
       <span class="pin pin--{{ kind }}">
         @switch (kind) {

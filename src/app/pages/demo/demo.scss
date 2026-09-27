@@ -7,8 +7,8 @@
 }
 
 .reset {
-  --mat-button-outlined-label-text-color: var(--th-gold-light);
-  --mat-button-outlined-outline-color: rgba(236, 201, 112, 0.6);
+  --mat-button-outlined-label-text-color: var(--th-accent-light);
+  --mat-button-outlined-outline-color: color-mix(in srgb, var(--th-accent-light) 60%, transparent);
 }
 
 .section-title .mat-icon {

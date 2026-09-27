@@ -29,9 +29,13 @@ const WAIT_LINES = [
   'On cache le trésor…',
 ];
 
+import { DEFAULT_SKIN } from '@shared/skins';
+import { SkinPicker } from '../../shared/skin-picker';
+
 @Component({
   selector: 'th-generate',
   imports: [
+    SkinPicker,
     FormsModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -63,6 +67,7 @@ export class GeneratePage {
   protected readonly travel = signal<Travel>('walk');
   protected readonly difficulty = signal<Difficulty>('medium');
   protected readonly theme = signal('');
+  protected readonly skin = signal(DEFAULT_SKIN);
   protected readonly autoSteps = signal(true);
   protected readonly steps = signal(5);
   protected readonly mode = signal<GenerationRequest['mode']>('play');
@@ -123,6 +128,7 @@ export class GeneratePage {
       travel: this.travel(),
       difficulty: this.difficulty(),
       theme: this.theme().trim() || null,
+      skin: this.skin(),
       steps: this.autoSteps() ? null : this.steps(),
       mode: this.mode(),
     };

@@ -26,7 +26,7 @@ import { PlayState } from '@shared/models';
       gap: 6px;
       text-align: left;
     }
-    mat-icon { color: var(--th-brick); flex: none; }
+    mat-icon { color: var(--th-danger); flex: none; }
     a { margin-left: 0.3em; white-space: nowrap; }
   `,
 })

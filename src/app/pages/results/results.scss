@@ -15,7 +15,7 @@
   width: 48px;
   height: 48px;
   font-size: 48px;
-  color: var(--th-saddle);
+  color: var(--th-secondary);
 }
 
 .podium-card {
@@ -33,7 +33,7 @@
   gap: 8px;
   align-items: center;
   padding: 10px 14px;
-  border-bottom: 1px dashed var(--th-edge);
+  border-bottom: 1px dashed var(--th-border);
 }
 
 .tr:last-child {
@@ -46,14 +46,14 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--th-saddle);
-  background: rgba(139, 90, 43, 0.1);
+  color: var(--th-secondary);
+  background: color-mix(in srgb, var(--th-secondary) 10%, transparent);
 }
 
 .rank {
   font-family: var(--th-font-display);
   font-size: 1.3rem;
-  color: var(--th-saddle);
+  color: var(--th-secondary);
 }
 
 .members {
@@ -68,12 +68,12 @@
 
 .penalty {
   display: block;
-  color: var(--th-brick);
+  color: var(--th-danger);
 }
 
 .mine {
-  background: rgba(158, 43, 31, 0.08);
-  box-shadow: inset 4px 0 0 var(--th-brick);
+  background: color-mix(in srgb, var(--th-danger) 8%, transparent);
+  box-shadow: inset 4px 0 0 var(--th-danger);
 }
 
 .dnf {

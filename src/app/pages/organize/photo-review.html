@@ -8,7 +8,7 @@
     </h2>
     <div class="photos">
       @for (p of counted(); track p.id) {
-        <article class="parchment photo-card" [class.photo-card--done]="p.review !== 'pending'">
+        <article class="surface photo-card" [class.photo-card--done]="p.review !== 'pending'">
           <div class="photo-head">
             <strong>{{ p.teamName }}</strong>&nbsp;<span class="small muted">· étape {{ p.stepOrder }} : {{ p.stepTitle }}</span>
           </div>
@@ -45,7 +45,7 @@
               </div>
             }
             @case ('approved') {
-              <span class="badge badge--gold"><mat-icon>verified</mat-icon>tamponnée</span>
+              <span class="badge badge--accent"><mat-icon>verified</mat-icon>tamponnée</span>
             }
             @case ('rejected') {
               <span class="badge badge--cancelled"><mat-icon>block</mat-icon>refusée : épreuve abandonnée</span>

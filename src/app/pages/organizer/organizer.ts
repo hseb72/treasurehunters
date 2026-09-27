@@ -15,13 +15,13 @@ import { Stars } from '../../shared/stars';
   template: `
     <div class="page stack">
       @if (profile.error()) {
-        <section class="parchment center">
+        <section class="surface center">
           <p>Organisateur introuvable.</p>
           <a mat-stroked-button routerLink="/catalog">Retour au catalogue</a>
         </section>
       }
       @if (profile.value(); as p) {
-        <header class="leather head">
+        <header class="banner head">
           <mat-icon>person_pin</mat-icon>
           <h1 class="display">{{ p.nickname }}</h1>
           @if (p.rating; as r) {

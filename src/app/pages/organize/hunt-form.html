@@ -1,12 +1,12 @@
 <form [class.page]="isNew" class="stack" [formGroup]="form" (ngSubmit)="save()">
   @if (isNew) {
-    <header class="leather new-head">
+    <header class="banner new-head">
       <h1 class="display">Nouvelle expédition</h1>
       <p class="muted">Commencez par l'essentiel ; le parcours se construit à l'étape suivante.</p>
     </header>
   }
 
-  <section class="parchment">
+  <section class="surface">
     <h2 class="section-title">L'expédition</h2>
     <mat-form-field class="field-full">
       <mat-label>Nom</mat-label>
@@ -37,7 +37,13 @@
     </mat-form-field>
   </section>
 
-  <section class="parchment">
+  <section class="surface">
+    <h2 class="section-title">Ambiance</h2>
+    <p class="small muted">Le skin habille tout ce que voient les joueurs : carnet de route, invitation, résultats, sons et animations.</p>
+    <th-skin-picker [value]="values().skin ?? form.controls.skin.value" (valueChange)="form.controls.skin.setValue($event); form.markAsDirty()" />
+  </section>
+
+  <section class="surface">
     <h2 class="section-title">Calendrier</h2>
     <div class="two">
       <mat-form-field>
@@ -56,7 +62,7 @@
     <p class="small muted">Sinon, c'est vous qui donnez le top départ et sifflez la fin depuis cet écran.</p>
   </section>
 
-  <section class="parchment">
+  <section class="surface">
     <h2 class="section-title">Règles du jeu</h2>
 
     <h3>Mode de départ</h3>

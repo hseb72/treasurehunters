@@ -9,6 +9,7 @@ import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
+import { SKIN_IDS } from '../../shared/skins.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -48,6 +49,7 @@ const huntFields = {
   validation: z.enum(['qr', 'geo']),
   geoRadius: z.number().int().min(10).max(500),
   travel: z.enum(['walk', 'active', 'motor']),
+  skin: z.enum(SKIN_IDS),
   difficulty: z.enum(['easy', 'medium', 'hard']).nullable(),
   durationMinutes: z.number().int().min(10).max(1440).nullable(),
 };
@@ -83,6 +85,7 @@ const generationRequest = z.object({
     .transform((t) => t || null),
   steps: z.number().int().min(3).max(12).nullable(),
   mode: z.enum(['play', 'organize']),
+  skin: z.enum(SKIN_IDS).optional(),
 });
 
 const credentials = z.object({ email: z.email(), password: z.string().min(1).max(200) });

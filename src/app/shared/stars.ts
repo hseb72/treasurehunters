@@ -22,8 +22,8 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
   styles: `
     :host { display: inline-flex; align-items: center; gap: 6px; }
     .stars { position: relative; display: inline-block; font-size: 1.15em; line-height: 1; letter-spacing: 1px; white-space: nowrap; }
-    .bg { color: var(--th-edge); }
-    .fg { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: var(--th-gold); }
+    .bg { color: var(--th-border); }
+    .fg { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: var(--th-accent); }
     .value { font-weight: 600; }
     .count { opacity: 0.75; font-size: 0.85em; }
   `,
@@ -50,8 +50,8 @@ export class Stars {
   styles: `
     :host { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .picker { display: inline-flex; }
-    button { padding: 0 3px; border: 0; background: none; font-size: 30px; line-height: 1; color: var(--th-edge); cursor: pointer; }
-    button.on { color: var(--th-gold); }
+    button { padding: 0 3px; border: 0; background: none; font-size: 30px; line-height: 1; color: var(--th-border); cursor: pointer; }
+    button.on { color: var(--th-accent); }
   `,
 })
 export class StarInput {
