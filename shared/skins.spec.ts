@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { DEFAULT_SKIN, safeSkinUrl, safeTokenValue, SKIN_TOKENS, SKINS, skinById, skinStyle } from './skins.js';
 
 describe('skins', () => {
