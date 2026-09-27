@@ -178,6 +178,7 @@ export function buildFixtures(now = Date.now()): MockDb {
         longitude: null,
         address,
         referencePhoto: false,
+        entrances: [],
       }),
     );
 

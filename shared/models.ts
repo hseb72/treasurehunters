@@ -93,6 +93,11 @@ export interface Step {
   latitude: number | null;
   longitude: number | null;
   address: string | null;
+  /**
+   * Autres points d'où l'étape se valide par géolocalisation (entrées d'un parc, d'un musée…) :
+   * un lieu fermé reste validable depuis ses abords. Effacés si l'organisateur déplace l'étape.
+   */
+  entrances: { lat: number; lng: number }[];
   /** L'organisateur a déposé une photo du lieu, référence pour la preuve par photo. */
   referencePhoto: boolean;
 }

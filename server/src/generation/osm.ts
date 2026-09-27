@@ -18,6 +18,23 @@ export interface Poi {
   details: Record<string, string>;
   /** Correspond au thème demandé par le joueur. */
   themed: boolean;
+  /**
+   * Lieu clos ou soumis à des horaires (parc, musée, église…) : on doit pouvoir valider
+   * l'étape depuis son entrée, même fermé.
+   */
+  gated: boolean;
+}
+
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+/** Où valider une étape sur un lieu clos : ses entrées, à défaut des points de son contour. */
+export interface Access {
+  points: LatLng[];
+  /** true : entrées cartographiées ; false : points du contour. */
+  entrances: boolean;
 }
 
 /**
@@ -63,6 +80,24 @@ export interface Place {
 const TIMEOUT_MS = 35_000;
 const DETAIL_TAGS = ['description', 'inscription', 'start_date', 'artist_name', 'architect', 'subject', 'memorial', 'material', 'denomination', 'wikipedia', 'addr:street'];
 const KIND_TAGS = ['historic', 'tourism', 'amenity', 'shop', 'man_made', 'leisure', 'natural', 'craft', 'sport', 'artwork_type', 'memorial'];
+
+/** Lieux qu'on visite à l'intérieur, souvent fermés la nuit, le dimanche ou hors saison. */
+const GATED: Record<string, RegExp> = {
+  tourism: /^(museum|gallery|zoo|aquarium|theme_park|attraction)$/,
+  amenity: /^(place_of_worship|library|theatre|arts_centre|cinema|townhall|university|school|marketplace)$/,
+  leisure: /^(park|garden|nature_reserve|stadium|sports_centre|playground)$/,
+  historic: /^(castle|fort|monastery|church|manor|palace|citywalls|archaeological_site)$/,
+  landuse: /^(cemetery)$/,
+  building: /^(church|cathedral|chapel|museum|castle|train_station)$/,
+};
+
+function isGated(type: string, tags: Record<string, string>): boolean {
+  if (type !== 'node' && type !== 'way') return false;
+  // Une boutique se trouve depuis sa vitrine, sur le trottoir : son point suffit.
+  if (tags['shop']) return false;
+  if (tags['opening_hours']) return true;
+  return Object.entries(GATED).some(([key, re]) => tags[key] !== undefined && re.test(tags[key]));
+}
 
 const unavailable = (cause: unknown) =>
   new HttpError(502, 'La carte OpenStreetMap ne répond pas pour le moment, réessayez dans un instant.', cause);
@@ -225,7 +260,120 @@ out center tags 500;`;
     seen.add(key);
     const kind = KIND_TAGS.filter((t) => tags[t] && tags[t] !== 'yes').map((t) => tags[t]).join(', ') || 'lieu';
     const details = Object.fromEntries(DETAIL_TAGS.filter((t) => tags[t]).map((t) => [t, tags[t].slice(0, 300)]));
-    pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details, themed: matchesTheme(tags, filters) });
+    pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details, themed: matchesTheme(tags, filters), gated: isGated(e.type, tags) });
   }
   return pois.filter((p) => distanceMeters(center, p) <= radius).sort((a, b) => distanceMeters(center, a) - distanceMeters(center, b));
+}
+
+/** Au-delà, un lieu est assez vaste pour qu'on ne puisse pas le valider depuis son centre. */
+const SMALL_PLACE_M = 30;
+/** Écart minimal entre deux points de contour gardés, et nombre maximal de points par lieu. */
+const OUTLINE_STEP_M = 50;
+const MAX_ACCESS_POINTS = 30;
+/** Distance maximale d'un portail au contour du lieu. */
+const GATE_NEAR_M = 15;
+/** Portes et portails par lesquels on entre ; pas les issues de secours ni les accès privés. */
+const GATE_BARRIERS = 'gate|entrance|turnstile|kissing_gate|lift_gate|swing_gate|full-height_turnstile';
+
+type OsmShape = { type: 'way'; id: number; nodes?: number[]; geometry?: { lat: number; lon: number }[]; tags?: Record<string, string> };
+type OsmNode = { type: 'node'; id: number; lat: number; lon: number; tags?: Record<string, string> };
+
+/**
+ * Entrées des lieux clos choisis pour le parcours (§ 11.2) : un parc, un musée ou une église
+ * se valide depuis ses entrées, pour qu'une chasse jouée pendant la fermeture reste jouable.
+ * Pour un lieu cartographié en surface (way), on prend les nœuds `entrance` ou portails de son
+ * contour ; pour un lieu ponctuel, ceux du bâtiment qui le contient. Sans entrée connue, des
+ * points répartis sur le contour : être au bord du lieu, c'est y être. Un lieu petit ou sans
+ * contour garde son point. Une seule requête Overpass pour tous les lieux.
+ */
+export async function accessOf(pois: Poi[]): Promise<Map<string, Access>> {
+  const ways = pois.filter((p) => p.id.startsWith('w')).map((p) => p.id.slice(1));
+  const nodes = pois.filter((p) => p.id.startsWith('n')).map((p) => p.id.slice(1));
+  const result = new Map<string, Access>();
+  if (!ways.length && !nodes.length) return result;
+  const sets = [
+    ...(ways.length ? [`way(id:${ways.join(',')})->.a;`] : []),
+    // Lieu ponctuel : les bâtiments autour, dont on garde ensuite celui qui le contient.
+    ...(nodes.length ? [`node(id:${nodes.join(',')})->.p;`, 'way(around.p:30)[building]->.b;'] : []),
+  ];
+  const query = `[out:json][timeout:25];
+${sets.join('\n')}
+(${ways.length ? '.a; ' : ''}${nodes.length ? '.b;' : ''})->.shapes;
+.shapes out body geom;
+(
+  node(w.shapes)[entrance][entrance!~"^(emergency|exit|service)$"][access!~"^(private|no)$"];
+  node(around.shapes:${GATE_NEAR_M})[barrier~"^(${GATE_BARRIERS})$"][access!~"^(private|no)$"];
+);
+out;`;
+  const data = (await osmFetch(config.overpassUrls, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `data=${encodeURIComponent(query)}`,
+  })) as { elements: (OsmShape | OsmNode)[] };
+
+  const shapes = new Map<number, OsmShape>();
+  const doors: (LatLng & { id: number; gate: boolean })[] = [];
+  for (const e of data.elements ?? []) {
+    if (e.type === 'way' && e.geometry?.length) shapes.set(e.id, e);
+    if (e.type === 'node') doors.push({ id: e.id, lat: e.lat, lng: e.lon, gate: !!e.tags?.['barrier'] });
+  }
+  for (const poi of pois) {
+    const shape = poi.id.startsWith('w') ? shapes.get(Number(poi.id.slice(1))) : containingShape(poi, shapes.values());
+    if (!shape?.geometry) continue;
+    const outline = shape.geometry.map((g) => ({ lat: g.lat, lng: g.lon }));
+    if (Math.max(...outline.map((p) => distanceMeters(poi, p))) <= SMALL_PLACE_M) continue;
+    // Une entrée posée sur le contour, ou un portail tout près (sur la clôture ou le chemin
+    // qui la traverse) ; pas les portes des bâtiments voisins.
+    const onOutline = new Set(shape.nodes ?? []);
+    const entrances = doors
+      .filter((d) => onOutline.has(d.id) || (d.gate && distanceToOutline(d, outline) <= GATE_NEAR_M))
+      .map(({ lat, lng }) => ({ lat, lng }));
+    result.set(poi.id, entrances.length ? { points: spread(entrances, 10), entrances: true } : { points: spread(outline, OUTLINE_STEP_M), entrances: false });
+  }
+  return result;
+}
+
+/** Bâtiment dont le contour contient le point (un musée cartographié par un simple nœud). */
+function containingShape(p: LatLng, shapes: Iterable<OsmShape>): OsmShape | undefined {
+  for (const s of shapes) {
+    if (!s.tags?.['building']) continue; // pas le parc où se trouve le musée
+    const ring = s.geometry ?? [];
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const a = ring[i];
+      const b = ring[j];
+      if (a.lon > p.lng !== b.lon > p.lng && p.lat < ((b.lat - a.lat) * (p.lng - a.lon)) / (b.lon - a.lon) + a.lat) inside = !inside;
+    }
+    if (inside) return s;
+  }
+  return undefined;
+}
+
+/** Distance d'un point au contour (segments), en mètres ; projection locale, suffisante à cette échelle. */
+function distanceToOutline(p: LatLng, outline: LatLng[]): number {
+  const kx = 111_320 * Math.cos((p.lat * Math.PI) / 180);
+  const ky = 110_540;
+  let best = Infinity;
+  for (let i = 1; i < outline.length; i++) {
+    const ax = (outline[i - 1].lng - p.lng) * kx;
+    const ay = (outline[i - 1].lat - p.lat) * ky;
+    const bx = (outline[i].lng - p.lng) * kx;
+    const by = (outline[i].lat - p.lat) * ky;
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len = dx * dx + dy * dy;
+    const t = len ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len)) : 0;
+    best = Math.min(best, Math.hypot(ax + t * dx, ay + t * dy));
+  }
+  return best;
+}
+
+/** Points espacés d'au moins `gap` mètres, au plus MAX_ACCESS_POINTS. */
+function spread(points: LatLng[], gap: number): LatLng[] {
+  const kept: LatLng[] = [];
+  for (const p of points) {
+    if (kept.every((k) => distanceMeters(k, p) >= gap)) kept.push(p);
+    if (kept.length === MAX_ACCESS_POINTS) break;
+  }
+  return kept;
 }

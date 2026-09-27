@@ -374,6 +374,12 @@ export class Service {
     if (data.address !== undefined) cols.push(['cod_address', data.address]);
     if (data.latitude !== undefined) cols.push(['cod_latitude', data.latitude]);
     if (data.longitude !== undefined) cols.push(['cod_longitude', data.longitude]);
+    // Déplacer l'étape, c'est changer de lieu : les entrées de l'ancien ne valent plus.
+    if (data.latitude !== undefined || data.longitude !== undefined) {
+      const before = (await stepById(db, id))!;
+      const moved = (data.latitude !== undefined && Number(data.latitude) !== Number(before.latitude)) || (data.longitude !== undefined && Number(data.longitude) !== Number(before.longitude));
+      if (moved) cols.push(['cod_entrances', null]);
+    }
     if (data.hints !== undefined) {
       const hints = data.hints.filter((h) => h.trim());
       [1, 2, 3].forEach((n) => cols.push([`cod_hint${n}`, hints[n - 1] ?? null]));
@@ -591,7 +597,10 @@ export class Service {
       const target = steps.find((s) => s.order === clue.targetOrder)!;
       if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
 
-      const distance = Math.round(distanceMeters({ lat: pos.lat, lng: pos.lng }, { lat: target.latitude, lng: target.longitude }));
+      // Le lieu, ou l'une de ses entrées : la plus proche compte.
+      const here = { lat: pos.lat, lng: pos.lng };
+      const points = [{ lat: Number(target.latitude), lng: Number(target.longitude) }, ...target.entrances];
+      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(here, p))));
       const allowed = Math.round(checkinAllowance(hunt, pos.accuracy));
       const outcome = distance <= allowed ? 'validated' : 'too_far';
       await db.query(
@@ -1271,8 +1280,8 @@ export class Service {
       for (const s of content.steps) {
         await db.query(
           `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                                 cod_latitude, cod_longitude, cod_address)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+                                 cod_latitude, cod_longitude, cod_address, cod_entrances)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [
             huntId,
             s.order,
@@ -1286,6 +1295,7 @@ export class Service {
             s.latitude,
             s.longitude,
             s.address,
+            s.entrances?.length ? JSON.stringify(s.entrances) : null,
           ],
         );
       }
@@ -1472,8 +1482,8 @@ export class Service {
     for (const [order, s] of plan.steps.entries()) {
       await db.query(
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                               cod_latitude, cod_longitude, cod_address)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
         [
           huntId,
           order,
@@ -1487,6 +1497,7 @@ export class Service {
           s.latitude,
           s.longitude,
           s.address,
+          s.entrances?.length ? JSON.stringify(s.entrances) : null,
         ],
       );
     }
@@ -1655,7 +1666,7 @@ interface CatalogContent {
     | 'geoRadius'
     | 'contribution'
   >;
-  steps: Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'>[];
+  steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances'>>)[];
 }
 
 function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
@@ -1686,6 +1697,8 @@ function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
       latitude: s.latitude === null ? null : Number(s.latitude),
       longitude: s.longitude === null ? null : Number(s.longitude),
       address: s.address,
+      // Seulement s'il y en a : l'empreinte des publications antérieures reste la même.
+      ...(s.entrances.length ? { entrances: s.entrances } : {}),
     })),
   };
 }

@@ -210,7 +210,7 @@ describe('limites de la génération', () => {
 });
 
 describe('réponse du modèle', () => {
-  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false });
+  const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false, gated: false });
   const place = (poiId: string) => ({ poiId, title: `Étape ${poiId}`, riddle: `Énigme vers ${poiId}`, hints: ['a', 'b', 'c', 'd'], arrival: `Bravo ${poiId}` });
   const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603), poi('n4', 43.6005)], count: 3, difficulty: 'easy' as const, durationMinutes: 30, travel: 'walk' as const, theme: null };
 

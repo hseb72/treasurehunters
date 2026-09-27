@@ -402,12 +402,20 @@ Une chasse a un mode de validation (`hun_validation`) : `qr` (par défaut) ou `g
 
 - chaque étape (hors départ) doit être **placée sur la carte** pour que la chasse soit publiée ;
 - le joueur appuie sur **« Je suis arrivé »** : le téléphone envoie sa position et sa précision (`POST /hunts/:id/checkin`) ;
-- l'étape cherchée est validée (`val_source = 'GEO'`) si la distance au lieu est au plus **rayon + précision**. Le rayon (`hun_georadius`) vaut 40 m par défaut. La précision est plafonnée à 30 m pour qu'un GPS très imprécis ne valide pas de loin ;
+- l'étape cherchée est validée (`val_source = 'GEO'`) si la distance au lieu, **ou à l'une de ses entrées** (ci-dessous), est au plus **rayon + précision**. Le rayon (`hun_georadius`) vaut 40 m par défaut. La précision est plafonnée à 30 m pour qu'un GPS très imprécis ne valide pas de loin ;
 - sinon la réponse donne la distance restante, en guise de « chaud / froid » ;
 - chaque essai est journalisé dans `th_scanlog` (jeton `geo:<étape>`, résultat `validated` ou `too_far`) ;
 - le check-in est sérialisé avec les scans et les abandons de l'équipe (verrou sur la ligne de l'équipe, § 6.2). Jokers, abandon et classement fonctionnent comme d'habitude.
 
 L'organisateur peut aussi choisir ce mode pour une chasse écrite à la main.
+
+**Lieux clos ou à horaires** (parc, jardin, musée, église, château, cimetière…). Une chasse peut se jouer quand le lieu est fermé, la nuit, un dimanche ou hors saison : son point de contrôle ne peut pas être au centre. On a écarté un bouton « le lieu est fermé » : il donnerait un indice (le lieu cherché est un lieu clos) et permettrait de franchir l'étape sans s'y rendre. À la place :
+
+- à la génération, les lieux concernés sont repérés à leurs tags OpenStreetMap (catégorie, ou `opening_hours` ; pas les boutiques, qu'on trouve depuis leur vitrine). Une fois le parcours choisi, une requête Overpass lit, pour chacun, les **entrées** : nœuds `entrance` du contour (hors issues de secours, de service, accès privés), et portails (`barrier=gate`, tourniquets…) à moins de 15 m du contour. Un lieu ponctuel prend les portes du bâtiment qui le contient. Sans entrée cartographiée, des **points du contour** espacés de 50 m en tiennent lieu : être au bord du lieu, c'est y être. Un lieu de moins de 30 m de rayon garde son point ;
+- l'étape est placée sur l'entrée la plus proche du lieu précédent, celle par laquelle on arrive. Les autres entrées (30 au plus) sont gardées dans `cod_entrances` et valident aussi l'étape. Le départ, s'il est un lieu clos, prend l'entrée la plus proche de la première étape ;
+- Claude sait quels lieux sont clos (`"gated": true`) : énigme, jokers et message d'arrivée mènent à l'entrée ou à ce qui se voit de l'extérieur, sans obliger à entrer ;
+- si Overpass ne répond pas à cette étape, le lieu garde son point : la chasse est créée quand même ;
+- dans l'éditeur d'étapes, l'organisateur voit combien d'entrées valident aussi l'étape, et le conseil de placer le point à l'entrée d'un lieu clos. **Déplacer le point oublie les autres entrées**, qui appartenaient à l'ancien lieu. Les entrées passent au catalogue avec le parcours, et donc aux copies.
 
 ### 11.4 Chasse surprise (mode « je joue »)
 
@@ -430,6 +438,7 @@ En mode « j'organise », la chasse est un **brouillon ordinaire** du joueur, va
 - `th_hunts` : `hun_validation`, `hun_georadius`, `hun_generated`, `hun_surprise`.
 - `th_validations.val_source` : ajout de `GEO`.
 - `th_generations` : demandeur, statut, paramètres (jsonb), chasse créée, message d'erreur.
+- `th_codes.cod_entrances` (jsonb) : autres points d'où l'étape se valide ; migration `db/migrations/009_step_entrances.sql`.
 - Migration : `db/migrations/003_generation.sql`.
 - Chasses surprises à plusieurs : `hun_host_htr` (hôte), `hun_selfpaced` (mode de départ) ; migration `db/migrations/004_invitations.sql`, qui ouvre aussi aux équipes les chasses surprises encore jouables.
 

@@ -241,8 +241,10 @@ export class MockHuntApi extends HuntApi {
       if (step.id) {
         const s = this.db.steps.find((x) => x.id === step.id && x.huntId === step.huntId);
         if (!s) throw new ApiError('Étape introuvable.');
-        const { id, huntId, order, token, ...editable } = step;
-        Object.assign(s, editable);
+        const { id, huntId, order, token, entrances, ...editable } = step;
+        // Déplacer l'étape, c'est changer de lieu : les entrées de l'ancien ne valent plus.
+        const moved = (editable.latitude !== undefined && editable.latitude !== s.latitude) || (editable.longitude !== undefined && editable.longitude !== s.longitude);
+        Object.assign(s, editable, moved ? { entrances: [] } : {});
         return s;
       }
       // Une nouvelle étape s'insère juste avant l'arrivée.
@@ -468,7 +470,8 @@ export class MockHuntApi extends HuntApi {
       const steps = this.stepsOf(huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
       if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-      const distance = Math.round(distanceMeters(pos, { lat: target.latitude, lng: target.longitude }));
+      const points = [{ lat: target.latitude, lng: target.longitude }, ...target.entrances];
+      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
       const allowed = Math.round(checkinAllowance(h, pos.accuracy));
       if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
       const now = new Date().toISOString();
@@ -1244,6 +1247,7 @@ export class MockHuntApi extends HuntApi {
       longitude: null,
       address: null,
       referencePhoto: false,
+      entrances: [],
     };
   }
 

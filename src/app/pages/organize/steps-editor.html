@@ -27,6 +27,9 @@
         @if (photos() && step.referencePhoto) {
           <span class="small muted"><mat-icon inline>photo_camera</mat-icon> Photo de référence</span>
         }
+        @if (geo() && step.entrances.length) {
+          <span class="small muted"><mat-icon inline>door_front</mat-icon> Validable aussi depuis {{ step.entrances.length }} autre{{ step.entrances.length > 1 ? 's' : '' }} entrée{{ step.entrances.length > 1 ? 's' : '' }}</span>
+        }
         @if (geo() && kind !== 'start' && step.latitude === null) {
           <span class="small unplaced"><mat-icon inline>wrong_location</mat-icon> À placer sur la carte</span>
         }
@@ -66,6 +69,15 @@
               <button mat-button type="button" (click)="here()"><mat-icon>my_location</mat-icon>Je suis ici</button>
             </div>
             <th-location-map [point]="point()" (picked)="place($event)" />
+            @if (geo()) {
+              <p class="small muted hint">
+                <mat-icon inline>door_front</mat-icon>
+                Parc, musée, église, château… : placez le point à l'entrée, pour que l'étape reste validable quand le lieu est fermé.
+                @if (step.entrances.length) {
+                  Déplacer le point oublie les {{ step.entrances.length }} autres entrées acceptées.
+                }
+              </p>
+            }
           </div>
         }
         @if (kind !== 'start') {

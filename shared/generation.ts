@@ -16,6 +16,10 @@ export interface PlannedStep {
   latitude: number;
   longitude: number;
   address: string | null;
+  /** Autres points d'où l'étape se valide : les entrées d'un parc, d'un musée… */
+  entrances?: { lat: number; lng: number }[];
+  /** Lieu OpenStreetMap d'origine (« w42 »), pour placer l'étape à son entrée. */
+  source?: string;
 }
 
 export interface HuntPlan {
