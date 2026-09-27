@@ -27,10 +27,21 @@
         Le catalogue reçoit un instantané de la chasse : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,
         ce qui est publié ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
         une fois copié. Dates, équipes et QR codes restent les vôtres.
+        @if (published.value().length) {
+          Si le parcours n'a pas changé, publier met simplement à jour la fiche (présentation, déplacement, énigmes, durée, extrait).
+        }
       </p>
       <mat-form-field>
         <mat-label>Présentation dans le catalogue</mat-label>
         <textarea matInput formControlName="summary" rows="3"></textarea>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Déplacement</mat-label>
+        <mat-select formControlName="travel">
+          @for (t of travels; track t.value) {
+            <mat-option [value]="t.value"><mat-icon>{{ t.icon }}</mat-icon>{{ t.label }}</mat-option>
+          }
+        </mat-select>
       </mat-form-field>
       <div class="two">
         <mat-form-field>
@@ -42,7 +53,7 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Durée (minutes)</mat-label>
+          <mat-label>Durée prévue (minutes)</mat-label>
           <input matInput type="number" formControlName="durationMinutes" min="10" max="1440" />
         </mat-form-field>
       </div>

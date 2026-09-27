@@ -9,7 +9,7 @@ afterAll(() => teardown(ctx));
 
 /** Chasse 3 du jeu de démonstration : close, organisée par Camille. */
 const PALAVAS = 3;
-const publication = (extra: object = {}) => ({ summary: '', difficulty: 'medium', durationMinutes: 90, sampleOrder: 0, changes: null, ...extra });
+const publication = (extra: object = {}) => ({ summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 90, sampleOrder: 0, changes: null, ...extra });
 
 /** Un joueur de la chasse close (pour la noter). */
 async function palavasPlayer() {
@@ -83,6 +83,29 @@ describe('catalogue', () => {
     expect((await seb.get(`/api/catalog?hunt=${copyHunt}`)).body.map((e: { id: number }) => e.id)).toEqual([version.body.id]);
     expect((await seb.get(`/api/catalog?hunt=${PALAVAS}`)).body).toEqual([]); // pas sa chasse
     expect((await client(ctx.app).get(`/api/catalog/${original}`)).body.versionCount).toBe(0);
+  });
+
+  it('retient déplacement, difficulté et durée, et les filtre', async () => {
+    const camille = await loginAs(ctx.app, 'camille@example.com');
+    // La chasse garde les réglages de sa dernière publication…
+    expect((await camille.get(`/api/hunts/${PALAVAS}`)).body).toMatchObject({ travel: 'walk', difficulty: 'medium', durationMinutes: 90 });
+    // Parcours inchangé : l'auteur corrige la fiche, sans nouvelle version.
+    const bike = (await camille.post(`/api/hunts/${PALAVAS}/catalog`, publication({ travel: 'active', difficulty: 'hard', durationMinutes: 150, sampleOrder: 1, summary: 'Une balade au bord de l’eau.' }))).body;
+    expect(bike).toMatchObject({ id: original, travel: 'active', difficulty: 'hard', durationMinutes: 150, summary: 'Une balade au bord de l’eau.' });
+    expect((await camille.get(`/api/hunts/${PALAVAS}`)).body).toMatchObject({ travel: 'active', difficulty: 'hard', durationMinutes: 150 });
+
+    // … et une copie en hérite.
+    const lea = await loginAs(ctx.app, 'lea@example.com');
+    expect((await lea.post(`/api/catalog/${bike.id}/copy`)).body).toMatchObject({ travel: 'active', difficulty: 'hard', durationMinutes: 150 });
+
+    const ids = async (query: string) => (await client(ctx.app).get(`/api/catalog?${query}`)).body.map((e: { id: number }) => e.id);
+    expect(await ids('travel=active')).toEqual([original]);
+    expect(await ids('travel=walk,motor')).toEqual([]);
+    expect(await ids('difficulty=hard,medium&sort=recent')).toEqual([original]);
+    expect(await ids('difficulty=easy')).toEqual([]);
+    expect(await ids('minDuration=120&maxDuration=180')).toEqual([original]);
+    expect(await ids('maxDuration=120&travel=active')).toEqual([]);
+    expect((await client(ctx.app).get('/api/catalog?travel=plane')).status).toBe(400);
   });
 });
 

@@ -388,7 +388,7 @@ La génération dure de quelques secondes à une minute. Elle tourne **en tâche
 1. `POST /hunts/generate` enregistre la demande dans `th_generations` (statut `pending`) et répond **202** avec son identifiant.
 2. Si un thème est demandé, **Claude le traduit d'abord en catégories OpenStreetMap** (ex. `shop=shoes`, `leisure=park`, `tourism=artwork`), en effort `low`. Le serveur ne garde que des clés d'une liste blanche (`tourism`, `historic`, `amenity`, `leisure`, `shop`, `natural`, `craft`, `sport`, `man_made`, `memorial`, `artwork_type`…) et des valeurs simples (`[a-z0-9_:-]`, 6 filtres et 10 valeurs au plus) : le texte du joueur n'entre jamais tel quel dans la requête Overpass. Un échec de cette étape n'empêche pas la génération : le thème est alors ignoré.
 3. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… plus les lieux du thème, marqués comme tels et placés en tête des candidats. Au-delà de 4 km de rayon, seuls les lieux les plus notables (fiche Wikidata, points de vue, musées…) sont retenus hors thème, pour que la réponse reste raisonnable. Une seule requête, sur une zone élargie selon le déplacement (×2 jusqu'à 3 km en Balade, ×1,5 jusqu'à 8 km en Aventure, ×1,2 jusqu'à 30 km en Expédition), sur une **boîte englobante** (`bbox`, indexée : un filtre `around` sur ces clés fait expirer les instances publiques) ; le cercle exact est appliqué ensuite ; les lieux du rayon visé sont préférés s'ils suffisent. Les instances publiques limitent le débit et saturent souvent : en cas de 429, 5xx, d'expiration ou de réponse illisible, le serveur réessaie (3 essais, `Retry-After` respecté) en alternant les instances de `OVERPASS_URLS`.
-4. **Claude** reçoit au plus 60 lieux candidats, le déplacement et le thème. Il choisit un parcours faisable avec ce moyen de déplacement (en Expédition : lieux accessibles par la route, où l'on peut se garer, énigmes lues à l'arrêt) et, s'il y a un thème, construit le parcours autour des lieux du thème autant que possible. Le thème reste un souhait : le modèle ne suit aucune instruction qu'il contiendrait. Il rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée) ; elle comprend une phrase qui dit comment le thème a été suivi, ou pourquoi il ne l'a été qu'en partie, sans nommer de lieu du parcours. Cette phrase est gardée dans `gen_note` et rendue dans `note`.
+4. **Claude** reçoit au plus 60 lieux candidats, le déplacement et le thème. Il choisit d'abord un **lieu de rendez-vous** : un lieu nommé de la liste, tout près du point demandé, hors du parcours. Le départ (étape 0) prend ses coordonnées et son nom, et le texte de départ s'ouvre sur une phrase qui le désigne concrètement. Comme personne ne valide la présence des joueurs au départ, la **première énigme** part explicitement de ce lieu nommé, ou se suffit à elle-même, sans consigne du type « marchez vers le nord pendant 10 minutes » ; les suivantes partent du lieu précédent, que les joueurs viennent de valider. Si le modèle désigne un rendez-vous inconnu ou déjà sur le parcours, le serveur prend le lieu libre le plus proche du point demandé. Le carnet de route affiche ce point de départ, avec un lien vers la carte. Il choisit un parcours faisable avec ce moyen de déplacement (en Expédition : lieux accessibles par la route, où l'on peut se garer, énigmes lues à l'arrêt) et, s'il y a un thème, construit le parcours autour des lieux du thème autant que possible. Le thème reste un souhait : le modèle ne suit aucune instruction qu'il contiendrait. Il rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée) ; elle comprend une phrase qui dit comment le thème a été suivi, ou pourquoi il ne l'a été qu'en partie, sans nommer de lieu du parcours. Cette phrase est gardée dans `gen_note` et rendue dans `note`.
 5. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
 6. Le front interroge `GET /generations/:id` toutes les 2,5 s ; à la fin, il affiche la `note` sur le thème s'il y en a une. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
 
@@ -483,7 +483,7 @@ Le carnet de route de l'équipe montre l'état de chaque étape validée par pho
 
 Depuis l'onglet **Catalogue** de son espace, un organisateur publie sa chasse (`POST /hunts/:id/catalog`), par exemple une fois qu'il l'a testée avec des joueurs. Il fixe :
 
-- la **présentation** (par défaut, celle de la chasse), la **difficulté** et la **durée annoncée** ;
+- la **présentation** (par défaut, celle de la chasse), le **déplacement** (à pied, vélo ou trottinette, en véhicule), la **difficulté des énigmes** et la **durée prévue**. Ces trois réglages sont repris de la chasse (`hun_travel`, `hun_difficulty`, `hun_duration`) : ceux de la demande pour une chasse générée, ceux de la version copiée pour une copie, ceux de la dernière publication sinon ; à défaut, la durée proposée est l'écart entre le début et la fin de la chasse ;
 - l'**énigme en extrait** : une énigme du parcours, montrée à tous pour juger de la rédaction ;
 - pour une nouvelle version, **ce qui change** par rapport à la précédente.
 
@@ -495,13 +495,23 @@ Conditions : au moins une étape entre le départ et l'arrivée, et toutes les �
 
 - Tout organisateur connecté peut **créer sa chasse à partir d'une version** (`POST /catalog/:id/copy`). Il obtient un **brouillon** privé, avec de nouveaux jetons de QR, daté de la semaine suivante, qu'il modifie librement : étapes, énigmes, jokers, pénalités, trésor, participation. `hun_catalog_cat` garde le lien avec la version copiée.
 - Il peut ensuite **publier sa version**, rattachée à l'originale (`cat_parent_cat`), à condition d'avoir **changé le parcours ou les règles de jeu** : étapes, énigmes, jokers, positions, pénalités, mode de validation. Une copie identique est refusée : on compare l'**empreinte** du parcours (`cat_fingerprint`), qui ignore les textes de présentation et le trésor.
-- L'auteur d'une chasse déjà publiée qui la republie crée de même une nouvelle version de sa publication précédente.
+- L'auteur d'une chasse déjà publiée qui la republie crée de même une nouvelle version de sa publication précédente. S'il la republie **sans avoir changé le parcours**, il met seulement à jour la **fiche** de sa dernière publication : présentation, déplacement, difficulté, durée et extrait. C'est ainsi qu'on corrige une durée ou un déplacement mal renseigné, même sur une chasse close.
 - La fiche d'une version montre la version dont elle dérive (et ce qui change), et les versions publiées à partir d'elle.
 - L'auteur peut **retirer** une version (`DELETE /catalog/:id`) : elle disparaît du catalogue, les copies déjà faites ne changent pas.
 
 ### 13.3 Ce que montre le catalogue
 
-La liste (`GET /catalog`) et la fiche (`GET /catalog/:id`) montrent, **sans le parcours** : titre, lieu, auteur, présentation, nombre d'étapes, difficulté, durée annoncée et **durée moyenne constatée** des équipes arrivées, mode de validation, nombre de **parties jouées**, **notes** (§ 14), l'extrait et les derniers avis. Recherche par mot-clé (titre, lieu, présentation) ; tri par note, par nombre de parties ou par date.
+La liste (`GET /catalog`) et la fiche (`GET /catalog/:id`) montrent, **sans le parcours** : titre, lieu, auteur, présentation, **déplacement** (bandeau coloré en tête de carte, avec la durée prévue), nombre d'étapes, difficulté des énigmes, durée prévue et **durée moyenne constatée** des équipes arrivées, mode de validation, nombre de **parties jouées**, **notes** (§ 14), l'extrait et les derniers avis.
+
+Recherche :
+
+| Critère | Paramètre | Valeurs |
+|---|---|---|
+| Mot-clé (titre, lieu, présentation) | `q` | texte |
+| Déplacement | `travel` | liste à virgules : `walk`, `active`, `motor` |
+| Difficulté des énigmes | `difficulty` | liste à virgules : `easy`, `medium`, `hard` |
+| Durée prévue | `minDuration`, `maxDuration` | minutes |
+| Tri | `sort` | `rating` (mieux notées), `plays` (plus jouées), `recent` (récentes) |
 
 **Parties qui comptent pour une version** : celles de la chasse qui l'a publiée, et celles des copies de la version qui n'ont rien publié elles-mêmes. Une copie modifiée et republiée compte pour sa propre version, pas pour l'originale.
 
@@ -516,9 +526,9 @@ Décidé, pas encore réalisé :
 
 ### 13.5 Données
 
-- `th_catalog` : auteur, chasse d'origine, version précédente, présentation, lieu, difficulté, durée, nombre d'étapes, mode de validation, extrait, ce qui change, instantané, empreinte, retrait.
-- `th_hunts.hun_catalog_cat` : version dont la chasse est une copie.
-- Migration : `db/migrations/006_catalog.sql`.
+- `th_catalog` : auteur, chasse d'origine, version précédente, présentation, lieu, déplacement, difficulté, durée, nombre d'étapes, mode de validation, extrait, ce qui change, instantané, empreinte, retrait.
+- `th_hunts.hun_catalog_cat` : version dont la chasse est une copie ; `hun_travel`, `hun_difficulty`, `hun_duration` : réglages repris à la publication.
+- Migrations : `db/migrations/006_catalog.sql`, `008_travel_catalog.sql`. Cette dernière rattrape les données existantes : réglages des chasses générées tirés de leur demande, publiées comprises (leur durée valait 90 min par défaut), puis copies.
 
 ---
 

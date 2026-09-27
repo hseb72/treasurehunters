@@ -16,6 +16,7 @@ import { formatDuration } from '@shared/rules';
 import { formatClock } from '../../shared/format';
 import { Confirm } from '../../shared/confirm-dialog';
 import { InvitePanel } from '../../shared/invite-panel';
+import { StartPlace } from '../../shared/start-place';
 import { Trail } from '../../shared/trail';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
@@ -23,7 +24,7 @@ const REFRESH_MS = 15_000;
 
 @Component({
   selector: 'th-play',
-  imports: [DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, Trail],
+  imports: [DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrl: './play.scss',

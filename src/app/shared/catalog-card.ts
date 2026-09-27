@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { DIFFICULTY_LABELS } from '@shared/generation';
+import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
 import { CatalogEntry } from '@shared/models';
 import { Stars } from './stars';
 
@@ -13,6 +13,14 @@ import { Stars } from './stars';
   template: `
     @let e = entry();
     <a class="parchment card" [routerLink]="['/catalog', e.id]">
+      <div class="travel travel--{{ e.travel }}" [attr.aria-label]="'Déplacement : ' + means[e.travel]">
+        <mat-icon>{{ icons[e.travel] }}</mat-icon>
+        <strong>{{ means[e.travel] }}</strong>
+        <span>· {{ formula[e.travel] }}</span>
+        <span class="spacer"></span>
+        <mat-icon>schedule</mat-icon>
+        <strong>{{ minutes(e.durationMinutes) }}</strong>
+      </div>
       <h3>{{ e.title }}</h3>
       <div class="row small muted meta">
         <span class="row"><mat-icon>location_on</mat-icon>{{ e.location }}</span>
@@ -21,7 +29,9 @@ import { Stars } from './stars';
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
       <div class="row small meta">
         <span class="row"><mat-icon>route</mat-icon>{{ e.stepCount }} étapes</span>
-        <span class="row"><mat-icon>schedule</mat-icon>{{ e.measuredMinutes ?? e.durationMinutes }} min</span>
+        @if (e.measuredMinutes !== null) {
+          <span class="row" title="Durée moyenne des équipes arrivées"><mat-icon>timer</mat-icon>jouée en {{ minutes(e.measuredMinutes) }}</span>
+        }
         <span class="row"><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</span>
         <span class="row"><mat-icon>{{ e.validation === 'geo' ? 'where_to_vote' : 'qr_code_2' }}</mat-icon>{{ e.validation === 'geo' ? 'géolocalisation' : 'QR codes' }}</span>
         <span class="row"><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }}</span>
@@ -40,9 +50,29 @@ import { Stars } from './stars';
     .meta { flex-wrap: wrap; gap: 4px 14px; }
     .meta mat-icon { width: 18px; height: 18px; font-size: 18px; }
     .badge { align-self: flex-start; }
+    .travel {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: -4px -4px 2px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--th-parchment-light);
+      background: var(--th-jungle);
+      mat-icon { width: 20px; height: 20px; font-size: 20px; }
+      span { opacity: 0.85; }
+      .spacer { flex: 1; }
+    }
+    .travel--active { background: var(--th-saddle); }
+    .travel--motor { background: var(--th-brick); }
   `,
 })
 export class CatalogCard {
   readonly entry = input.required<CatalogEntry>();
   protected readonly difficulty = DIFFICULTY_LABELS;
+  protected readonly icons = TRAVEL_ICONS;
+  protected readonly means = TRAVEL_MEANS;
+  protected readonly formula = TRAVEL_LABELS;
+  protected readonly minutes = minutesLabel;
 }

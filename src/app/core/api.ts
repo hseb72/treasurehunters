@@ -21,6 +21,8 @@ import {
   ScanResult,
   Step,
   Team,
+  Difficulty,
+  Travel,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -33,6 +35,11 @@ export interface CatalogQuery {
   sort?: 'rating' | 'recent' | 'plays';
   mine?: boolean;
   hunt?: number;
+  travel?: Travel[];
+  difficulty?: Difficulty[];
+  /** Durée annoncée, en minutes. */
+  minDuration?: number;
+  maxDuration?: number;
 }
 
 /**

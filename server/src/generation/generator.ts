@@ -78,7 +78,8 @@ export class OsmClaudeGenerator implements HuntGenerator {
     const all = await placesAround(center, Math.min(Math.round(radius * area.factor), area.max), theme);
     const near = all.filter((p) => distanceMeters(center, p) <= radius);
     const pois = near.length >= count + 2 ? near : all;
-    if (pois.length < count) {
+    // Un lieu de plus : le rendez-vous.
+    if (pois.length < count + 1) {
       throw new HttpError(422, 'Pas assez de lieux remarquables autour de ce point : allongez la durée, réduisez le nombre d’étapes ou choisissez un autre lieu.');
     }
     // Les plus proches, en privilégiant ceux du thème puis ceux qui ont de quoi nourrir une énigme.

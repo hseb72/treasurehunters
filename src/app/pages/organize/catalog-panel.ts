@@ -8,8 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
 import { of } from 'rxjs';
-import { DIFFICULTY_LABELS } from '@shared/generation';
-import { Difficulty } from '@shared/models';
+import { DIFFICULTY_LABELS, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
+import { Difficulty, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { CatalogCard } from '../../shared/catalog-card';
@@ -57,10 +57,12 @@ export class CatalogPanelPage {
   /** Une nouvelle version d'une chasse déjà publiée ou copiée dit ce qui change. */
   protected readonly isVersion = computed(() => !!this.hunt()?.catalogId || this.published.value().length > 0);
   protected readonly difficulties = Object.entries(DIFFICULTY_LABELS) as [Difficulty, string][];
+  protected readonly travels = (Object.keys(TRAVEL_LABELS) as Travel[]).map((t) => ({ value: t, label: `${TRAVEL_MEANS[t]} · ${TRAVEL_LABELS[t]}`, icon: TRAVEL_ICONS[t] }));
   protected readonly busy = signal(false);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     summary: [''],
+    travel: ['walk' as Travel, Validators.required],
     difficulty: ['medium' as Difficulty, Validators.required],
     durationMinutes: [90, [Validators.required, Validators.min(10), Validators.max(1440)]],
     sampleOrder: [0, Validators.required],
@@ -73,6 +75,21 @@ export class CatalogPanelPage {
       const h = this.hunt();
       if (h && !this.form.controls.summary.dirty) this.form.controls.summary.setValue(h.description);
     });
+    // Déplacement, difficulté et durée : ceux de la chasse (demande de génération, copie ou dernière
+    // publication) ; sans durée prévue, l'écart entre le début et la fin de la chasse.
+    effect(() => {
+      const h = this.hunt();
+      if (!h) return;
+      const c = this.form.controls;
+      if (!c.travel.dirty) c.travel.setValue(h.travel);
+      if (!c.difficulty.dirty && h.difficulty) c.difficulty.setValue(h.difficulty);
+      if (!c.durationMinutes.dirty) c.durationMinutes.setValue(h.durationMinutes ?? this.plannedMinutes(h.begin, h.end));
+    });
+  }
+
+  private plannedMinutes(begin: string, end: string): number {
+    const minutes = Math.round((Date.parse(end) - Date.parse(begin)) / 60_000 / 15) * 15;
+    return Math.min(1440, Math.max(10, minutes || 90));
   }
 
   protected publish(): void {

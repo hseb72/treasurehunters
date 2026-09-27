@@ -60,6 +60,11 @@ export interface Hunt {
   selfPaced: boolean;
   /** Entrée du catalogue dont la chasse est une copie (§ 13). */
   catalogId: number | null;
+  /** Déplacement prévu : à pied, à vélo ou trottinette, en véhicule. */
+  travel: Travel;
+  /** Difficulté des énigmes et durée prévue (minutes), reprises à la publication au catalogue. */
+  difficulty: Difficulty | null;
+  durationMinutes: number | null;
   teamGame: boolean;
   teamMin: number;
   teamMax: number;
@@ -186,6 +191,8 @@ export interface PlayState {
   selfStart: boolean;
   /** QR introuvable : l'équipe peut envoyer une photo du lieu (chasses à QR, stockage configuré). */
   photoProof: boolean;
+  /** Point de départ (étape 0), s'il est placé sur la carte. */
+  start: { name: string | null; lat: number; lng: number } | null;
 }
 
 /* ---------- Preuve par photo (§ 12) ---------- */
@@ -336,6 +343,7 @@ export interface CatalogEntry {
   title: string;
   summary: string;
   location: string;
+  travel: Travel;
   difficulty: Difficulty;
   /** Durée annoncée par l'auteur, en minutes. */
   durationMinutes: number;
@@ -372,6 +380,7 @@ export interface CatalogDetail extends CatalogEntry {
 
 export interface CatalogPublication {
   summary: string;
+  travel: Travel;
   difficulty: Difficulty;
   durationMinutes: number;
   /** Étape dont l'énigme sert d'extrait (0 = énigme de départ). */

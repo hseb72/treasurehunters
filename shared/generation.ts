@@ -68,6 +68,27 @@ export const TRAVEL_HINTS: Record<Travel, string> = {
   motor: 'En véhicule motorisé (moto, voiture…) : les étapes sont à plusieurs kilomètres, avec de quoi se garer.',
 };
 
+/** Moyen de déplacement, en deux mots (cartes du catalogue). */
+export const TRAVEL_MEANS: Record<Travel, string> = {
+  walk: 'À pied',
+  active: 'Vélo, trottinette',
+  motor: 'En véhicule',
+};
+
+/** Icônes Material Symbols du déplacement. */
+export const TRAVEL_ICONS: Record<Travel, string> = {
+  walk: 'directions_walk',
+  active: 'directions_bike',
+  motor: 'directions_car',
+};
+
+/** Durée lisible : « 45 min », « 1 h », « 2 h 30 ». */
+export function minutesLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const m = minutes % 60;
+  return `${Math.floor(minutes / 60)} h${m ? ` ${String(m).padStart(2, '0')}` : ''}`;
+}
+
 /** Difficulté des énigmes. */
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   easy: 'Faciles',
@@ -95,7 +116,7 @@ export function demoPlan(center: { lat: number; lng: number }, count: number, pl
       hints: ['Écoutez.', 'De l’eau qui coule, en pleine ville.', 'Une fontaine, tout près du départ.'],
       latitude: center.lat,
       longitude: center.lng,
-      address: null,
+      address: `Place centrale, ${placeName}`,
     },
   ];
   for (let i = 1; i <= count; i++) {

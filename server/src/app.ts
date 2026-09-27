@@ -47,6 +47,9 @@ const huntFields = {
   contribution: z.number().min(0).max(100_000),
   validation: z.enum(['qr', 'geo']),
   geoRadius: z.number().int().min(10).max(500),
+  travel: z.enum(['walk', 'active', 'motor']),
+  difficulty: z.enum(['easy', 'medium', 'hard']).nullable(),
+  durationMinutes: z.number().int().min(10).max(1440).nullable(),
 };
 const huntCreate = z.object(huntFields).partial().required({ name: true, begin: true, end: true });
 const huntUpdate = z.object(huntFields).partial();
@@ -278,12 +281,29 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
 
   /* ----- Catalogue (§ 13) et notations (§ 14) */
   app.get('/api/catalog', async (req) => {
+    // Listes à virgules : travel=walk,active.
+    const list = <T extends string>(values: [T, ...T[]]) =>
+      z
+        .string()
+        .max(40)
+        .transform((s) => s.split(',').filter(Boolean))
+        .pipe(z.array(z.enum(values)));
+    const duration = z.coerce.number().int().min(0).max(1440);
     const q = z
-      .object({ q: text(100), sort: z.enum(['rating', 'recent', 'plays']), mine: z.enum(['1', 'true']), hunt: id })
+      .object({
+        q: text(100),
+        sort: z.enum(['rating', 'recent', 'plays']),
+        mine: z.enum(['1', 'true']),
+        hunt: id,
+        travel: list(['walk', 'active', 'motor']),
+        difficulty: list(['easy', 'medium', 'hard']),
+        minDuration: duration,
+        maxDuration: duration,
+      })
       .partial()
       .parse(req.query);
     // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
-    return service.listCatalog(req.viewer, { q: q.q, sort: q.sort, mine: !!q.mine, hunt: q.hunt });
+    return service.listCatalog(req.viewer, { ...q, mine: !!q.mine });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
   app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));
@@ -292,6 +312,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const pub = z
       .object({
         summary: text(5000),
+        travel: z.enum(['walk', 'active', 'motor']),
         difficulty: z.enum(['easy', 'medium', 'hard']),
         durationMinutes: z.number().int().min(10).max(1440),
         sampleOrder: z.number().int().min(0),

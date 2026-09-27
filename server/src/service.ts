@@ -29,6 +29,8 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  Difficulty,
+  Travel,
 } from '../../shared/models.js';
 import {
   checkinAllowance,
@@ -782,6 +784,7 @@ export class Service {
       position,
       selfStart: canSelfStart(hunt, team, me),
       photoProof: !!this.photos && hunt.validation === 'qr',
+      start: startOf(steps),
     };
   }
 
@@ -1095,7 +1098,7 @@ export class Service {
   /**
    * Publie une version de la chasse au catalogue : instantané des réglages et des étapes.
    * Une copie (ou une republication) doit avoir changé le parcours par rapport à la version
-   * dont elle vient.
+   * dont elle vient ; republier sa chasse inchangée met seulement à jour sa fiche.
    */
   async publishToCatalog(viewer: Viewer, huntId: number, pub: CatalogPublication): Promise<CatalogDetail> {
     const me = requireUser(viewer);
@@ -1113,7 +1116,21 @@ export class Service {
       const content = catalogContent(hunt, steps);
       const fingerprint = contentFingerprint(content);
       // Version précédente : la dernière publication de cette chasse, sinon la version copiée.
-      const previous = await one(db, 'SELECT cat_id FROM th_catalog WHERE cat_hunt_hun = $1 ORDER BY cat_id DESC LIMIT 1', [huntId]);
+      const previous = await one(db, 'SELECT cat_id, cat_fingerprint, cat_withdrawn FROM th_catalog WHERE cat_hunt_hun = $1 ORDER BY cat_id DESC LIMIT 1', [
+        huntId,
+      ]);
+      const settings = [pub.travel, pub.difficulty, pub.durationMinutes];
+      // Même parcours que sa dernière publication : l'auteur en corrige la fiche (présentation,
+      // déplacement, difficulté, durée, extrait) au lieu d'en publier une nouvelle version.
+      if (previous && !previous['cat_withdrawn'] && previous['cat_fingerprint'] === fingerprint) {
+        await db.query(
+          `UPDATE th_catalog SET cat_summary = $2, cat_travel = $3, cat_difficulty = $4, cat_duration = $5, cat_sample_order = $6, cat_sample = $7,
+                                 cat_lastupdate = now() WHERE cat_id = $1`,
+          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions],
+        );
+        await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
+        return previous['cat_id'] as number;
+      }
       const parentId: number | null = previous?.['cat_id'] ?? hunt.catalogId;
       if (parentId) {
         const parent = (await one(db, 'SELECT cat_title, cat_fingerprint FROM th_catalog WHERE cat_id = $1', [parentId]))!;
@@ -1126,8 +1143,9 @@ export class Service {
       const r = await one(
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
-                                 cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING cat_id`,
+                                 cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
+                                 cat_travel)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1144,15 +1162,18 @@ export class Service {
           parentId ? pub.changes?.trim() || null : null,
           JSON.stringify(content),
           fingerprint,
+          pub.travel,
         ],
       );
+      // La chasse garde ces réglages : la prochaine publication les reprend.
+      await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
       return r!['cat_id'] as number;
     });
     return this.catalogEntry(me, id);
   }
 
   /** Catalogue public : versions non retirées, les mieux notées d'abord (ou les plus récentes, les plus jouées). */
-  listCatalog(viewer: Viewer, opts: { q?: string; sort?: 'rating' | 'recent' | 'plays'; mine?: boolean; hunt?: number }): Promise<CatalogEntry[]> {
+  listCatalog(viewer: Viewer, opts: CatalogQuery): Promise<CatalogEntry[]> {
     const params: unknown[] = [];
     const where: string[] = [];
     if (opts.mine || opts.hunt) {
@@ -1168,6 +1189,22 @@ export class Service {
     if (opts.q?.trim()) {
       params.push(`%${opts.q.trim().replace(/[%_\\]/g, '\\$&')}%`);
       where.push(`(c.cat_title ILIKE $${params.length} OR c.cat_location ILIKE $${params.length} OR c.cat_summary ILIKE $${params.length})`);
+    }
+    if (opts.travel?.length) {
+      params.push(opts.travel);
+      where.push(`c.cat_travel = ANY($${params.length})`);
+    }
+    if (opts.difficulty?.length) {
+      params.push(opts.difficulty);
+      where.push(`c.cat_difficulty = ANY($${params.length})`);
+    }
+    if (opts.minDuration) {
+      params.push(opts.minDuration);
+      where.push(`c.cat_duration >= $${params.length}`);
+    }
+    if (opts.maxDuration) {
+      params.push(opts.maxDuration);
+      where.push(`c.cat_duration <= $${params.length}`);
     }
     const order = {
       rating: 'ra.stars DESC NULLS LAST, coalesce(ra.n, 0) DESC, c.cat_id DESC',
@@ -1213,7 +1250,7 @@ export class Service {
   async copyFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
-      const r = await one(db, 'SELECT cat_content, cat_withdrawn FROM th_catalog WHERE cat_id = $1', [id]);
+      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration FROM th_catalog WHERE cat_id = $1', [id]);
       if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
       const content = r['cat_content'] as CatalogContent;
       const begin = new Date(Date.now() + 7 * 86_400_000);
@@ -1222,6 +1259,9 @@ export class Service {
         begin: begin.toISOString(),
         end: new Date(begin.getTime() + 3 * 3_600_000).toISOString(),
         isPublic: false,
+        travel: r['cat_travel'],
+        difficulty: r['cat_difficulty'],
+        durationMinutes: r['cat_duration'],
       };
       const assignments = huntAssignments(data);
       const cols = ['hun_owner_htr', 'hun_joincode', 'hun_catalog_cat', ...assignments.map(([c]) => c)];
@@ -1404,8 +1444,8 @@ export class Service {
       `INSERT INTO th_hunts (hun_owner_htr, hun_joincode, hun_name, hun_description, hun_location, hun_begin, hun_end,
                              hun_autostart, hun_autoclose, hun_award, hun_starttext, hun_startmode, hun_penalty1, hun_penalty2,
                              hun_penalty3, hun_skippenalty, hun_teamgame, hun_teammin, hun_teammax, hun_public, hun_status_hst,
-                             hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13)
+                             hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr, hun_travel, hun_difficulty, hun_duration)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13, $14, $15, $16)
        RETURNING hun_id`,
       [
         owner,
@@ -1423,6 +1463,9 @@ export class Service {
         STATUS_IDS[play ? 'published' : 'draft'],
         play,
         play ? me : null,
+        req.travel,
+        req.difficulty,
+        req.durationMinutes,
       ],
     );
     const huntId = r!['hun_id'] as number;
@@ -1570,7 +1613,29 @@ const MAX_PHOTO_BYTES = 6 * 1024 * 1024;
 
 /* ---------------------------------------------------------------- Catalogue (§ 13) */
 
-/** Instantané publié : de quoi recréer la chasse (sans dates, équipes ni QR). */
+function startOf(steps: Step[]): PlayState['start'] {
+  const s = steps.find((x) => x.order === 0);
+  if (!s || s.latitude === null || s.longitude === null) return null;
+  return { name: s.address?.trim() || null, lat: Number(s.latitude), lng: Number(s.longitude) };
+}
+
+/** Recherche dans le catalogue (§ 13). */
+export interface CatalogQuery {
+  q?: string;
+  sort?: 'rating' | 'recent' | 'plays';
+  mine?: boolean;
+  hunt?: number;
+  travel?: Travel[];
+  difficulty?: Difficulty[];
+  /** Durée annoncée, en minutes. */
+  minDuration?: number;
+  maxDuration?: number;
+}
+
+/**
+ * Instantané publié : de quoi recréer la chasse (sans dates, équipes ni QR). Déplacement,
+ * difficulté et durée sont des colonnes de l'entrée : ils n'entrent pas dans l'empreinte.
+ */
 interface CatalogContent {
   hunt: Pick<
     Hunt,
@@ -1661,7 +1726,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
+            c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -1684,6 +1749,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     title: r['cat_title'],
     summary: r['cat_summary'],
     location: r['cat_location'],
+    travel: r['cat_travel'],
     difficulty: r['cat_difficulty'],
     durationMinutes: r['cat_duration'],
     measuredMinutes: r['measured'] === null ? null : Math.round(Number(r['measured'])),

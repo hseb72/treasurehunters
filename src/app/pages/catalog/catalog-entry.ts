@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap } from 'rxjs';
-import { DIFFICULTY_LABELS } from '@shared/generation';
+import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
@@ -35,6 +35,10 @@ export class CatalogEntryPage {
   });
   protected readonly busy = signal(false);
   protected readonly difficulty = DIFFICULTY_LABELS;
+  protected readonly travel = TRAVEL_LABELS;
+  protected readonly travelHints = TRAVEL_HINTS;
+  protected readonly icons = TRAVEL_ICONS;
+  protected readonly minutes = minutesLabel;
   protected readonly isAuthor = computed(() => this.entry.value()?.authorId === this.session.user()?.id);
   protected readonly criteria = computed(() => {
     const r = this.entry.value()?.rating;
