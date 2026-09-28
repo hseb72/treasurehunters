@@ -122,3 +122,23 @@
   > mat-icon { color: var(--th-accent); flex: none; }
   p { margin: 4px 0; }
 }
+
+/* En un coup d'œil (§ 35) */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--th-surface-sunken);
+  }
+  mat-icon { color: var(--th-primary); width: 20px; height: 20px; font-size: 20px; }
+  .small { margin-left: 4px; }
+}

@@ -7,9 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { priceLabel } from '@shared/store';
-import { ReportCategory } from '@shared/models';
+import { CatalogEntry, ReportCategory } from '@shared/models';
 import { REPORT_CATEGORIES } from '@shared/reports';
-import { formatDuration } from '@shared/rules';
+import { formatDuration, MEASURED_MIN } from '@shared/rules';
+import { kmLabel } from '../../shared/distance';
 import { Shop } from '../../core/shop';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { HuntApi } from '../../core/api';
@@ -31,6 +32,11 @@ import { Stars } from '../../shared/stars';
 export class CatalogEntryPage {
   /** Repères pratiques (§ 26). */
   protected readonly age = ageLabel;
+  protected readonly km = kmLabel;
+  /** Durée constatée, seulement quand assez d'équipes sont arrivées pour qu'elle dise vrai (§ 35). */
+  protected measured(e: CatalogEntry): number | null {
+    return e.measuredMinutes !== null && e.finishers >= MEASURED_MIN ? e.measuredMinutes : null;
+  }
   protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);

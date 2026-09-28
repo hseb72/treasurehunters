@@ -350,9 +350,19 @@ export const EN_MORE: Record<string, string> = {
   'utilisée sur les 30 derniers jours ·': 'used over the last 30 days ·',
   'utilisées sur les 30 derniers jours ·': 'used over the last 30 days ·',
   'restante': 'left',
+  // Reprendre une partie, fiche en un coup d'œil (§ 35)
+  'Ma partie en cours': 'My game in progress',
+  "En un coup d'œil": 'At a glance',
+  constatée: 'measured',
+  prévue: 'planned',
+  'Accessible en fauteuil': 'Wheelchair accessible',
+  "Longueur du parcours, à vol d'oiseau": 'Trail length, as the crow flies',
 };
 
 export const EN_MORE_PATTERNS: [RegExp, string | ((...m: string[]) => string)][] = [
+  [/^Étape (\d+)\/(\d+) · (.+)$/, 'Step $1/$2 · $3'],
+  [/^Reprendre (.+)$/, 'Resume $1'],
+  [/^· durée constatée : (.+), en moyenne sur (\d+) équipes arrivées$/, '· measured duration: $1, on average over $2 finishing teams'],
   [/^(Balade|Sportif|Motorisé) : (.+)$/, (_, a, b) => `${({ Balade: 'Stroll', Sportif: 'Active', Motorisé: 'Motorised' } as Record<string, string>)[a]}: ${EN_MORE[b] ?? b}`],
   [/^: chaque équipe donne son départ quand elle veut, jusqu'au (.+)\. Le meilleur temps l'emporte\.$/, ': each team starts whenever it likes, until $1. Best time wins.'],
   [/^: (.+) lance la course pour toutes les équipes, le premier arrivé l'emporte\.$/, ': $1 starts the race for all teams, first to finish wins.'],

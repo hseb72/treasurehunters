@@ -839,3 +839,9 @@ Pour les touristes, l'application parle anglais : d'office si le téléphone n'e
 ## 34. Nom et vocabulaire
 
 L'application s'appelle **SecretTracks** (le nom précédent était trop répandu). Dans l'interface, on ne crée plus des « chasses » mais des **Secret Tracks** (au féminin : « une Secret Track », « des Secret Tracks partagées ») ; en anglais, « a Secret Track ». Les organisations en présentiel gardent le nom d'« expédition ». Ce document garde le mot « chasse » pour désigner le jeu, et le code, la base, le dépôt et le déploiement leurs noms techniques (`hunt`, `th_*`, `treasurehunters`). Le compte système qui organise les parties en autonomie s'appelle désormais « SecretTracks » (migration `023_secrettracks.sql`).
+
+## 35. Reprendre une partie et fiche fidèle
+
+**Reprendre une partie.** L'accueil montre en tête « Ma partie en cours » pour chaque partie commencée et pas finie : nom, « Étape 7/12 · 43 min » (étape cherchée, temps depuis le départ), barre de progression et bouton « Reprendre » vers l'écran de jeu. Le serveur les donne par `GET /api/me/in-progress` (équipes du joueur parties, pas arrivées, chasse en cours) ; les parties téléchargées pour le hors-ligne (§ 32) sont reprises aussi depuis le téléphone, même sans réseau, et mènent au jeu hors ligne.
+
+**Fiche fidèle.** La fiche du catalogue ouvre sur un bandeau « En un coup d'œil » : ⏱ durée, 📏 longueur du parcours, 🧩 étapes, 🚶 déplacement, âge conseillé et ♿ accessibilité (repères pratiques, § 26). La longueur est la somme des distances à vol d'oiseau entre étapes successives, calculée à la publication (`cat_km`, migration `024_catalog_km.sql`). Tant que moins de `MEASURED_MIN` (3) équipes sont arrivées, la durée affichée est la durée **prévue** par l'auteur ; ensuite, c'est la durée **constatée** (moyenne des équipes arrivées), avec « en moyenne sur N équipes arrivées ». La carte du catalogue suit la même règle.

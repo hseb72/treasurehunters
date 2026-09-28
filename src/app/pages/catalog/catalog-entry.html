@@ -110,14 +110,34 @@
 
     <section class="surface">
       <h2 class="section-title">La Secret Track</h2>
+      <!-- En un coup d'œil (§ 35) : durée (constatée dès qu'assez d'équipes sont arrivées), distance, étapes, public. -->
+      <ul class="strip" aria-label="En un coup d'œil">
+        <li>
+          <mat-icon>schedule</mat-icon>
+          @if (measured(e); as m) {
+            <span><strong>{{ minutes(m) }}</strong> <span class="small muted">constatée</span></span>
+          } @else {
+            <span><strong>{{ minutes(e.durationMinutes) }}</strong> <span class="small muted">prévue</span></span>
+          }
+        </li>
+        @if (e.km) {
+          <li><mat-icon>straighten</mat-icon><strong>{{ km(e.km) }}</strong></li>
+        }
+        <li><mat-icon>extension</mat-icon><strong>{{ e.stepCount }} étapes</strong></li>
+        <li><mat-icon>{{ icons[e.travel] }}</mat-icon><strong>{{ travel[e.travel] }}</strong></li>
+        <li><mat-icon>child_care</mat-icon><strong>{{ age(e.minAge) }}</strong></li>
+        @if (e.practical.includes('wheelchair')) {
+          <li><mat-icon>accessible</mat-icon><strong>Accessible en fauteuil</strong></li>
+        }
+      </ul>
       <p class="description">{{ e.summary }}</p>
       <ul class="facts-list">
         <li><mat-icon>{{ icons[e.travel] }}</mat-icon>{{ travel[e.travel] }} : {{ travelHints[e.travel] }}</li>
         <li><mat-icon>route</mat-icon>{{ e.stepCount }} étapes, arrivée comprise</li>
         <li>
           <mat-icon>schedule</mat-icon>Environ {{ minutes(e.durationMinutes) }} prévues
-          @if (e.measuredMinutes !== null) {
-            · {{ minutes(e.measuredMinutes) }} en moyenne pour les équipes arrivées
+          @if (measured(e); as m) {
+            · durée constatée : {{ minutes(m) }}, en moyenne sur {{ e.finishers }} équipes arrivées
           }
         </li>
         <li><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</li>

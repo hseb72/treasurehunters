@@ -226,6 +226,23 @@ export interface PlayState {
   trail: { order: number; title: string; lat: number; lng: number }[] | null;
 }
 
+/* ---------- Reprendre une partie (§ 35) ---------- */
+
+/** Une partie commencée et pas finie, à reprendre depuis l'accueil. */
+export interface GameInProgress {
+  huntId: number;
+  name: string;
+  skin: string;
+  location: string;
+  /** Étape cherchée (1 à totalSteps). */
+  step: number;
+  totalSteps: number;
+  /** Départ de l'équipe. */
+  started: string;
+  /** Partie en autonomie d'une Secret Track du catalogue. */
+  autonomous: boolean;
+}
+
 /* ---------- Souvenir de fin de partie (§ 24) ---------- */
 
 /** De quoi dessiner la carte souvenir d'une équipe arrivée. */
@@ -516,6 +533,10 @@ export interface CatalogEntry {
   practical: PracticalTag[];
   /** Âge conseillé ; null : tous âges. */
   minAge: number | null;
+  /** Longueur du parcours, en km à vol d'oiseau (§ 35) ; null sans lieux placés. */
+  km: number | null;
+  /** Équipes arrivées au bout : la durée constatée ne s'affiche qu'à partir de MEASURED_MIN. */
+  finishers: number;
 }
 
 export interface CatalogReview {

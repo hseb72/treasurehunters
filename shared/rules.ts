@@ -180,6 +180,16 @@ export function distanceMeters(a: { lat: number; lng: number }, b: { lat: number
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
 
+/** Parties terminées à partir desquelles la fiche annonce la durée constatée plutôt que prévue (§ 35). */
+export const MEASURED_MIN = 3;
+
+/** Longueur d'un parcours, en km à vol d'oiseau d'un lieu au suivant ; null avec moins de deux lieux. */
+export function routeKm(points: { lat: number; lng: number }[]): number | null {
+  if (points.length < 2) return null;
+  const meters = points.slice(1).reduce((a, p, i) => a + distanceMeters(points[i]!, p), 0);
+  return Math.round(meters / 100) / 10;
+}
+
 /**
  * Distance maximale acceptée pour valider une arrivée par géolocalisation : le rayon de la chasse,
  * élargi de l'imprécision annoncée par le téléphone (plafonnée à 30 m pour ne pas tout accepter).

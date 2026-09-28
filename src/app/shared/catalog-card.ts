@@ -8,7 +8,8 @@ import { SkinCatalog } from '../core/skin-catalog';
 import { Shop } from '../core/shop';
 import { priceLabel } from '@shared/store';
 import { Stars } from './stars';
-import { distanceLabel } from './distance';
+import { distanceLabel, kmLabel } from './distance';
+import { MEASURED_MIN } from '@shared/rules';
 import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
@@ -42,7 +43,10 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
       <div class="row small meta">
         <span class="row"><mat-icon>route</mat-icon>{{ e.stepCount }} étapes</span>
-        @if (e.measuredMinutes !== null) {
+        @if (e.km) {
+          <span class="row" title="Longueur du parcours, à vol d'oiseau"><mat-icon>straighten</mat-icon>{{ km(e.km) }}</span>
+        }
+        @if (e.measuredMinutes !== null && e.finishers >= measuredMin) {
           <span class="row" title="Durée moyenne des équipes arrivées"><mat-icon>timer</mat-icon>jouée en {{ minutes(e.measuredMinutes) }}</span>
         }
         <span class="row"><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</span>
@@ -107,5 +111,7 @@ export class CatalogCard {
   protected readonly formula = TRAVEL_LABELS;
   protected readonly minutes = minutesLabel;
   protected readonly distance = distanceLabel;
+  protected readonly measuredMin = MEASURED_MIN;
+  protected readonly km = kmLabel;
   protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
 }

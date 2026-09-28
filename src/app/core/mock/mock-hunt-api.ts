@@ -43,6 +43,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  GameInProgress,
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
@@ -54,6 +55,7 @@ import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '@shar
 import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
   arrivalCheck,
+  routeKm,
   computeRanking,
   distanceMeters,
   evaluateScan,
@@ -800,6 +802,32 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => this.autonomyBoard(id));
   }
 
+  /** Parties à reprendre (§ 35), comme le serveur. */
+  getInProgress(): Observable<GameInProgress[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      return this.db.teams
+        .filter((t) => t.started && Date.parse(t.started) <= Date.now() && !t.finished && t.members.some((m) => m.hunterId === me))
+        .map((t) => ({ t, h: this.db.hunts.find((x) => x.id === t.huntId)! }))
+        .filter(({ h }) => h.status === 'running')
+        .map(({ t, h }) => {
+          const steps = this.stepsOf(h.id);
+          const total = finalOrder(steps);
+          const vals = this.db.validations.filter((v) => v.teamId === t.id);
+          return {
+            huntId: h.id,
+            name: h.name,
+            skin: h.skin,
+            location: h.location,
+            step: Math.min(total, lastValidatedOrder(steps, vals) + 1),
+            totalSteps: total,
+            started: t.started!,
+            autonomous: h.surprise && h.hostId !== null && h.catalogId !== null,
+          };
+        });
+    });
+  }
+
   /** Carnet d'explorateur (§ 29), comme le serveur. */
   getJournal(): Observable<ExplorerJournal> {
     return this.reply(() => {
@@ -1138,6 +1166,8 @@ export class MockHuntApi extends HuntApi {
       distanceKm: start && near ? Math.round(distanceMeters(start, near) / 100) / 10 : null,
       practical: [...e.practical],
       minAge: e.minAge,
+      km: routeKm(e.content.steps.filter((x) => x.latitude !== null && x.longitude !== null).sort((a, b) => a.order - b.order).map((x) => ({ lat: x.latitude!, lng: x.longitude! }))),
+      finishers: times.length,
     };
   }
 

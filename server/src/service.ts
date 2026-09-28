@@ -42,6 +42,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  GameInProgress,
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
 import { PracticalTag } from '../../shared/practical.js';
@@ -51,6 +52,7 @@ import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } 
 import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '../../shared/offline.js';
 import {
+  routeKm,
   arrivalCheck,
   computeRanking,
   distanceMeters,
@@ -1163,6 +1165,37 @@ export class Service {
     };
   }
 
+  /** Parties commencées et pas finies (§ 35) : l'accueil propose de les reprendre là où elles en sont. */
+  async inProgress(viewer: Viewer): Promise<GameInProgress[]> {
+    const me = requireUser(viewer);
+    const list = await rows(
+      this.pool,
+      `SELECT t.tea_id, t.tea_started, h.hun_id FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
+       JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun
+       WHERE m.thr_hunter_htr = $1 AND t.tea_started IS NOT NULL AND t.tea_started <= now() AND t.tea_finished IS NULL AND h.hun_status_hst = $2
+       ORDER BY t.tea_started DESC LIMIT 10`,
+      [me, STATUS_IDS.running],
+    );
+    const games: GameInProgress[] = [];
+    for (const r of list) {
+      const hunt = (await huntById(this.pool, r['hun_id']))!;
+      const steps = await stepsOf(this.pool, hunt.id);
+      const vals = (await validationsOfHunt(this.pool, hunt.id)).filter((v) => v.teamId === r['tea_id']);
+      const total = finalOrder(steps);
+      games.push({
+        huntId: hunt.id,
+        name: hunt.name,
+        skin: hunt.skin,
+        location: hunt.location,
+        step: Math.min(total, lastValidatedOrder(steps, vals) + 1),
+        totalSteps: total,
+        started: (r['tea_started'] as Date).toISOString(),
+        autonomous: hunt.surprise && hunt.hostId !== null && hunt.catalogId !== null,
+      });
+    }
+    return games;
+  }
+
   /** Carnet d'explorateur (§ 29) : les chasses finies du joueur, ses villes, ses kilomètres et ses badges. */
   async journal(viewer: Viewer): Promise<ExplorerJournal> {
     const me = requireUser(viewer);
@@ -1801,8 +1834,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel, cat_price, cat_lat, cat_lng, cat_practical, cat_minage)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) RETURNING cat_id`,
+                                 cat_travel, cat_price, cat_lat, cat_lng, cat_practical, cat_minage, cat_km)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1825,6 +1858,7 @@ export class Service {
           contentStart(content)?.lng ?? null,
           pub.practical ?? [],
           pub.minAge ?? null,
+          contentKm(content),
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -2600,6 +2634,12 @@ interface CatalogContent {
 }
 
 /** Premier lieu placé du parcours (le départ, sinon la première étape) : repère de la carte du catalogue (§ 23). */
+/** Longueur du parcours publié, en km (§ 35). */
+function contentKm(content: CatalogContent): number | null {
+  const placed = content.steps.filter((s) => s.latitude !== null && s.longitude !== null).sort((a, b) => a.order - b.order);
+  return routeKm(placed.map((s) => ({ lat: Number(s.latitude), lng: Number(s.longitude) })));
+}
+
 function contentStart(content: CatalogContent): { lat: number; lng: number } | null {
   const placed = content.steps.filter((s) => s.latitude !== null && s.longitude !== null).sort((a, b) => a.order - b.order);
   return placed.length ? { lat: placed[0]!.latitude!, lng: placed[0]!.longitude! } : null;
@@ -2668,7 +2708,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      pl AS (
        SELECT eh.cat_id,
               count(DISTINCT h.hun_id) FILTER (WHERE h.hun_status_hst IN (${STATUS_IDS.closed}, ${STATUS_IDS.archived})) AS plays,
-              avg(extract(epoch FROM t.tea_finished - t.tea_started) / 60) AS measured
+              avg(extract(epoch FROM t.tea_finished - t.tea_started) / 60) AS measured,
+              count(t.tea_id) AS finishers
        FROM eh JOIN th_hunts h ON h.hun_id = eh.hun_id
        LEFT JOIN th_teams t ON t.tea_hunt_hun = h.hun_id AND t.tea_finished IS NOT NULL AND t.tea_started IS NOT NULL
        GROUP BY eh.cat_id
@@ -2679,7 +2720,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
-            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage,
+            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2721,6 +2762,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     distanceKm: r['distance'] === null ? null : Math.round(Number(r['distance']) * 10) / 10,
     practical: r['cat_practical'] ?? [],
     minAge: r['cat_minage'],
+    km: r['cat_km'] === null ? null : Math.round(Number(r['cat_km']) * 10) / 10,
+    finishers: r['finishers'],
   }));
 }
 

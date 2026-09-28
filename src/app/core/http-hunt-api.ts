@@ -33,6 +33,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  GameInProgress,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
@@ -185,6 +186,9 @@ export class HttpHuntApi extends HuntApi {
   }
   offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }> {
     return this.http.post<OfflineSyncResult & { state: PlayState }>(`${this.url}/hunts/${huntId}/offline/sync`, { events });
+  }
+  getInProgress(): Observable<GameInProgress[]> {
+    return this.http.get<GameInProgress[]>(`${this.url}/me/in-progress`);
   }
   getJournal(): Observable<ExplorerJournal> {
     return this.http.get<ExplorerJournal>(`${this.url}/me/journal`);

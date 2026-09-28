@@ -42,6 +42,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  GameInProgress,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -205,6 +206,8 @@ export abstract class HuntApi {
   /** Rejoue les actions jouées sans réseau. */
   abstract offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }>;
 
+  /** Parties commencées et pas finies, à reprendre (§ 35). */
+  abstract getInProgress(): Observable<GameInProgress[]>;
   /** Carnet d'explorateur du joueur (§ 29). */
   abstract getJournal(): Observable<ExplorerJournal>;
   /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */
