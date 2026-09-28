@@ -221,3 +221,6 @@
   &:disabled { opacity: 0.5; cursor: default; }
   span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+.import-cta { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.import { display: flex; margin-bottom: 12px; }

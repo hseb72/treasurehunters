@@ -41,13 +41,16 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
+import { PracticalTag } from '../../shared/practical.js';
+import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import {
-  checkinAllowance,
+  arrivalCheck,
   computeRanking,
   distanceMeters,
   evaluateScan,
@@ -679,14 +682,11 @@ export class Service {
       if (!clue) throw conflict('Aucune étape à trouver pour le moment.');
       const steps = await stepsOf(db, huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
-      if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-
       // Le lieu, ou l'une de ses entrées : la plus proche compte.
-      const here = { lat: pos.lat, lng: pos.lng };
-      const points = [{ lat: Number(target.latitude), lng: Number(target.longitude) }, ...target.entrances];
-      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(here, p))));
-      const allowed = Math.round(checkinAllowance(hunt, pos.accuracy));
-      const outcome = distance <= allowed ? 'validated' : 'too_far';
+      const check = arrivalCheck(target, hunt, pos);
+      if (!check) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+      const { distance, allowed } = check;
+      const outcome = check.ok ? 'validated' : 'too_far';
       await db.query(
         'INSERT INTO th_scanlog (scl_code_cod, scl_token, scl_hunter_htr, scl_team_tea, scl_result, scl_ip) VALUES ($1, $2, $3, $4, $5, $6)',
         [target.id, `geo:${target.id}`, me, team.id, outcome, ip ?? null],
@@ -911,6 +911,47 @@ export class Service {
             .map((x) => ({ order: x.order, title: x.title, lat: Number(x.latitude), lng: Number(x.longitude) }))
         : null,
     };
+  }
+
+  /** Carnet d'explorateur (§ 29) : les chasses finies du joueur, ses villes, ses kilomètres et ses badges. */
+  async journal(viewer: Viewer): Promise<ExplorerJournal> {
+    const me = requireUser(viewer);
+    const finished = await rows(
+      this.pool,
+      `SELECT t.tea_id, t.tea_hunt_hun FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
+       WHERE m.thr_hunter_htr = $1 AND t.tea_finished IS NOT NULL AND t.tea_started IS NOT NULL
+       ORDER BY t.tea_finished DESC LIMIT 200`,
+      [me],
+    );
+    const hunts: JournalHunt[] = [];
+    for (const f of finished) {
+      const hunt = await huntById(this.pool, f['tea_hunt_hun']);
+      if (!hunt) continue;
+      const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [hunt.id]);
+      const vals = await validationsOfHunt(this.pool, hunt.id);
+      const row = computeRanking(hunt, teams, vals, await hintUsesOfHunt(this.pool, hunt.id)).find((r) => r.teamId === f['tea_id']);
+      if (!row?.time || !row.started) continue;
+      const steps = await stepsOf(this.pool, hunt.id);
+      const found = vals.filter((v) => v.teamId === f['tea_id'] && v.source !== 'SKIP').map((v) => steps.find((s) => s.id === v.stepId)!);
+      const places = [steps.find((s) => s.order === 0), ...found.sort((a, b) => a.order - b.order)]
+        .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+        .map((s) => ({ lat: Number(s.latitude), lng: Number(s.longitude) }));
+      const meters = places.slice(1).reduce((a, p, i) => a + distanceMeters(places[i]!, p), 0);
+      hunts.push({
+        huntId: hunt.id,
+        name: hunt.name,
+        location: hunt.location,
+        skin: hunt.skin,
+        date: row.started,
+        time: row.time,
+        found: found.length,
+        hints: row.hints,
+        autonomous: hunt.surprise && hunt.hostId !== null && hunt.catalogId !== null,
+        catalogId: hunt.catalogId,
+        km: Math.round(meters / 100) / 10,
+      });
+    }
+    return explorerJournal(hunts);
   }
 
   /**
@@ -1491,8 +1532,8 @@ export class Service {
       if (previous && !previous['cat_withdrawn'] && previous['cat_fingerprint'] === fingerprint) {
         await db.query(
           `UPDATE th_catalog SET cat_summary = $2, cat_travel = $3, cat_difficulty = $4, cat_duration = $5, cat_sample_order = $6, cat_sample = $7,
-                                 cat_price = $8, cat_lastupdate = now() WHERE cat_id = $1`,
-          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions, pub.price ?? 0],
+                                 cat_price = $8, cat_practical = $9, cat_minage = $10, cat_lastupdate = now() WHERE cat_id = $1`,
+          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions, pub.price ?? 0, pub.practical ?? [], pub.minAge ?? null],
         );
         await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
         return previous['cat_id'] as number;
@@ -1510,8 +1551,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel, cat_price, cat_lat, cat_lng)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) RETURNING cat_id`,
+                                 cat_travel, cat_price, cat_lat, cat_lng, cat_practical, cat_minage)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1532,6 +1573,8 @@ export class Service {
           pub.price ?? 0,
           contentStart(content)?.lat ?? null,
           contentStart(content)?.lng ?? null,
+          pub.practical ?? [],
+          pub.minAge ?? null,
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -1577,6 +1620,11 @@ export class Service {
     }
     // Jouables en autonomie : validées par géolocalisation, sans QR à poser (§ 13.5).
     if (opts.autonomous) where.push(`c.cat_validation = 'geo'`);
+    // Repères pratiques (§ 26) : tous ceux demandés.
+    if (opts.practical?.length) {
+      params.push(opts.practical);
+      where.push(`c.cat_practical @> $${params.length}::varchar[]`);
+    }
     // Près de moi (§ 23) : distance à vol d'oiseau jusqu'au départ, en km (haversine).
     let distance: string | undefined;
     if (opts.near) {
@@ -1828,6 +1876,23 @@ export class Service {
     rows.sort((a, b) => a.time - b.time || a.at - b.at);
     rows.forEach((r, i) => (r.rank = i + 1));
     return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
+  }
+
+  /**
+   * Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie terminée de cette
+   * version, et son rang. Rien de plus que ce que montre déjà le classement public.
+   */
+  async challenge(viewer: Viewer, id: number, huntId: number): Promise<Challenge> {
+    const hunt = await huntById(this.pool, huntId);
+    if (!hunt || hunt.catalogId !== id || !hunt.surprise || hunt.hostId === null) throw notFound('Ce défi n’existe pas.');
+    const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [huntId]);
+    const row = computeRanking(hunt, teams, await validationsOfHunt(this.pool, huntId), await hintUsesOfHunt(this.pool, huntId)).find(
+      (r) => r.time !== null && r.finished,
+    );
+    if (!row) throw notFound('Cette partie n’est pas encore terminée : pas de temps à battre.');
+    const board = await this.autonomyLeaderboard(viewer, id);
+    const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+    return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
   }
 
   /**
@@ -2253,6 +2318,8 @@ export interface CatalogQuery {
   near?: { lat: number; lng: number };
   /** Rayon autour de `near`, en km. */
   radius?: number;
+  /** Repères pratiques exigés (§ 26). */
+  practical?: PracticalTag[];
 }
 
 /**
@@ -2362,7 +2429,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
-            c.cat_lat, c.cat_lng, ${distance} AS distance,
+            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2402,6 +2469,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     price: r['cat_price'] ?? 0,
     start: r['cat_lat'] === null ? null : { lat: r['cat_lat'], lng: r['cat_lng'] },
     distanceKm: r['distance'] === null ? null : Math.round(Number(r['distance']) * 10) / 10,
+    practical: r['cat_practical'] ?? [],
+    minAge: r['cat_minage'],
   }));
 }
 

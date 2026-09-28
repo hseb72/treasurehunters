@@ -24,6 +24,7 @@
         <button mat-icon-button class="more" type="button" [matMenuTriggerFor]="more" aria-label="Autres actions"><mat-icon>more_vert</mat-icon></button>
         <mat-menu #more="matMenu">
           <a mat-menu-item [routerLink]="['/hunts', h.id]"><mat-icon>visibility</mat-icon>Voir comme un joueur</a>
+          <a mat-menu-item routerLink="rehearsal"><mat-icon>directions_walk</mat-icon>Répéter sur place</a>
           @if (h.status === 'running' || h.status === 'closed') {
             <a mat-menu-item [routerLink]="['/hunts', h.id, 'results']"><mat-icon>leaderboard</mat-icon>Classement</a>
           }

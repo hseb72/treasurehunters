@@ -34,7 +34,7 @@
         ce qui est partagé ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
         une fois copié. Dates, équipes et QR codes restent les vôtres.
         @if (published.value().length) {
-          Si le parcours n'a pas changé, partager met simplement à jour la fiche (présentation, déplacement, énigmes, durée, extrait).
+          Si le parcours n'a pas changé, partager met simplement à jour la fiche (présentation, déplacement, énigmes, durée, repères, extrait).
         }
       </p>
       <mat-form-field>
@@ -63,6 +63,24 @@
           <input matInput type="number" formControlName="durationMinutes" min="10" max="1440" />
         </mat-form-field>
       </div>
+      <fieldset class="practical">
+        <legend>Repères pratiques</legend>
+        <p class="small muted">Pour que les familles sachent à quoi s'attendre. Ne cochez que ce que vous avez vérifié sur place.</p>
+        <mat-button-toggle-group multiple formControlName="practical" hideMultipleSelectionIndicator aria-label="Repères pratiques">
+          @for (t of practicalTags; track t.id) {
+            <mat-button-toggle [value]="t.id" [title]="t.hint"><mat-icon>{{ t.icon }}</mat-icon> {{ t.label }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>Âge conseillé</mat-label>
+          <mat-select formControlName="minAge">
+            <mat-option [value]="null">Tous âges</mat-option>
+            @for (a of ages; track a) {
+              <mat-option [value]="a">Dès {{ a }} ans</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </fieldset>
       <mat-form-field>
         <mat-label>Énigme en extrait</mat-label>
         <mat-select formControlName="sampleOrder">

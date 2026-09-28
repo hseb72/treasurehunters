@@ -7,6 +7,7 @@ import { Souvenir } from '@shared/models';
 import { skinById } from '@shared/skins';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
+import { ShareLink } from '../../core/share';
 import { SkinDirective } from '../../shared/skin';
 import { drawSouvenir, readStyle, SOUVENIR_HEIGHT, SOUVENIR_WIDTH, souvenirTime } from './souvenir-drawing';
 
@@ -24,6 +25,7 @@ import { drawSouvenir, readStyle, SOUVENIR_HEIGHT, SOUVENIR_WIDTH, souvenirTime 
 export class SouvenirPage {
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
+  private readonly shareLink = inject(ShareLink);
 
   readonly id = input.required({ transform: numberAttribute });
 
@@ -78,6 +80,12 @@ export class SouvenirPage {
     } catch (e) {
       if ((e as DOMException).name !== 'AbortError') this.notify.error(new Error('Le partage a échoué : téléchargez l’image à la place.'));
     }
+  }
+
+  /** Défi « bats mon temps » (§ 28) : un lien vers la fiche, avec le temps de cette partie. */
+  protected dare(s: Souvenir): void {
+    const url = `${location.origin}/catalog/${s.catalogId}?defi=${s.huntId}`;
+    void this.shareLink.share(s.huntName, `J'ai trouvé le trésor de « ${s.huntName} » en ${souvenirTime(s.time)} : sauras-tu faire mieux ?`, url);
   }
 
   protected fileName(s: Souvenir): string {

@@ -187,3 +187,20 @@ export function distanceMeters(a: { lat: number; lng: number }, b: { lat: number
 export function checkinAllowance(hunt: Pick<Hunt, 'geoRadius'>, accuracy: number | null | undefined): number {
   return hunt.geoRadius + Math.min(Math.max(accuracy ?? 0, 0), 30);
 }
+
+/**
+ * Arrivée par géolocalisation : distance au lieu ou à la plus proche de ses entrées, et
+ * distance acceptée. Même règle pour les équipes et pour la répétition de l'auteur (§ 30).
+ * null si le lieu n'est pas placé sur la carte.
+ */
+export function arrivalCheck(
+  target: Pick<Step, 'latitude' | 'longitude' | 'entrances'>,
+  hunt: Pick<Hunt, 'geoRadius'>,
+  pos: { lat: number; lng: number; accuracy?: number | null },
+): { distance: number; allowed: number; ok: boolean } | null {
+  if (target.latitude === null || target.longitude === null) return null;
+  const points = [{ lat: Number(target.latitude), lng: Number(target.longitude) }, ...target.entrances];
+  const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
+  const allowed = Math.round(checkinAllowance(hunt, pos.accuracy));
+  return { distance, allowed, ok: distance <= allowed };
+}

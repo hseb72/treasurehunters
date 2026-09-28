@@ -9,6 +9,7 @@ import { Shop } from '../core/shop';
 import { priceLabel } from '@shared/store';
 import { Stars } from './stars';
 import { distanceLabel } from './distance';
+import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
 @Component({
@@ -47,6 +48,12 @@ import { distanceLabel } from './distance';
         <span class="row"><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</span>
         <span class="row"><mat-icon>{{ e.validation === 'geo' ? 'where_to_vote' : 'qr_code_2' }}</mat-icon>{{ e.validation === 'geo' ? 'géolocalisation' : 'QR codes' }}</span>
         <span class="row"><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }}</span>
+        @if (e.minAge) {
+          <span class="row"><mat-icon>child_care</mat-icon>dès {{ e.minAge }} ans</span>
+        }
+        @for (t of practicalOf(e.practical); track t.id) {
+          <span class="row" [title]="t.hint"><mat-icon>{{ t.icon }}</mat-icon>{{ t.label }}</span>
+        }
         @if (e.price && shop.payments()) {
           <span class="row price"><mat-icon>sell</mat-icon>{{ priceOf(e.price) }}</span>
         }
@@ -100,4 +107,5 @@ export class CatalogCard {
   protected readonly formula = TRAVEL_LABELS;
   protected readonly minutes = minutesLabel;
   protected readonly distance = distanceLabel;
+  protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
 }

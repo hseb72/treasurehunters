@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MIN_AGES, PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -24,7 +26,7 @@ import { WorkspaceState } from './workspace-state';
  */
 @Component({
   selector: 'th-catalog-panel',
-  imports: [CatalogCard, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, PayoutsPanel, EntryFollowUp],
+  imports: [CatalogCard, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, PayoutsPanel, EntryFollowUp],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-panel.html',
   styleUrl: './catalog-panel.scss',
@@ -72,7 +74,12 @@ export class CatalogPanelPage {
     changes: [''],
     /** Prix au catalogue (§ 20), en euros. */
     euros: [0, [Validators.min(0), Validators.max(50)]],
+    /** Repères pratiques (§ 26). */
+    practical: [[] as PracticalTag[]],
+    minAge: [null as number | null],
   });
+  protected readonly practicalTags = PRACTICAL_TAGS;
+  protected readonly ages = MIN_AGES;
   protected readonly shop = inject(Shop);
 
   constructor() {
@@ -90,6 +97,14 @@ export class CatalogPanelPage {
       if (!c.travel.dirty) c.travel.setValue(h.travel);
       if (!c.difficulty.dirty && h.difficulty) c.difficulty.setValue(h.difficulty);
       if (!c.durationMinutes.dirty) c.durationMinutes.setValue(h.durationMinutes ?? this.plannedMinutes(h.begin, h.end));
+    });
+    // Repères pratiques et prix : ceux de la dernière version partagée.
+    effect(() => {
+      const last = [...this.published.value()].sort((a, b) => b.id - a.id)[0];
+      if (!last) return;
+      const c = this.form.controls;
+      if (!c.practical.dirty) c.practical.setValue(last.practical);
+      if (!c.minAge.dirty) c.minAge.setValue(last.minAge);
     });
   }
 
@@ -110,6 +125,8 @@ export class CatalogPanelPage {
         sampleOrder: v.sampleOrder,
         changes: this.isVersion() ? v.changes || null : null,
         price: Math.round((Number(v.euros) || 0) * 100),
+        practical: v.practical,
+        minAge: v.minAge,
       })
       .subscribe({
         next: () => {

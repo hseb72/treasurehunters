@@ -42,14 +42,17 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
+import { PracticalTag } from '@shared/practical';
+import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
-  checkinAllowance,
+  arrivalCheck,
   computeRanking,
   distanceMeters,
   evaluateScan,
@@ -546,11 +549,10 @@ export class MockHuntApi extends HuntApi {
       if (!clue) throw new ApiError('Aucune étape à trouver pour le moment.');
       const steps = this.stepsOf(huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
-      if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-      const points = [{ lat: target.latitude, lng: target.longitude }, ...target.entrances];
-      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
-      const allowed = Math.round(checkinAllowance(h, pos.accuracy));
-      if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
+      const check = arrivalCheck(target, h, pos);
+      if (!check) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+      const { distance, allowed } = check;
+      if (!check.ok) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
       const final = finalOrder(steps);
       if (this.arrive(state.team.id, target, me, 'GEO') === 'puzzle') {
         return { outcome: 'puzzle', distance, allowed, step: null, state: this.playState(huntId) } satisfies CheckinResult;
@@ -750,6 +752,7 @@ export class MockHuntApi extends HuntApi {
       if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
+      if (opts.practical?.length) list = list.filter((e) => opts.practical!.every((t) => e.practical.includes(t)));
       let views = list.map((e) => this.entryView(e, opts.near));
       if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
       const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
@@ -794,6 +797,55 @@ export class MockHuntApi extends HuntApi {
 
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.reply(() => this.autonomyBoard(id));
+  }
+
+  /** Carnet d'explorateur (§ 29), comme le serveur. */
+  getJournal(): Observable<ExplorerJournal> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const hunts: JournalHunt[] = [];
+      for (const t of this.db.teams.filter((x) => x.finished && x.started && x.members.some((m) => m.hunterId === me))) {
+        const h = this.db.hunts.find((x) => x.id === t.huntId);
+        const row = h && this.ranking(h.id).find((r) => r.teamId === t.id);
+        if (!h || !row?.time || !row.started) continue;
+        const steps = this.stepsOf(h.id);
+        const found = this.db.validations
+          .filter((v) => v.teamId === t.id && v.source !== 'SKIP')
+          .map((v) => steps.find((s) => s.id === v.stepId)!)
+          .sort((a, b) => a.order - b.order);
+        const places = [steps.find((s) => s.order === 0), ...found]
+          .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+          .map((s) => ({ lat: s.latitude!, lng: s.longitude! }));
+        const meters = places.slice(1).reduce((a, p, i) => a + distanceMeters(places[i]!, p), 0);
+        hunts.push({
+          huntId: h.id,
+          name: h.name,
+          location: h.location,
+          skin: h.skin,
+          date: row.started,
+          time: row.time,
+          found: found.length,
+          hints: row.hints,
+          autonomous: h.surprise && h.hostId !== null && h.catalogId !== null,
+          catalogId: h.catalogId,
+          km: Math.round(meters / 100) / 10,
+        });
+      }
+      return explorerJournal(hunts);
+    });
+  }
+
+  /** Défi « bats mon temps » (§ 28), comme le serveur. */
+  getChallenge(id: number, huntId: number): Observable<Challenge> {
+    return this.reply(() => {
+      const h = this.db.hunts.find((x) => x.id === huntId);
+      if (!h || h.catalogId !== id || !h.surprise || h.hostId === null) throw new ApiError('Ce défi n’existe pas.');
+      const row = this.ranking(huntId).find((r) => r.time !== null && r.finished);
+      if (!row) throw new ApiError('Cette partie n’est pas encore terminée : pas de temps à battre.');
+      const board = this.autonomyBoard(id);
+      const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+      return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
+    });
   }
 
   /** Souvenir de fin de partie (§ 24), comme le serveur. */
@@ -999,6 +1051,8 @@ export class MockHuntApi extends HuntApi {
         sampleOrder: sample.order,
         sample: sample.instructions!,
         price: pub.price ?? 0,
+        practical: [...new Set(pub.practical ?? [])],
+        minAge: pub.minAge ?? null,
       });
     }
     const parentId = previous?.id ?? h.catalogId;
@@ -1027,6 +1081,8 @@ export class MockHuntApi extends HuntApi {
       published: new Date().toISOString(),
       withdrawn: false,
       price: pub.price ?? 0,
+      practical: [...new Set(pub.practical ?? [])],
+      minAge: pub.minAge ?? null,
     };
     this.catalog.push(entry);
     return entry;
@@ -1079,6 +1135,8 @@ export class MockHuntApi extends HuntApi {
       price: e.price,
       start,
       distanceKm: start && near ? Math.round(distanceMeters(start, near) / 100) / 10 : null,
+      practical: [...e.practical],
+      minAge: e.minAge,
     };
   }
 
@@ -1117,7 +1175,7 @@ export class MockHuntApi extends HuntApi {
     if (!closed) return;
     try {
       // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
-      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399 });
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399, practical: ['toilets'] });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -1185,7 +1243,7 @@ export class MockHuntApi extends HuntApi {
     );
     let entry: MockEntry;
     try {
-      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0 });
+      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0, practical: ['stroller', 'toilets', 'cafe'], minAge: 6 });
     } catch {
       return;
     }
@@ -2056,6 +2114,9 @@ interface MockPhoto {
 
 interface MockEntry {
   id: number;
+  /** Repères pratiques (§ 26). */
+  practical: PracticalTag[];
+  minAge: number | null;
   /** Prix fixé par l'auteur (§ 20), en centimes. */
   price: number;
   authorId: number;

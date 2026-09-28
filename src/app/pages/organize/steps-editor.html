@@ -1,6 +1,7 @@
 <p class="intro muted">
   Le parcours se lit de haut en bas : chaque carte indique <strong>ce que voit l'équipe en arrivant</strong> sur le lieu, puis
   <strong>l'énigme qui mène au lieu suivant</strong>. Glissez les étapes pour changer leur ordre.
+  <a routerLink="../rehearsal">Répéter le parcours sur place</a> pour vérifier distances et validations.
 </p>
 
 <ng-template #stepCard let-step let-kind="kind">
@@ -255,6 +256,16 @@
     }
   </div>
 </ng-template>
+
+@if (!locked()) {
+  @if (importing()) {
+    <th-route-import class="surface import" [huntId]="workspace.huntId()" [steps]="steps.value()" (imported)="afterImport()" (closed)="importing.set(false)" />
+  } @else {
+    <div class="import-cta">
+      <button mat-stroked-button type="button" (click)="importing.set(true)"><mat-icon>upload_file</mat-icon>Importer des lieux (liste, GPX)</button>
+    </div>
+  }
+}
 
 <div class="route">
   @if (start(); as s) {

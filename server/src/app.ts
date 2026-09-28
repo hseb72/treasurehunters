@@ -15,6 +15,7 @@ import { PaymentProvider, StripeProvider } from './payments/stripe.js';
 import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
+import { PRACTICAL_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -277,6 +278,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return reply.status(204).send();
   });
   app.get('/api/me', async (req) => service.me(req.viewer));
+  app.get('/api/me/journal', async (req) => service.journal(req.viewer));
   app.patch('/api/me', async (req) => {
     const b = z.object({ nickname: text(50).min(1), email: z.email(), rateable: z.boolean() }).partial().parse(req.body);
     return service.updateMe(req.viewer, b);
@@ -412,6 +414,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         lat: z.coerce.number().min(-90).max(90),
         lng: z.coerce.number().min(-180).max(180),
         radius: z.coerce.number().positive().max(500),
+        practical: list(PRACTICAL_IDS),
       })
       .partial()
       .parse(req.query);
@@ -437,6 +440,10 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     service.resolveReport(req.viewer, idParams.parse(req.params).id, z.object({ resolved: z.boolean() }).parse(req.body).resolved),
   );
   app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.get('/api/catalog/:id/challenge/:huntId', async (req) => {
+    const p = z.object({ id, huntId: id }).parse(req.params);
+    return service.challenge(req.viewer, p.id, p.huntId);
+  });
   app.get('/api/catalog/:id/leaderboard', async (req) => service.autonomyLeaderboard(req.viewer, idParams.parse(req.params).id));
   app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));
   app.delete('/api/catalog/:id', async (req) => service.withdrawFromCatalog(req.viewer, idParams.parse(req.params).id));
@@ -450,6 +457,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         sampleOrder: z.number().int().min(0),
         changes: text(2000).nullable(),
         price: z.number().int().min(0).max(5000).optional(),
+        practical: z
+          .array(z.enum(PRACTICAL_IDS))
+          .max(PRACTICAL_IDS.length)
+          .transform((t) => [...new Set(t)])
+          .optional(),
+        minAge: z.number().int().min(2).max(18).nullable().optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));

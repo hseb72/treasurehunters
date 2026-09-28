@@ -21,6 +21,20 @@
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
 
+    @if (challenge.value(); as c) {
+      <section class="surface challenge" role="note">
+        <mat-icon>sports_score</mat-icon>
+        <div>
+          <strong>{{ c.teamName }} vous défie !</strong>
+          <p class="small">
+            Temps à battre : <strong>{{ clock(c.time) }}</strong>, pénalités comprises
+            ({{ c.rank }}{{ c.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} place sur {{ c.finishers }}). Jouez-la à votre tour, sur place, quand vous voulez.
+          </p>
+          <a mat-button href="#classement" (click)="$event.preventDefault(); scrollTo('classement')"><mat-icon>leaderboard</mat-icon>Voir le classement</a>
+        </div>
+      </section>
+    }
+
     @if (e.openReports.length) {
       <section class="surface notices" role="note">
         <h2 class="section-title"><mat-icon>warning</mat-icon> Signalé récemment par des joueurs</h2>
@@ -54,6 +68,7 @@
         @if (finishedPlays().length) {
           <p class="small muted">Vous l'avez déjà terminée {{ finishedPlays().length > 1 ? finishedPlays().length + ' fois' : 'une fois' }} : votre temps est dans le classement ci-dessous.</p>
           <a mat-button [routerLink]="['/hunts', finishedPlays()[0]!.huntId, 'souvenir']"><mat-icon>photo_album</mat-icon>Mon souvenir de la dernière partie</a>
+          <button mat-button type="button" (click)="dare()"><mat-icon>sports_score</mat-icon>Défier un ami de battre mon temps</button>
         }
       </section>
     }
@@ -111,6 +126,10 @@
           {{ e.validation === 'geo' ? 'Validation par géolocalisation, sans QR code' : 'QR codes à poser sur les lieux' }}
         </li>
         <li><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }} jouée{{ e.plays > 1 ? 's' : '' }}</li>
+        <li><mat-icon>child_care</mat-icon>{{ age(e.minAge) }}</li>
+        @for (t of practicalOf(e.practical); track t.id) {
+          <li><mat-icon>{{ t.icon }}</mat-icon>{{ t.hint }}</li>
+        }
       </ul>
     </section>
 

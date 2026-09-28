@@ -32,6 +32,7 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
@@ -39,6 +40,7 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
+import { ExplorerJournal } from '@shared/journal';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -154,6 +156,7 @@ export class HttpHuntApi extends HuntApi {
     if (opts.minDuration) params['minDuration'] = String(opts.minDuration);
     if (opts.maxDuration) params['maxDuration'] = String(opts.maxDuration);
     if (opts.autonomous) params['autonomous'] = '1';
+    if (opts.practical?.length) params['practical'] = opts.practical.join(',');
     if (opts.near) {
       params['lat'] = opts.near.lat.toFixed(5);
       params['lng'] = opts.near.lng.toFixed(5);
@@ -173,8 +176,14 @@ export class HttpHuntApi extends HuntApi {
   playFromCatalog(id: number): Observable<Hunt> {
     return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
   }
+  getJournal(): Observable<ExplorerJournal> {
+    return this.http.get<ExplorerJournal>(`${this.url}/me/journal`);
+  }
   getSouvenir(huntId: number): Observable<Souvenir> {
     return this.http.get<Souvenir>(`${this.url}/hunts/${huntId}/souvenir`);
+  }
+  getChallenge(id: number, huntId: number): Observable<Challenge> {
+    return this.http.get<Challenge>(`${this.url}/catalog/${id}/challenge/${huntId}`);
   }
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.http.get<AutonomyLeaderboard>(`${this.url}/catalog/${id}/leaderboard`);
