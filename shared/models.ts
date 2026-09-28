@@ -470,6 +470,10 @@ export interface CatalogEntry {
   withdrawn: boolean;
   /** Prix fixé par l'auteur, en centimes (§ 20) ; 0 = gratuite. Payé seulement si le paiement est activé. */
   price: number;
+  /** Premier lieu placé du parcours, pour la carte du catalogue (§ 23). */
+  start: { lat: number; lng: number } | null;
+  /** Distance à vol d'oiseau jusqu'au départ, en km, quand le joueur a donné sa position. */
+  distanceKm: number | null;
 }
 
 export interface CatalogReview {

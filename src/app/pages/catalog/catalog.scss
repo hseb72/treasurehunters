@@ -76,3 +76,9 @@
 .custom { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .custom p { margin: 0; }
 .custom > mat-icon { color: var(--th-primary); }
+
+.near .label mat-icon { vertical-align: middle; }
+.results { justify-content: space-between; }
+.center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+/* Sur téléphone, les tris et rayons défilent plutôt que de déborder. */
+.line mat-button-toggle-group { max-width: 100%; overflow-x: auto; }

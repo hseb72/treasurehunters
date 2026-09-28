@@ -1403,8 +1403,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel, cat_price)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING cat_id`,
+                                 cat_travel, cat_price, cat_lat, cat_lng)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1423,6 +1423,8 @@ export class Service {
           fingerprint,
           pub.travel,
           pub.price ?? 0,
+          contentStart(content)?.lat ?? null,
+          contentStart(content)?.lng ?? null,
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -1468,12 +1470,27 @@ export class Service {
     }
     // Jouables en autonomie : validées par géolocalisation, sans QR à poser (§ 13.5).
     if (opts.autonomous) where.push(`c.cat_validation = 'geo'`);
+    // Près de moi (§ 23) : distance à vol d'oiseau jusqu'au départ, en km (haversine).
+    let distance: string | undefined;
+    if (opts.near) {
+      params.push(opts.near.lat, opts.near.lng);
+      const la = `$${params.length - 1}::float8`;
+      const lo = `$${params.length}::float8`;
+      distance = `(12742 * asin(sqrt(least(1, power(sin(radians(c.cat_lat - ${la}) / 2), 2)
+                   + cos(radians(${la})) * cos(radians(c.cat_lat)) * power(sin(radians(c.cat_lng - ${lo}) / 2), 2)))))`;
+      if (opts.radius) {
+        params.push(opts.radius);
+        where.push(`c.cat_lat IS NOT NULL AND ${distance} <= $${params.length}`);
+      }
+    }
+    const sort = opts.sort === 'distance' && !distance ? 'rating' : (opts.sort ?? 'rating');
     const order = {
       rating: 'ra.stars DESC NULLS LAST, coalesce(ra.n, 0) DESC, c.cat_id DESC',
       recent: 'c.cat_id DESC',
       plays: 'coalesce(pl.plays, 0) DESC, c.cat_id DESC',
-    }[opts.sort ?? 'rating'];
-    return catalogEntries(this.pool, where.join(' AND '), params, order);
+      distance: `${distance} ASC NULLS LAST, c.cat_id DESC`,
+    }[sort];
+    return catalogEntries(this.pool, where.join(' AND '), params, order, distance);
   }
 
   async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
@@ -2115,7 +2132,7 @@ function startOf(steps: Step[]): PlayState['start'] {
 /** Recherche dans le catalogue (§ 13). */
 export interface CatalogQuery {
   q?: string;
-  sort?: 'rating' | 'recent' | 'plays';
+  sort?: 'rating' | 'recent' | 'plays' | 'distance';
   mine?: boolean;
   hunt?: number;
   travel?: Travel[];
@@ -2125,6 +2142,10 @@ export interface CatalogQuery {
   maxDuration?: number;
   /** Seulement les chasses jouables en autonomie (§ 13.5). */
   autonomous?: boolean;
+  /** Près de moi (§ 23) : position du joueur, pour la distance au départ. */
+  near?: { lat: number; lng: number };
+  /** Rayon autour de `near`, en km. */
+  radius?: number;
 }
 
 /**
@@ -2152,6 +2173,12 @@ interface CatalogContent {
   > &
     Partial<Pick<Hunt, 'skin' | 'tools'>>;
   steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances' | 'puzzle'>>)[];
+}
+
+/** Premier lieu placé du parcours (le départ, sinon la première étape) : repère de la carte du catalogue (§ 23). */
+function contentStart(content: CatalogContent): { lat: number; lng: number } | null {
+  const placed = content.steps.filter((s) => s.latitude !== null && s.longitude !== null).sort((a, b) => a.order - b.order);
+  return placed.length ? { lat: placed[0]!.latitude!, lng: placed[0]!.longitude! } : null;
 }
 
 function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
@@ -2210,7 +2237,7 @@ const ENTRY_HUNTS = `
     WHERE h.hun_catalog_cat IS NOT NULL AND NOT EXISTS (SELECT 1 FROM th_catalog x WHERE x.cat_hunt_hun = h.hun_id)
   )`;
 
-async function catalogEntries(db: Db, where: string, params: unknown[], order = 'c.cat_id DESC'): Promise<CatalogEntry[]> {
+async function catalogEntries(db: Db, where: string, params: unknown[], order = 'c.cat_id DESC', distance = 'NULL::float8'): Promise<CatalogEntry[]> {
   const list = await rows(
     db,
     `${ENTRY_HUNTS},
@@ -2228,6 +2255,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
+            c.cat_lat, c.cat_lng, ${distance} AS distance,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2265,6 +2293,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     published: (r['cat_creation'] as Date).toISOString(),
     withdrawn: !!r['cat_withdrawn'],
     price: r['cat_price'] ?? 0,
+    start: r['cat_lat'] === null ? null : { lat: r['cat_lat'], lng: r['cat_lng'] },
+    distanceKm: r['distance'] === null ? null : Math.round(Number(r['distance']) * 10) / 10,
   }));
 }
 

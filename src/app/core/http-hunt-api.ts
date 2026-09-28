@@ -151,6 +151,12 @@ export class HttpHuntApi extends HuntApi {
     if (opts.difficulty?.length) params['difficulty'] = opts.difficulty.join(',');
     if (opts.minDuration) params['minDuration'] = String(opts.minDuration);
     if (opts.maxDuration) params['maxDuration'] = String(opts.maxDuration);
+    if (opts.autonomous) params['autonomous'] = '1';
+    if (opts.near) {
+      params['lat'] = opts.near.lat.toFixed(5);
+      params['lng'] = opts.near.lng.toFixed(5);
+      if (opts.radius) params['radius'] = String(opts.radius);
+    }
     return this.http.get<CatalogEntry[]>(`${this.url}/catalog`, { params });
   }
   getCatalogEntry(id: number): Observable<CatalogDetail> {

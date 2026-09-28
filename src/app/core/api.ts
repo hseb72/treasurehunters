@@ -45,7 +45,7 @@ export class ApiError extends Error {}
 
 export interface CatalogQuery {
   q?: string;
-  sort?: 'rating' | 'recent' | 'plays';
+  sort?: 'rating' | 'recent' | 'plays' | 'distance';
   mine?: boolean;
   hunt?: number;
   travel?: Travel[];
@@ -55,6 +55,10 @@ export interface CatalogQuery {
   maxDuration?: number;
   /** Seulement les chasses jouables en autonomie (§ 13.5). */
   autonomous?: boolean;
+  /** Près de moi (§ 23) : position du joueur, pour la distance au départ. */
+  near?: { lat: number; lng: number };
+  /** Rayon autour de `near`, en km. */
+  radius?: number;
 }
 
 /**

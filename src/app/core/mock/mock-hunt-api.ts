@@ -747,14 +747,17 @@ export class MockHuntApi extends HuntApi {
       if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
-      const views = list.map((e) => this.entryView(e));
-      const sort = opts.sort ?? 'rating';
+      let views = list.map((e) => this.entryView(e, opts.near));
+      if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
+      const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
       return views.sort((a, b) =>
         sort === 'recent'
           ? b.id - a.id
           : sort === 'plays'
             ? b.plays - a.plays || b.id - a.id
-            : (b.rating.stars ?? -1) - (a.rating.stars ?? -1) || b.rating.count - a.rating.count || b.id - a.id,
+            : sort === 'distance'
+              ? (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity) || b.id - a.id
+              : (b.rating.stars ?? -1) - (a.rating.stars ?? -1) || b.rating.count - a.rating.count || b.id - a.id,
       );
     });
   }
@@ -976,7 +979,10 @@ export class MockHuntApi extends HuntApi {
     return [...(e.huntId ? [e.huntId] : []), ...copies];
   }
 
-  private entryView(e: MockEntry): CatalogEntry {
+  private entryView(e: MockEntry, near?: { lat: number; lng: number }): CatalogEntry {
+    // Premier lieu placé du parcours, comme le serveur (§ 23).
+    const placed = e.content.steps.filter((s) => s.latitude !== null && s.longitude !== null).sort((a, b) => a.order - b.order)[0];
+    const start = placed ? { lat: placed.latitude!, lng: placed.longitude! } : null;
     const hunts = new Set(this.entryHunts(e));
     const played = this.db.hunts.filter((h) => hunts.has(h.id) && ['closed', 'archived'].includes(h.status));
     const times = this.db.teams
@@ -1012,6 +1018,8 @@ export class MockHuntApi extends HuntApi {
       published: e.published,
       withdrawn: e.withdrawn,
       price: e.price,
+      start,
+      distanceKm: start && near ? Math.round(distanceMeters(start, near) / 100) / 10 : null,
     };
   }
 

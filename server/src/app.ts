@@ -384,7 +384,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const q = z
       .object({
         q: text(100),
-        sort: z.enum(['rating', 'recent', 'plays']),
+        sort: z.enum(['rating', 'recent', 'plays', 'distance']),
         mine: z.enum(['1', 'true']),
         hunt: id,
         travel: list(['walk', 'active', 'motor']),
@@ -392,11 +392,16 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         minDuration: duration,
         maxDuration: duration,
         autonomous: z.enum(['1', 'true']),
+        lat: z.coerce.number().min(-90).max(90),
+        lng: z.coerce.number().min(-180).max(180),
+        radius: z.coerce.number().positive().max(500),
       })
       .partial()
       .parse(req.query);
+    const { lat, lng, ...rest } = q;
+    const near = lat !== undefined && lng !== undefined ? { lat, lng } : undefined;
     // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
-    return service.listCatalog(req.viewer, { ...q, mine: !!q.mine, autonomous: !!q.autonomous });
+    return service.listCatalog(req.viewer, { ...rest, near, mine: !!q.mine, autonomous: !!q.autonomous });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
   /* ----- Signalements et statistiques d'étape (§ 22) */
