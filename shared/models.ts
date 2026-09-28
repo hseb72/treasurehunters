@@ -350,6 +350,8 @@ export interface Features {
   payments?: boolean;
   /** Assistant de rédaction de l'éditeur (§ 25). */
   assist?: boolean;
+  /** Traduction des chasses en anglais (§ 33). */
+  translation?: boolean;
 }
 
 /** Ouverture d'un paiement : l'adresse de la page Stripe, ou null si rien n'était à payer. */

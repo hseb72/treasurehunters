@@ -6,6 +6,7 @@ import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import { PracticalTag } from '@shared/practical';
 import { ExplorerJournal } from '@shared/journal';
+import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
   AuthResult,
   HuntStats,
@@ -194,6 +195,16 @@ export abstract class HuntApi {
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
+  /* ---------- Version anglaise (§ 33) ---------- */
+  /** Traductions du contenu visible (partie, fiches du catalogue) : texte français → traduction. */
+  abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>>;
+
+  /* ---------- Hors ligne (§ 32) ---------- */
+  /** Paquet hors ligne : le parcours restant de l'équipe et sa progression. */
+  abstract getOfflinePack(huntId: number): Observable<OfflinePack>;
+  /** Rejoue les actions jouées sans réseau. */
+  abstract offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }>;
+
   /** Carnet d'explorateur du joueur (§ 29). */
   abstract getJournal(): Observable<ExplorerJournal>;
   /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,10 @@ import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
 import { CheckinResult, CompassReading, PlayClue, PhotoResult, PlayState } from '@shared/models';
 import { ReadAloud } from '../../shared/read-aloud';
+import { OfflinePlay } from './offline-play';
+import { OfflineStore } from '../../core/offline-store';
+import { DomTranslator } from '../../core/dom-translator';
+import { HttpErrorResponse } from '@angular/common/http';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -32,7 +36,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [ReadAloud, SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
+  imports: [OfflinePlay, ReadAloud, SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],
@@ -167,6 +171,66 @@ export class PlayPage {
   protected readonly sending = signal(false);
 
   /** Phase de jeu de l'équipe. */
+  /* ---------- Version anglaise (§ 33) ---------- */
+
+  private readonly i18n = inject(DomTranslator);
+  /** Le contenu visible de la partie (énigme, jokers, lieux trouvés) est traduit à chaque changement. */
+  private readonly translateContent = effect(() => {
+    const s = this.state.value();
+    if (!s) return;
+    const key = `${s.validated.length}:${s.clue?.targetOrder}:${s.hintsUsed}:${s.puzzle?.stepId ?? ''}`;
+    untracked(() => {
+      if (key === this.translatedKey) return;
+      this.translatedKey = key;
+      this.i18n.requestContent({ hunt: this.id() });
+    });
+  });
+  private translatedKey = '';
+
+  /* ---------- Hors ligne (§ 32) ---------- */
+
+  protected readonly offline = inject(OfflineStore);
+  protected readonly offlineEntry = computed(() => this.offline.get(this.id()));
+  protected readonly offlineBusy = signal(false);
+  /** Sans réseau (ou serveur injoignable), le carnet continue sur le paquet enregistré. */
+  protected readonly offlineMode = computed(() => {
+    const entry = this.offlineEntry();
+    if (!entry) return false;
+    const err = this.state.error();
+    return !this.offline.online() || (err instanceof HttpErrorResponse && err.status === 0) || entry.events.length > 0;
+  });
+  /** Retour du réseau, tout synchronisé : le carnet en ligne reprend. */
+  private pendingBefore = 0;
+  private readonly resumeOnline = effect(() => {
+    const pending = this.offlineEntry()?.events.length ?? 0;
+    const synced = this.pendingBefore > 0 && pending === 0;
+    this.pendingBefore = pending;
+    if (this.offline.online() && !pending && (synced || this.state.error())) untracked(() => this.state.reload());
+  });
+  /** Paquet enregistré : tenu à jour de ce qui se passe en ligne (étapes, jokers). */
+  private readonly refreshOffline = effect(() => {
+    const s = this.state.value();
+    const entry = this.offlineEntry();
+    if (!s || !entry || entry.events.length || !this.offline.online()) return;
+    const hints = Object.values(entry.progress.hints).reduce((a, n) => a + n, 0);
+    const stale = entry.progress.validated.length !== s.validated.length || hints !== s.hintsUsed || entry.progress.started !== s.team.started;
+    if (stale && ['before', 'waiting', 'playing'].includes(untracked(() => this.phase()))) untracked(() => void this.offline.prepare(this.id()).catch(() => undefined));
+  });
+  /** Le paquet se prépare une fois inscrit, avant l'arrivée. */
+  protected readonly offlineReady = computed(() => ['before', 'waiting', 'playing'].includes(this.phase()));
+
+  protected async prepareOffline(): Promise<void> {
+    this.offlineBusy.set(true);
+    try {
+      await this.offline.prepare(this.id());
+      this.notify.info('Parcours enregistré : vous pouvez jouer sans réseau.');
+    } catch (e) {
+      this.notify.error(e);
+    } finally {
+      this.offlineBusy.set(false);
+    }
+  }
+
   protected readonly phase = computed(() => {
     const s = this.state.value();
     if (!s) return 'loading';

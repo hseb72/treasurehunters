@@ -9,6 +9,11 @@
     }
   </nav>
   <span class="spacer"></span>
+  <!-- Version anglaise (§ 33) : la langue se choisit ici, et reste sur ce téléphone. -->
+  <button mat-button type="button" class="lang" translate="no" (click)="switchLang(i18n.english ? 'fr' : 'en')"
+    [attr.aria-label]="i18n.english ? 'Passer en français' : 'Switch to English'" [title]="i18n.english ? 'Français' : 'English'">
+    {{ i18n.english ? 'FR' : 'EN' }}
+  </button>
   @if (session.user(); as user) {
     <button mat-icon-button type="button" [matMenuTriggerFor]="account" [attr.aria-label]="'Compte de ' + user.nickname">
       <span class="avatar">{{ user.nickname.charAt(0).toUpperCase() }}</span>

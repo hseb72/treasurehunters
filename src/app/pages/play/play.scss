@@ -258,3 +258,13 @@
   cursor: pointer;
   vertical-align: middle;
 }
+
+/* Hors ligne (§ 32) : préparer le parcours avant une zone sans réseau. */
+.offline-prep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  > mat-icon { color: var(--th-primary); }
+  > span { flex: 1 1 220px; }
+}

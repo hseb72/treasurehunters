@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -8,6 +8,9 @@ import { filter, map, startWith } from 'rxjs';
 import { environment } from '../environments/environment';
 import { HuntApi } from './core/api';
 import { Session } from './core/session';
+import { OfflineStore } from './core/offline-store';
+import { DomTranslator } from './core/dom-translator';
+import { switchLang } from './core/lang';
 import { CompassLogo } from './shared/compass-logo';
 
 @Component({
@@ -20,6 +23,15 @@ import { CompassLogo } from './shared/compass-logo';
 export class App {
   protected readonly session = inject(Session);
   private readonly router = inject(Router);
+  /** Hors ligne (§ 32) : les parties jouées sans réseau se synchronisent dès l'ouverture de l'appli. */
+  private readonly offline = inject(OfflineStore);
+  /** Version anglaise (§ 33) : les textes affichés sont traduits à la volée. */
+  protected readonly i18n = inject(DomTranslator);
+  protected readonly switchLang = switchLang;
+
+  constructor() {
+    afterNextRender(() => this.i18n.start());
+  }
   protected readonly demo = environment.demo;
   /** Onglets principaux (barre du bas sur téléphone, liens de la barre du haut sinon). */
   /** Pendant une partie, le carnet de route a sa propre barre d'outils. */

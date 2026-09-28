@@ -9,6 +9,7 @@ import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { ClaudeRiddleWriter, RiddleWriter } from './assist/writer.js';
+import { ClaudeTranslator, Translator } from './translate/translator.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
 import { Payments } from './payments/payments.js';
 import { PaymentProvider, StripeProvider } from './payments/stripe.js';
@@ -134,6 +135,8 @@ export interface AppOptions {
   payments?: PaymentProvider | null;
   /** Assistant de rédaction (§ 25) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
   writer?: RiddleWriter | null;
+  /** Traduction des chasses (§ 33) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
+  translator?: Translator | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -172,6 +175,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   const payments = new Payments(pool, provider, (viewer) => service.store(viewer), (err, msg) => app.log.error(err, msg));
   service.payments = payments;
   service.writer = opts.writer !== undefined ? opts.writer : keyUsable ? new ClaudeRiddleWriter(key!) : null;
+  service.translator = opts.translator !== undefined ? opts.translator : keyUsable ? new ClaudeTranslator(key!) : null;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -432,6 +436,34 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return reply.status(201).send(await service.reportStep(req.viewer, idParams.parse(req.params).id, data));
   });
   app.get('/api/hunts/:id/reports', async (req) => service.huntReports(req.viewer, idParams.parse(req.params).id));
+  /* ----- Version anglaise (§ 33) */
+  app.post('/api/translate', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (req) => {
+    const body = z
+      .object({ lang: z.literal('en'), hunt: id.optional(), catalog: z.array(id).max(30).optional() })
+      .parse(req.body);
+    return service.translate(req.viewer, body);
+  });
+
+  /* ----- Hors ligne (§ 32) */
+  app.get('/api/hunts/:id/offline', async (req) => service.offlinePack(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/offline/sync', async (req) => {
+    const at = z.string().max(40);
+    const base = { id: z.string().min(1).max(40), at };
+    const events = z
+      .array(
+        z.discriminatedUnion('kind', [
+          z.object({ ...base, kind: z.literal('start') }),
+          z.object({ ...base, kind: z.literal('arrive'), stepId: id, lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(10_000) }),
+          z.object({ ...base, kind: z.literal('scan'), stepId: id, token: z.string().min(1).max(64) }),
+          z.object({ ...base, kind: z.literal('hint'), stepId: id }),
+          z.object({ ...base, kind: z.literal('skip'), stepId: id }),
+          z.object({ ...base, kind: z.literal('answer'), stepId: id, answer: z.string().max(200) }),
+        ]),
+      )
+      .max(200)
+      .parse((req.body as { events?: unknown } | null)?.events);
+    return service.offlineSync(req.viewer, idParams.parse(req.params).id, events);
+  });
   app.get('/api/hunts/:id/souvenir', async (req) => service.souvenir(req.viewer, idParams.parse(req.params).id));
   app.get('/api/hunts/:id/stats', async (req) => service.huntStats(req.viewer, idParams.parse(req.params).id));
   app.get('/api/catalog/:id/reports', async (req) => service.catalogReports(req.viewer, idParams.parse(req.params).id));

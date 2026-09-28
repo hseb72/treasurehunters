@@ -812,3 +812,26 @@ Dans l'onglet Étapes, « Importer des lieux » crée les étapes d'un coup (30 
 - **fichier GPX** : ses points de passage (`wpt`), sinon ceux de l'itinéraire (`rtept`) ; une trace seule (`trkpt`) ne suffit pas, l'auteur est invité à y ajouter ses lieux.
 
 Aperçu avant création ; le premier lieu peut devenir le départ, le dernier l'arrivée, les autres s'insèrent avant l'arrivée. Lecture dans `shared/route-import.ts`, sans service extérieur.
+
+## 32. Mode hors ligne
+
+Pour les zones sans réseau (forêt, garrigue, bord de mer), l'équipe **prépare le hors ligne** depuis le carnet de route, tant qu'elle a du réseau : le téléphone enregistre le **paquet** de la chasse (`GET /hunts/:id/offline`) — énigmes, jokers, messages d'arrivée, positions et entrées des lieux, épreuves d'arrivée — et la progression de l'équipe. L'application elle-même est déjà en cache (service worker).
+
+**Sans réseau**, le carnet bascule sur ce paquet (`shared/offline.ts`, commun au téléphone et aux tests) :
+- « C'est parti » pour une chasse surprise « chacun son chrono » ;
+- « Je suis arrivé » : la position est comparée au lieu avec la même règle qu'en ligne (`arrivalCheck`) ;
+- QR scanné : l'empreinte du jeton est comparée à celle du paquet ; **les jetons eux-mêmes ne quittent jamais le serveur** ;
+- épreuves d'arrivée : la réponse est comparée aux empreintes des réponses acceptées ;
+- jokers et abandons.
+
+Chaque action est mise en attente, avec son heure réelle et un identifiant unique. **Au retour du réseau** (ou à l'ouverture de l'appli), elles sont rejouées dans l'ordre par `POST /hunts/:id/offline/sync` avec **les mêmes vérifications qu'en ligne** (position, QR, réponse, ordre, heure plausible) ; le temps de parcours est celui du terrain. Une action déjà rejouée (même identifiant, table `th_offline`, migration `021_offline.sql`) n'est pas comptée deux fois ; la première action refusée arrête le rejeu, le joueur est prévenu et le téléphone reprend la progression du serveur.
+
+Limites assumées : le paquet contient le parcours restant (un joueur qui fouille son téléphone peut y lire les énigmes à venir, comme il pourrait tricher sur sa position en ligne) ; le départ commun donné par l'organisateur et la photo du lieu demandent du réseau ; les signalements, la boussole et la carte ne sont pas disponibles hors ligne.
+
+## 33. Version anglaise
+
+Pour les touristes, l'application parle anglais : d'office si le téléphone n'est pas réglé en français, ou au choix (bouton **EN / FR** de la barre du haut, retenu sur le téléphone ; la page se recharge, dates et nombres suivent).
+
+**Interface.** Plutôt que de réécrire chaque écran, les textes affichés sont traduits à la volée (`src/app/core/dom-translator.ts`) : un dictionnaire des écrans des joueurs (`src/app/i18n/en.ts` — accueil, catalogue, fiche, carnet de route et carnet hors ligne, scan, résultats, souvenir, carnet d'explorateur, profil), avec des modèles pour les textes à nombres, dates ou noms. Les saisies, les icônes et ce qui est marqué `translate="no"` ne sont jamais touchés ; un texte inconnu reste en français. Les écrans d'organisation et de création restent en français pour l'instant. Le souvenir, le partage et la lecture à voix haute (voix anglaise) passent par la même traduction.
+
+**Contenu des chasses.** Énigmes, jokers, messages d'arrivée, noms de lieux trouvés, présentations et extraits du catalogue sont traduits par l'IA (`POST /translate { lang, hunt?, catalog? }`, `server/src/translate/translator.ts`) : **seulement ce que le joueur voit déjà** (fiches du catalogue ; dans sa partie, l'énigme en cours, ses jokers ouverts, les lieux trouvés, l'épreuve en cours), jamais les énigmes ni les lieux à venir. Chaque texte n'est traduit qu'une fois (cache `th_translations`, migration `022_translations.sql`), ce qui borne le coût ; 20 demandes par minute au plus. Sans clé d'IA, seul le cache répond et le contenu reste en français. La maquette marque le contenu « [EN] » pour montrer ce qui serait traduit. Le carnet hors ligne affiche le contenu dans sa langue d'origine.

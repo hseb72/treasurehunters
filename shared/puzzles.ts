@@ -68,6 +68,15 @@ export function normalizeAnswer(s: string): string {
 }
 
 /** Réponses acceptées, sous forme comparable. */
+export function acceptedAnswers(p: Puzzle): string[] {
+  return accepted(p);
+}
+
+/** Réponse donnée, sous la forme comparable à acceptedAnswers. */
+export function comparableAnswer(p: Pick<Puzzle, 'type'>, given: string): string {
+  return p.type === 'lock' ? given.replace(/\D/g, '') : normalizeAnswer(given);
+}
+
 function accepted(p: Puzzle): string[] {
   return p.answer
     .split('|')

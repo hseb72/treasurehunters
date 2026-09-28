@@ -1,5 +1,8 @@
 <!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
 <div [thSkin]="skin()">
+@if (offlineMode()) {
+  <th-offline-play [huntId]="id()" />
+} @else {
 @if (state.error(); as err) {
   <div class="page">
     <div class="surface center">
@@ -313,6 +316,19 @@
       }
     }
 
+    @if (offlineReady()) {
+      <section class="surface offline-prep">
+        <mat-icon>{{ offlineEntry() ? 'offline_pin' : 'cloud_download' }}</mat-icon>
+        @if (offlineEntry(); as o) {
+          <span class="small">Prêt hors ligne : le parcours est sur ce téléphone (mis à jour à {{ o.pack.downloaded | date: 'HH:mm' }}). Sans réseau, le carnet continue ; tout sera synchronisé au retour du réseau.</span>
+          <button mat-button type="button" (click)="offline.discard(id())">Oublier</button>
+        } @else {
+          <span class="small">Zone sans réseau sur le parcours ? Enregistrez-le sur ce téléphone pour continuer à jouer hors ligne.</span>
+          <button mat-stroked-button type="button" (click)="prepareOffline()" [disabled]="offlineBusy()"><mat-icon>download</mat-icon>Préparer</button>
+        }
+      </section>
+    }
+
     @if (invitesOpen() && phase() !== 'playing') {
       <th-invite-panel [hunt]="s.hunt" [team]="s.team" />
     }
@@ -426,6 +442,8 @@
       <a mat-fab extended class="scan-fab no-print" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
     }
   }
+}
+
 }
 
 <!-- Appareil photo du téléphone (capture), ou galerie sur ordinateur. -->

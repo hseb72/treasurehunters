@@ -1,5 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { OfflineStore } from '../../core/offline-store';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,7 +40,19 @@ export class ScanResultPage {
   protected readonly skin = computed(() => this.result.value()?.hunt?.skin);
   private readonly fx = inject(SkinEffects);
 
+  /** Sans réseau (§ 32) : le QR est vérifié sur le paquet hors ligne du téléphone. */
+  private readonly offline = inject(OfflineStore);
+  protected readonly offlineScan = signal<Awaited<ReturnType<OfflineStore['scanToken']>> | 'unknown' | null>(null);
+
   constructor() {
+    let tried: string | null = null;
+    effect(() => {
+      const err = this.result.error();
+      const token = this.token();
+      if (!(err instanceof HttpErrorResponse && err.status === 0) || tried === token) return;
+      tried = token;
+      void this.offline.scanToken(token).then((r) => this.offlineScan.set(r ?? 'unknown'));
+    });
     // Son et animation du skin, une fois par étape validée.
     let celebrated: unknown = null;
     effect(() => {
