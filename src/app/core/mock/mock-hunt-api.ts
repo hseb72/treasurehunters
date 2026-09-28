@@ -46,10 +46,11 @@ import {
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
-import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
+import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { PracticalTag } from '@shared/practical';
+import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
   arrivalCheck,
@@ -1747,24 +1748,155 @@ export class MockHuntApi extends HuntApi {
     this.arrive(photo.teamId, this.db.steps.find((s) => s.id === photo.stepId)!, me, 'PHOTO');
   }
 
+  /* ---------- Hors ligne (§ 32), comme le serveur ---------- */
+
+  private readonly offlineDone = new Set<string>();
+
+  getOfflinePack(huntId: number): Observable<OfflinePack> {
+    return defer(async () => {
+      const me = this.requireUser();
+      const h = this.visibleHunt(huntId);
+      const team = this.teamOf(huntId, me);
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      if (h.status !== 'published' && h.status !== 'running') throw new ApiError('Cette expédition n’est pas en cours.');
+      if (!team.started && !(h.surprise && h.selfPaced)) throw new ApiError('Préparez le hors ligne une fois le départ donné.');
+      const steps = this.stepsOf(huntId);
+      const vals = this.db.validations.filter((v) => v.teamId === team.id);
+      const hints: Record<number, number> = {};
+      for (const u of this.db.hintUses.filter((x) => x.teamId === team.id)) hints[u.stepId] = Math.max(hints[u.stepId] ?? 0, u.level);
+      const pending = [...this.arrivals.entries()].find(([k]) => k.startsWith(`${team.id}:`));
+      const pack: OfflinePack = {
+        huntId,
+        huntName: h.name,
+        skin: h.skin,
+        teamName: team.name,
+        validation: h.validation,
+        geoRadius: h.geoRadius,
+        selfStart: canSelfStart(h, team, me) && h.selfPaced,
+        steps: await Promise.all(
+          steps.map(async (st) => ({
+            stepId: st.id,
+            order: st.order,
+            title: st.title,
+            arrival: st.arrival,
+            instructions: st.instructions,
+            hints: st.hints,
+            lat: st.latitude,
+            lng: st.longitude,
+            entrances: st.entrances,
+            tokenHash: h.validation === 'qr' && st.order > 0 && st.token ? await offlineHash(st.id, st.token) : null,
+            puzzle: st.puzzle ? publicPuzzle(st.puzzle, st.id) : null,
+            answerHashes: st.puzzle ? await Promise.all(acceptedAnswers(st.puzzle).map((a) => offlineHash(st.id, a))) : null,
+          })),
+        ),
+        progress: {
+          started: team.started,
+          validated: vals.map((v) => ({ order: steps.find((x) => x.id === v.stepId)!.order, at: v.at, skipped: v.source === 'SKIP' })).sort((a, b) => a.order - b.order),
+          hints,
+          puzzle: pending ? { stepId: Number(pending[0].split(':')[1]), attempts: pending[1].attempts } : null,
+        },
+        downloaded: new Date().toISOString(),
+      };
+      return structuredClone(pack);
+    }).pipe(delay(LATENCY_MS));
+  }
+
+  offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const team = this.teamOf(huntId, me);
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      let applied = 0;
+      let previous = 0;
+      let rejected: OfflineSyncResult['rejected'] = null;
+      for (const [index, e] of events.entries()) {
+        const key = `${team.id}:${e.id}`;
+        if (this.offlineDone.has(key)) {
+          applied++;
+          continue;
+        }
+        const at = Date.parse(e.at);
+        const reason = !Number.isFinite(at) || at > Date.now() + 120_000 ? 'Heure invalide (horloge du téléphone ?).' : at < previous ? 'Actions dans le désordre.' : this.replayOffline(huntId, me, e);
+        if (reason) {
+          rejected = { index, reason };
+          break;
+        }
+        previous = at;
+        this.offlineDone.add(key);
+        applied++;
+      }
+      return { applied, rejected, state: this.playState(huntId) };
+    });
+  }
+
+  private replayOffline(huntId: number, me: number, e: OfflineEvent): string | null {
+    const h = this.visibleHunt(huntId);
+    const team = this.teamOf(huntId, me)!;
+    if (e.kind === 'start') {
+      if (!canSelfStart(h, team, me) || !h.selfPaced) return 'Le départ ne se donne pas depuis ce téléphone.';
+      if (h.status === 'published') {
+        h.status = 'running';
+        h.started = e.at;
+      }
+      team.started = e.at;
+      return null;
+    }
+    if (!team.started || Date.parse(e.at) < Date.parse(team.started)) return 'Action antérieure au départ de l’équipe.';
+    const state = this.playState(huntId);
+    const steps = this.stepsOf(huntId);
+    const clue = state.clue;
+    const target = clue ? steps.find((x) => x.order === clue.targetOrder)! : null;
+    switch (e.kind) {
+      case 'hint':
+        if (!clue || clue.stepId !== e.stepId || clue.hintsRevealed.length >= clue.hintsTotal) return 'Ce joker ne correspond pas à l’énigme en cours.';
+        this.db.hintUses.push({ teamId: team.id, stepId: clue.stepId, level: clue.hintsRevealed.length + 1, hunterId: me, at: e.at });
+        return null;
+      case 'skip':
+        if (!clue?.canSkip || !target || target.id !== e.stepId) return 'Cet abandon ne correspond pas à l’épreuve en cours.';
+        this.db.validations.push({ teamId: team.id, stepId: target.id, hunterId: me, source: 'SKIP', at: e.at });
+        this.arrivals.delete(`${team.id}:${target.id}`);
+        return null;
+      case 'arrive':
+      case 'scan': {
+        if (!target || target.id !== e.stepId || state.puzzle) return 'Cette arrivée ne correspond pas au lieu cherché.';
+        if (e.kind === 'arrive') {
+          const check = arrivalCheck(target, h, e);
+          if (!check?.ok) return `Position trop loin du lieu (${check?.distance ?? '?'} m).`;
+        } else if (e.token !== target.token) return 'Ce QR code n’est pas celui du lieu cherché.';
+        this.arrive(team.id, target, me, e.kind === 'arrive' ? 'GEO' : 'QR', e.at);
+        return null;
+      }
+      case 'answer': {
+        if (!state.puzzle || state.puzzle.stepId !== e.stepId) return 'Aucune épreuve n’attendait cette réponse.';
+        const step = steps.find((x) => x.id === e.stepId)!;
+        if (!checkAnswer(step.puzzle!, e.answer)) return 'Réponse à l’épreuve refusée.';
+        const key = `${team.id}:${step.id}`;
+        const arrival = this.arrivals.get(key)!;
+        this.arrivals.delete(key);
+        this.recordValidation(team.id, step, me, arrival.source, e.at);
+        return null;
+      }
+    }
+  }
+
   /* ---------- Énigmes d'arrivée (§ 17) ---------- */
 
   private readonly arrivals = new Map<string, { source: 'QR' | 'GEO' | 'PHOTO'; attempts: number; hint: boolean }>();
 
   /** Comme le serveur : sans énigme, l'étape est validée ; avec, l'arrivée attend la bonne réponse. */
-  private arrive(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO'): 'validated' | 'puzzle' {
+  private arrive(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO', at?: string): 'validated' | 'puzzle' {
     if (step.puzzle) {
       const key = `${teamId}:${step.id}`;
       this.arrivals.set(key, { attempts: 0, hint: false, ...this.arrivals.get(key), source });
       return 'puzzle';
     }
-    this.recordValidation(teamId, step, me, source);
+    this.recordValidation(teamId, step, me, source, at);
     return 'validated';
   }
 
-  private recordValidation(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO'): void {
+  private recordValidation(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO', at?: string): void {
     const team = this.db.teams.find((t) => t.id === teamId)!;
-    const now = new Date().toISOString();
+    const now = at ?? new Date().toISOString();
     this.db.validations.push({ teamId, stepId: step.id, hunterId: me, source, at: now });
     const steps = this.stepsOf(team.huntId);
     if (step.order === finalOrder(steps)) {
@@ -2091,7 +2223,7 @@ function openToLateTeams(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status'>): bo
 }
 
 /** Le joueur peut-il donner un départ (celui de son équipe, ou celui de tous) ? */
-function canSelfStart(h: Hunt, team: Team, me: number): boolean {
+function canSelfStart(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status' | 'hostId'>, team: Team, me: number): boolean {
   if (!h.surprise) return false;
   if (h.selfPaced) return !team.started && (h.status === 'published' || h.status === 'running');
   return h.status === 'published' && h.hostId === me;

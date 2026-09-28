@@ -812,3 +812,18 @@ Dans l'onglet Étapes, « Importer des lieux » crée les étapes d'un coup (30 
 - **fichier GPX** : ses points de passage (`wpt`), sinon ceux de l'itinéraire (`rtept`) ; une trace seule (`trkpt`) ne suffit pas, l'auteur est invité à y ajouter ses lieux.
 
 Aperçu avant création ; le premier lieu peut devenir le départ, le dernier l'arrivée, les autres s'insèrent avant l'arrivée. Lecture dans `shared/route-import.ts`, sans service extérieur.
+
+## 32. Mode hors ligne
+
+Pour les zones sans réseau (forêt, garrigue, bord de mer), l'équipe **prépare le hors ligne** depuis le carnet de route, tant qu'elle a du réseau : le téléphone enregistre le **paquet** de la chasse (`GET /hunts/:id/offline`) — énigmes, jokers, messages d'arrivée, positions et entrées des lieux, épreuves d'arrivée — et la progression de l'équipe. L'application elle-même est déjà en cache (service worker).
+
+**Sans réseau**, le carnet bascule sur ce paquet (`shared/offline.ts`, commun au téléphone et aux tests) :
+- « C'est parti » pour une chasse surprise « chacun son chrono » ;
+- « Je suis arrivé » : la position est comparée au lieu avec la même règle qu'en ligne (`arrivalCheck`) ;
+- QR scanné : l'empreinte du jeton est comparée à celle du paquet ; **les jetons eux-mêmes ne quittent jamais le serveur** ;
+- épreuves d'arrivée : la réponse est comparée aux empreintes des réponses acceptées ;
+- jokers et abandons.
+
+Chaque action est mise en attente, avec son heure réelle et un identifiant unique. **Au retour du réseau** (ou à l'ouverture de l'appli), elles sont rejouées dans l'ordre par `POST /hunts/:id/offline/sync` avec **les mêmes vérifications qu'en ligne** (position, QR, réponse, ordre, heure plausible) ; le temps de parcours est celui du terrain. Une action déjà rejouée (même identifiant, table `th_offline`, migration `021_offline.sql`) n'est pas comptée deux fois ; la première action refusée arrête le rejeu, le joueur est prévenu et le téléphone reprend la progression du serveur.
+
+Limites assumées : le paquet contient le parcours restant (un joueur qui fouille son téléphone peut y lire les énigmes à venir, comme il pourrait tricher sur sa position en ligne) ; le départ commun donné par l'organisateur et la photo du lieu demandent du réseau ; les signalements, la boussole et la carte ne sont pas disponibles hors ligne.

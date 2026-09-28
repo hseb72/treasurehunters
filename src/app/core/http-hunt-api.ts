@@ -41,6 +41,7 @@ import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import { ExplorerJournal } from '@shared/journal';
+import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -175,6 +176,12 @@ export class HttpHuntApi extends HuntApi {
   }
   playFromCatalog(id: number): Observable<Hunt> {
     return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
+  }
+  getOfflinePack(huntId: number): Observable<OfflinePack> {
+    return this.http.get<OfflinePack>(`${this.url}/hunts/${huntId}/offline`);
+  }
+  offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }> {
+    return this.http.post<OfflineSyncResult & { state: PlayState }>(`${this.url}/hunts/${huntId}/offline/sync`, { events });
   }
   getJournal(): Observable<ExplorerJournal> {
     return this.http.get<ExplorerJournal>(`${this.url}/me/journal`);

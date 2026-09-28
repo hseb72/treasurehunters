@@ -1,6 +1,24 @@
 <!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
 <div [thSkin]="skin()">
 <div class="page">
+  @if (offlineScan(); as o) {
+    <section class="surface center hero-card">
+      @if (o === 'unknown') {
+        <mat-icon class="hero-icon">cloud_off</mat-icon>
+        <h2>Pas de réseau</h2>
+        <p>Ce QR n'est pas celui du lieu que vous cherchez, ou la chasse n'a pas été préparée pour le hors ligne sur ce téléphone.</p>
+      } @else {
+        <mat-icon class="hero-icon">{{ o.isFinal ? 'diamond' : 'where_to_vote' }}</mat-icon>
+        <span class="stamp stamp--accent">{{ o.isFinal ? 'Trésor trouvé !' : o.puzzle ? 'Une épreuve vous attend' : 'Étape trouvée : ' + o.title }}</span>
+        @if (o.arrival && !o.puzzle) {
+          <p class="note">{{ o.arrival }}</p>
+        }
+        <p class="small muted">Validé hors ligne : ce sera confirmé au retour du réseau.</p>
+        <a mat-flat-button class="th-cta" [routerLink]="['/play', o.huntId]"><mat-icon>menu_book</mat-icon>Retour au carnet</a>
+      }
+    </section>
+  }
+
   @if (result.isLoading() && !result.value()) {
     <div class="center loading">
       <mat-spinner diameter="48" />

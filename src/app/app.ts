@@ -8,6 +8,7 @@ import { filter, map, startWith } from 'rxjs';
 import { environment } from '../environments/environment';
 import { HuntApi } from './core/api';
 import { Session } from './core/session';
+import { OfflineStore } from './core/offline-store';
 import { CompassLogo } from './shared/compass-logo';
 
 @Component({
@@ -20,6 +21,8 @@ import { CompassLogo } from './shared/compass-logo';
 export class App {
   protected readonly session = inject(Session);
   private readonly router = inject(Router);
+  /** Hors ligne (§ 32) : les parties jouées sans réseau se synchronisent dès l'ouverture de l'appli. */
+  private readonly offline = inject(OfflineStore);
   protected readonly demo = environment.demo;
   /** Onglets principaux (barre du bas sur téléphone, liens de la barre du haut sinon). */
   /** Pendant une partie, le carnet de route a sa propre barre d'outils. */

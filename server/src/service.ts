@@ -48,7 +48,8 @@ import { PracticalTag } from '../../shared/practical.js';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
-import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
+import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
+import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '../../shared/offline.js';
 import {
   arrivalCheck,
   computeRanking,
@@ -706,6 +707,190 @@ export class Service {
         state: await this.playState(db, me, huntId),
       };
     });
+  }
+
+  /* ================================================================ Hors ligne (§ 32) */
+
+  /**
+   * Paquet hors ligne : le parcours restant de l'équipe (énigmes, jokers, positions, empreintes
+   * des QR et des réponses) et sa progression, pour continuer sans réseau.
+   */
+  async offlinePack(viewer: Viewer, huntId: number): Promise<OfflinePack> {
+    const me = requireUser(viewer);
+    const hunt = await this.visibleHunt(this.pool, me, huntId);
+    const team = await teamOf(this.pool, huntId, me);
+    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+    if (hunt.status !== 'published' && hunt.status !== 'running') throw conflict('Cette expédition n’est pas en cours.');
+    if (!team.started && !(hunt.surprise && hunt.selfPaced)) throw conflict('Préparez le hors ligne une fois le départ donné.');
+    const steps = await stepsOf(this.pool, huntId);
+    const vals = (await validationsOfHunt(this.pool, huntId)).filter((v) => v.teamId === team.id);
+    const hints = (await hintUsesOfHunt(this.pool, huntId)).filter((u) => u.teamId === team.id);
+    const pending = await one(this.pool, 'SELECT arr_code_cod, arr_attempts FROM th_arrivals WHERE arr_team_tea = $1 LIMIT 1', [team.id]);
+    const packed = await Promise.all(
+      steps.map(async (s) => ({
+        stepId: s.id,
+        order: s.order,
+        title: s.title,
+        arrival: s.arrival,
+        instructions: s.instructions,
+        hints: s.hints,
+        lat: s.latitude === null ? null : Number(s.latitude),
+        lng: s.longitude === null ? null : Number(s.longitude),
+        entrances: s.entrances,
+        tokenHash: hunt.validation === 'qr' && s.order > 0 && s.token ? await offlineHash(s.id, s.token) : null,
+        puzzle: s.puzzle ? publicPuzzle(s.puzzle, s.id) : null,
+        answerHashes: s.puzzle ? await Promise.all(acceptedAnswers(s.puzzle).map((a) => offlineHash(s.id, a))) : null,
+      })),
+    );
+    const hintCount: Record<number, number> = {};
+    for (const u of hints) hintCount[u.stepId] = Math.max(hintCount[u.stepId] ?? 0, u.level);
+    return {
+      huntId,
+      huntName: hunt.name,
+      skin: hunt.skin,
+      teamName: team.name,
+      validation: hunt.validation,
+      geoRadius: hunt.geoRadius,
+      selfStart: canSelfStart(hunt, team, me) && hunt.selfPaced,
+      steps: packed,
+      progress: {
+        started: team.started,
+        validated: vals
+          .map((v) => ({ order: steps.find((s) => s.id === v.stepId)!.order, at: v.at, skipped: v.source === 'SKIP' }))
+          .sort((a, b) => a.order - b.order),
+        hints: hintCount,
+        puzzle: pending ? { stepId: pending['arr_code_cod'], attempts: pending['arr_attempts'] } : null,
+      },
+      downloaded: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Retour du réseau : les actions jouées hors ligne sont rejouées dans l'ordre, à leur heure
+   * réelle, avec les mêmes vérifications qu'en ligne (position, QR, réponse). La première
+   * refusée arrête le rejeu ; une action déjà rejouée (même identifiant) est ignorée.
+   */
+  async offlineSync(viewer: Viewer, huntId: number, events: OfflineEvent[]): Promise<OfflineSyncResult & { state: PlayState }> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const mine = await teamOf(db, huntId, me);
+      if (!mine) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      await teamById(db, mine.id, true); // sérialisé avec les scans de l'équipe
+      const now = ((await one(db, 'SELECT now() AS now'))!['now'] as Date).getTime();
+      let applied = 0;
+      let previous = 0;
+      let rejected: OfflineSyncResult['rejected'] = null;
+      for (const [index, e] of events.entries()) {
+        if (await one(db, 'SELECT 1 FROM th_offline WHERE off_team_tea = $1 AND off_event = $2', [mine.id, e.id])) {
+          applied++;
+          continue;
+        }
+        const at = Date.parse(e.at);
+        let reason: string | null = null;
+        if (!Number.isFinite(at) || at > now + 120_000) reason = 'Heure invalide (horloge du téléphone ?).';
+        else if (at < previous) reason = 'Actions dans le désordre.';
+        else reason = await this.replayOffline(db, me, huntId, e, new Date(at));
+        if (reason) {
+          rejected = { index, reason };
+          break;
+        }
+        previous = at;
+        await db.query('INSERT INTO th_offline (off_team_tea, off_event, off_kind, off_at, off_hunter_htr) VALUES ($1, $2, $3, $4, $5)', [
+          mine.id,
+          e.id,
+          e.kind,
+          new Date(at),
+          me,
+        ]);
+        applied++;
+      }
+      return { applied, rejected, state: await this.playState(db, me, huntId) };
+    });
+  }
+
+  /** Une action hors ligne, rejouée ; renvoie la raison d'un refus, ou null. */
+  private async replayOffline(db: Db, me: number, huntId: number, e: OfflineEvent, at: Date): Promise<string | null> {
+    const hunt = (await huntById(db, huntId))!;
+    const team = (await teamOf(db, huntId, me))!;
+    if (e.kind === 'start') {
+      if (!canSelfStart(hunt, team, me) || !hunt.selfPaced) return 'Le départ ne se donne pas depuis ce téléphone.';
+      if (hunt.status === 'published') {
+        await db.query('UPDATE th_hunts SET hun_started = $2, hun_status_hst = $3, hun_lastupdate = now() WHERE hun_id = $1', [huntId, at, STATUS_IDS.running]);
+      }
+      await db.query('UPDATE th_teams SET tea_started = $2, tea_lastupdate = now() WHERE tea_id = $1', [team.id, at]);
+      return null;
+    }
+    if (!team.started || at.getTime() < Date.parse(team.started)) return 'Action antérieure au départ de l’équipe.';
+    const state = await this.playState(db, me, huntId);
+    const steps = await stepsOf(db, huntId);
+    const clue = state.clue;
+    const target = clue ? steps.find((s) => s.order === clue.targetOrder)! : null;
+    switch (e.kind) {
+      case 'hint': {
+        if (!clue || clue.stepId !== e.stepId) return 'Ce joker ne correspond pas à l’énigme en cours.';
+        if (clue.hintsRevealed.length >= clue.hintsTotal) return 'Tous les jokers étaient déjà pris.';
+        await db.query('INSERT INTO th_hintuses (hiu_team_tea, hiu_code_cod, hiu_level, hiu_hunter_htr, hiu_creation) VALUES ($1, $2, $3, $4, $5)', [
+          team.id,
+          clue.stepId,
+          clue.hintsRevealed.length + 1,
+          me,
+          at,
+        ]);
+        return null;
+      }
+      case 'skip': {
+        if (!clue || !target || target.id !== e.stepId) return 'Cet abandon ne correspond pas à l’épreuve en cours.';
+        if (!clue.canSkip) return 'L’arrivée ne peut pas être abandonnée.';
+        await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_creation) VALUES ($1, $2, $3, 'SKIP', $4)`, [
+          team.id,
+          target.id,
+          me,
+          at,
+        ]);
+        await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, target.id]);
+        return null;
+      }
+      case 'arrive':
+      case 'scan': {
+        if (!target || target.id !== e.stepId || state.puzzle) return 'Cette arrivée ne correspond pas au lieu cherché.';
+        let ok: boolean;
+        if (e.kind === 'arrive') {
+          if (hunt.validation !== 'geo') return 'Cette chasse se valide avec les QR codes.';
+          const check = arrivalCheck(target, hunt, e);
+          ok = !!check?.ok;
+          if (!ok) {
+            await this.logOffline(db, target.id, `geo:${target.id}`, me, team.id, 'too_far');
+            return `Position trop loin du lieu (${check?.distance ?? '?'} m).`;
+          }
+        } else {
+          ok = !!target.token && e.token === target.token;
+          if (!ok) return 'Ce QR code n’est pas celui du lieu cherché.';
+        }
+        await this.logOffline(db, target.id, e.kind === 'arrive' ? `geo:${target.id}` : e.token, me, team.id, 'validated');
+        await this.arrive(db, team.id, target, me, e.kind === 'arrive' ? 'GEO' : 'QR', null, at);
+        return null;
+      }
+      case 'answer': {
+        if (!state.puzzle || state.puzzle.stepId !== e.stepId) return 'Aucune épreuve n’attendait cette réponse.';
+        const step = steps.find((s) => s.id === e.stepId)!;
+        if (!checkAnswer(step.puzzle!, e.answer)) return 'Réponse à l’épreuve refusée.';
+        const arrival = (await one(db, 'SELECT * FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, step.id]))!;
+        await db.query('DELETE FROM th_arrivals WHERE arr_id = $1', [arrival['arr_id']]);
+        await this.recordValidation(db, team.id, step, me, arrival['arr_source'], arrival['arr_photo_pho'], at);
+        return null;
+      }
+    }
+  }
+
+  private async logOffline(db: Db, stepId: number, token: string, me: number, teamId: number, result: string): Promise<void> {
+    await db.query('INSERT INTO th_scanlog (scl_code_cod, scl_token, scl_hunter_htr, scl_team_tea, scl_result, scl_ip) VALUES ($1, $2, $3, $4, $5, $6)', [
+      stepId,
+      `hl:${token}`.slice(0, 64), // « hl: » : rejoué au retour du réseau
+      me,
+      teamId,
+      result,
+      null,
+    ]);
   }
 
   /**
