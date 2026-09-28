@@ -248,7 +248,7 @@ export class MockHuntApi extends HuntApi {
       switch (action) {
         case 'publish':
           expect('draft');
-          if (finalOrder(this.stepsOf(id)) < 1) throw new ApiError('Ajoutez au moins une étape avant de publier.');
+          if (finalOrder(this.stepsOf(id)) < 1) throw new ApiError('Ajoutez au moins une étape avant d’ouvrir les inscriptions.');
           if (h.validation === 'geo') {
             const missing = this.stepsOf(id).find((s) => s.order > 0 && (s.latitude === null || s.longitude === null));
             if (missing) throw new ApiError(`Validation par géolocalisation : placez sur la carte « ${missing.title} ».`);
@@ -851,7 +851,7 @@ export class MockHuntApi extends HuntApi {
   private publish(h: MockDb['hunts'][number], pub: CatalogPublication, authorId = h.ownerId): MockEntry {
     const steps = this.stepsOf(h.id);
     const final = finalOrder(steps);
-    if (final < 2) throw new ApiError('Il faut au moins une étape entre le départ et l’arrivée pour publier.');
+    if (final < 2) throw new ApiError('Il faut au moins une étape entre le départ et l’arrivée pour partager la chasse au catalogue.');
     const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
     if (missing) throw new ApiError(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
     const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
@@ -879,7 +879,7 @@ export class MockHuntApi extends HuntApi {
     const parentId = previous?.id ?? h.catalogId;
     const parent = this.catalog.find((e) => e.id === parentId);
     if (parent && parent.fingerprint === fingerprint) {
-      throw new ApiError(`Le parcours n’a pas changé depuis « ${parent.title} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de publier une nouvelle version.`);
+      throw new ApiError(`Le parcours n’a pas changé depuis « ${parent.title} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de partager une nouvelle version.`);
     }
     const entry: MockEntry = {
       id: this.catalog.length + 1,

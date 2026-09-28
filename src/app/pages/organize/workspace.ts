@@ -14,7 +14,7 @@ import { WorkspaceState } from './workspace-state';
 
 const LIFECYCLE: { status: HuntStatus; label: string }[] = [
   { status: 'draft', label: 'Brouillon' },
-  { status: 'published', label: 'Publiée' },
+  { status: 'published', label: 'Inscriptions ouvertes' },
   { status: 'running', label: 'En cours' },
   { status: 'closed', label: 'Terminée' },
 ];
@@ -22,11 +22,17 @@ const LIFECYCLE: { status: HuntStatus; label: string }[] = [
 const ACTIONS: Record<HuntAction, ConfirmData & { icon: string }> = {
   publish: {
     icon: 'campaign',
-    title: 'Publier l’expédition ?',
-    message: 'Les joueurs pourront la découvrir et s’inscrire. Vérifiez vos étapes et imprimez vos QR codes.',
-    confirm: 'Publier',
+    title: 'Ouvrir les inscriptions ?',
+    message:
+      'Les joueurs pourront découvrir l’expédition et s’y inscrire. Vérifiez vos étapes et imprimez vos QR codes. (Rien à voir avec le catalogue : l’expédition n’y est pas partagée.)',
+    confirm: 'Ouvrir les inscriptions',
   },
-  unpublish: { icon: 'undo', title: 'Repasser en brouillon ?', message: 'L’expédition ne sera plus visible.', confirm: 'Dépublier' },
+  unpublish: {
+    icon: 'undo',
+    title: 'Fermer les inscriptions ?',
+    message: 'L’expédition repasse en brouillon : les joueurs ne la verront plus.',
+    confirm: 'Repasser en brouillon',
+  },
   start: {
     icon: 'flag',
     title: 'Donner le départ ?',

@@ -277,7 +277,7 @@ export class Service {
       switch (action) {
         case 'publish':
           expect('draft');
-          if (hunt.stepCount < 1) throw conflict('Ajoutez au moins une étape avant de publier.');
+          if (hunt.stepCount < 1) throw conflict('Ajoutez au moins une étape avant d’ouvrir les inscriptions.');
           if (hunt.validation === 'geo') {
             const missing = (await stepsOf(db, id)).filter((s) => s.order > 0 && (s.latitude === null || s.longitude === null));
             if (missing.length) throw conflict(`Validation par géolocalisation : placez sur la carte « ${missing[0].title} ».`);
@@ -1355,10 +1355,10 @@ export class Service {
     const me = requireUser(viewer);
     const id = await tx(this.pool, async (db) => {
       const hunt = await this.ownedHunt(db, me, huntId, true);
-      if (hunt.status === 'cancelled') throw conflict('Une chasse annulée ne se publie pas.');
+      if (hunt.status === 'cancelled') throw conflict('Une chasse annulée ne se partage pas au catalogue.');
       const steps = await stepsOf(db, huntId);
       const final = finalOrder(steps);
-      if (final < 2) throw badRequest('Il faut au moins une étape entre le départ et l’arrivée pour publier.');
+      if (final < 2) throw badRequest('Il faut au moins une étape entre le départ et l’arrivée pour partager la chasse au catalogue.');
       const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
       if (missing) throw badRequest(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
       const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
@@ -1387,7 +1387,7 @@ export class Service {
         const parent = (await one(db, 'SELECT cat_title, cat_fingerprint FROM th_catalog WHERE cat_id = $1', [parentId]))!;
         if (parent['cat_fingerprint'] === fingerprint) {
           throw conflict(
-            `Le parcours n’a pas changé depuis « ${parent['cat_title']} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de publier une nouvelle version.`,
+            `Le parcours n’a pas changé depuis « ${parent['cat_title']} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de partager une nouvelle version.`,
           );
         }
       }

@@ -28,11 +28,11 @@ Ce document décrit le fonctionnement cible de l'application : le vocabulaire, l
 ```mermaid
 stateDiagram-v2
     [*] --> Brouillon
-    Brouillon --> Publiée : l'organisateur publie
-    Publiée --> Brouillon : dépublier (tant qu'aucune équipe n'est inscrite)
-    Publiée --> EnCours : déclenchement (manuel ou à hun_begin)
+    Brouillon --> InscriptionsOuvertes : « Ouvrir les inscriptions »
+    InscriptionsOuvertes --> Brouillon : « Fermer les inscriptions » (tant qu'aucune équipe n'est inscrite)
+    InscriptionsOuvertes --> EnCours : déclenchement (manuel ou à hun_begin)
     EnCours --> Close : clôture (manuelle ou à hun_end)
-    Publiée --> Annulée
+    InscriptionsOuvertes --> Annulée
     EnCours --> Annulée
     Close --> Archivée
 ```
@@ -40,9 +40,11 @@ stateDiagram-v2
 | Statut (`th_huntstatus`) | Id | Joueurs | QR codes |
 |---|---|---|---|
 | Brouillon | 1 | invisible | « Cette chasse n'existe pas » |
-| Publiée | 2 | visible, inscriptions ouvertes | « **Pas encore commencée** » et compte à rebours vers `hun_begin` |
+| Inscriptions ouvertes (`published`) | 2 | visible, inscriptions ouvertes | « **Pas encore commencée** » et compte à rebours vers `hun_begin` |
 | En cours | 3 | on joue | actifs, selon les règles du § 4 |
 | Close | 4 | résultats | « **Terminée** » et **podium** |
+
+> **Vocabulaire** : pour une chasse, on **ouvre les inscriptions** (brouillon → inscriptions ouvertes) ; « publier » n'est pas employé, pour ne pas confondre avec le **partage au catalogue** (§ 13), qui expose une copie du parcours aux autres organisateurs. Les deux gestes sont indépendants.
 | Annulée | 5 | message d'annulation | « Chasse annulée » |
 | Archivée | 6 | historique uniquement | comme Close |
 
@@ -490,9 +492,9 @@ Le carnet de route de l'équipe montre l'état de chaque étape validée par pho
 
 ## 13. Catalogue de chasses
 
-### 13.1 Publier
+### 13.1 Partager au catalogue
 
-Depuis l'onglet **Catalogue** de son espace, un organisateur publie sa chasse (`POST /hunts/:id/catalog`), par exemple une fois qu'il l'a testée avec des joueurs. Il fixe :
+Depuis l'onglet **Catalogue** de son espace, un organisateur **partage** sa chasse au catalogue (bouton « Partager au catalogue » ; rien à voir avec l'ouverture des inscriptions, § 2) (`POST /hunts/:id/catalog`), par exemple une fois qu'il l'a testée avec des joueurs. Il fixe :
 
 - la **présentation** (par défaut, celle de la chasse), le **déplacement** (à pied, vélo ou trottinette, en véhicule), la **difficulté des énigmes** et la **durée prévue**. Ces trois réglages sont repris de la chasse (`hun_travel`, `hun_difficulty`, `hun_duration`) : ceux de la demande pour une chasse générée, ceux de la version copiée pour une copie, ceux de la dernière publication sinon ; à défaut, la durée proposée est l'écart entre le début et la fin de la chasse ;
 - l'**énigme en extrait** : une énigme du parcours, montrée à tous pour juger de la rédaction ;

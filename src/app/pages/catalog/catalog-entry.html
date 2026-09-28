@@ -16,7 +16,7 @@
       <div class="facts">
         <span><mat-icon>location_on</mat-icon>{{ e.location }}</span>
         <span><mat-icon>person_pin</mat-icon><a [routerLink]="['/organizers', e.authorId]">{{ e.authorNickname }}</a></span>
-        <span><mat-icon>event</mat-icon>publiée le {{ e.published | date: 'd MMMM y' }}</span>
+        <span><mat-icon>event</mat-icon>partagée le {{ e.published | date: 'd MMMM y' }}</span>
       </div>
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
@@ -48,7 +48,7 @@
         }
         <p class="small muted">
           Vous obtenez un brouillon : parcours, énigmes, jokers et pénalités. Modifiez tout ce que vous voulez, posez vos propres QR codes,
-          et publiez à votre tour votre version si vous changez le parcours.
+          et partagez à votre tour votre version au catalogue si vous changez le parcours.
         </p>
       }
     </section>
@@ -115,7 +115,7 @@
           </p>
         }
         @if (e.versions.length) {
-          <p class="small muted">Versions publiées à partir de celle-ci :</p>
+          <p class="small muted">Versions partagées à partir de celle-ci :</p>
           <ul class="versions">
             @for (v of e.versions; track v.id) {
               <li>

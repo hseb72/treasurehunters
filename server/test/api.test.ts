@@ -159,7 +159,7 @@ describe('validation par géolocalisation (« Je suis arrivé »)', () => {
     expect((await seb.get('/api/hunts/1/play')).body.selfStart).toBe(false);
   });
 
-  it('exige des coordonnées sur chaque étape pour publier une chasse géolocalisée', async () => {
+  it('exige des coordonnées sur chaque étape pour ouvrir les inscriptions d’une chasse géolocalisée', async () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
     const hunt = (
       await camille.post('/api/hunts', {
