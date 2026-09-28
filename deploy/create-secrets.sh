@@ -3,7 +3,8 @@
 # docs/deployment/INSTALL-K3S.md §5b). Aucun secret n'est versionné dans ce dépôt.
 #
 #   [DB_PASSWORD=<mot de passe>] [ANTHROPIC_API_KEY=<clé>] [ANTHROPIC_WORKSPACE_ID=<wrkspc_…>] \
-#   [PHOTO_S3_SECRET_KEY=<clé MinIO>] ./deploy/create-secrets.sh
+#   [PHOTO_S3_SECRET_KEY=<clé MinIO>] \
+#   [STRIPE_SECRET_KEY=<sk_…>] [STRIPE_WEBHOOK_SECRET=<whsec_…>] ./deploy/create-secrets.sh
 #
 # DB_PASSWORD, si absent, est lu dans le cluster (Secret database/database-tenant-keys,
 # clé `treasurehunters`) : c'est la valeur que le socle donne au rôle PostgreSQL,
@@ -11,6 +12,10 @@
 #
 # ANTHROPIC_API_KEY (facultative) active la génération de chasses (conception § 11).
 # Absente, la clé déjà présente dans le Secret est conservée.
+# STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET (facultatives, ensemble) activent le paiement
+# (conception § 20) ; sans elles, les extensions restent offertes. Mêmes règles de
+# conservation que la clé Anthropic. Le secret de webhook est celui de l'endpoint
+# https://…/api/payments/webhook déclaré dans le tableau de bord Stripe.
 # ANTHROPIC_WORKSPACE_ID (facultatif) : exigé par l'API quand la clé n'est rattachée
 # à aucun workspace (« This API key is not scoped to a workspace »). Même règle de
 # conservation que la clé.
@@ -90,6 +95,24 @@ if [[ -n "$ANTHROPIC_WORKSPACE_ID" ]] && ! LC_ALL=C grep -qE '^wrkspc_[A-Za-z0-9
   exit 1
 fi
 [[ -z "$ANTHROPIC_WORKSPACE_ID" ]] || args+=(--from-literal=ANTHROPIC_WORKSPACE_ID="$ANTHROPIC_WORKSPACE_ID")
+
+# Paiement (§ 20) : les deux valeurs vont ensemble, sinon l'API laisse le paiement désactivé.
+STRIPE_SECRET_KEY="${STRIPE_SECRET_KEY:-$(secret_value "$NS" "$NAME" STRIPE_SECRET_KEY)}"
+STRIPE_WEBHOOK_SECRET="${STRIPE_WEBHOOK_SECRET:-$(secret_value "$NS" "$NAME" STRIPE_WEBHOOK_SECRET)}"
+if [[ -n "$STRIPE_SECRET_KEY" ]] && ! LC_ALL=C grep -qE '^(sk|rk)_(live|test)_[A-Za-z0-9]{16,}$' <<<"$STRIPE_SECRET_KEY"; then
+  echo "✗ STRIPE_SECRET_KEY ne ressemble pas à une clé secrète Stripe (sk_live_… ou sk_test_…)." >&2
+  exit 1
+fi
+if [[ -n "$STRIPE_WEBHOOK_SECRET" ]] && ! LC_ALL=C grep -qE '^whsec_[A-Za-z0-9]{16,}$' <<<"$STRIPE_WEBHOOK_SECRET"; then
+  echo "✗ STRIPE_WEBHOOK_SECRET ne ressemble pas à un secret de webhook Stripe (whsec_…)." >&2
+  exit 1
+fi
+if [[ -n "$STRIPE_SECRET_KEY" && -n "$STRIPE_WEBHOOK_SECRET" ]]; then
+  args+=(--from-literal=STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" --from-literal=STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET")
+  echo "ℹ Clés Stripe présentes : paiement activé."
+else
+  echo "ℹ Clés Stripe absentes ou incomplètes : paiement désactivé (extensions offertes)."
+fi
 
 manifest="$(kubectl -n "$NS" create secret generic "$NAME" "${args[@]}" --dry-run=client -o yaml)"
 
