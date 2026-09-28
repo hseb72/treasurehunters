@@ -7,9 +7,9 @@ import { Souvenir } from '@shared/models';
 import { skinById } from '@shared/skins';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
-import { ShareLink } from '../../core/share';
 import { DomTranslator } from '../../core/dom-translator';
 import { SkinDirective } from '../../shared/skin';
+import { Dare } from '../../shared/dare-dialog';
 import { drawSouvenir, readStyle, SOUVENIR_HEIGHT, SOUVENIR_WIDTH, souvenirTime } from './souvenir-drawing';
 
 /**
@@ -26,7 +26,7 @@ import { drawSouvenir, readStyle, SOUVENIR_HEIGHT, SOUVENIR_WIDTH, souvenirTime 
 export class SouvenirPage {
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
-  private readonly shareLink = inject(ShareLink);
+  private readonly dareDialog = inject(Dare);
   private readonly i18n = inject(DomTranslator);
 
   readonly id = input.required({ transform: numberAttribute });
@@ -86,8 +86,7 @@ export class SouvenirPage {
 
   /** Défi « bats mon temps » (§ 28) : un lien vers la fiche, avec le temps de cette partie. */
   protected dare(s: Souvenir): void {
-    const url = `${location.origin}/catalog/${s.catalogId}?defi=${s.huntId}`;
-    void this.shareLink.share(s.huntName, this.i18n.t(`J'ai trouvé le trésor de « ${s.huntName} » en ${souvenirTime(s.time)} : sauras-tu faire mieux ?`), url);
+    if (s.catalogId) this.dareDialog.open(s.catalogId, s.huntId, s.huntName);
   }
 
   protected fileName(s: Souvenir): string {

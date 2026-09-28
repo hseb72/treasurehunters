@@ -50,6 +50,15 @@ interface Run {
           </p>
         </section>
 
+        @if (unstable().length) {
+          <section class="surface warn" role="note">
+            @for (r of unstable(); track r.stepId) {
+              <p class="small"><mat-icon inline>warning</mat-icon> <strong>Étape {{ r.order }} ({{ r.title }}) : GPS instable.</strong> {{ r.reasons.join(' ; ') }}.</p>
+            }
+            <p class="small muted">Déplacez le point vers un endroit plus dégagé, élargissez le rayon de validation, ou ajoutez une entrée (onglet Étapes).</p>
+          </section>
+        }
+
         @if (!run()) {
           <section class="surface center">
             <p>Commencez au point de départ{{ startName() ? ' : ' + startName() : '' }}.</p>
@@ -82,6 +91,24 @@ interface Run {
               </details>
             }
             <p class="small"><mat-icon inline>flag</mat-icon> Lieu à trouver : <strong>{{ t.title }}</strong></p>
+            @if (live(); as l) {
+              <div class="live" [class.live--in]="l.ok" role="status" aria-live="polite">
+                <mat-icon>{{ l.ok ? 'my_location' : 'location_searching' }}</mat-icon>
+                <span>
+                  @if (l.distance !== null) {
+                    <strong>{{ l.distance }} m</strong> du point · rayon accepté {{ l.allowed }} m
+                  } @else {
+                    Lieu pas encore placé sur la carte
+                  }
+                  <span class="muted"> · précision ±{{ l.accuracy }} m</span>
+                </span>
+                @if (l.ok) {
+                  <span class="in">Dans la zone</span>
+                }
+              </div>
+            } @else if (geo() || t.latitude !== null) {
+              <p class="small muted"><mat-icon inline>satellite_alt</mat-icon> Recherche de votre position…</p>
+            }
             @if (t.puzzle; as pz) {
               <p class="small"><mat-icon inline>extension</mat-icon> Épreuve sur place : {{ pz.prompt }} — réponse : <strong>{{ pz.answer }}</strong></p>
             }
@@ -133,6 +160,26 @@ interface Run {
           </section>
         }
 
+        @if (run() && overview().length) {
+          <section class="surface">
+            <h3 class="section-title">État des étapes</h3>
+            <ol class="overview">
+              @for (o of overview(); track o.order) {
+                <li [class]="'ov ov--' + o.state">
+                  <span class="leg-order">{{ o.order }}</span>
+                  <span class="leg-title">{{ o.title }}</span>
+                  <span class="small muted">{{ o.label }}</span>
+                  @if (o.reliability; as rel) {
+                    <span class="small" [class.error-text]="rel.unstable">
+                      GPS : {{ rel.triggered }}/{{ rel.tests + rel.plays }} déclenché{{ rel.triggered > 1 ? 's' : '' }}{{ rel.far ? ', dont ' + rel.far + ' à plus de 20 m' : '' }}
+                    </span>
+                  }
+                </li>
+              }
+            </ol>
+          </section>
+        }
+
         @if (run(); as r) {
           @if (r.legs.length) {
             <section class="surface">
@@ -174,6 +221,17 @@ interface Run {
     .legs li { display: grid; grid-template-columns: 28px 1fr auto; gap: 2px 8px; align-items: baseline; }
     .legs li > :last-child { grid-column: 2 / -1; }
     .leg-order { font-weight: 700; color: var(--th-primary); }
+    .warn { border: 2px solid var(--th-accent); }
+    .warn p { margin: 0 0 4px; }
+    .live { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; border-radius: 10px; background: var(--th-surface-sunken); font-size: 0.9rem; }
+    .live mat-icon { color: var(--th-primary); }
+    .live--in { background: color-mix(in srgb, var(--th-success) 14%, transparent); }
+    .live--in mat-icon, .live .in { color: var(--th-success); font-weight: 600; }
+    .overview { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .overview li { display: grid; grid-template-columns: 28px 1fr auto; gap: 2px 8px; align-items: baseline; }
+    .overview li > :nth-child(4) { grid-column: 2 / -1; }
+    .ov--done .leg-title { color: var(--th-ink-soft); }
+    .ov--current .leg-title { font-weight: 700; }
   `,
 })
 export class RehearsalPage {
@@ -221,6 +279,45 @@ export class RehearsalPage {
     const end = r?.legs.at(-1)?.at;
     return r && end ? clock(end - r.startedAt) : '';
   });
+  /** Fiabilité GPS de chaque étape (§ 42) : tests de l'auteur et arrivées des joueurs. */
+  protected readonly reliability = rxResource({
+    params: () => this.workspace.huntId() || undefined,
+    stream: ({ params }) => this.api.gpsReliability(params),
+    defaultValue: [],
+  });
+  protected readonly unstable = computed(() => this.reliability.value().filter((r) => r.unstable));
+
+  /** Position suivie en direct pendant la répétition, et ce qu'en dirait la validation. */
+  private readonly position = signal<{ lat: number; lng: number; accuracy: number } | null>(null);
+  protected readonly live = computed(() => {
+    const p = this.position();
+    const t = this.target();
+    const h = this.hunt();
+    if (!p || !t || !h) return null;
+    const c = arrivalCheck(t, h, p);
+    return { accuracy: Math.round(p.accuracy), distance: c?.distance ?? null, allowed: c?.allowed ?? null, ok: c?.ok ?? false };
+  });
+
+  /** Toutes les étapes : passées, en cours, à venir, avec leur fiabilité GPS. */
+  protected readonly overview = computed(() => {
+    const r = this.run();
+    const current = this.target()?.order ?? Infinity;
+    return this.steps
+      .value()
+      .filter((s) => s.order > 0 && s.order <= this.final())
+      .map((s) => {
+        const leg = r?.legs.find((l) => l.order === s.order);
+        const state = leg ? 'done' : s.order === current ? 'current' : 'todo';
+        return {
+          order: s.order,
+          title: s.title,
+          state,
+          label: leg ? (leg.skipped ? 'passée' : leg.ok === false && !leg.moved ? 'trop loin' : 'faite') : state === 'current' ? 'en cours' : 'à venir',
+          reliability: this.reliability.value().find((x) => x.stepId === s.id && x.tests + x.plays > 0) ?? null,
+        };
+      });
+  });
+
   protected readonly problems = computed(() => this.run()?.legs.filter((l) => l.ok === false && !l.moved).length ?? 0);
   protected readonly km = computed(() => {
     const placed = this.steps.value().filter((s) => s.latitude !== null && s.longitude !== null);
@@ -254,7 +351,25 @@ export class RehearsalPage {
       if (id) this.run.set(load(id));
     });
     const timer = setInterval(() => this.now.set(Date.now()), 15_000);
-    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+    // Suivi GPS en direct pendant la répétition (§ 42).
+    let watch: number | null = null;
+    effect(() => {
+      const running = !!this.run() && !!this.target();
+      if (running && watch === null && 'geolocation' in navigator) {
+        watch = navigator.geolocation.watchPosition(
+          (p) => this.position.set({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
+          () => this.position.set(null),
+          { enableHighAccuracy: true, maximumAge: 5_000 },
+        );
+      } else if (!running && watch !== null) {
+        navigator.geolocation.clearWatch(watch);
+        watch = null;
+      }
+    });
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      if (watch !== null) navigator.geolocation.clearWatch(watch);
+    });
   }
 
   protected begin(): void {
@@ -276,6 +391,8 @@ export class RehearsalPage {
       if (!c) this.notify.error(new Error('Ce lieu n’est pas placé sur la carte : placez-le depuis l’onglet Étapes.'));
       this.check.set(c);
       this.lastPos = pos;
+      // Noté pour la fiabilité GPS de l'étape ; la répétition continue même hors réseau.
+      if (c) this.api.testStep(t.id, pos).subscribe({ next: () => this.reliability.reload(), error: () => undefined });
     } catch (e) {
       this.notify.error(e);
     } finally {

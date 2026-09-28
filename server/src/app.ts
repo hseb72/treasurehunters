@@ -16,7 +16,9 @@ import { PaymentProvider, StripeProvider } from './payments/stripe.js';
 import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
-import { PRACTICAL_IDS } from '../../shared/practical.js';
+import { LIST_ICONS } from '../../shared/lists.js';
+import { TEAM_ROLE_IDS } from '../../shared/roles.js';
+import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -283,6 +285,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   });
   app.get('/api/me', async (req) => service.me(req.viewer));
   app.get('/api/me/journal', async (req) => service.journal(req.viewer));
+  app.get('/api/me/in-progress', async (req) => service.inProgress(req.viewer));
   app.patch('/api/me', async (req) => {
     const b = z.object({ nickname: text(50).min(1), email: z.email(), rateable: z.boolean() }).partial().parse(req.body);
     return service.updateMe(req.viewer, b);
@@ -337,7 +340,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.post('/api/steps/:id/assist', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
     const body = z
       .object({
-        action: z.enum(['rephrase', 'easier', 'harder', 'hints', 'review']),
+        action: z.enum(['rephrase', 'easier', 'harder', 'hints', 'review', 'diagnose']),
         instructions: z.string().max(5000),
         hints: z.array(z.string().max(1000)).max(3).default([]),
       })
@@ -347,6 +350,14 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
 
   /* ----- Équipes */
   app.get('/api/hunts/:id/teams', async (req) => service.getTeams(req.viewer, idParams.parse(req.params).id));
+  /* ----- Mode test (§ 42) */
+  const position = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(10_000) });
+  app.post('/api/steps/:id/test', async (req) => service.testStep(req.viewer, idParams.parse(req.params).id, position.parse(req.body)));
+  app.get('/api/hunts/:id/gps', async (req) => service.gpsReliability(req.viewer, idParams.parse(req.params).id));
+  app.put('/api/teams/:id/role', async (req) => {
+    const body = z.object({ role: z.enum(TEAM_ROLE_IDS).nullable(), hunterId: id.optional() }).parse(req.body);
+    return service.setRole(req.viewer, idParams.parse(req.params).id, body.role, body.hunterId);
+  });
   app.post('/api/hunts/:id/teams', async (req, reply) => {
     const { name } = z.object({ name: text(255).min(1) }).parse(req.body);
     return reply.status(201).send(await service.createTeam(req.viewer, idParams.parse(req.params).id, name));
@@ -419,6 +430,11 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         lng: z.coerce.number().min(-180).max(180),
         radius: z.coerce.number().positive().max(500),
         practical: list(PRACTICAL_IDS),
+        audience: list(AUDIENCE_IDS),
+        setting: list(SETTING_IDS),
+        price: z.enum(['free', 'paid']),
+        maxKm: z.coerce.number().positive().max(500),
+        session: z.enum(['today', 'week']),
       })
       .partial()
       .parse(req.query);
@@ -426,6 +442,52 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const near = lat !== undefined && lng !== undefined ? { lat, lng } : undefined;
     // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
     return service.listCatalog(req.viewer, { ...rest, near, mine: !!q.mine, autonomous: !!q.autonomous });
+  });
+  /* ----- Favoris et listes (§ 38) */
+  const lists = service.lists;
+  const listFields = { name: z.string().trim().min(1).max(60), icon: z.enum(LIST_ICONS as [string, ...string[]]) };
+  app.get('/api/me/lists', async (req) => lists.mine(req.viewer));
+  app.post('/api/lists', async (req, reply) => reply.status(201).send(await lists.create(req.viewer, z.object(listFields).parse(req.body))));
+  app.post('/api/lists/join', async (req) => lists.join(req.viewer, z.object({ code: z.string().trim().min(4).max(12) }).parse(req.body).code));
+  app.get('/api/lists/:id', async (req) => lists.get(req.viewer, idParams.parse(req.params).id));
+  app.patch('/api/lists/:id', async (req) =>
+    lists.update(req.viewer, idParams.parse(req.params).id, z.object({ ...listFields, shared: z.boolean() }).partial().parse(req.body)),
+  );
+  app.delete('/api/lists/:id', async (req, reply) => {
+    await lists.remove(req.viewer, idParams.parse(req.params).id);
+    return reply.status(204).send();
+  });
+  app.delete('/api/lists/:id/membership', async (req, reply) => {
+    await lists.leave(req.viewer, idParams.parse(req.params).id);
+    return reply.status(204).send();
+  });
+  const itemParams = z.object({ id, catalogId: id });
+  app.put('/api/lists/:id/items/:catalogId', async (req) => {
+    const p = itemParams.parse(req.params);
+    return lists.add(req.viewer, p.id, p.catalogId);
+  });
+  app.delete('/api/lists/:id/items/:catalogId', async (req) => {
+    const p = itemParams.parse(req.params);
+    return lists.drop(req.viewer, p.id, p.catalogId);
+  });
+
+  app.get('/api/catalog/surprise', async (req) => {
+    const q = z
+      .object({
+        lat: z.coerce.number().min(-90).max(90),
+        lng: z.coerce.number().min(-180).max(180),
+        radius: z.coerce.number().positive().max(500),
+        minutes: z.coerce.number().int().min(15).max(1440),
+        exclude: z
+          .string()
+          .max(200)
+          .transform((s) => s.split(',').filter(Boolean).map(Number))
+          .pipe(z.array(z.number().int().positive()).max(30)),
+      })
+      .partial()
+      .parse(req.query);
+    const { lat, lng, ...rest } = q;
+    return service.surprise(req.viewer, { ...rest, near: lat !== undefined && lng !== undefined ? { lat, lng } : undefined });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
   /* ----- Signalements et statistiques d'étape (§ 22) */
@@ -471,7 +533,15 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.post('/api/reports/:id/resolve', async (req) =>
     service.resolveReport(req.viewer, idParams.parse(req.params).id, z.object({ resolved: z.boolean() }).parse(req.body).resolved),
   );
-  app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.post('/api/catalog/:id/play', async (req, reply) => {
+    const { challenge } = z.object({ challenge: id.optional() }).parse(req.body ?? {});
+    return reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id, challenge));
+  });
+  app.put('/api/catalog/:id/challenge/:huntId', async (req) => {
+    const p = z.object({ id, huntId: id }).parse(req.params);
+    const { message } = z.object({ message: z.string().max(200).nullable() }).parse(req.body);
+    return service.setChallenge(req.viewer, p.id, p.huntId, message);
+  });
   app.get('/api/catalog/:id/challenge/:huntId', async (req) => {
     const p = z.object({ id, huntId: id }).parse(req.params);
     return service.challenge(req.viewer, p.id, p.huntId);
@@ -495,6 +565,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
           .transform((t) => [...new Set(t)])
           .optional(),
         minAge: z.number().int().min(2).max(18).nullable().optional(),
+        audience: z
+          .array(z.enum(AUDIENCE_IDS))
+          .max(AUDIENCE_IDS.length)
+          .transform((t) => [...new Set(t)])
+          .optional(),
+        setting: z.enum(SETTING_IDS).nullable().optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));

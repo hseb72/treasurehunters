@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ASSIST_ACTIONS, AssistAction, AssistSuggestion } from '@shared/assist';
+import { AssistAction, AssistSuggestion, EDITOR_ACTIONS } from '@shared/assist';
 import { HuntApi } from '../../core/api';
 import { AssistMeter } from '../../core/assist-meter';
 import { AssistMeterView } from '../../shared/assist-meter';
@@ -96,7 +96,7 @@ export class AssistPanel {
   readonly applyInstructions = output<string>();
   readonly applyHints = output<string[]>();
 
-  protected readonly actions = ASSIST_ACTIONS;
+  protected readonly actions = EDITOR_ACTIONS;
   protected readonly busy = signal<AssistAction | null>(null);
   protected readonly suggestion = signal<AssistSuggestion | null>(null);
   protected readonly error = signal<string | null>(null);

@@ -167,7 +167,7 @@ export async function stepByToken(db: Db, token: string): Promise<Step | null> {
 
 const TEAM_SELECT = `
   SELECT t.*,
-         coalesce(json_agg(json_build_object('hunterId', m.thr_hunter_htr, 'nickname', u.htr_nickname) ORDER BY m.thr_id)
+         coalesce(json_agg(json_build_object('hunterId', m.thr_hunter_htr, 'nickname', u.htr_nickname, 'role', m.thr_role) ORDER BY m.thr_id)
                   FILTER (WHERE m.thr_id IS NOT NULL), '[]') AS members
   FROM th_teams t
   LEFT JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id

@@ -4,7 +4,11 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
-import { PracticalTag } from '@shared/practical';
+import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
+import { Surprise, SurpriseQuery } from '@shared/surprise';
+import { TrackList, TrackListDetail } from '@shared/lists';
+import { TeamRole } from '@shared/roles';
+import { StepReliability } from '@shared/gps';
 import { ExplorerJournal } from '@shared/journal';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
@@ -42,6 +46,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  GameInProgress,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -67,6 +72,13 @@ export interface CatalogQuery {
   radius?: number;
   /** Repères pratiques exigés (§ 26). */
   practical?: PracticalTag[];
+  /** Je cherche une Secret Track… (§ 36) : l'un de ces publics, ce cadre, prix, longueur maximale en km. */
+  audience?: AudienceTag[];
+  setting?: Setting[];
+  price?: 'free' | 'paid';
+  maxKm?: number;
+  /** Avec une session publique aujourd'hui ou dans la semaine (§ 40). */
+  session?: 'today' | 'week';
 }
 
 /**
@@ -99,6 +111,12 @@ export abstract class HuntApi {
   abstract leaveHunt(huntId: number): Observable<void>;
   abstract setStartOrder(huntId: number, teamIds: number[]): Observable<Team[]>;
   abstract delayTeam(teamId: number, minutes: number): Observable<Team>;
+  /* ---------- Mode test (§ 42) ---------- */
+  /** Vérification de l'auteur en répétition, notée pour la fiabilité GPS de l'étape. */
+  abstract testStep(stepId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<{ distance: number; allowed: number; ok: boolean }>;
+  abstract gpsReliability(huntId: number): Observable<StepReliability[]>;
+  /** Rôle dans l'équipe (§ 41) : le sien, ou celui d'un équipier pour le créateur de l'équipe. */
+  abstract setRole(teamId: number, role: TeamRole | null, hunterId?: number): Observable<Team>;
 
   abstract getPlay(huntId: number): Observable<PlayState>;
   abstract revealHint(huntId: number): Observable<PlayState>;
@@ -187,14 +205,19 @@ export abstract class HuntApi {
   /** mine : mes publications ; hunt : celles d'une de mes chasses (retirées comprises). */
   abstract listCatalog(opts?: CatalogQuery): Observable<CatalogEntry[]>;
   abstract getCatalogEntry(id: number): Observable<CatalogDetail>;
+  /** Surprends-moi (§ 37) : une Secret Track jouable en autonomie, choisie pour le joueur. */
+  abstract surprise(q: SurpriseQuery): Observable<Surprise>;
   /** Crée un brouillon à partir d'une version du catalogue. */
   abstract copyFromCatalog(id: number): Observable<Hunt>;
   abstract withdrawFromCatalog(id: number): Observable<CatalogDetail>;
   /** Jouer une chasse du catalogue en autonomie : la partie du joueur, à lancer sur place. */
-  abstract playFromCatalog(id: number): Observable<Hunt>;
+  /** `challenge` : la partie dont on relève le défi (§ 39). */
+  abstract playFromCatalog(id: number, challenge?: number): Observable<Hunt>;
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
+  /** Lancer le défi depuis sa partie finie, avec un mot (§ 39). */
+  abstract setChallenge(id: number, huntId: number, message: string | null): Observable<Challenge>;
   /* ---------- Version anglaise (§ 33) ---------- */
   /** Traductions du contenu visible (partie, fiches du catalogue) : texte français → traduction. */
   abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Observable<Record<string, string>>;
@@ -205,6 +228,21 @@ export abstract class HuntApi {
   /** Rejoue les actions jouées sans réseau. */
   abstract offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }>;
 
+  /* ---------- Favoris et listes (§ 38) ---------- */
+  /** Listes du joueur, « À faire » d'abord (créée d'office). */
+  abstract myLists(): Observable<TrackList[]>;
+  abstract getList(id: number): Observable<TrackListDetail>;
+  abstract createList(name: string, icon: string): Observable<TrackList>;
+  /** Renommer, changer d'icône, partager (code) ou cesser de partager. */
+  abstract updateList(id: number, data: { name?: string; icon?: string; shared?: boolean }): Observable<TrackList>;
+  abstract deleteList(id: number): Observable<void>;
+  abstract joinList(code: string): Observable<TrackList>;
+  abstract leaveList(id: number): Observable<void>;
+  abstract listAdd(id: number, catalogId: number): Observable<TrackList>;
+  abstract listRemove(id: number, catalogId: number): Observable<TrackList>;
+
+  /** Parties commencées et pas finies, à reprendre (§ 35). */
+  abstract getInProgress(): Observable<GameInProgress[]>;
   /** Carnet d'explorateur du joueur (§ 29). */
   abstract getJournal(): Observable<ExplorerJournal>;
   /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */

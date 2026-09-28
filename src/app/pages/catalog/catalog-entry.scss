@@ -121,4 +121,50 @@
   border: 2px solid var(--th-accent);
   > mat-icon { color: var(--th-accent); flex: none; }
   p { margin: 4px 0; }
+  blockquote { margin: 6px 0; font-style: italic; color: var(--th-ink); }
+  .takers-title { font-weight: 600; margin-top: 10px; }
+  .takers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .takers li { display: flex; gap: 10px; flex-wrap: wrap; }
+  .takers li.me { font-weight: 600; }
+  .verdict { color: var(--th-ink-soft); }
+  .verdict.won { color: var(--th-success); font-weight: 600; }
+}
+
+/* En un coup d'œil (§ 35) */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--th-surface-sunken);
+  }
+  mat-icon { color: var(--th-primary); width: 20px; height: 20px; font-size: 20px; }
+  .small { margin-left: 4px; }
+}
+
+.entry-lists { display: flex; justify-content: flex-end; margin-top: -8px; }
+
+/* Prochaines sessions (§ 40) */
+.sessions ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.session {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--th-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--th-ink);
+  .when::first-letter { text-transform: uppercase; }
+  .name, .small { grid-column: 1; }
+  .go, .stamp { grid-column: 2; grid-row: 1 / span 3; align-self: center; font-weight: 600; color: var(--th-primary-light); }
+  &:hover { border-color: var(--th-primary-light); }
 }

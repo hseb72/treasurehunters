@@ -1,3 +1,4 @@
+import { SurpriseMe } from '../../shared/surprise-dialog';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { DomTranslator } from '../../core/dom-translator';
@@ -9,6 +10,9 @@ import { Router, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Clock } from '../../core/clock';
+import { OfflineStore } from '../../core/offline-store';
+import { offlineView } from '@shared/offline';
+import { GameInProgress } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { formatClock } from '../../shared/format';
@@ -22,6 +26,8 @@ import { HuntCard } from '../../shared/hunt-card';
   styleUrl: './home.scss',
 })
 export class HomePage {
+  /** Surprends-moi (§ 37). */
+  protected readonly surpriseMe = inject(SurpriseMe);
   private readonly api = inject(HuntApi);
   private readonly router = inject(Router);
   private readonly notify = inject(Notify);
@@ -56,7 +62,42 @@ export class HomePage {
     if (ids.length) untracked(() => this.i18n.requestContent({ info: ids.slice(0, 30) }));
   });
 
-  protected readonly running = computed(() => this.mine.value().filter((h) => h.status === 'running'));
+  /* ---------- Reprendre une partie (§ 35) ---------- */
+
+  private readonly offline = inject(OfflineStore);
+  private readonly inProgress = rxResource({
+    params: () => this.session.user()?.id,
+    stream: ({ params }) => (params ? this.api.getInProgress() : of([])),
+    defaultValue: [],
+  });
+  /** Parties commencées et pas finies ; sans réseau, celles du téléphone (mode hors ligne). */
+  protected readonly games = computed<(GameInProgress & { offline: boolean })[]>(() => {
+    const list = this.inProgress.value().map((g) => ({ ...g, offline: false }));
+    for (const [id, e] of Object.entries(this.offline.entries())) {
+      const v = offlineView(e.pack, e.progress);
+      if (list.some((g) => g.huntId === Number(id)) || !e.progress.started || v.phase === 'finished') continue;
+      list.push({
+        huntId: Number(id),
+        name: e.pack.huntName,
+        skin: e.pack.skin,
+        location: '',
+        step: (v.target?.order ?? v.finalOrder),
+        totalSteps: v.finalOrder,
+        started: e.progress.started,
+        autonomous: e.pack.selfStart,
+        offline: true,
+      });
+    }
+    return list;
+  });
+
+  protected elapsed(iso: string): string {
+    const m = Math.max(0, Math.round((this.clock.now() - Date.parse(iso)) / 60_000));
+    return m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}` : `${m} min`;
+  }
+
+  /** Expéditions en cours où l'équipe n'est pas encore partie (sinon : « Ma partie en cours »). */
+  protected readonly running = computed(() => this.mine.value().filter((h) => h.status === 'running' && !this.games().some((g) => g.huntId === h.id)));
   protected readonly upcoming = computed(() => this.mine.value().filter((h) => h.status === 'published' && !h.surprise));
   /** Chasses surprises prêtes : le joueur donne le départ quand il veut. */
   protected readonly surprises = computed(() => this.mine.value().filter((h) => h.status === 'published' && h.surprise));

@@ -6,6 +6,8 @@ import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { ReportsList } from '../../shared/reports-list';
 import { StepStatsTable } from '../../shared/step-stats-table';
+import { StepDiagnosisPanel } from '../../shared/step-diagnosis';
+import { WorkspaceState } from './workspace-state';
 
 /**
  * Suivi d'une version partagée au catalogue (§ 22) : les problèmes signalés par les joueurs de
@@ -13,7 +15,7 @@ import { StepStatsTable } from '../../shared/step-stats-table';
  */
 @Component({
   selector: 'th-entry-follow-up',
-  imports: [MatIconModule, ReportsList, StepStatsTable],
+  imports: [MatIconModule, ReportsList, StepDiagnosisPanel, StepStatsTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="surface stack follow">
@@ -25,6 +27,7 @@ import { StepStatsTable } from '../../shared/step-stats-table';
       }
       <h3><mat-icon inline>insights</mat-icon> Étape par étape</h3>
       @if (stats.value(); as st) {
+        <th-step-diagnosis [stats]="st" [reports]="reports.value() ?? []" [durationMinutes]="entry().durationMinutes" [huntId]="workspace.huntId() || null" />
         <th-step-stats [stats]="st" />
       }
     </section>
@@ -37,6 +40,7 @@ import { StepStatsTable } from '../../shared/step-stats-table';
 export class EntryFollowUp {
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
+  protected readonly workspace = inject(WorkspaceState);
   readonly entry = input.required<CatalogEntry>();
   protected readonly reports = rxResource({ params: () => this.entry().id, stream: ({ params }) => this.api.catalogReports(params) });
   protected readonly stats = rxResource({ params: () => this.entry().id, stream: ({ params }) => this.api.catalogStats(params) });

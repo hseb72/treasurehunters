@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -8,13 +9,14 @@ import { SkinCatalog } from '../core/skin-catalog';
 import { Shop } from '../core/shop';
 import { priceLabel } from '@shared/store';
 import { Stars } from './stars';
-import { distanceLabel } from './distance';
+import { distanceLabel, kmLabel } from './distance';
+import { MEASURED_MIN } from '@shared/rules';
 import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
 @Component({
   selector: 'th-catalog-card',
-  imports: [MatIconModule, RouterLink, Stars],
+  imports: [DatePipe, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let e = entry();
@@ -42,7 +44,10 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
       <div class="row small meta">
         <span class="row"><mat-icon>route</mat-icon>{{ e.stepCount }} étapes</span>
-        @if (e.measuredMinutes !== null) {
+        @if (e.km) {
+          <span class="row" title="Longueur du parcours, à vol d'oiseau"><mat-icon>straighten</mat-icon>{{ km(e.km) }}</span>
+        }
+        @if (e.measuredMinutes !== null && e.finishers >= measuredMin) {
           <span class="row" title="Durée moyenne des équipes arrivées"><mat-icon>timer</mat-icon>jouée en {{ minutes(e.measuredMinutes) }}</span>
         }
         <span class="row"><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</span>
@@ -53,6 +58,9 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
         }
         @for (t of practicalOf(e.practical); track t.id) {
           <span class="row" [title]="t.hint"><mat-icon>{{ t.icon }}</mat-icon>{{ t.label }}</span>
+        }
+        @if (e.nextSession) {
+          <span class="row session" title="Prochaine session organisée"><mat-icon>event</mat-icon>session le {{ e.nextSession | date: 'd MMM' }}</span>
         }
         @if (e.price && shop.payments()) {
           <span class="row price"><mat-icon>sell</mat-icon>{{ priceOf(e.price) }}</span>
@@ -107,5 +115,7 @@ export class CatalogCard {
   protected readonly formula = TRAVEL_LABELS;
   protected readonly minutes = minutesLabel;
   protected readonly distance = distanceLabel;
+  protected readonly measuredMin = MEASURED_MIN;
+  protected readonly km = kmLabel;
   protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
 }

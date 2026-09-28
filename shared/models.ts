@@ -2,7 +2,8 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
-import type { PracticalTag } from './practical.js';
+import type { AudienceTag, PracticalTag, Setting } from './practical.js';
+import type { TeamRole } from './roles.js';
 import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
 import type { SkinManifest } from './skins.js';
 
@@ -123,6 +124,8 @@ export type PhotoShow = 'arrival' | 'clue';
 export interface Member {
   hunterId: number;
   nickname: string;
+  /** Rôle choisi dans l'équipe (§ 41) ; absent ou null : aucun. */
+  role?: TeamRole | null;
 }
 
 export interface Team {
@@ -224,6 +227,23 @@ export interface PlayState {
   puzzle: PlayPuzzle | null;
   /** Outil Carte : les lieux déjà trouvés par l'équipe, placés (null sans l'outil). */
   trail: { order: number; title: string; lat: number; lng: number }[] | null;
+}
+
+/* ---------- Reprendre une partie (§ 35) ---------- */
+
+/** Une partie commencée et pas finie, à reprendre depuis l'accueil. */
+export interface GameInProgress {
+  huntId: number;
+  name: string;
+  skin: string;
+  location: string;
+  /** Étape cherchée (1 à totalSteps). */
+  step: number;
+  totalSteps: number;
+  /** Départ de l'équipe. */
+  started: string;
+  /** Partie en autonomie d'une Secret Track du catalogue. */
+  autonomous: boolean;
 }
 
 /* ---------- Souvenir de fin de partie (§ 24) ---------- */
@@ -516,6 +536,16 @@ export interface CatalogEntry {
   practical: PracticalTag[];
   /** Âge conseillé ; null : tous âges. */
   minAge: number | null;
+  /** Longueur du parcours, en km à vol d'oiseau (§ 35) ; null sans lieux placés. */
+  km: number | null;
+  /** Équipes arrivées au bout : la durée constatée ne s'affiche qu'à partir de MEASURED_MIN. */
+  finishers: number;
+  /** Publics visés (§ 36) ; vide : non précisé. */
+  audience: AudienceTag[];
+  /** Dehors, dedans ou les deux ; null : non précisé. */
+  setting: Setting | null;
+  /** Prochaine session publique organisée de cette version (§ 40) : son début ; null s'il n'y en a pas. */
+  nextSession: string | null;
 }
 
 export interface CatalogReview {
@@ -538,6 +568,24 @@ export interface CatalogDetail extends CatalogEntry {
   myPlays: AutonomyPlay[];
   /** Problèmes signalés et pas encore traités par l'auteur (§ 22). */
   openReports: ReportNotice[];
+  /** Sessions publiques à venir ou en cours (§ 40). */
+  sessions: CatalogSession[];
+}
+
+/** Une session : une occurrence organisée, publique, d'une version du catalogue (§ 40). */
+export interface CatalogSession {
+  huntId: number;
+  name: string;
+  organizerNickname: string;
+  location: string;
+  begin: string;
+  end: string;
+  status: HuntStatus;
+  teams: number;
+  startMode: StartMode;
+  interval: number | null;
+  /** Le lecteur y est inscrit. */
+  mine: boolean;
 }
 
 /** Une partie en autonomie d'une chasse du catalogue : à lancer avant `until`, en cours, ou finie. */
@@ -567,6 +615,22 @@ export interface Challenge {
   rank: number;
   finishers: number;
   finished: string;
+  /** Défis étendus (§ 39) : qui l'a lancé, son mot, et ceux qui le relèvent. */
+  authorNickname: string | null;
+  message: string | null;
+  takers: ChallengeTaker[];
+}
+
+/** Une partie lancée depuis un défi. */
+export interface ChallengeTaker {
+  teamName: string;
+  status: 'waiting' | 'playing' | 'finished';
+  /** Temps pénalités comprises, une fois arrivée. */
+  time: number | null;
+  /** Défi battu (temps strictement meilleur) ; null tant que pas arrivée. */
+  beaten: boolean | null;
+  /** L'équipe du lecteur. */
+  mine: boolean;
 }
 
 export interface AutonomyRow {
@@ -596,6 +660,9 @@ export interface CatalogPublication {
   /** Repères pratiques (§ 26) ; absents = aucun. */
   practical?: PracticalTag[];
   minAge?: number | null;
+  /** Publics visés et cadre (§ 36) ; absents = non précisés. */
+  audience?: AudienceTag[];
+  setting?: Setting | null;
 }
 
 /** Avis d'un joueur sur une chasse jouée, après sa clôture. */
@@ -663,6 +730,8 @@ export interface StepStats {
   skipped: number;
   /** Jokers pris sur l'énigme qui mène à cette étape. */
   hints: number;
+  /** Équipes qui ont pris au moins un joker sur cette énigme (§ 43). */
+  hintTeams?: number;
   /** Temps moyen pour la trouver, en minutes (null sans donnée). */
   avgMinutes: number | null;
   /** Équipes restées bloquées sur cette énigme (parties terminées, équipe non arrivée). */

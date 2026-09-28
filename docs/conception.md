@@ -839,3 +839,83 @@ Pour les touristes, l'application parle anglais : d'office si le téléphone n'e
 ## 34. Nom et vocabulaire
 
 L'application s'appelle **SecretTracks** (le nom précédent était trop répandu). Dans l'interface, on ne crée plus des « chasses » mais des **Secret Tracks** (au féminin : « une Secret Track », « des Secret Tracks partagées ») ; en anglais, « a Secret Track ». Les organisations en présentiel gardent le nom d'« expédition ». Ce document garde le mot « chasse » pour désigner le jeu, et le code, la base, le dépôt et le déploiement leurs noms techniques (`hunt`, `th_*`, `treasurehunters`). Le compte système qui organise les parties en autonomie s'appelle désormais « SecretTracks » (migration `023_secrettracks.sql`).
+
+## 35. Reprendre une partie et fiche fidèle
+
+**Reprendre une partie.** L'accueil montre en tête « Ma partie en cours » pour chaque partie commencée et pas finie : nom, « Étape 7/12 · 43 min » (étape cherchée, temps depuis le départ), barre de progression et bouton « Reprendre » vers l'écran de jeu. Le serveur les donne par `GET /api/me/in-progress` (équipes du joueur parties, pas arrivées, chasse en cours) ; les parties téléchargées pour le hors-ligne (§ 32) sont reprises aussi depuis le téléphone, même sans réseau, et mènent au jeu hors ligne.
+
+**Fiche fidèle.** La fiche du catalogue ouvre sur un bandeau « En un coup d'œil » : ⏱ durée, 📏 longueur du parcours, 🧩 étapes, 🚶 déplacement, âge conseillé et ♿ accessibilité (repères pratiques, § 26). La longueur est la somme des distances à vol d'oiseau entre étapes successives, calculée à la publication (`cat_km`, migration `024_catalog_km.sql`). Tant que moins de `MEASURED_MIN` (3) équipes sont arrivées, la durée affichée est la durée **prévue** par l'auteur ; ensuite, c'est la durée **constatée** (moyenne des équipes arrivées), avec « en moyenne sur N équipes arrivées ». La carte du catalogue suit la même règle.
+
+## 36. Je cherche une Secret Track…
+
+Le catalogue devient un moteur de découverte. En tête, des **raccourcis** en pastilles : « Surprends-moi » (§ 37), « Maintenant, près d'ici » (jouables en autonomie autour du joueur, les plus proches d'abord), « Une session aujourd'hui » (§ 40), « Moins d'1 h », « 1 à 2 h », « 2 h et plus », « Moins de 3 km », « En famille », « Gratuites ». Chacun règle quelques critères ; un second appui les défait.
+
+Aux critères existants (déplacement, difficulté, durée, repères pratiques, près de moi) s'ajoutent :
+
+| Critère | Paramètre | Valeurs |
+|---|---|---|
+| Avec qui (l'un des publics) | `audience` | `family`, `couple`, `friends`, `solo`, `group` |
+| Où | `setting` | `outdoor`, `indoor`, `mixed` |
+| Prix | `price` | `free`, `paid` |
+| Longueur du parcours (km à vol d'oiseau, § 35) | `maxKm` | nombre |
+| Sessions organisées (§ 40) | `session` | `today`, `week` |
+
+L'auteur indique publics et cadre à la publication (« Pour qui, où ») ; la fiche les affiche (« Idéale en famille ou entre amis », « En extérieur »). Données : `cat_audience`, `cat_setting` (migration `025_catalog_audience.sql`) ; listes dans `shared/practical.ts`. La langue n'est pas un critère : toute Secret Track se joue en anglais par traduction (§ 33).
+
+## 37. Surprends-moi
+
+« On est là, on a deux heures, qu'est-ce qu'on fait ? » Le bouton « Surprends-moi » (accueil, catalogue) demande le temps disponible (1 h, 2 h, 3 h, peu importe) et la position du téléphone (jamais enregistrée), puis propose **une** Secret Track jouable en autonomie, avec ses raisons (« Départ à 0,4 km », « 1 h 24, dans votre temps », « Notée 4,5/5 », « Pas encore jouée »). « Une autre » en tire une nouvelle, sans reproposer les précédentes.
+
+`GET /api/catalog/surprise?lat=&lng=&radius=&minutes=&exclude=` : candidates à moins de 20 km (rayon réglable), dont la durée la plus fiable (constatée dès trois équipes arrivées, sinon prévue) tient dans le temps donné, à 15 minutes près ; écarte celles que le joueur a déjà finies ; classe par note (3,5 sans avis), bonus au déplacement que le joueur pratique le plus, malus à la distance ; tire au hasard parmi les cinq premières. Calcul commun : `shared/surprise.ts`.
+
+## 38. Favoris et listes
+
+Sur la fiche d'une Secret Track, le cœur **« À faire »** la garde dans la liste du même nom, créée d'office pour chaque joueur ; le bouton voisin l'ajoute à ses autres listes ou à une nouvelle (« Week-end à Toulouse », « Châteaux », « Avec les enfants »…, avec une icône). Page **Mes listes** (`/listes`, menu du compte).
+
+Une liste se **partage** : son créateur obtient un code (et un lien `/listes?rejoindre=CODE`) ; ceux qui la rejoignent y ajoutent et en retirent des Secret Tracks. Seul le créateur la renomme, la supprime ou cesse de la partager (les membres en sortent alors). « À faire » ne se partage ni ne se supprime. Limites : 30 listes, 200 Secret Tracks par liste, 50 membres.
+
+API : `GET /api/me/lists`, `POST /api/lists`, `GET|PATCH|DELETE /api/lists/:id`, `PUT|DELETE /api/lists/:id/items/:catalogId`, `POST /api/lists/join`, `DELETE /api/lists/:id/membership` (`server/src/lists.ts`). Données : `th_lists`, `th_list_members`, `th_list_items` (migration `026_lists.sql`).
+
+## 39. Défis étendus
+
+Le défi « bats mon temps » (§ 28) devient une mécanique de partage. En le lançant (fiche ou souvenir), le joueur ajoute un mot facultatif ; le message partagé dit « Sébastien a terminé « Le mystère du château » en 1 h 12. Tu penses pouvoir faire mieux ? ». Sur la fiche ouverte par le lien, l'ami voit le mot, le temps à battre et le rang, et **relève le défi** : sa partie en autonomie est rattachée au défi. La fiche suit ensuite ceux qui l'ont relevé : pas encore partis, en cours, ou arrivés avec leur temps et « Défi battu ! » ou « Pas cette fois ».
+
+`PUT /api/catalog/:id/challenge/:huntId { message }` (l'équipe qui a joué la partie), `GET` du même chemin (mot, lanceur, `takers`), `POST /api/catalog/:id/play { challenge }`. Données : `th_challenges`, `th_hunts.hun_challenge_hun` (migration `027_challenges.sql`).
+
+## 40. Sessions
+
+Une Secret Track du catalogue peut se jouer librement toute l'année (autonomie) ou lors d'une **session** : une occurrence organisée, à date fixe, avec d'autres équipes, des départs communs ou échelonnés, et le classement de la session. Le moteur ne change pas : une session est une copie organisée (§ 13.2), ou la partie d'origine, **publique**, publiée ou en cours.
+
+La fiche liste les **prochaines sessions** (date, organisateur, équipes inscrites, « départs toutes les 10 min », « Inscrit » ou « S'inscrire » vers la page d'inscription) ; la carte du catalogue indique « session le 14 oct. » ; le filtre `session=today|week` et le raccourci « Une session aujourd'hui » les retrouvent. Le bloc « Organiser une session pour d'autres joueurs » de la fiche explique comment en créer une. `CatalogEntry.nextSession`, `CatalogDetail.sessions`.
+
+## 41. Rôles dans l'équipe
+
+Pour le côté rallye, facultatif : **capitaine** (tranche quand on hésite), **navigateur**, **lecteur** (lit les énigmes), **déchiffreur**, **photographe**. L'écran équipe (carnet de route, page de l'expédition) montre chaque membre et son rôle (« 🧭 Paul — navigation ») ; chacun choisit le sien, le créateur de l'équipe peut répartir ceux des autres. Un seul capitaine : en nommer un retire ce rôle au précédent. `PUT /api/teams/:id/role { role, hunterId? }` ; `thr_role` (migration `028_team_roles.sql`) ; liste dans `shared/roles.ts`.
+
+## 42. Mode test
+
+La répétition sur place (§ 30) devient l'outil de recette de l'auteur :
+
+- **en direct** pendant qu'il marche : distance au prochain point, rayon de validation accepté, précision du GPS, et « Dans la zone » dès que la validation marcherait ;
+- **état de chaque étape** : faite, en cours, à venir, avec sa fiabilité GPS ;
+- énigme, jokers et réponse attendue de l'épreuve, comme avant.
+
+Chaque « Je suis arrivé » de l'auteur (`POST /api/steps/:id/test`) et de chaque équipe est noté avec la distance et la précision annoncée (`th_geochecks`, migration `029_geochecks.sql`). `GET /api/hunts/:id/gps` en tire, par étape, la **fiabilité GPS** (`shared/gps.ts`) : déclenchements, dont ceux à plus de 20 m du point, refus, précision moyenne ; les parties en autonomie des versions publiées comptent aussi. Une étape est **instable** à partir de trois vérifications quand au moins 30 % des déclenchements se font à plus de 20 m, quand 30 % des tentatives sont refusées, ou quand la précision moyenne dépasse 25 m : « ⚠️ Étape 7 : GPS instable — 4 déclenchements sur 10 à plus de 20 m du point », avec les remèdes (déplacer le point, élargir le rayon, ajouter une entrée).
+
+## 43. Étapes problématiques et analyse IA
+
+Au-dessus des statistiques par étape (onglet Direct, suivi d'une version au catalogue), l'auteur voit les étapes qui **semblent poser problème** (`shared/diagnosis.ts`, à partir de trois équipes) et pourquoi :
+
+- au moins 35 % des équipes prennent un joker sur l'énigme qui y mène (`StepStats.hintTeams`) ;
+- temps moyen au moins double du temps prévu par étape (durée annoncée répartie sur les étapes) et 4 minutes de plus ;
+- au moins 15 % abandonnent, ou restent bloquées ;
+- au moins deux signalements ouverts ;
+- GPS instable (§ 42).
+
+**Analyser avec l'IA** (si l'assistant est activé, § 25) : l'IA reçoit l'énigme, les jokers, le lieu à trouver et **ce que montrent les joueurs** (ces signaux, les chiffres de l'étape, les signalements et leurs messages, calculés par le serveur sur la Secret Track et les parties en autonomie de ses versions). Elle explique la cause probable (« le terme “ancienne porte” désigne deux lieux ») et propose une énigme corrigée ; « Remplacer mon énigme » l'enregistre dans la Secret Track de l'auteur, qui partage ensuite une nouvelle version au catalogue. L'analyse compte une suggestion (action `diagnose`, migration `030_assist_diagnose.sql`).
+
+Joueurs → données → diagnostic → IA → amélioration → nouvelle version.
+
+## 44. Identité graphique
+
+Pistes retenues pour la suite, sans changement dans ce lot : une identité **« rallye moderne »** (fond clair, noir et blanc et une couleur d'accent, carte au centre, gros numéro d'étape, distance, temps, équipe), proche de l'exploration outdoor mais neutre, pour accueillir aussi bien une chasse familiale qu'un rallye automobile, gastronomique ou d'entreprise. Le **tracé** A → ① → ② → ③ → 🏁 en serait le symbole, jusqu'au logo. Le coffre, la boussole et la carte ancienne restent des **skins** de chasse (§ 15), pas l'identité permanente de l'application.

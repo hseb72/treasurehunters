@@ -17,7 +17,7 @@ describe('assistUsage', () => {
       now,
     );
     expect(u).toMatchObject({ plan: 'base', limit: ASSIST_LIMITS.monthly, used: 3, remaining: ASSIST_LIMITS.monthly - 3, today: 1, blocked: null });
-    expect(u.byAction).toEqual({ rephrase: 1, easier: 0, harder: 0, hints: 1, review: 1 });
+    expect(u.byAction).toEqual({ rephrase: 1, easier: 0, harder: 0, hints: 1, review: 1, diagnose: 0 });
     expect(u.nextRefill).toBe(new Date(now + 10 * DAY).toISOString());
   });
 

@@ -1,4 +1,4 @@
-import { ageLabel, PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
+import { ageLabel, AUDIENCE_TAGS, AudienceTag, PRACTICAL_TAGS, PracticalTag, Setting, SETTINGS } from '@shared/practical';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -7,23 +7,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { priceLabel } from '@shared/store';
-import { ReportCategory } from '@shared/models';
+import { CatalogEntry, Challenge, ReportCategory } from '@shared/models';
 import { REPORT_CATEGORIES } from '@shared/reports';
-import { formatDuration } from '@shared/rules';
+import { formatDuration, MEASURED_MIN } from '@shared/rules';
+import { kmLabel } from '../../shared/distance';
 import { Shop } from '../../core/shop';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { Confirm } from '../../shared/confirm-dialog';
-import { ShareLink } from '../../core/share';
 import { DomTranslator } from '../../core/dom-translator';
 import { Stars } from '../../shared/stars';
+import { ListButton } from '../../shared/list-button';
+import { Dare } from '../../shared/dare-dialog';
 
 /** Fiche d'une version du catalogue : présentation, extrait, avis, versions, et copie. */
 @Component({
   selector: 'th-catalog-entry',
-  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, Stars],
+  imports: [DatePipe, ListButton, MatButtonModule, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-entry.html',
   styleUrl: './catalog-entry.scss',
@@ -31,7 +33,18 @@ import { Stars } from '../../shared/stars';
 export class CatalogEntryPage {
   /** Repères pratiques (§ 26). */
   protected readonly age = ageLabel;
+  protected readonly km = kmLabel;
+  /** Durée constatée, seulement quand assez d'équipes sont arrivées pour qu'elle dise vrai (§ 35). */
+  protected measured(e: CatalogEntry): number | null {
+    return e.measuredMinutes !== null && e.finishers >= MEASURED_MIN ? e.measuredMinutes : null;
+  }
   protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
+  /** « en famille, entre amis ou seul » (§ 36) ; null si l'auteur n'a rien précisé. */
+  protected readonly audienceOf = (ids: AudienceTag[]): string | null => {
+    const labels = AUDIENCE_TAGS.filter((t) => ids.includes(t.id)).map((t) => t.label.toLowerCase());
+    return labels.length ? (labels.length > 1 ? `${labels.slice(0, -1).join(', ')} ou ${labels.at(-1)}` : labels[0]!) : null;
+  };
+  protected readonly settingOf = (id: Setting | null) => SETTINGS.find((t) => t.id === id) ?? null;
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
   private readonly router = inject(Router);
@@ -41,7 +54,7 @@ export class CatalogEntryPage {
   readonly id = input.required({ transform: numberAttribute });
   /** « ?defi=12 » : un ami lance un défi « bats mon temps » avec sa partie (§ 28). */
   readonly defi = input<string | undefined>();
-  private readonly shareLink = inject(ShareLink);
+  private readonly dareDialog = inject(Dare);
   protected readonly challenge = rxResource({
     params: () => {
       const hunt = Number(this.defi());
@@ -54,14 +67,15 @@ export class CatalogEntryPage {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  /** Défier un ami avec sa dernière partie finie : un lien vers la fiche, avec son temps à battre. */
+  /** Défier un ami avec sa dernière partie finie : un mot, puis un lien vers la fiche avec son temps à battre (§ 39). */
   protected dare(): void {
     const e = this.entry.value();
     const last = this.finishedPlays()[0];
-    if (!e || !last) return;
-    const url = `${location.origin}/catalog/${e.id}?defi=${last.huntId}`;
-    void this.shareLink.share(e.title, this.i18n.t(`J'ai fini « ${e.title} » : sauras-tu battre mon temps ?`), url);
+    if (e && last) this.dareDialog.open(e.id, last.huntId, e.title);
   }
+
+  /** La partie du lecteur qui relève ce défi, s'il en a lancé une. */
+  protected readonly myTake = (c: Challenge) => c.takers.find((t) => t.mine) ?? null;
 
   protected readonly entry = rxResource({
     params: () => ({ id: this.id(), user: this.session.user()?.id }),
@@ -108,13 +122,14 @@ export class CatalogEntryPage {
   protected readonly clock = (seconds: number) => formatDuration(seconds);
 
   /** La partie du joueur : créée (ou retrouvée), puis son carnet de route, où il lancera le départ sur place. */
-  protected play(): void {
+  /** Venu par un lien de défi, le joueur le relève en jouant (§ 39). */
+  protected play(challenge = this.challenge.value()?.huntId): void {
     if (!this.session.loggedIn()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
     this.busy.set(true);
-    this.api.playFromCatalog(this.id()).subscribe({
+    this.api.playFromCatalog(this.id(), challenge).subscribe({
       next: (hunt) => {
         this.notify.info('Votre partie est prête : lancez le départ une fois au point de rendez-vous, aujourd’hui ou plus tard.', 6000);
         this.router.navigate(['/play', hunt.id]);

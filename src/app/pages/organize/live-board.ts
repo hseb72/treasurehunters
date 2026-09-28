@@ -14,13 +14,14 @@ import { formatClock } from '../../shared/format';
 import { PhotoReviewPanel } from './photo-review';
 import { ReportsList } from '../../shared/reports-list';
 import { StepStatsTable } from '../../shared/step-stats-table';
+import { StepDiagnosisPanel } from '../../shared/step-diagnosis';
 import { WorkspaceState } from './workspace-state';
 
 const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'th-live-board',
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, PhotoReviewPanel, RouterLink, ReportsList, StepStatsTable],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, PhotoReviewPanel, RouterLink, ReportsList, StepDiagnosisPanel, StepStatsTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './live-board.html',
   styleUrl: './live-board.scss',

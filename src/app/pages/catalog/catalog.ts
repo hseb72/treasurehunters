@@ -11,13 +11,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { debounceTime } from 'rxjs';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_MEANS } from '@shared/generation';
 import { Difficulty, Travel } from '@shared/models';
-import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
+import { AUDIENCE_TAGS, AudienceTag, PRACTICAL_TAGS, PracticalTag, Setting, SETTINGS } from '@shared/practical';
 import { CatalogQuery, HuntApi } from '../../core/api';
 import { CatalogCard } from '../../shared/catalog-card';
 import { CatalogMap } from '../../shared/catalog-map';
 import { currentPosition } from '../../core/geo';
 import { Notify } from '../../core/notify';
 import { DomTranslator } from '../../core/dom-translator';
+import { SurpriseMe } from '../../shared/surprise-dialog';
 
 /** Rayons proposés autour du joueur, en km (0 = partout, triées par distance). */
 const RADII = [2, 5, 10, 30, 0];
@@ -35,6 +36,8 @@ const DURATION_MAX = 360;
   styleUrl: './catalog.scss',
 })
 export class CatalogPage {
+  /** Surprends-moi (§ 37). */
+  protected readonly surpriseMe = inject(SurpriseMe);
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
 
@@ -48,6 +51,16 @@ export class CatalogPage {
   /** Repères pratiques exigés (§ 26). */
   protected readonly practical = signal<PracticalTag[]>([]);
   protected readonly practicalTags = PRACTICAL_TAGS;
+  /** Je cherche une Secret Track… (§ 36) : avec qui, où, prix, longueur. */
+  protected readonly audience = signal<AudienceTag[]>([]);
+  protected readonly audienceTags = AUDIENCE_TAGS;
+  protected readonly setting = signal<Setting[]>([]);
+  protected readonly settings = SETTINGS;
+  protected readonly price = signal<'free' | 'paid' | null>(null);
+  protected readonly maxKm = signal<number | null>(null);
+  protected readonly kms = [3, 5, 10];
+  /** Sessions organisées (§ 40) : aujourd'hui, ou cette semaine. */
+  protected readonly session = signal<'today' | 'week' | null>(null);
   protected readonly minDuration = signal(DURATION_MIN);
   protected readonly maxDuration = signal(DURATION_MAX);
   protected readonly durationBounds = { min: DURATION_MIN, max: DURATION_MAX };
@@ -69,8 +82,54 @@ export class CatalogPage {
   );
 
   protected readonly filtered = computed(
-    () => this.travel().length > 0 || this.difficulty().length > 0 || this.practical().length > 0 || this.minDuration() > DURATION_MIN || this.maxDuration() < DURATION_MAX,
+    () =>
+      this.travel().length > 0 ||
+      this.difficulty().length > 0 ||
+      this.practical().length > 0 ||
+      this.audience().length > 0 ||
+      this.setting().length > 0 ||
+      this.price() !== null ||
+      this.maxKm() !== null ||
+      this.session() !== null ||
+      this.minDuration() > DURATION_MIN ||
+      this.maxDuration() < DURATION_MAX,
   );
+
+  /** Raccourcis « Je cherche une Secret Track… » : chacun règle (ou défait) quelques critères. */
+  protected readonly presets: { id: string; label: string; icon: string; on: () => boolean; toggle: () => void }[] = [
+    {
+      id: 'now',
+      label: 'Maintenant, près d’ici',
+      icon: 'bolt',
+      on: () => this.autonomous() && !!this.near(),
+      toggle: () => {
+        if (this.autonomous() && this.near()) return this.forget();
+        this.autonomous.set(true);
+        void this.locate();
+      },
+    },
+    { id: 'today', label: 'Une session aujourd’hui', icon: 'event', on: () => this.session() === 'today', toggle: () => this.session.set(this.session() === 'today' ? null : 'today') },
+    { id: 'short', label: 'Moins d’1 h', icon: 'timer', on: () => this.isDuration(DURATION_MIN, 60), toggle: () => this.toggleDuration(DURATION_MIN, 60) },
+    { id: 'mid', label: '1 à 2 h', icon: 'schedule', on: () => this.isDuration(60, 120), toggle: () => this.toggleDuration(60, 120) },
+    { id: 'long', label: '2 h et plus', icon: 'hourglass_bottom', on: () => this.isDuration(120, DURATION_MAX), toggle: () => this.toggleDuration(120, DURATION_MAX) },
+    { id: 'km', label: 'Moins de 3 km', icon: 'straighten', on: () => this.maxKm() === 3, toggle: () => this.maxKm.set(this.maxKm() === 3 ? null : 3) },
+    { id: 'family', label: 'En famille', icon: 'family_restroom', on: () => this.audience().includes('family'), toggle: () => this.toggleAudience('family') },
+    { id: 'free', label: 'Gratuites', icon: 'money_off', on: () => this.price() === 'free', toggle: () => this.price.set(this.price() === 'free' ? null : 'free') },
+  ];
+
+  private isDuration(min: number, max: number): boolean {
+    return this.minDuration() === min && this.maxDuration() === max;
+  }
+
+  private toggleDuration(min: number, max: number): void {
+    const on = this.isDuration(min, max);
+    this.minDuration.set(on ? DURATION_MIN : min);
+    this.maxDuration.set(on ? DURATION_MAX : max);
+  }
+
+  private toggleAudience(a: AudienceTag): void {
+    this.audience.update((l) => (l.includes(a) ? l.filter((x) => x !== a) : [...l, a]));
+  }
 
   protected readonly entries = rxResource({
     params: (): CatalogQuery => {
@@ -84,6 +143,11 @@ export class CatalogPage {
         travel: this.travel(),
         difficulty: this.difficulty(),
         practical: this.practical(),
+        audience: this.audience(),
+        setting: this.setting(),
+        price: this.price() ?? undefined,
+        maxKm: this.maxKm() ?? undefined,
+        session: this.session() ?? undefined,
         minDuration: min > DURATION_MIN ? min : undefined,
         maxDuration: max < DURATION_MAX ? max : undefined,
       };
@@ -141,6 +205,11 @@ export class CatalogPage {
     this.travel.set([]);
     this.difficulty.set([]);
     this.practical.set([]);
+    this.audience.set([]);
+    this.setting.set([]);
+    this.price.set(null);
+    this.maxKm.set(null);
+    this.session.set(null);
     this.minDuration.set(DURATION_MIN);
     this.maxDuration.set(DURATION_MAX);
   }

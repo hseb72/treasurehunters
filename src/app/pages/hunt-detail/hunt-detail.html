@@ -35,16 +35,7 @@
             <h2>{{ team.solo ? 'Vous êtes inscrit' : team.name }}</h2>
           </div>
           @if (!team.solo) {
-            <ul class="members">
-              @for (m of team.members; track m.hunterId) {
-                <li>
-                  {{ m.nickname }}
-                  @if (m.hunterId === team.ownerId) {
-                    <span class="badge badge--accent">capitaine</span>
-                  }
-                </li>
-              }
-            </ul>
+            <th-team-roles [team]="team" (changed)="myTeam.reload()" />
           }
         </div>
         @switch (h.status) {

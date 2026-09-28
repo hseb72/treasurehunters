@@ -20,17 +20,44 @@
       </div>
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
+    @if (!e.withdrawn) {
+      <div class="entry-lists"><th-list-button [catalogId]="e.id" /></div>
+    }
 
     @if (challenge.value(); as c) {
       <section class="surface challenge" role="note">
         <mat-icon>sports_score</mat-icon>
         <div>
-          <strong>{{ c.teamName }} vous défie !</strong>
+          <strong>{{ c.authorNickname ?? c.teamName }} vous défie !</strong>
+          @if (c.message) {
+            <blockquote>« {{ c.message }} »</blockquote>
+          }
           <p class="small">
             Temps à battre : <strong>{{ clock(c.time) }}</strong>, pénalités comprises
             ({{ c.rank }}{{ c.rank === 1 ? 'ʳᵉ' : 'ᵉ' }} place sur {{ c.finishers }}). Jouez-la à votre tour, sur place, quand vous voulez.
           </p>
-          <a mat-button href="#classement" (click)="$event.preventDefault(); scrollTo('classement')"><mat-icon>leaderboard</mat-icon>Voir le classement</a>
+          <div class="line">
+            @if (autonomous() && !myTake(c)) {
+              <button mat-flat-button type="button" (click)="play(c.huntId)" [disabled]="busy()"><mat-icon>flag</mat-icon>Relever le défi</button>
+            }
+            <a mat-button href="#classement" (click)="$event.preventDefault(); scrollTo('classement')"><mat-icon>leaderboard</mat-icon>Voir le classement</a>
+          </div>
+          @if (c.takers.length) {
+            <p class="small takers-title">Ils ont relevé le défi</p>
+            <ul class="takers">
+              @for (t of c.takers; track $index) {
+                <li class="small" [class.me]="t.mine">
+                  <span>{{ t.teamName }}</span>
+                  @if (t.status === 'finished') {
+                    <span>{{ clock(t.time!) }}</span>
+                    <span class="verdict" [class.won]="t.beaten">{{ t.beaten ? 'Défi battu !' : 'Pas cette fois' }}</span>
+                  } @else {
+                    <span class="muted">{{ t.status === 'playing' ? 'en cours' : 'pas encore partie' }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          }
         </div>
       </section>
     }
@@ -73,9 +100,42 @@
       </section>
     }
 
+    @if (e.sessions.length) {
+      <section class="surface sessions">
+        <h2 class="section-title"><mat-icon>event</mat-icon> Prochaines sessions</h2>
+        <p class="small muted">Des organisateurs la font jouer à date fixe, avec d'autres équipes et un classement de la session.</p>
+        <ul>
+          @for (x of e.sessions; track x.huntId) {
+            <li>
+              <a [routerLink]="['/hunts', x.huntId]" class="session">
+                <span class="when"><strong>{{ x.begin | date: 'EEEE d MMMM' }}</strong> · {{ x.begin | date: 'HH:mm' }}</span>
+                <span class="name">{{ x.name }}</span>
+                <span class="small muted">
+                  par {{ x.organizerNickname }} · {{ x.teams }} équipe{{ x.teams > 1 ? 's' : '' }} inscrite{{ x.teams > 1 ? 's' : '' }}
+                  @if (x.startMode === 'staggered' && x.interval) {
+                    · départs toutes les {{ x.interval }} min
+                  } @else {
+                    · départ commun
+                  }
+                  @if (x.status === 'running') {
+                    · en cours
+                  }
+                </span>
+                @if (x.mine) {
+                  <span class="stamp">Inscrit</span>
+                } @else {
+                  <span class="go">S'inscrire <mat-icon inline>arrow_forward</mat-icon></span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
     <section class="surface action">
       @if (autonomous()) {
-        <h2 class="section-title"><mat-icon>edit_note</mat-icon> Organiser pour d'autres joueurs</h2>
+        <h2 class="section-title"><mat-icon>edit_note</mat-icon> Organiser une session pour d'autres joueurs</h2>
       }
       @if (isAuthor()) {
         <p class="small muted">Vous êtes l'auteur de cette version.</p>
@@ -103,21 +163,42 @@
         }
         <p class="small muted">
           Vous obtenez un brouillon : parcours, énigmes, jokers et pénalités. Modifiez tout ce que vous voulez, posez vos propres QR codes,
-          et partagez à votre tour votre version au catalogue si vous changez le parcours.
+          et partagez à votre tour votre version au catalogue si vous changez le parcours. Rendez-la publique à une date fixe : elle
+          apparaîtra ici dans les prochaines sessions.
         </p>
       }
     </section>
 
     <section class="surface">
       <h2 class="section-title">La Secret Track</h2>
+      <!-- En un coup d'œil (§ 35) : durée (constatée dès qu'assez d'équipes sont arrivées), distance, étapes, public. -->
+      <ul class="strip" aria-label="En un coup d'œil">
+        <li>
+          <mat-icon>schedule</mat-icon>
+          @if (measured(e); as m) {
+            <span><strong>{{ minutes(m) }}</strong> <span class="small muted">constatée</span></span>
+          } @else {
+            <span><strong>{{ minutes(e.durationMinutes) }}</strong> <span class="small muted">prévue</span></span>
+          }
+        </li>
+        @if (e.km) {
+          <li><mat-icon>straighten</mat-icon><strong>{{ km(e.km) }}</strong></li>
+        }
+        <li><mat-icon>extension</mat-icon><strong>{{ e.stepCount }} étapes</strong></li>
+        <li><mat-icon>{{ icons[e.travel] }}</mat-icon><strong>{{ travel[e.travel] }}</strong></li>
+        <li><mat-icon>child_care</mat-icon><strong>{{ age(e.minAge) }}</strong></li>
+        @if (e.practical.includes('wheelchair')) {
+          <li><mat-icon>accessible</mat-icon><strong>Accessible en fauteuil</strong></li>
+        }
+      </ul>
       <p class="description">{{ e.summary }}</p>
       <ul class="facts-list">
         <li><mat-icon>{{ icons[e.travel] }}</mat-icon>{{ travel[e.travel] }} : {{ travelHints[e.travel] }}</li>
         <li><mat-icon>route</mat-icon>{{ e.stepCount }} étapes, arrivée comprise</li>
         <li>
           <mat-icon>schedule</mat-icon>Environ {{ minutes(e.durationMinutes) }} prévues
-          @if (e.measuredMinutes !== null) {
-            · {{ minutes(e.measuredMinutes) }} en moyenne pour les équipes arrivées
+          @if (measured(e); as m) {
+            · durée constatée : {{ minutes(m) }}, en moyenne sur {{ e.finishers }} équipes arrivées
           }
         </li>
         <li><mat-icon>signpost</mat-icon>Énigmes {{ difficulty[e.difficulty].toLowerCase() }}</li>
@@ -129,6 +210,12 @@
         <li><mat-icon>child_care</mat-icon>{{ age(e.minAge) }}</li>
         @for (t of practicalOf(e.practical); track t.id) {
           <li><mat-icon>{{ t.icon }}</mat-icon>{{ t.hint }}</li>
+        }
+        @if (audienceOf(e.audience); as a) {
+          <li><mat-icon>diversity_3</mat-icon>Idéale {{ a }}</li>
+        }
+        @if (settingOf(e.setting); as st) {
+          <li><mat-icon>{{ st.icon }}</mat-icon>{{ st.label }}</li>
         }
       </ul>
     </section>

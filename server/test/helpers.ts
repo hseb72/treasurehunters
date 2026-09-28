@@ -64,3 +64,22 @@ export async function loginAs(app: FastifyInstance, email: string) {
   }
   return client(app, known.get(email));
 }
+
+/** Une Secret Track générée à Montpellier (3 étapes, validation par géolocalisation), publiée au catalogue. */
+export async function publishedEntry(ctx: Ctx, email: string, pub: Record<string, unknown> = {}) {
+  const author = await loginAs(ctx.app, email);
+  const job = await author.post('/api/hunts/generate', {
+    location: { query: 'Montpellier', lat: 43.6085, lng: 3.8795 },
+    durationMinutes: 45,
+    travel: 'walk',
+    difficulty: 'easy',
+    theme: null,
+    steps: 3,
+    mode: 'organize',
+  });
+  await ctx.app.service.settle();
+  const huntId: number = (await author.get(`/api/generations/${job.body.id}`)).body.huntId;
+  const res = await author.post(`/api/hunts/${huntId}/catalog`, { summary: 'Balade.', travel: 'walk', difficulty: 'easy', durationMinutes: 45, sampleOrder: 0, changes: null, ...pub });
+  if (res.status !== 201) throw new Error(`publication refusée : ${JSON.stringify(res.body)}`);
+  return { entry: res.body, huntId, author };
+}
