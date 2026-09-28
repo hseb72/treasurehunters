@@ -42,6 +42,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  ChallengeTaker,
   GameInProgress,
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
@@ -1942,6 +1943,11 @@ export class Service {
       params.push(opts.maxKm);
       where.push(`c.cat_km <= $${params.length}`);
     }
+    // Une session publique (§ 40) aujourd'hui (ou en cours), ou dans les sept jours.
+    if (opts.session) {
+      const until = opts.session === 'today' ? "date_trunc('day', now()) + interval '1 day'" : "now() + interval '7 days'";
+      where.push(`EXISTS (SELECT 1 FROM eh se JOIN th_hunts sh ON sh.hun_id = se.hun_id WHERE se.cat_id = c.cat_id AND ${SESSION} AND sh.hun_begin < ${until})`);
+    }
     // Près de moi (§ 23) : distance à vol d'oiseau jusqu'au départ, en km (haversine).
     let distance: string | undefined;
     if (opts.near) {
@@ -2026,9 +2032,32 @@ export class Service {
        JOIN th_codes c ON c.cod_id = r.rep_code_cod WHERE eh.cat_id = $1 AND r.rep_status = 'open' ORDER BY r.rep_id DESC LIMIT 10`,
       [id],
     );
+    // Sessions publiques de la version (§ 40), les plus proches d'abord.
+    const sessions = await rows(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT sh.hun_id, sh.hun_name, sh.hun_location, sh.hun_begin, sh.hun_end, sh.hun_startmode, sh.hun_interval, s.hst_code, o.htr_nickname,
+              (SELECT count(*)::int FROM th_teams t WHERE t.tea_hunt_hun = sh.hun_id) AS teams,
+              EXISTS (SELECT 1 FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id WHERE t.tea_hunt_hun = sh.hun_id AND m.thr_hunter_htr = $2) AS mine
+       FROM eh JOIN th_hunts sh ON sh.hun_id = eh.hun_id JOIN th_huntstatus s ON s.hst_id = sh.hun_status_hst JOIN th_hunters o ON o.htr_id = sh.hun_owner_htr
+       WHERE eh.cat_id = $1 AND ${SESSION} ORDER BY sh.hun_begin LIMIT 20`,
+      [id, viewer],
+    );
     return {
       ...entry,
       owned,
+      sessions: sessions.map((x) => ({
+        huntId: x['hun_id'],
+        name: x['hun_name'],
+        organizerNickname: x['htr_nickname'],
+        location: x['hun_location'],
+        begin: (x['hun_begin'] as Date).toISOString(),
+        end: (x['hun_end'] as Date).toISOString(),
+        status: x['hst_code'],
+        teams: x['teams'],
+        startMode: x['hun_startmode'] === 2 ? 'staggered' : 'mass',
+        interval: x['hun_interval'],
+        mine: x['mine'],
+      })),
       openReports: notices.map((n) => ({ stepOrder: n['cod_order'], category: n['rep_category'], at: (n['rep_creation'] as Date).toISOString() })),
       myPlays: plays.map((p) => ({
         huntId: p['hun_id'],
@@ -2061,8 +2090,10 @@ export class Service {
    * départ, sur place, quand elle veut dans l'année. Le parcours reste caché. Une partie
    * achetée mais pas encore lancée est reprise plutôt que dupliquée.
    */
-  async playFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
+  async playFromCatalog(viewer: Viewer, id: number, challenge?: number): Promise<Hunt> {
     const me = requireUser(viewer);
+    // Relever un défi (§ 39) : la partie est rattachée à celle qui a lancé le défi.
+    if (challenge !== undefined) await this.challengeSource(id, challenge);
     return tx(this.pool, async (db) => {
       const waiting = await one(
         db,
@@ -2072,8 +2103,12 @@ export class Service {
          ORDER BY h.hun_id DESC LIMIT 1`,
         [id, me, STATUS_IDS.published],
       );
-      if (waiting) return (await huntById(db, waiting['hun_id']))!;
+      if (waiting) {
+        if (challenge !== undefined) await db.query('UPDATE th_hunts SET hun_challenge_hun = coalesce(hun_challenge_hun, $2) WHERE hun_id = $1', [waiting['hun_id'], challenge]);
+        return (await huntById(db, waiting['hun_id']))!;
+      }
       const huntId = await this.instantiate(db, me, id, true);
+      if (challenge !== undefined) await db.query('UPDATE th_hunts SET hun_challenge_hun = $2 WHERE hun_id = $1', [huntId, challenge]);
       const nickname = (await hunterById(db, me))!.nickname;
       await this.addTeam(db, (await huntById(db, huntId))!, nickname, me, false);
       return (await huntById(db, huntId))!;
@@ -2229,6 +2264,56 @@ export class Service {
    * version, et son rang. Rien de plus que ce que montre déjà le classement public.
    */
   async challenge(viewer: Viewer, id: number, huntId: number): Promise<Challenge> {
+    const { row } = await this.challengeSource(id, huntId);
+    const board = await this.autonomyLeaderboard(viewer, id);
+    const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+    const note = await one(this.pool, 'SELECT c.chl_message, u.htr_nickname FROM th_challenges c LEFT JOIN th_hunters u ON u.htr_id = c.chl_author_htr WHERE c.chl_hunt_hun = $1', [huntId]);
+    // Défis étendus (§ 39) : les parties lancées depuis ce défi, et où elles en sont.
+    const takers: ChallengeTaker[] = [];
+    for (const h of await huntsWhere(this.pool, 'h.hun_challenge_hun = $1', [huntId])) {
+      const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [h.id]);
+      const team = teams[0];
+      if (!team) continue;
+      const r = computeRanking(h, teams, await validationsOfHunt(this.pool, h.id), await hintUsesOfHunt(this.pool, h.id)).find((x) => x.teamId === team.id);
+      const time = r?.finished && r.time !== null ? r.time : null;
+      takers.push({
+        teamName: team.name,
+        status: team.finished ? 'finished' : team.started && Date.parse(team.started) <= Date.now() ? 'playing' : 'waiting',
+        time,
+        beaten: time === null ? null : time < row.time!,
+        mine: viewer !== null && team.members.some((m) => m.hunterId === viewer),
+      });
+    }
+    takers.sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
+    return {
+      catalogId: id,
+      huntId,
+      teamName: row.teamName,
+      time: row.time!,
+      rank,
+      finishers: board.finishers,
+      finished: row.finished!,
+      authorNickname: note?.['htr_nickname'] ?? null,
+      message: note?.['chl_message'] ?? null,
+      takers,
+    };
+  }
+
+  /** Lancer (ou reformuler) un défi depuis sa partie finie en autonomie, avec un mot pour ses amis. */
+  async setChallenge(viewer: Viewer, id: number, huntId: number, message: string | null): Promise<Challenge> {
+    const me = requireUser(viewer);
+    const { teams, row } = await this.challengeSource(id, huntId);
+    if (!teams.find((t) => t.id === row.teamId)?.members.some((m) => m.hunterId === me)) throw forbidden('Seule l’équipe qui a joué cette partie peut lancer ce défi.');
+    await this.pool.query(
+      `INSERT INTO th_challenges (chl_hunt_hun, chl_author_htr, chl_message) VALUES ($1, $2, $3)
+       ON CONFLICT (chl_hunt_hun) DO UPDATE SET chl_author_htr = $2, chl_message = $3`,
+      [huntId, me, message?.trim() || null],
+    );
+    return this.challenge(viewer, id, huntId);
+  }
+
+  /** Partie en autonomie finie de cette version : de quoi défier. */
+  private async challengeSource(id: number, huntId: number) {
     const hunt = await huntById(this.pool, huntId);
     if (!hunt || hunt.catalogId !== id || !hunt.surprise || hunt.hostId === null) throw notFound('Ce défi n’existe pas.');
     const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [huntId]);
@@ -2236,9 +2321,7 @@ export class Service {
       (r) => r.time !== null && r.finished,
     );
     if (!row) throw notFound('Cette partie n’est pas encore terminée : pas de temps à battre.');
-    const board = await this.autonomyLeaderboard(viewer, id);
-    const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
-    return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
+    return { hunt, teams, row };
   }
 
   /**
@@ -2671,6 +2754,8 @@ export interface CatalogQuery {
   setting?: Setting[];
   price?: 'free' | 'paid';
   maxKm?: number;
+  /** Avec une session publique aujourd'hui ou dans la semaine (§ 40). */
+  session?: 'today' | 'week';
 }
 
 /**
@@ -2760,6 +2845,9 @@ function contentFingerprint(c: CatalogContent): string {
  * version qui n'ont rien publié elles-mêmes (une copie modifiée et republiée compte pour
  * sa propre version).
  */
+/** Session publique (§ 40) : une partie organisée, ouverte à tous, à venir ou en cours (alias `sh`). */
+const SESSION = `sh.hun_public AND NOT sh.hun_surprise AND sh.hun_status_hst IN (${STATUS_IDS.published}, ${STATUS_IDS.running}) AND sh.hun_end > now()`;
+
 const ENTRY_HUNTS = `
   WITH eh AS (
     SELECT c.cat_id, c.cat_hunt_hun AS hun_id FROM th_catalog c WHERE c.cat_hunt_hun IS NOT NULL
@@ -2788,6 +2876,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
             c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting,
+            (SELECT min(sh.hun_begin) FROM eh se JOIN th_hunts sh ON sh.hun_id = se.hun_id WHERE se.cat_id = c.cat_id AND ${SESSION}) AS next_session,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2831,6 +2920,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     minAge: r['cat_minage'],
     audience: r['cat_audience'] ?? [],
     setting: r['cat_setting'] ?? null,
+    nextSession: r['next_session'] ? (r['next_session'] as Date).toISOString() : null,
     km: r['cat_km'] === null ? null : Math.round(Number(r['cat_km']) * 10) / 10,
     finishers: r['finishers'],
   }));

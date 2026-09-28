@@ -43,6 +43,7 @@ import {
   PuzzleResult,
   Souvenir,
   Challenge,
+  ChallengeTaker,
   GameInProgress,
   Travel,
 } from '@shared/models';
@@ -96,6 +97,9 @@ export class MockHuntApi extends HuntApi {
   private readonly catalog: MockEntry[] = [];
   /** Favoris et listes (§ 38). */
   private readonly lists: MockList[] = [];
+  /** Défis étendus (§ 39) : mot du lanceur par partie source, et partie source de chaque partie qui relève un défi. */
+  private readonly challengeNotes = new Map<number, { authorId: number; message: string | null }>();
+  private readonly challengeOf = new Map<number, number>();
   private readonly ratings: { huntId: number; hunterId: number; rating: Rating; at: string }[] = [];
 
   constructor() {
@@ -103,6 +107,7 @@ export class MockHuntApi extends HuntApi {
     this.seedCatalog();
     this.seedAutonomy();
     this.seedPlacePhotos();
+    this.seedSession();
     // Une liste partagée de Camille, que seb a rejointe (§ 38).
     this.lists.push({ id: 1, ownerId: 2, name: 'Balades en famille', icon: 'family_restroom', favorite: false, code: 'FAMILLE2', members: [1], items: this.catalog.filter((e) => !e.withdrawn).map((e) => e.id).reverse() });
   }
@@ -768,6 +773,10 @@ export class MockHuntApi extends HuntApi {
       if (opts.price) list = list.filter((e) => (opts.price === 'free' ? e.price === 0 : e.price > 0));
       let views = list.map((e) => this.entryView(e, opts.near));
       if (opts.maxKm) views = views.filter((v) => v.km !== null && v.km <= opts.maxKm!);
+      if (opts.session) {
+        const until = opts.session === 'today' ? new Date().setHours(24, 0, 0, 0) : Date.now() + 7 * 86_400_000;
+        views = views.filter((v) => v.nextSession !== null && Date.parse(v.nextSession) < until);
+      }
       if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
       const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
       return views.sort((a, b) =>
@@ -794,16 +803,21 @@ export class MockHuntApi extends HuntApi {
   }
 
   /** Jouer en autonomie (§ 13.5), comme le serveur : partie privée, lancée sur place dans l'année. */
-  playFromCatalog(id: number): Observable<Hunt> {
+  playFromCatalog(id: number, challenge?: number): Observable<Hunt> {
     return this.reply(() => {
       const me = this.requireUser();
       const e = this.catalogEntryFor(id, me, 'jouer');
+      if (challenge !== undefined) this.challengeSource(id, challenge);
       if (e.validation !== 'geo') throw new ApiError('Cette Secret Track se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
       const waiting = this.db.hunts.find(
         (h) => h.catalogId === id && h.surprise && h.hostId === me && h.status === 'published' && this.db.teams.some((t) => t.huntId === h.id && t.ownerId === me && !t.started),
       );
-      if (waiting) return this.huntView(waiting);
+      if (waiting) {
+        if (challenge !== undefined) this.challengeOf.set(waiting.id, this.challengeOf.get(waiting.id) ?? challenge);
+        return this.huntView(waiting);
+      }
       const h = this.instantiate(e, me, true);
+      if (challenge !== undefined) this.challengeOf.set(h.id, challenge);
       this.addTeam(h, this.nick(me), me, false);
       return this.huntView(h);
     });
@@ -813,7 +827,6 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => this.autonomyBoard(id));
   }
 
-  /** Parties à reprendre (§ 35), comme le serveur. */
   /* ---------- Favoris et listes (§ 38), comme le serveur ---------- */
 
   private listView(l: MockList, me: number): TrackList {
@@ -943,6 +956,7 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /** Parties à reprendre (§ 35), comme le serveur. */
   getInProgress(): Observable<GameInProgress[]> {
     return this.reply(() => {
       const me = this.requireUser();
@@ -1006,15 +1020,62 @@ export class MockHuntApi extends HuntApi {
 
   /** Défi « bats mon temps » (§ 28), comme le serveur. */
   getChallenge(id: number, huntId: number): Observable<Challenge> {
+    return this.reply(() => this.challengeView(id, huntId));
+  }
+
+  setChallenge(id: number, huntId: number, message: string | null): Observable<Challenge> {
     return this.reply(() => {
-      const h = this.db.hunts.find((x) => x.id === huntId);
-      if (!h || h.catalogId !== id || !h.surprise || h.hostId === null) throw new ApiError('Ce défi n’existe pas.');
-      const row = this.ranking(huntId).find((r) => r.time !== null && r.finished);
-      if (!row) throw new ApiError('Cette partie n’est pas encore terminée : pas de temps à battre.');
-      const board = this.autonomyBoard(id);
-      const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
-      return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
+      const me = this.requireUser();
+      const row = this.challengeSource(id, huntId);
+      if (!this.db.teams.find((t) => t.id === row.teamId)?.members.some((m) => m.hunterId === me)) throw new ApiError('Seule l’équipe qui a joué cette partie peut lancer ce défi.');
+      this.challengeNotes.set(huntId, { authorId: me, message: message?.trim() || null });
+      return this.challengeView(id, huntId);
     });
+  }
+
+  private challengeSource(id: number, huntId: number): RankingRow {
+    const h = this.db.hunts.find((x) => x.id === huntId);
+    if (!h || h.catalogId !== id || !h.surprise || h.hostId === null) throw new ApiError('Ce défi n’existe pas.');
+    const row = this.ranking(huntId).find((r) => r.time !== null && r.finished);
+    if (!row) throw new ApiError('Cette partie n’est pas encore terminée : pas de temps à battre.');
+    return row;
+  }
+
+  /** Défis étendus (§ 39), comme le serveur : le mot du lanceur et ceux qui relèvent le défi. */
+  private challengeView(id: number, huntId: number): Challenge {
+    const row = this.challengeSource(id, huntId);
+    const board = this.autonomyBoard(id);
+    const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+    const note = this.challengeNotes.get(huntId);
+    const me = this.viewer();
+    const takers: ChallengeTaker[] = [...this.challengeOf]
+      .filter(([, source]) => source === huntId)
+      .map(([takerHunt]) => this.db.teams.find((t) => t.huntId === takerHunt))
+      .filter((t): t is NonNullable<typeof t> => !!t)
+      .map((t) => {
+        const r = this.ranking(t.huntId).find((x) => x.teamId === t.id);
+        const time = r?.finished && r.time !== null ? r.time : null;
+        return {
+          teamName: t.name,
+          status: t.finished ? 'finished' : t.started && Date.parse(t.started) <= Date.now() ? 'playing' : 'waiting',
+          time,
+          beaten: time === null ? null : time < row.time!,
+          mine: me !== null && t.members.some((m) => m.hunterId === me),
+        } satisfies ChallengeTaker;
+      })
+      .sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
+    return {
+      catalogId: id,
+      huntId,
+      teamName: row.teamName,
+      time: row.time!,
+      rank,
+      finishers: board.finishers,
+      finished: row.finished!,
+      authorNickname: note ? this.nick(note.authorId) : null,
+      message: note?.message ?? null,
+      takers,
+    };
   }
 
   /** Souvenir de fin de partie (§ 24), comme le serveur. */
@@ -1314,7 +1375,37 @@ export class MockHuntApi extends HuntApi {
       finishers: times.length,
       audience: [...e.audience],
       setting: e.setting,
+      nextSession: this.sessionsOf(e)[0]?.begin ?? null,
     };
+  }
+
+  /** Démonstration (§ 40) : Camille organise samedi une session de l'Écusson, départs toutes les 10 minutes. */
+  private seedSession(): void {
+    const e = this.catalog.find((x) => x.title === 'Les secrets de l’Écusson');
+    if (!e) return;
+    const h = this.instantiate(e, 2, false);
+    const saturday = new Date();
+    saturday.setDate(saturday.getDate() + ((6 - saturday.getDay() + 7) % 7 || 7));
+    saturday.setHours(14, 0, 0, 0);
+    Object.assign(h, {
+      name: 'Rallye de l’Écusson',
+      isPublic: true,
+      status: 'published',
+      begin: saturday.toISOString(),
+      end: new Date(saturday.getTime() + 4 * 3_600_000).toISOString(),
+      startMode: 'staggered',
+      interval: 10,
+    });
+    this.addTeam(h, 'Les Lézards', 5, false);
+    this.addTeam(h, 'Team Garrigue', 6, false);
+  }
+
+  /** Sessions publiques de la version (§ 40), comme le serveur : les plus proches d'abord. */
+  private sessionsOf(e: MockEntry): MockDb['hunts'] {
+    const hunts = new Set(this.entryHunts(e));
+    return this.db.hunts
+      .filter((h) => hunts.has(h.id) && h.isPublic && !h.surprise && ['published', 'running'].includes(h.status) && Date.parse(h.end) > Date.now())
+      .sort((a, b) => Date.parse(a.begin) - Date.parse(b.begin));
   }
 
   private entryDetail(id: number): CatalogDetail {
@@ -1324,6 +1415,19 @@ export class MockHuntApi extends HuntApi {
     const hunts = new Set(this.entryHunts(e));
     return {
       ...this.entryView(e),
+      sessions: this.sessionsOf(e).map((h) => ({
+        huntId: h.id,
+        name: h.name,
+        organizerNickname: this.nick(h.ownerId),
+        location: h.location,
+        begin: h.begin,
+        end: h.end,
+        status: h.status,
+        teams: this.db.teams.filter((t) => t.huntId === h.id).length,
+        startMode: h.startMode,
+        interval: h.interval,
+        mine: me !== null && this.db.teams.some((t) => t.huntId === h.id && t.members.some((m) => m.hunterId === me)),
+      })),
       owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
       openReports: this.reports
         .filter((r) => r.status === 'open' && hunts.has(r.huntId))

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -15,7 +16,7 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
 @Component({
   selector: 'th-catalog-card',
-  imports: [MatIconModule, RouterLink, Stars],
+  imports: [DatePipe, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let e = entry();
@@ -57,6 +58,9 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
         }
         @for (t of practicalOf(e.practical); track t.id) {
           <span class="row" [title]="t.hint"><mat-icon>{{ t.icon }}</mat-icon>{{ t.label }}</span>
+        }
+        @if (e.nextSession) {
+          <span class="row session" title="Prochaine session organisée"><mat-icon>event</mat-icon>session le {{ e.nextSession | date: 'd MMM' }}</span>
         }
         @if (e.price && shop.payments()) {
           <span class="row price"><mat-icon>sell</mat-icon>{{ priceOf(e.price) }}</span>

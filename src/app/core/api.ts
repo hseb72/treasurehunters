@@ -75,6 +75,8 @@ export interface CatalogQuery {
   setting?: Setting[];
   price?: 'free' | 'paid';
   maxKm?: number;
+  /** Avec une session publique aujourd'hui ou dans la semaine (§ 40). */
+  session?: 'today' | 'week';
 }
 
 /**
@@ -201,10 +203,13 @@ export abstract class HuntApi {
   abstract copyFromCatalog(id: number): Observable<Hunt>;
   abstract withdrawFromCatalog(id: number): Observable<CatalogDetail>;
   /** Jouer une chasse du catalogue en autonomie : la partie du joueur, à lancer sur place. */
-  abstract playFromCatalog(id: number): Observable<Hunt>;
+  /** `challenge` : la partie dont on relève le défi (§ 39). */
+  abstract playFromCatalog(id: number, challenge?: number): Observable<Hunt>;
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
+  /** Lancer le défi depuis sa partie finie, avec un mot (§ 39). */
+  abstract setChallenge(id: number, huntId: number, message: string | null): Observable<Challenge>;
   /* ---------- Version anglaise (§ 33) ---------- */
   /** Traductions du contenu visible (partie, fiches du catalogue) : texte français → traduction. */
   abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Observable<Record<string, string>>;

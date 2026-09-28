@@ -59,6 +59,8 @@ export class CatalogPage {
   protected readonly price = signal<'free' | 'paid' | null>(null);
   protected readonly maxKm = signal<number | null>(null);
   protected readonly kms = [3, 5, 10];
+  /** Sessions organisées (§ 40) : aujourd'hui, ou cette semaine. */
+  protected readonly session = signal<'today' | 'week' | null>(null);
   protected readonly minDuration = signal(DURATION_MIN);
   protected readonly maxDuration = signal(DURATION_MAX);
   protected readonly durationBounds = { min: DURATION_MIN, max: DURATION_MAX };
@@ -88,6 +90,7 @@ export class CatalogPage {
       this.setting().length > 0 ||
       this.price() !== null ||
       this.maxKm() !== null ||
+      this.session() !== null ||
       this.minDuration() > DURATION_MIN ||
       this.maxDuration() < DURATION_MAX,
   );
@@ -105,6 +108,7 @@ export class CatalogPage {
         void this.locate();
       },
     },
+    { id: 'today', label: 'Une session aujourd’hui', icon: 'event', on: () => this.session() === 'today', toggle: () => this.session.set(this.session() === 'today' ? null : 'today') },
     { id: 'short', label: 'Moins d’1 h', icon: 'timer', on: () => this.isDuration(DURATION_MIN, 60), toggle: () => this.toggleDuration(DURATION_MIN, 60) },
     { id: 'mid', label: '1 à 2 h', icon: 'schedule', on: () => this.isDuration(60, 120), toggle: () => this.toggleDuration(60, 120) },
     { id: 'long', label: '2 h et plus', icon: 'hourglass_bottom', on: () => this.isDuration(120, DURATION_MAX), toggle: () => this.toggleDuration(120, DURATION_MAX) },
@@ -143,6 +147,7 @@ export class CatalogPage {
         setting: this.setting(),
         price: this.price() ?? undefined,
         maxKm: this.maxKm() ?? undefined,
+        session: this.session() ?? undefined,
         minDuration: min > DURATION_MIN ? min : undefined,
         maxDuration: max < DURATION_MAX ? max : undefined,
       };
@@ -204,6 +209,7 @@ export class CatalogPage {
     this.setting.set([]);
     this.price.set(null);
     this.maxKm.set(null);
+    this.session.set(null);
     this.minDuration.set(DURATION_MIN);
     this.maxDuration.set(DURATION_MAX);
   }

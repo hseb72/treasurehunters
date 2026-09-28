@@ -425,6 +425,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         setting: list(SETTING_IDS),
         price: z.enum(['free', 'paid']),
         maxKm: z.coerce.number().positive().max(500),
+        session: z.enum(['today', 'week']),
       })
       .partial()
       .parse(req.query);
@@ -523,7 +524,15 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.post('/api/reports/:id/resolve', async (req) =>
     service.resolveReport(req.viewer, idParams.parse(req.params).id, z.object({ resolved: z.boolean() }).parse(req.body).resolved),
   );
-  app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.post('/api/catalog/:id/play', async (req, reply) => {
+    const { challenge } = z.object({ challenge: id.optional() }).parse(req.body ?? {});
+    return reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id, challenge));
+  });
+  app.put('/api/catalog/:id/challenge/:huntId', async (req) => {
+    const p = z.object({ id, huntId: id }).parse(req.params);
+    const { message } = z.object({ message: z.string().max(200).nullable() }).parse(req.body);
+    return service.setChallenge(req.viewer, p.id, p.huntId, message);
+  });
   app.get('/api/catalog/:id/challenge/:huntId', async (req) => {
     const p = z.object({ id, huntId: id }).parse(req.params);
     return service.challenge(req.viewer, p.id, p.huntId);

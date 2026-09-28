@@ -165,6 +165,7 @@ export class HttpHuntApi extends HuntApi {
     if (opts.setting?.length) params['setting'] = opts.setting.join(',');
     if (opts.price) params['price'] = opts.price;
     if (opts.maxKm) params['maxKm'] = String(opts.maxKm);
+    if (opts.session) params['session'] = opts.session;
     if (opts.near) {
       params['lat'] = opts.near.lat.toFixed(5);
       params['lng'] = opts.near.lng.toFixed(5);
@@ -219,8 +220,8 @@ export class HttpHuntApi extends HuntApi {
   withdrawFromCatalog(id: number): Observable<CatalogDetail> {
     return this.http.delete<CatalogDetail>(`${this.url}/catalog/${id}`);
   }
-  playFromCatalog(id: number): Observable<Hunt> {
-    return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
+  playFromCatalog(id: number, challenge?: number): Observable<Hunt> {
+    return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, challenge ? { challenge } : {});
   }
   translate(req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Observable<Record<string, string>> {
     return this.http.post<Record<string, string>>(`${this.url}/translate`, req);
@@ -242,6 +243,9 @@ export class HttpHuntApi extends HuntApi {
   }
   getChallenge(id: number, huntId: number): Observable<Challenge> {
     return this.http.get<Challenge>(`${this.url}/catalog/${id}/challenge/${huntId}`);
+  }
+  setChallenge(id: number, huntId: number, message: string | null): Observable<Challenge> {
+    return this.http.put<Challenge>(`${this.url}/catalog/${id}/challenge/${huntId}`, { message });
   }
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.http.get<AutonomyLeaderboard>(`${this.url}/catalog/${id}/leaderboard`);

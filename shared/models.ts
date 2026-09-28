@@ -541,6 +541,8 @@ export interface CatalogEntry {
   audience: AudienceTag[];
   /** Dehors, dedans ou les deux ; null : non précisé. */
   setting: Setting | null;
+  /** Prochaine session publique organisée de cette version (§ 40) : son début ; null s'il n'y en a pas. */
+  nextSession: string | null;
 }
 
 export interface CatalogReview {
@@ -563,6 +565,24 @@ export interface CatalogDetail extends CatalogEntry {
   myPlays: AutonomyPlay[];
   /** Problèmes signalés et pas encore traités par l'auteur (§ 22). */
   openReports: ReportNotice[];
+  /** Sessions publiques à venir ou en cours (§ 40). */
+  sessions: CatalogSession[];
+}
+
+/** Une session : une occurrence organisée, publique, d'une version du catalogue (§ 40). */
+export interface CatalogSession {
+  huntId: number;
+  name: string;
+  organizerNickname: string;
+  location: string;
+  begin: string;
+  end: string;
+  status: HuntStatus;
+  teams: number;
+  startMode: StartMode;
+  interval: number | null;
+  /** Le lecteur y est inscrit. */
+  mine: boolean;
 }
 
 /** Une partie en autonomie d'une chasse du catalogue : à lancer avant `until`, en cours, ou finie. */
@@ -592,6 +612,22 @@ export interface Challenge {
   rank: number;
   finishers: number;
   finished: string;
+  /** Défis étendus (§ 39) : qui l'a lancé, son mot, et ceux qui le relèvent. */
+  authorNickname: string | null;
+  message: string | null;
+  takers: ChallengeTaker[];
+}
+
+/** Une partie lancée depuis un défi. */
+export interface ChallengeTaker {
+  teamName: string;
+  status: 'waiting' | 'playing' | 'finished';
+  /** Temps pénalités comprises, une fois arrivée. */
+  time: number | null;
+  /** Défi battu (temps strictement meilleur) ; null tant que pas arrivée. */
+  beaten: boolean | null;
+  /** L'équipe du lecteur. */
+  mine: boolean;
 }
 
 export interface AutonomyRow {

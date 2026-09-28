@@ -131,6 +131,15 @@
         </mat-button-toggle-group>
       </div>
 
+      <div class="criterion">
+        <span class="label">Sessions organisées</span>
+        <mat-button-toggle-group [value]="session()" (change)="session.set($event.value)" hideSingleSelectionIndicator aria-label="Sessions organisées">
+          <mat-button-toggle [value]="null">Peu importe</mat-button-toggle>
+          <mat-button-toggle value="today">Aujourd'hui</mat-button-toggle>
+          <mat-button-toggle value="week">Cette semaine</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
       <div class="criterion duration">
         <span class="label">Durée prévue <span class="muted">· {{ durationText() }}</span></span>
         <mat-slider [min]="durationBounds.min" [max]="durationBounds.max" step="15" discrete [displayWith]="durationLabel">
