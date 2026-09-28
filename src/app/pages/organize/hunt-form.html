@@ -60,7 +60,7 @@
           @if (canUse(t.id)) {
             <mat-slide-toggle [checked]="hasTool(t.id)" (change)="setTool(t.id, $event.checked)" [attr.aria-label]="t.name" />
           } @else {
-            <button mat-stroked-button type="button" (click)="obtainTool(t.id)" [disabled]="toolBusy() === t.id">Obtenir — offert</button>
+            <button mat-stroked-button type="button" (click)="obtainTool(t.id)" [disabled]="toolBusy() === t.id">Obtenir — {{ shop.offer('tool:' + t.id) }}</button>
           }
         </div>
       }

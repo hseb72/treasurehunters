@@ -21,6 +21,7 @@
       </section>
     }
 
+    <th-payouts-panel what="chasses" />
     <form class="surface stack publish" [formGroup]="form" (ngSubmit)="publish()">
       <h2 class="section-title">{{ isVersion() ? 'Publier une nouvelle version' : 'Publier au catalogue' }}</h2>
       <p class="small muted">
@@ -65,6 +66,18 @@
           }
         </mat-select>
         <mat-hint>Pour juger de la rédaction : les autres énigmes restent cachées.</mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Prix (€)</mat-label>
+        <input matInput type="number" formControlName="euros" min="0" max="50" step="0.5" />
+        <mat-hint>
+          0 = gratuite.
+          @if (shop.payments()) {
+            Payante, elle s'achète une fois ; vous touchez chaque vente, moins la commission.
+          } @else {
+            Affiché seulement : les copies restent gratuites tant que le paiement n'est pas activé.
+          }
+        </mat-hint>
       </mat-form-field>
       @if (isVersion()) {
         <mat-form-field>

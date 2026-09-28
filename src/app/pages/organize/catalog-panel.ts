@@ -11,6 +11,8 @@ import { of } from 'rxjs';
 import { DIFFICULTY_LABELS, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
 import { Difficulty, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
+import { Shop } from '../../core/shop';
+import { PayoutsPanel } from '../../shared/payouts-panel';
 import { Notify } from '../../core/notify';
 import { CatalogCard } from '../../shared/catalog-card';
 import { WorkspaceState } from './workspace-state';
@@ -21,7 +23,7 @@ import { WorkspaceState } from './workspace-state';
  */
 @Component({
   selector: 'th-catalog-panel',
-  imports: [CatalogCard, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink],
+  imports: [CatalogCard, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, PayoutsPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-panel.html',
   styleUrl: './catalog-panel.scss',
@@ -67,7 +69,10 @@ export class CatalogPanelPage {
     durationMinutes: [90, [Validators.required, Validators.min(10), Validators.max(1440)]],
     sampleOrder: [0, Validators.required],
     changes: [''],
+    /** Prix au catalogue (§ 20), en euros. */
+    euros: [0, [Validators.min(0), Validators.max(50)]],
   });
+  protected readonly shop = inject(Shop);
 
   constructor() {
     // La présentation reprend celle de la chasse, que l'auteur peut ajuster pour le catalogue.
@@ -96,7 +101,15 @@ export class CatalogPanelPage {
     const v = this.form.getRawValue();
     this.busy.set(true);
     this.api
-      .publishToCatalog(this.workspace.huntId(), { ...v, summary: v.summary, changes: this.isVersion() ? v.changes || null : null })
+      .publishToCatalog(this.workspace.huntId(), {
+        summary: v.summary,
+        travel: v.travel,
+        difficulty: v.difficulty,
+        durationMinutes: v.durationMinutes,
+        sampleOrder: v.sampleOrder,
+        changes: this.isVersion() ? v.changes || null : null,
+        price: Math.round((Number(v.euros) || 0) * 100),
+      })
       .subscribe({
         next: () => {
           this.notify.info('Publiée au catalogue : les autres organisateurs peuvent la découvrir.');

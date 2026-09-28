@@ -45,6 +45,10 @@ api:
     # mutualisé ; les clés d'accès sont dans le Secret (create-secrets.sh).
     PHOTO_S3_ENDPOINT: http://minio.object-store.svc.cluster.local:9000
     PHOTO_S3_BUCKET: treasurehunters
+    # Paiement (§ 20) : actif seulement si le Secret porte STRIPE_SECRET_KEY et
+    # STRIPE_WEBHOOK_SECRET (create-secrets.sh). Retours de paiement vers le front.
+    APP_URL: https://treasurehunters.crealcs.com
+    STRIPE_COMMISSION_PERCENT: "20"
   envFrom:
     - treasurehunters-api-secrets
   pdb:

@@ -28,7 +28,7 @@ import { SkinDirective, SkinEffects } from './skin';
           @if (owned) {
             <span class="price">Dans votre collection</span>
           } @else {
-            <span class="price locked"><mat-icon inline>lock_open</mat-icon> Obtenir — offert</span>
+            <span class="price locked"><mat-icon inline>lock_open</mat-icon> Obtenir — {{ shop.offer('skin:' + s.id) }}</span>
           }
         </button>
       }
@@ -103,7 +103,7 @@ export class SkinPicker {
       return;
     }
     this.busy.set(true);
-    this.shop.acquire(`skin:${id}`).subscribe({
+    this.shop.obtain(`skin:${id}`).subscribe({
       next: () => {
         this.busy.set(false);
         this.value.set(id);

@@ -4,6 +4,8 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -102,6 +104,13 @@ export abstract class HuntApi {
   abstract getStore(): Observable<StoreItem[]>;
   /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
   abstract acquire(productId: string): Observable<StoreItem[]>;
+
+  /* ---------- Paiement (§ 20) ---------- */
+  /** Ouvre le paiement d'un produit (« skin:medieval », « hunt:c12 ») ; url null s'il n'y avait rien à payer. */
+  abstract checkout(productId: string, returnPath: string): Observable<CheckoutResult>;
+  abstract payoutAccount(): Observable<PayoutAccount>;
+  /** Inscription du vendeur chez Stripe Connect : l'adresse où l'envoyer. */
+  abstract startPayouts(returnPath: string): Observable<{ url: string }>;
 
   /* ---------- Créations de la communauté (§ 19) ---------- */
   abstract myCreations(): Observable<Creation[]>;

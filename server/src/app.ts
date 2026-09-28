@@ -9,6 +9,8 @@ import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
+import { Payments } from './payments/payments.js';
+import { PaymentProvider, StripeProvider } from './payments/stripe.js';
 import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
@@ -126,6 +128,8 @@ export interface AppOptions {
   photoStore?: PhotoStore | null;
   /** Arbitre des photos ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
   photoJudge?: PhotoJudge | null;
+  /** Paiement (§ 20) ; par défaut Stripe si STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET sont définis. */
+  payments?: PaymentProvider | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -157,6 +161,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     (err, msg) => app.log.error(err, msg),
     photoStore ? { store: photoStore, judge: photoJudge } : null,
   );
+
+  const stripe = config.stripe;
+  const provider = opts.payments !== undefined ? opts.payments : stripe.secretKey && stripe.webhookSecret ? new StripeProvider(stripe.secretKey, stripe.webhookSecret) : null;
+  if (stripe.secretKey && !stripe.webhookSecret) app.log.error('STRIPE_WEBHOOK_SECRET manquant : paiement désactivé (les achats ne seraient jamais confirmés).');
+  const payments = new Payments(pool, provider, (viewer) => service.store(viewer), (err, msg) => app.log.error(err, msg));
+  service.payments = payments;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -197,6 +207,20 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const { product } = z.object({ product: z.union([z.enum(PRODUCT_IDS), z.string().regex(/^(skin|pack):u\d{1,9}$/)]) }).parse(req.params);
     return service.acquire(req.viewer, product);
   });
+  /* ----- Paiement (§ 20) */
+  const returnPath = z.object({ returnPath: z.string().max(300).regex(/^\/(?!\/)[^\s]*$/).default('/store') });
+  app.post('/api/store/:product/checkout', async (req) => {
+    const { product } = z.object({ product: z.string().regex(/^((skin|tool|pack):[a-z0-9]{1,40}|hunt:c\d{1,9})$/) }).parse(req.params);
+    return payments.checkout(req.viewer, product, returnPath.parse(req.body ?? {}).returnPath);
+  });
+  app.get('/api/payments/account', async (req) => payments.account(req.viewer));
+  app.post('/api/payments/account', async (req) => payments.onboard(req.viewer, returnPath.parse(req.body ?? {}).returnPath));
+  // Webhook Stripe : la signature porte sur le corps brut, lu tel quel dans ce seul contexte.
+  await app.register(async (scope) => {
+    scope.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => done(null, body));
+    scope.post('/api/payments/webhook', async (req) => payments.webhook(req.body as string, req.headers['stripe-signature'] as string | undefined));
+  });
+
   /* ----- Créations de la communauté (§ 19) */
   const creationFields = {
     name: text(40).min(1),
@@ -384,6 +408,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         durationMinutes: z.number().int().min(10).max(1440),
         sampleOrder: z.number().int().min(0),
         changes: text(2000).nullable(),
+        price: z.number().int().min(0).max(5000).optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));

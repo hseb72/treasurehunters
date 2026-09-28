@@ -312,6 +312,22 @@ export interface PhotoResult {
 export interface Features {
   photos: boolean;
   generation: boolean;
+  /** Paiement Stripe configuré (§ 20) ; sinon l'acquisition reste offerte. */
+  payments?: boolean;
+}
+
+/** Ouverture d'un paiement : l'adresse de la page Stripe, ou null si rien n'était à payer. */
+export interface CheckoutResult {
+  url: string | null;
+  items: StoreItem[];
+}
+
+/** Compte vendeur (Stripe Connect) d'un créateur ou d'un auteur du catalogue (§ 20). */
+export interface PayoutAccount {
+  enabled: boolean;
+  account: boolean;
+  ready: boolean;
+  commissionPercent: number;
 }
 
 /** Résultat d'un « Je suis arrivé » (validation par géolocalisation). */
@@ -452,6 +468,8 @@ export interface CatalogEntry {
   changes: string | null;
   published: string;
   withdrawn: boolean;
+  /** Prix fixé par l'auteur, en centimes (§ 20) ; 0 = gratuite. Payé seulement si le paiement est activé. */
+  price: number;
 }
 
 export interface CatalogReview {
@@ -468,6 +486,8 @@ export interface CatalogDetail extends CatalogEntry {
   versions: { id: number; title: string; authorNickname: string; published: string; withdrawn: boolean }[];
   /** Chasse d'où vient la publication, si le lecteur en est l'auteur. */
   huntId: number | null;
+  /** Le lecteur a acheté cette chasse (§ 20). */
+  owned: boolean;
 }
 
 export interface CatalogPublication {
@@ -478,6 +498,8 @@ export interface CatalogPublication {
   /** Étape dont l'énigme sert d'extrait (0 = énigme de départ). */
   sampleOrder: number;
   changes: string | null;
+  /** Prix de la chasse, en centimes (0 à 50 €) ; absent = gratuite. */
+  price?: number;
 }
 
 /** Avis d'un joueur sur une chasse jouée, après sa clôture. */

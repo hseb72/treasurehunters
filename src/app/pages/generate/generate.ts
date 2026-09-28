@@ -91,7 +91,7 @@ export class GeneratePage {
       return;
     }
     this.acquiring.set(true);
-    this.shop.acquire(pack).subscribe({
+    this.shop.obtain(pack).subscribe({
       next: () => {
         this.acquiring.set(false);
         this.pickedPuzzles.set([...current, type]);

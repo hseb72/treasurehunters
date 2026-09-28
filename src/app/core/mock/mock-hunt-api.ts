@@ -5,6 +5,8 @@ import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } 
 import { MockCreations } from './mock-creations';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -753,6 +755,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
       if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+      if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError('Cette chasse est payante : achetez-la pour la copier.');
       const begin = Date.now() + 7 * 86_400_000;
       const h: MockDb['hunts'][number] = {
         ...structuredClone(e.content.hunt),
@@ -870,6 +873,7 @@ export class MockHuntApi extends HuntApi {
         durationMinutes: pub.durationMinutes,
         sampleOrder: sample.order,
         sample: sample.instructions!,
+        price: pub.price ?? 0,
       });
     }
     const parentId = previous?.id ?? h.catalogId;
@@ -897,6 +901,7 @@ export class MockHuntApi extends HuntApi {
       fingerprint,
       published: new Date().toISOString(),
       withdrawn: false,
+      price: pub.price ?? 0,
     };
     this.catalog.push(entry);
     return entry;
@@ -943,6 +948,7 @@ export class MockHuntApi extends HuntApi {
       changes: e.changes,
       published: e.published,
       withdrawn: e.withdrawn,
+      price: e.price,
     };
   }
 
@@ -953,6 +959,7 @@ export class MockHuntApi extends HuntApi {
     const hunts = new Set(this.entryHunts(e));
     return {
       ...this.entryView(e),
+      owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
       sample: { order: e.sampleOrder, text: e.sample },
       reviews: this.ratings
         .filter((r) => hunts.has(r.huntId) && r.rating.comment)
@@ -970,7 +977,8 @@ export class MockHuntApi extends HuntApi {
     const closed = this.db.hunts.find((h) => h.status === 'closed');
     if (!closed) return;
     try {
-      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null });
+      // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399 });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -995,6 +1003,54 @@ export class MockHuntApi extends HuntApi {
   private storeFor(me: number | null): StoreItem[] {
     const owned = (me !== null && this.purchases.get(me)) || new Set<string>();
     return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...this.creations.products(me)];
+  }
+
+  /* ---------- Paiement (§ 20), simulé : le paiement réussit aussitôt ---------- */
+
+  private readonly payouts = new Map<number, { ready: boolean }>([[2, { ready: true }]]);
+
+  private sellable(productId: string): { price: number; sellerId: number | null } | null {
+    const hunt = /^hunt:c(\d+)$/.exec(productId);
+    if (hunt) {
+      const e = this.catalog.find((x) => x.id === Number(hunt[1]) && !x.withdrawn);
+      return e ? { price: e.price, sellerId: e.authorId } : null;
+    }
+    const ref = creationRef(productId);
+    if (ref !== null) {
+      const c = this.creations.published(ref);
+      return c && creationProductId(c.kind, c.id) === productId ? { price: c.price, sellerId: c.authorId } : null;
+    }
+    const p = productById(productId);
+    return p ? { price: p.included ? 0 : p.price, sellerId: null } : null;
+  }
+
+  checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const sale = this.sellable(productId);
+      if (!sale) throw new ApiError('Produit inconnu.');
+      const owned = this.purchases.get(me) ?? new Set<string>();
+      this.purchases.set(me, owned);
+      const free = sale.price === 0 || sale.sellerId === me || owned.has(productId);
+      if (!productById(productId)?.included) owned.add(productId);
+      if (free) return { url: null, items: this.storeFor(me) };
+      // Au lieu de la page Stripe : retour direct, paiement « confirmé ».
+      return { url: `${returnPath}${returnPath.includes('?') ? '&' : '?'}paid=1&product=${encodeURIComponent(productId)}`, items: [] };
+    });
+  }
+
+  payoutAccount(): Observable<PayoutAccount> {
+    return this.reply(() => {
+      const a = this.payouts.get(this.requireUser());
+      return { enabled: true, account: !!a, ready: !!a?.ready, commissionPercent: 20 };
+    });
+  }
+
+  startPayouts(returnPath: string): Observable<{ url: string }> {
+    return this.reply(() => {
+      this.payouts.set(this.requireUser(), { ready: true });
+      return { url: `${returnPath}${returnPath.includes('?') ? '&' : '?'}stripe=retour` };
+    });
   }
 
   /* ---------- Créations de la communauté (§ 19) ---------- */
@@ -1056,6 +1112,8 @@ export class MockHuntApi extends HuntApi {
       const creation = ref !== null ? this.creations.published(ref) : undefined;
       const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
       if (!product) throw new ApiError('Extension inconnue.');
+      const sale = this.sellable(productId);
+      if (sale && sale.price > 0 && sale.sellerId !== me) throw new ApiError('Ce produit est payant : passez par le paiement.');
       if (!product.included) {
         const owned = this.purchases.get(me) ?? new Set<string>();
         owned.add(product.id);
@@ -1098,7 +1156,8 @@ export class MockHuntApi extends HuntApi {
   }
 
   getFeatures(): Observable<Features> {
-    return this.reply(() => ({ photos: true, generation: true }));
+    // La maquette montre le paiement activé, simulé (§ 20).
+    return this.reply(() => ({ photos: true, generation: true, payments: true }));
   }
 
   /** Arbitre simulé : la première photo d'une étape n'est pas reconnue, les suivantes le sont. */
@@ -1586,6 +1645,8 @@ interface MockPhoto {
 
 interface MockEntry {
   id: number;
+  /** Prix fixé par l'auteur (§ 20), en centimes. */
+  price: number;
   authorId: number;
   huntId: number | null;
   parentId: number | null;

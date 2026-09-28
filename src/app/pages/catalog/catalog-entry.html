@@ -33,9 +33,19 @@
           }
         </div>
       } @else if (!e.withdrawn) {
-        <button mat-flat-button class="th-cta" type="button" (click)="copy()" [disabled]="busy()">
-          <mat-icon>content_copy</mat-icon>Créer ma chasse à partir de celle-ci
-        </button>
+        @if (mustBuy()) {
+          <p class="price-line"><strong>{{ price(e.price) }}</strong>&nbsp;<span class="small muted">— achetée une fois, copiée autant que vous voulez ; {{ e.authorNickname }} en reçoit la plus grande part.</span></p>
+          <button mat-flat-button class="th-cta" type="button" (click)="buy()" [disabled]="busy()">
+            <mat-icon>shopping_bag</mat-icon>Acheter cette chasse
+          </button>
+        } @else {
+          @if (e.price && e.owned) {
+            <p class="small have"><mat-icon inline>check_circle</mat-icon> Chasse achetée</p>
+          }
+          <button mat-flat-button class="th-cta" type="button" (click)="copy()" [disabled]="busy()">
+            <mat-icon>content_copy</mat-icon>Créer ma chasse à partir de celle-ci
+          </button>
+        }
         <p class="small muted">
           Vous obtenez un brouillon : parcours, énigmes, jokers et pénalités. Modifiez tout ce que vous voulez, posez vos propres QR codes,
           et publiez à votre tour votre version si vous changez le parcours.

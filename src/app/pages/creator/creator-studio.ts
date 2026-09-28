@@ -15,6 +15,7 @@ import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { Shop } from '../../core/shop';
+import { PayoutsPanel } from '../../shared/payouts-panel';
 import { SkinDirective } from '../../shared/skin';
 import { PackEditor } from './pack-editor';
 import { contentFrom, SkinEditor } from './skin-editor';
@@ -43,7 +44,7 @@ const STATUS: Record<CreationStatus, { label: string; badge: string; icon: strin
  */
 @Component({
   selector: 'th-creator-studio',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, SkinDirective, SkinEditor, PackEditor],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, SkinDirective, SkinEditor, PackEditor, PayoutsPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './creator-studio.html',
   styleUrl: './creator-studio.scss',
@@ -51,7 +52,7 @@ const STATUS: Record<CreationStatus, { label: string; badge: string; icon: strin
 export class CreatorStudioPage {
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
-  private readonly shop = inject(Shop);
+  protected readonly shop = inject(Shop);
   protected readonly session = inject(Session);
 
   protected readonly tab = signal<'mine' | 'review'>('mine');

@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -176,6 +178,16 @@ export class HttpHuntApi extends HuntApi {
   }
   acquire(productId: string): Observable<StoreItem[]> {
     return this.http.post<StoreItem[]>(`${this.url}/store/${encodeURIComponent(productId)}/acquire`, {});
+  }
+
+  checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
+    return this.http.post<CheckoutResult>(`${this.url}/store/${encodeURIComponent(productId)}/checkout`, { returnPath });
+  }
+  payoutAccount(): Observable<PayoutAccount> {
+    return this.http.get<PayoutAccount>(`${this.url}/payments/account`);
+  }
+  startPayouts(returnPath: string): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.url}/payments/account`, { returnPath });
   }
 
   myCreations(): Observable<Creation[]> {

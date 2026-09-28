@@ -75,6 +75,7 @@ import {
 import { HuntGenerator } from './generation/generator.js';
 import { creationProducts, Creations, publishedCreation } from './creations.js';
 import { creationProductId, creationRef, samePuzzle } from '../../shared/creations.js';
+import { catalogProductId, Payments } from './payments/payments.js';
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
@@ -121,6 +122,8 @@ export class Service {
   private readonly inflight = new Set<Promise<void>>();
   /** Créations de la communauté (§ 19). */
   readonly creations: Creations;
+  /** Paiement (§ 20) : posé par l'application ; inactif sans Stripe. */
+  payments: Payments | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -134,7 +137,7 @@ export class Service {
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
-    return { photos: !!this.photos, generation: !!this.generator };
+    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled };
   }
 
   /* ================================================================ Comptes */
@@ -870,6 +873,11 @@ export class Service {
     // Création de la communauté : publiée, et du genre annoncé (« skin:u12 » pour un skin).
     const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
     if (!product) throw notFound('Extension inconnue.');
+    // Paiement activé : un produit payant s'achète (checkout) ; gratuit, il s'obtient ici.
+    if (this.payments?.enabled && !product.included) {
+      const item = await this.payments.sellable(productId);
+      if (item && item.price > 0 && item.sellerId !== me) throw new HttpError(402, 'Ce produit est payant : passez par le paiement.');
+    }
     if (!product.included) {
       await this.pool.query('INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, 0) ON CONFLICT DO NOTHING', [me, product.id]);
     }
@@ -1368,8 +1376,8 @@ export class Service {
       if (previous && !previous['cat_withdrawn'] && previous['cat_fingerprint'] === fingerprint) {
         await db.query(
           `UPDATE th_catalog SET cat_summary = $2, cat_travel = $3, cat_difficulty = $4, cat_duration = $5, cat_sample_order = $6, cat_sample = $7,
-                                 cat_lastupdate = now() WHERE cat_id = $1`,
-          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions],
+                                 cat_price = $8, cat_lastupdate = now() WHERE cat_id = $1`,
+          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions, pub.price ?? 0],
         );
         await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
         return previous['cat_id'] as number;
@@ -1387,8 +1395,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING cat_id`,
+                                 cat_travel, cat_price)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1406,6 +1414,7 @@ export class Service {
           JSON.stringify(content),
           fingerprint,
           pub.travel,
+          pub.price ?? 0,
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -1474,8 +1483,10 @@ export class Service {
        WHERE c.cat_parent_cat = $1 AND (c.cat_withdrawn IS NULL OR c.cat_author_htr = $2) ORDER BY c.cat_id`,
       [id, viewer],
     );
+    const owned = viewer !== null && !!(await one(this.pool, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [viewer, catalogProductId(id)]));
     return {
       ...entry,
+      owned,
       sample: { order: r['cat_sample_order'], text: r['cat_sample'] },
       reviews: reviews.map((x) => ({ nickname: x['htr_nickname'], stars: x['rat_stars'], comment: x['rat_comment'], at: (x['rat_creation'] as Date).toISOString() })),
       versions: versions.map((x) => ({
@@ -1493,8 +1504,13 @@ export class Service {
   async copyFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
-      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration FROM th_catalog WHERE cat_id = $1', [id]);
+      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr FROM th_catalog WHERE cat_id = $1', [id]);
       if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
+      // Chasse payante (§ 20) : achetée une fois, copiée autant qu'on veut ; gratuite sans paiement activé.
+      if (this.payments?.enabled && r['cat_price'] > 0 && r['cat_author_htr'] !== me) {
+        const bought = await one(db, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [me, catalogProductId(id)]);
+        if (!bought) throw new HttpError(402, 'Cette chasse est payante : achetez-la pour la copier.');
+      }
       const content = r['cat_content'] as CatalogContent;
       const begin = new Date(Date.now() + 7 * 86_400_000);
       const data: Partial<Hunt> = {
@@ -1992,7 +2008,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
+            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2029,6 +2045,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     changes: r['cat_changes'],
     published: (r['cat_creation'] as Date).toISOString(),
     withdrawn: !!r['cat_withdrawn'],
+    price: r['cat_price'] ?? 0,
   }));
 }
 

@@ -102,7 +102,7 @@
           >
             <mat-icon>{{ owned ? t.icon : 'lock_open' }}</mat-icon>{{ t.name }}
             @if (!owned) {
-              <span class="small">— offert</span>
+              <span class="small">— {{ shop.offer(t.pack) }}</span>
             }
           </button>
         }

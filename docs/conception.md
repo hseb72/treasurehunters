@@ -580,6 +580,8 @@ Les univers autres qu'Aventurier et Contemporain s'obtiennent dans la **boutique
 
 ## 16. Boutique d'extensions
 
+> Le paiement des extensions (et des créations, et des chasses du catalogue) est décrit au § 20 : il ne s'active qu'avec des clés Stripe.
+
 Un organisateur donne à ses chasses un **univers** (skin, § 15) et des **outils de jeu**. La boutique (E20) les présente avec leur prix ; tant que le paiement n'est pas branché, **l'acquisition est offerte** : « Obtenir » les ajoute à la collection du joueur, et le prix payé (0) est enregistré. Les extensions sont créées par la plateforme ; celles de créateurs viendront ensuite.
 
 **Produits** (`shared/store.ts`) : identifiants `skin:<id>` et `tool:<id>`, nom, description, prix affiché (centimes), inclus ou non.
@@ -686,4 +688,24 @@ Des créateurs proposent des **skins** et des **packs d'énigmes** depuis l'atel
 | `GET /creators/:id`, `GET /skins/u<id>` | page du créateur, manifeste d'un skin publié | tous |
 
 Données : `th_creations` (auteur, genre, nom, description, prix affiché de 0 à 20 €, contenu jsonb, statut, note, relecteur, date de publication), `th_hunters.htr_reviewer` ; migration `db/migrations/014_creations.sql`.
+
+## 20. Paiement
+
+Les prix affichés deviennent payés quand Stripe est configuré. **Sans clés Stripe, rien ne change** : les extensions s'obtiennent gratuitement (§ 16), les chasses du catalogue se copient gratuitement, et les écrans disent « offert ». Les clés (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) vivent dans le Secret de l'API (`deploy/create-secrets.sh`), jamais dans le dépôt ; `GET /features` annonce `payments`.
+
+**Ce qui se vend**
+
+| Produit | Prix | Vendeur |
+|---|---|---|
+| Univers, outils, packs intégrés (`skin:…`, `tool:…`, `pack:…`) | celui de la boutique | la plateforme |
+| Créations de la communauté (`skin:u12`, `pack:u7`, § 19) | fixé par le créateur (0 à 20 €) | le créateur |
+| Chasses du catalogue (`hunt:c12`) | fixé par l'auteur à la publication (0 à 50 €) ; achetée une fois, copiée à volonté | l'auteur |
+
+**Achat** : `POST /store/:product/checkout { returnPath }`. Gratuit, déjà possédé, ou vendu par soi-même : obtenu aussitôt (`url: null`). Sinon, un paiement `pending` est noté (`th_payments`) et le joueur part vers **Stripe Checkout** ; il revient sur `returnPath?paid=1&product=…` (ou `paid=0` s'il annule). La possession n'est accordée qu'à la **confirmation signée** de Stripe (webhook `checkout.session.completed`, signature HMAC vérifiée sur le corps brut, 5 minutes de tolérance, rejouable sans effet) ; le front recharge la boutique quelques secondes le temps qu'elle arrive. Paiement activé, `POST /store/:product/acquire` refuse un produit payant (402), et la copie d'une chasse payante non achetée aussi.
+
+**Vendeurs (Stripe Connect)** : un créateur ou un auteur s'inscrit depuis l'atelier créateur ou l'onglet Catalogue de sa chasse (« Activer mes paiements », `POST /payments/account` → page d'inscription Stripe, compte Express). `GET /payments/account` dit s'il peut encaisser (`charges_enabled`, rafraîchi au retour et par le webhook `account.updated`). Tant qu'il ne le peut pas, ses produits payants ne s'achètent pas (409). À chaque vente, Stripe verse le prix au vendeur **moins la commission** de la plateforme (`STRIPE_COMMISSION_PERCENT`, 20 % par défaut : `application_fee_amount`), l'argent transitant par le compte de la plateforme (`transfer_data.destination`).
+
+**Données** : `th_payments` (acheteur, produit, montant, commission, vendeur, session Stripe, statut `pending` / `paid` / `expired`), `th_purchases.pur_price` (prix payé), `th_hunters.htr_stripe_account` / `htr_stripe_ready`, `th_catalog.cat_price` ; migration `db/migrations/015_payments.sql`. Le serveur parle à Stripe par son API REST (`server/src/payments/stripe.ts`), sans SDK.
+
+**Maquette** : le paiement y est activé et simulé (retour immédiat, paiement confirmé), pour montrer les écrans.
 

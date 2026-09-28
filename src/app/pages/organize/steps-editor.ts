@@ -84,7 +84,7 @@ export class StepsEditorPage {
   /* ---------- Énigme d'arrivée (§ 17) ---------- */
 
   protected readonly puzzleTypes = PUZZLE_TYPES;
-  private readonly shop = inject(Shop);
+  protected readonly shop = inject(Shop);
   protected readonly packBusy = signal(false);
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly puzzleKind = computed(() => this.formValue().puzzleType || null);
@@ -135,7 +135,7 @@ export class StepsEditorPage {
 
   protected obtainPack(id: string): void {
     this.packBusy.set(true);
-    this.shop.acquire(id).subscribe({
+    this.shop.obtain(id).subscribe({
       next: () => this.packBusy.set(false),
       error: (e) => {
         this.packBusy.set(false);

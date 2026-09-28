@@ -13,6 +13,7 @@
       <a mat-flat-button routerLink="/login" [queryParams]="{ returnUrl: '/creator' }">Connexion</a>
     </section>
   } @else {
+    <th-payouts-panel what="créations" />
     @if (reviewer()) {
       <div class="tabs" role="tablist" aria-label="Atelier">
         <button type="button" role="tab" [attr.aria-selected]="tab() === 'mine'" [class.on]="tab() === 'mine'" (click)="tab.set('mine')"><mat-icon>brush</mat-icon>Mes créations</button>
@@ -40,7 +41,7 @@
             <mat-form-field subscriptSizing="dynamic">
               <mat-label>Prix affiché (€)</mat-label>
               <input matInput type="number" min="0" max="20" step="0.5" [ngModel]="d.euros" (ngModelChange)="patchDraft({ euros: +$event })" />
-              <mat-hint>0 = offert. Tout est offert pendant le lancement.</mat-hint>
+              <mat-hint>0 = offert.{{ shop.payments() ? '' : ' Tout est offert pendant le lancement.' }}</mat-hint>
             </mat-form-field>
           </div>
           <mat-form-field subscriptSizing="dynamic">

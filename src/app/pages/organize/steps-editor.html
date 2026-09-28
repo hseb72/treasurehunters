@@ -107,7 +107,7 @@
             @if (lockedPacks().length) {
               <p class="small muted packs">
                 @for (pk of lockedPacks(); track pk.id) {
-                  <button mat-stroked-button type="button" (click)="obtainPack(pk.id)" [disabled]="packBusy()"><mat-icon>lock_open</mat-icon>{{ pk.name }} — offert</button>
+                  <button mat-stroked-button type="button" (click)="obtainPack(pk.id)" [disabled]="packBusy()"><mat-icon>lock_open</mat-icon>{{ pk.name }} — {{ shop.offer(pk.id) }}</button>
                 }
               </p>
             }
