@@ -439,6 +439,10 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     service.resolveReport(req.viewer, idParams.parse(req.params).id, z.object({ resolved: z.boolean() }).parse(req.body).resolved),
   );
   app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.get('/api/catalog/:id/challenge/:huntId', async (req) => {
+    const p = z.object({ id, huntId: id }).parse(req.params);
+    return service.challenge(req.viewer, p.id, p.huntId);
+  });
   app.get('/api/catalog/:id/leaderboard', async (req) => service.autonomyLeaderboard(req.viewer, idParams.parse(req.params).id));
   app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));
   app.delete('/api/catalog/:id', async (req) => service.withdrawFromCatalog(req.viewer, idParams.parse(req.params).id));

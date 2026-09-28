@@ -86,5 +86,12 @@ describe('jouer en autonomie', () => {
     expect(mine.penalty).toBeGreaterThan(0);
     expect(board.rows[0].time).toBeLessThanOrEqual(board.rows[1].time);
     expect((await client(ctx.app).get(`/api/catalog/${id}/leaderboard`)).body.rows.every((r: { mine: boolean }) => !r.mine));
+
+    // Défi « bats mon temps » (§ 28) : lisible par tous, seulement pour une partie finie de cette version.
+    const challenge = (await client(ctx.app).get(`/api/catalog/${id}/challenge/${hunt.id}`)).body;
+    expect(challenge).toMatchObject({ catalogId: id, huntId: hunt.id, teamName: 'Emma', rank: 2, finishers: 2, time: mine.time });
+    expect((await client(ctx.app).get(`/api/catalog/${id + 1000}/challenge/${hunt.id}`)).status).toBe(404);
+    const waiting = (await emma.post(`/api/catalog/${id}/play`)).body;
+    expect((await client(ctx.app).get(`/api/catalog/${id}/challenge/${waiting.id}`)).status).toBe(404);
   });
 });

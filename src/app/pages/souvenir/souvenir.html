@@ -50,6 +50,9 @@
         @if (s.catalogId !== null) {
           <a mat-button [routerLink]="['/catalog', s.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Classement de la chasse</a>
         }
+        @if (s.scope === 'catalog') {
+          <button mat-button type="button" (click)="dare(s)"><mat-icon>sports_score</mat-icon>Défier un ami</button>
+        }
       </div>
     }
   </div>

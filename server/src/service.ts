@@ -41,6 +41,7 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
 import { PracticalTag } from '../../shared/practical.js';
@@ -1836,6 +1837,23 @@ export class Service {
     rows.sort((a, b) => a.time - b.time || a.at - b.at);
     rows.forEach((r, i) => (r.rank = i + 1));
     return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
+  }
+
+  /**
+   * Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie terminée de cette
+   * version, et son rang. Rien de plus que ce que montre déjà le classement public.
+   */
+  async challenge(viewer: Viewer, id: number, huntId: number): Promise<Challenge> {
+    const hunt = await huntById(this.pool, huntId);
+    if (!hunt || hunt.catalogId !== id || !hunt.surprise || hunt.hostId === null) throw notFound('Ce défi n’existe pas.');
+    const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [huntId]);
+    const row = computeRanking(hunt, teams, await validationsOfHunt(this.pool, huntId), await hintUsesOfHunt(this.pool, huntId)).find(
+      (r) => r.time !== null && r.finished,
+    );
+    if (!row) throw notFound('Cette partie n’est pas encore terminée : pas de temps à battre.');
+    const board = await this.autonomyLeaderboard(viewer, id);
+    const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+    return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
   }
 
   /**

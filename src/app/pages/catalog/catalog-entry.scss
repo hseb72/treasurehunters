@@ -113,3 +113,12 @@
   ul { margin: 4px 0; padding-left: 18px; }
   p { margin: 0; }
 }
+
+.challenge {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 2px solid var(--th-accent);
+  > mat-icon { color: var(--th-accent); flex: none; }
+  p { margin: 4px 0; }
+}

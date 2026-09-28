@@ -39,6 +39,7 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -190,6 +191,8 @@ export abstract class HuntApi {
   /** Jouer une chasse du catalogue en autonomie : la partie du joueur, à lancer sur place. */
   abstract playFromCatalog(id: number): Observable<Hunt>;
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
+  /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
+  abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
   /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */
   abstract getSouvenir(huntId: number): Observable<Souvenir>;
   abstract publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail>;

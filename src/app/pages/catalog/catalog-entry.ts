@@ -16,6 +16,7 @@ import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { Confirm } from '../../shared/confirm-dialog';
+import { ShareLink } from '../../core/share';
 import { Stars } from '../../shared/stars';
 
 /** Fiche d'une version du catalogue : présentation, extrait, avis, versions, et copie. */
@@ -37,6 +38,29 @@ export class CatalogEntryPage {
   protected readonly session = inject(Session);
 
   readonly id = input.required({ transform: numberAttribute });
+  /** « ?defi=12 » : un ami lance un défi « bats mon temps » avec sa partie (§ 28). */
+  readonly defi = input<string | undefined>();
+  private readonly shareLink = inject(ShareLink);
+  protected readonly challenge = rxResource({
+    params: () => {
+      const hunt = Number(this.defi());
+      return Number.isInteger(hunt) && hunt > 0 ? { id: this.id(), hunt } : undefined;
+    },
+    stream: ({ params }) => this.api.getChallenge(params.id, params.hunt),
+  });
+
+  protected scrollTo(id: string): void {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** Défier un ami avec sa dernière partie finie : un lien vers la fiche, avec son temps à battre. */
+  protected dare(): void {
+    const e = this.entry.value();
+    const last = this.finishedPlays()[0];
+    if (!e || !last) return;
+    const url = `${location.origin}/catalog/${e.id}?defi=${last.huntId}`;
+    void this.shareLink.share(e.title, `J'ai fini « ${e.title} » : sauras-tu battre mon temps ?`, url);
+  }
 
   protected readonly entry = rxResource({
     params: () => ({ id: this.id(), user: this.session.user()?.id }),

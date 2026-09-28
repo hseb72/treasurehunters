@@ -42,6 +42,7 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
@@ -796,6 +797,19 @@ export class MockHuntApi extends HuntApi {
 
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.reply(() => this.autonomyBoard(id));
+  }
+
+  /** Défi « bats mon temps » (§ 28), comme le serveur. */
+  getChallenge(id: number, huntId: number): Observable<Challenge> {
+    return this.reply(() => {
+      const h = this.db.hunts.find((x) => x.id === huntId);
+      if (!h || h.catalogId !== id || !h.surprise || h.hostId === null) throw new ApiError('Ce défi n’existe pas.');
+      const row = this.ranking(huntId).find((r) => r.time !== null && r.finished);
+      if (!row) throw new ApiError('Cette partie n’est pas encore terminée : pas de temps à battre.');
+      const board = this.autonomyBoard(id);
+      const rank = 1 + board.rows.filter((r) => r.time < row.time! || (r.time === row.time && Date.parse(r.finished) < Date.parse(row.finished!))).length;
+      return { catalogId: id, huntId, teamName: row.teamName, time: row.time!, rank, finishers: board.finishers, finished: row.finished! };
+    });
   }
 
   /** Souvenir de fin de partie (§ 24), comme le serveur. */

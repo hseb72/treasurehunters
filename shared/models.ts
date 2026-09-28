@@ -555,6 +555,18 @@ export interface AutonomyLeaderboard {
   rows: AutonomyRow[];
 }
 
+/** Défi « bats mon temps » (§ 28) : la partie en autonomie d'un joueur, à battre sur la même chasse. */
+export interface Challenge {
+  catalogId: number;
+  huntId: number;
+  teamName: string;
+  /** Temps à battre, en secondes, pénalités comprises. */
+  time: number;
+  rank: number;
+  finishers: number;
+  finished: string;
+}
+
 export interface AutonomyRow {
   rank: number;
   teamName: string;

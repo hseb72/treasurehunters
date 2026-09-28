@@ -32,6 +32,7 @@ import {
   CompassReading,
   PuzzleResult,
   Souvenir,
+  Challenge,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
@@ -176,6 +177,9 @@ export class HttpHuntApi extends HuntApi {
   }
   getSouvenir(huntId: number): Observable<Souvenir> {
     return this.http.get<Souvenir>(`${this.url}/hunts/${huntId}/souvenir`);
+  }
+  getChallenge(id: number, huntId: number): Observable<Challenge> {
+    return this.http.get<Challenge>(`${this.url}/catalog/${id}/challenge/${huntId}`);
   }
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.http.get<AutonomyLeaderboard>(`${this.url}/catalog/${id}/leaderboard`);
