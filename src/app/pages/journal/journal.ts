@@ -35,7 +35,7 @@ import { DurationPipe } from '../../shared/format';
           <h2 class="section-title">Badges <span class="small muted">· {{ earned() }} / {{ j.badges.length }}</span></h2>
           <ul class="badges">
             @for (b of j.badges; track b.id) {
-              <li class="surface badge" [class.badge--off]="!b.earned" [attr.aria-label]="b.label + (b.earned ? ', obtenu' : ', à obtenir : ' + b.hint)">
+              <li class="surface award" [class.award--off]="!b.earned" [attr.aria-label]="b.label + (b.earned ? ', obtenu' : ', à obtenir : ' + b.hint)">
                 <mat-icon>{{ b.earned ? b.icon : 'lock' }}</mat-icon>
                 <strong>{{ b.label }}</strong>
                 <span class="small muted">{{ b.hint }}</span>
@@ -93,11 +93,13 @@ import { DurationPipe } from '../../shared/format';
     .totals div { display: flex; flex-direction: column; }
     .totals strong { font-size: 1.6rem; color: var(--th-primary); }
     @media (max-width: 420px) { .totals { grid-template-columns: repeat(2, 1fr); } }
-    .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
-    .badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 12px; }
-    .badge mat-icon { width: 32px; height: 32px; font-size: 32px; color: var(--th-accent); }
-    .badge--off { opacity: 0.55; }
-    .badge--off mat-icon { color: var(--th-ink-soft); }
+    .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+    /* « award » et non « badge » : .badge est l'étiquette de statut de l'application (pastille d'une ligne). */
+    .award { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 4px; padding: 12px; min-width: 0; overflow-wrap: anywhere; }
+    .award strong { line-height: 1.25; }
+    .award mat-icon { width: 32px; height: 32px; font-size: 32px; color: var(--th-accent); }
+    .award--off { opacity: 0.6; }
+    .award--off mat-icon { color: var(--th-ink-soft); }
     .cities { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
     .city { padding: 4px 10px; border-radius: 999px; background: var(--th-surface-sunken); }
     .hunts { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }

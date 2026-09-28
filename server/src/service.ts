@@ -719,7 +719,7 @@ export class Service {
    * son carnet montre déjà (jamais les énigmes ni les lieux à venir). Chaque texte n'est
    * traduit qu'une fois (cache th_translations) ; sans IA, seul le cache répond.
    */
-  async translate(viewer: Viewer, req: { lang: 'en'; hunt?: number; catalog?: number[] }): Promise<Record<string, string>> {
+  async translate(viewer: Viewer, req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Promise<Record<string, string>> {
     const texts = new Set<string>();
     const add = (t: string | null | undefined) => {
       const v = t?.trim();
@@ -732,6 +732,11 @@ export class Service {
         [req.catalog.slice(0, 30), viewer],
       );
       for (const r of list) [r['cat_title'], r['cat_summary'], r['cat_sample'], r['cat_location']].forEach(add);
+    }
+    // Fiches des expéditions (accueil, page d'une expédition) : ce que tout visiteur y lit déjà.
+    for (const id of (req.info ?? []).slice(0, 30)) {
+      const h = await this.visibleHunt(this.pool, viewer, id).catch(() => null);
+      if (h) [h.name, h.location, h.description, h.startText, h.award].forEach(add);
     }
     if (req.hunt) {
       const state = await this.playState(this.pool, requireUser(viewer), req.hunt);

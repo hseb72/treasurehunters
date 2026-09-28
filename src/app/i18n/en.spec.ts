@@ -14,6 +14,14 @@ describe('version anglaise (§ 33)', () => {
     expect(translateUi('Sans joker, à obtenir : Finir une chasse sans prendre de joker.')).toBe('No hints, to earn: Finish a hunt without taking a hint.');
   });
 
+  it('couvre l’inscription et les règles d’une expédition', () => {
+    expect(translateUi('Fonder une équipe')).toBe('Start a team');
+    expect(translateUi('Rejoindre des équipiers')).toBe('Join teammates');
+    expect(translateUi(": tout le monde part ensemble, le premier arrivé l'emporte.")).toBe(': everyone starts together, first to finish wins.');
+    expect(translateUi("L'expédition débutera le Thursday 1 October à 14:00.")).toBe('The expedition will start on Thursday 1 October at 14:00.');
+    expect(translateUi('Balade : À pied, en toute détente : les lieux sont à quelques rues les uns des autres.')).toBe('Stroll: On foot, at a relaxed pace: places are a few streets apart.');
+  });
+
   it('laisse en français ce qu’il ne connaît pas', () => {
     expect(translateUi('Le Trésor des Nèfles')).toBeNull();
   });

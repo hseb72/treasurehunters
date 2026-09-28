@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { DomTranslator } from '../../core/dom-translator';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -46,6 +47,13 @@ export class HomePage {
     params: () => this.session.user()?.id ?? 0,
     stream: () => this.api.listHunts('public'),
     defaultValue: [],
+  });
+
+  /** Version anglaise (§ 33) : noms, lieux et trésors des expéditions affichées. */
+  private readonly i18n = inject(DomTranslator);
+  private readonly translateContent = effect(() => {
+    const ids = [...new Set([...this.mine.value(), ...this.open.value()].map((h) => h.id))];
+    if (ids.length) untracked(() => this.i18n.requestContent({ info: ids.slice(0, 30) }));
   });
 
   protected readonly running = computed(() => this.mine.value().filter((h) => h.status === 'running'));

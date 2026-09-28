@@ -439,7 +439,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   /* ----- Version anglaise (§ 33) */
   app.post('/api/translate', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (req) => {
     const body = z
-      .object({ lang: z.literal('en'), hunt: id.optional(), catalog: z.array(id).max(30).optional() })
+      .object({ lang: z.literal('en'), hunt: id.optional(), catalog: z.array(id).max(30).optional(), info: z.array(id).max(30).optional() })
       .parse(req.body);
     return service.translate(req.viewer, body);
   });

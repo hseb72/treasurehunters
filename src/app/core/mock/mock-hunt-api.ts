@@ -1751,13 +1751,17 @@ export class MockHuntApi extends HuntApi {
   /* ---------- Version anglaise (§ 33), simulée ---------- */
 
   /** La maquette « traduit » en marquant le texte : de quoi voir ce que le serveur traduirait. */
-  translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>> {
+  translate(req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Observable<Record<string, string>> {
     return this.reply(() => {
       const texts = new Set<string>();
       const add = (t: string | null | undefined) => t?.trim() && texts.add(t.trim());
       for (const id of req.catalog ?? []) {
         const e = this.catalog.find((x) => x.id === id);
         if (e) [e.title, e.summary, e.sample, e.location].forEach(add);
+      }
+      for (const id of req.info ?? []) {
+        const h = this.db.hunts.find((x) => x.id === id);
+        if (h) [h.name, h.location, h.description, h.startText, h.award].forEach(add);
       }
       if (req.hunt) {
         const state = this.playState(req.hunt);

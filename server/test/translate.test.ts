@@ -50,6 +50,10 @@ describe('version anglaise (§ 33)', () => {
       expect(cat[entries[0]!.title]).toBe(`EN: ${entries[0]!.title}`);
     }
 
+    // Fiches publiques des expéditions (accueil, page d'une expédition).
+    const info = (await client(ctx.app).post('/api/translate', { lang: 'en', info: [1] })).body;
+    expect(info[play.hunt.name]).toBe(`EN: ${play.hunt.name}`);
+
     // Une partie dont on n'est pas.
     const louis = await loginAs(ctx.app, 'louis@example.com');
     expect([403, 404]).toContain((await louis.post('/api/translate', { lang: 'en', hunt: 1 })).status);

@@ -1,5 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, numberAttribute, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, linkedSignal, numberAttribute, signal, untracked } from '@angular/core';
+import { DomTranslator } from '../../core/dom-translator';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +39,12 @@ export class HuntDetailPage {
   readonly code = input<string>();
 
   protected readonly hunt = rxResource({ params: () => this.id(), stream: ({ params }) => this.api.getHunt(params) });
+  /** Version anglaise (§ 33) : présentation, départ et trésor de l'expédition. */
+  private readonly i18n = inject(DomTranslator);
+  private readonly translateContent = effect(() => {
+    const h = this.hunt.value();
+    if (h) untracked(() => this.i18n.requestContent({ info: [h.id] }));
+  });
   /** Skin de la chasse, dès qu'elle est connue. */
   protected readonly skin = computed(() => this.hunt.value()?.skin);
   protected readonly teams = rxResource({ params: () => this.id(), stream: ({ params }) => this.api.getTeams(params), defaultValue: [] });
