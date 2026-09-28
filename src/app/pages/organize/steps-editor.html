@@ -257,6 +257,16 @@
   </div>
 </ng-template>
 
+@if (!locked()) {
+  @if (importing()) {
+    <th-route-import class="surface import" [huntId]="workspace.huntId()" [steps]="steps.value()" (imported)="afterImport()" (closed)="importing.set(false)" />
+  } @else {
+    <div class="import-cta">
+      <button mat-stroked-button type="button" (click)="importing.set(true)"><mat-icon>upload_file</mat-icon>Importer des lieux (liste, GPX)</button>
+    </div>
+  }
+}
+
 <div class="route">
   @if (start(); as s) {
     <ng-container *ngTemplateOutlet="stepCard; context: { $implicit: s, kind: 'start' }" />

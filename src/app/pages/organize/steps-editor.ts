@@ -18,6 +18,7 @@ import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 import { AssistPanel } from './assist-panel';
+import { RouteImport } from './route-import';
 import { RouterLink } from '@angular/router';
 
 import { MatSelectModule } from '@angular/material/select';
@@ -26,7 +27,7 @@ import { Shop } from '../../core/shop';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [AssistPanel, RouterLink, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [AssistPanel, RouteImport, RouterLink, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -36,7 +37,9 @@ export class StepsEditorPage {
   private readonly notify = inject(Notify);
   private readonly confirm = inject(Confirm);
   private readonly fb = inject(FormBuilder).nonNullable;
-  private readonly workspace = inject(WorkspaceState);
+  protected readonly workspace = inject(WorkspaceState);
+  /** Import d'un parcours ouvert (§ 31). */
+  protected readonly importing = signal(false);
 
   protected readonly steps = rxResource({
     params: () => this.workspace.huntId() || undefined,
@@ -268,6 +271,12 @@ export class StepsEditorPage {
         this.refBusy.set(false);
       },
     });
+  }
+
+  protected afterImport(): void {
+    this.importing.set(false);
+    this.steps.reload();
+    this.workspace.hunt.reload();
   }
 
   protected add(): void {
