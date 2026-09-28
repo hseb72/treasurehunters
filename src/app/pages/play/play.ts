@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
-import { CheckinResult, PhotoResult } from '@shared/models';
+import { CheckinResult, CompassReading, PhotoResult } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -18,6 +18,8 @@ import { Confirm } from '../../shared/confirm-dialog';
 import { InvitePanel } from '../../shared/invite-panel';
 import { StartPlace } from '../../shared/start-place';
 import { Trail } from '../../shared/trail';
+import { TrailMap } from '../../shared/trail-map';
+import { LatLng } from '../../shared/location-map';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
 const REFRESH_MS = 15_000;
@@ -26,10 +28,10 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail],
+  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
-  styleUrl: './play.scss',
+  styleUrls: ['./play.scss', './play-tools.scss'],
 })
 export class PlayPage {
   private readonly api = inject(HuntApi);
@@ -48,6 +50,58 @@ export class PlayPage {
   protected readonly skin = computed(() => this.state.value()?.hunt.skin);
   protected readonly fx = inject(SkinEffects);
   protected readonly fxClass = computed(() => this.fx.validateClass(this.skin()));
+
+  /* ---------- Barre d'outils (§ 16) ---------- */
+
+  protected readonly sheet = signal<'map' | 'compass' | 'team' | null>(null);
+  protected readonly sheetTitles = { map: 'Carte du parcours', compass: 'Boussole', team: 'Mon équipe' } as const;
+  protected readonly me = signal<LatLng | null>(null);
+  protected readonly locatingMe = signal(false);
+  protected readonly reading = signal<CompassReading | null>(null);
+  protected readonly compassBusy = signal(false);
+
+  protected openSheet(kind: 'map' | 'compass' | 'team'): void {
+    this.sheet.set(this.sheet() === kind ? null : kind);
+    if (this.sheet() === 'compass') this.useCompass();
+  }
+
+  protected showClue(): void {
+    this.sheet.set(null);
+    document.querySelector('.clue')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  protected async locateMe(): Promise<void> {
+    this.locatingMe.set(true);
+    try {
+      const p = await currentPosition();
+      this.me.set({ lat: p.lat, lng: p.lng });
+    } catch (e) {
+      this.notify.error(e);
+    } finally {
+      this.locatingMe.set(false);
+    }
+  }
+
+  /** La boussole : direction et fourchette de distance, depuis la position du téléphone. */
+  protected async useCompass(): Promise<void> {
+    this.compassBusy.set(true);
+    try {
+      const p = await currentPosition();
+      this.api.compass(this.id(), { lat: p.lat, lng: p.lng }).subscribe({
+        next: (r) => {
+          this.reading.set(r);
+          this.compassBusy.set(false);
+        },
+        error: (e) => {
+          this.notify.error(e);
+          this.compassBusy.set(false);
+        },
+      });
+    } catch (e) {
+      this.notify.error(e);
+      this.compassBusy.set(false);
+    }
+  }
 
   /** Son et animation d'une étape validée ; fanfare et confettis pour le trésor. */
   private celebrate(isFinal: boolean): void {

@@ -62,6 +62,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     catalogId: null,
     travel: 'walk',
     skin: 'aventure',
+    tools: ['live'] as string[],
     difficulty: null,
     durationMinutes: null,
     teamGame: true,

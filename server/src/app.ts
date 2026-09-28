@@ -10,6 +10,7 @@ import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
 import { SKIN_IDS } from '../../shared/skins.js';
+import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -50,6 +51,10 @@ const huntFields = {
   geoRadius: z.number().int().min(10).max(500),
   travel: z.enum(['walk', 'active', 'motor']),
   skin: z.enum(SKIN_IDS),
+  tools: z
+    .array(z.enum(TOOL_IDS))
+    .max(TOOL_IDS.length)
+    .transform((t) => [...new Set(t)]),
   difficulty: z.enum(['easy', 'medium', 'hard']).nullable(),
   durationMinutes: z.number().int().min(10).max(1440).nullable(),
 };
@@ -169,6 +174,17 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
 
   app.get('/api/health', async () => ({ ok: true }));
   app.get('/api/features', async () => service.features());
+
+  /* ----- Boutique (§ 16) */
+  app.get('/api/store', async (req) => service.store(req.viewer));
+  app.post('/api/store/:product/acquire', async (req) => {
+    const { product } = z.object({ product: z.enum(PRODUCT_IDS) }).parse(req.params);
+    return service.acquire(req.viewer, product);
+  });
+  app.post('/api/hunts/:id/compass', async (req) => {
+    const pos = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(req.body);
+    return service.compass(req.viewer, idParams.parse(req.params).id, pos);
+  });
 
   /* ----- Comptes */
   app.post('/api/auth/register', strict, async (req) => {

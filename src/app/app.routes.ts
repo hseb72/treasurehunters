@@ -13,6 +13,7 @@ export const routes: Routes = [
   { path: 'catalog/:id', title: 'Chasse du catalogue', loadComponent: () => import('./pages/catalog/catalog-entry').then((m) => m.CatalogEntryPage) },
   { path: 'organizers/:id', title: 'Organisateur', loadComponent: () => import('./pages/organizer/organizer').then((m) => m.OrganizerPage) },
   { path: 'generate', title: 'Chasse sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
+  { path: 'store', title: 'Boutique', loadComponent: () => import('./pages/store/store').then((m) => m.StorePage) },
   { path: 'scan', title: 'Scanner', loadComponent: () => import('./pages/scanner/scanner').then((m) => m.ScannerPage) },
   { path: 'q/:token', title: 'Indice', loadComponent: () => import('./pages/scan-result/scan-result').then((m) => m.ScanResultPage) },
   {

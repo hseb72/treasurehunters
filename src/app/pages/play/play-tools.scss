@@ -1,0 +1,132 @@
+// Barre d'outils du carnet de route (§ 16) et ses panneaux : carte, boussole, équipe.
+.toolbar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 11;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  color: var(--th-banner-ink);
+  background: var(--th-texture), var(--th-banner-bg);
+  border-top: var(--th-surface-border);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+
+  button,
+  a {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    max-width: 96px;
+    padding: 4px 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    font: 600 0.72rem var(--th-font-body);
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+
+    &.on {
+      color: var(--th-banner-title);
+      background: color-mix(in srgb, var(--th-banner-title) 15%, transparent);
+    }
+  }
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 13;
+  width: min(760px, calc(100% - 16px));
+  max-height: 80vh;
+  overflow: auto;
+  transform: translateX(-50%);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.sheet-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.rose {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 8px auto 16px;
+  border: 3px solid var(--th-accent);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--th-surface-sunken), transparent 70%);
+}
+
+.cardinal {
+  position: absolute;
+  font: 700 0.9rem var(--th-font-title);
+  color: var(--th-ink-soft);
+
+  &.n { top: 6px; left: 50%; transform: translateX(-50%); color: var(--th-danger); }
+  &.s { bottom: 6px; left: 50%; transform: translateX(-50%); }
+  &.e { right: 8px; top: 50%; transform: translateY(-50%); }
+  &.w { left: 8px; top: 50%; transform: translateY(-50%); }
+}
+
+.needle {
+  position: absolute;
+  inset: 20px;
+  transition: transform 0.6s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 70px solid var(--th-danger);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--th-primary);
+  }
+}

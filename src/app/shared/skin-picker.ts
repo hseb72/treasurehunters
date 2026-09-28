@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, model, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { SKINS, skinById } from '@shared/skins';
+import { Notify } from '../core/notify';
+import { Shop } from '../core/shop';
 import { SkinDirective, SkinEffects } from './skin';
 
 /**
@@ -9,21 +12,26 @@ import { SkinDirective, SkinEffects } from './skin';
  */
 @Component({
   selector: 'th-skin-picker',
-  imports: [MatIconModule, SkinDirective],
+  imports: [MatIconModule, RouterLink, SkinDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="skins" role="radiogroup" aria-label="Skin de la chasse">
       @for (s of skins; track s.id) {
-        <button type="button" class="skin-card" role="radio" [attr.aria-checked]="value() === s.id" [class.on]="value() === s.id" (click)="value.set(s.id)">
+        @let owned = s.id === value() || shop.owns('skin:' + s.id);
+        <button type="button" class="skin-card" role="radio" [attr.aria-checked]="value() === s.id" [class.on]="value() === s.id" (click)="choose(s.id)" [disabled]="busy()">
           <img [src]="s.cover" alt="" />
           <span class="name">{{ s.name }}</span>
-          <span class="price">{{ s.price ? (s.price / 100).toFixed(2).replace('.', ',') + ' €' : 'Offert' }}</span>
+          @if (owned) {
+            <span class="price">Dans votre collection</span>
+          } @else {
+            <span class="price locked"><mat-icon inline>lock_open</mat-icon> Obtenir — offert</span>
+          }
         </button>
       }
     </div>
 
     @let s = selected();
-    <p class="small muted description">{{ s.description }}</p>
+    <p class="small muted description">{{ s.description }} <a routerLink="/store">Voir la boutique</a></p>
     <div class="preview" [thSkin]="s.id" aria-label="Aperçu du skin">
       <div class="banner preview-head">
         <span class="small muted">Aperçu joueur</span>
@@ -50,6 +58,7 @@ import { SkinDirective, SkinEffects } from './skin';
     .skin-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; margin-bottom: 4px; }
     .skin-card .name { padding: 0 10px; font-weight: 700; }
     .skin-card .price { padding: 0 10px; font-size: 0.8rem; color: var(--th-success); font-weight: 600; }
+    .skin-card .price.locked { color: var(--th-primary-light); }
     .skin-card.on { border-color: var(--th-primary-light); box-shadow: 0 0 0 3px color-mix(in srgb, var(--th-primary-light) 25%, transparent); }
     .description { margin: 0; }
     .preview { min-height: 0; padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -64,5 +73,28 @@ export class SkinPicker {
   readonly value = model.required<string>();
   protected readonly skins = SKINS;
   protected readonly fx = inject(SkinEffects);
+  protected readonly shop = inject(Shop);
+  private readonly notify = inject(Notify);
   protected readonly selected = computed(() => skinById(this.value()));
+  protected readonly busy = signal(false);
+
+  /** Un univers pas encore obtenu l'est d'abord (offert pendant le lancement), puis choisi. */
+  protected choose(id: string): void {
+    if (id === this.value() || this.shop.owns(`skin:${id}`)) {
+      this.value.set(id);
+      return;
+    }
+    this.busy.set(true);
+    this.shop.acquire(`skin:${id}`).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.value.set(id);
+        this.notify.info(`Univers « ${skinById(id).name} » ajouté à votre collection.`);
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.notify.error(e);
+      },
+    });
+  }
 }

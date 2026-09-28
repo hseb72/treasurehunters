@@ -149,7 +149,7 @@
 .scan-fab {
   position: fixed;
   right: 20px;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(84px + env(safe-area-inset-bottom));
   --mat-fab-container-color: var(--th-danger);
   --mat-fab-foreground-color: var(--th-on-primary);
 }
@@ -184,7 +184,7 @@
 }
 
 /* Le bouton flottant ne doit pas masquer le bas de la page. */
-.with-fab { padding-bottom: 96px; }
+.with-fab { padding-bottom: 170px; }
 
 .start-modes {
   display: grid;

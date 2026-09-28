@@ -64,6 +64,8 @@ export interface Hunt {
   travel: Travel;
   /** Skin : l'habillage que voient les joueurs (shared/skins.ts). */
   skin: string;
+  /** Outils de jeu proposés aux joueurs (shared/store.ts) : carte, boussole, position en direct. */
+  tools: string[];
   /** Difficulté des énigmes et durée prévue (minutes), reprises à la publication au catalogue. */
   difficulty: Difficulty | null;
   durationMinutes: number | null;
@@ -200,6 +202,33 @@ export interface PlayState {
   photoProof: boolean;
   /** Point de départ (étape 0), s'il est placé sur la carte. */
   start: { name: string | null; lat: number; lng: number } | null;
+  /** Outil Carte : les lieux déjà trouvés par l'équipe, placés (null sans l'outil). */
+  trail: { order: number; title: string; lat: number; lng: number }[] | null;
+}
+
+/* ---------- Boutique (§ 16) ---------- */
+
+/** Une extension de la boutique, et si le joueur la possède. */
+export interface StoreItem {
+  id: string;
+  kind: 'skin' | 'tool';
+  ref: string;
+  name: string;
+  description: string;
+  /** Prix affiché, en centimes ; l'acquisition reste offerte pour l'instant. */
+  price: number;
+  included: boolean;
+  cover: string | null;
+  icon: string | null;
+  owned: boolean;
+}
+
+/** Indication de la boussole vers le prochain lieu. */
+export interface CompassReading {
+  /** Cap en degrés depuis le nord, arrondi à 45°. */
+  bearing: number;
+  direction: string;
+  band: string;
 }
 
 /* ---------- Preuve par photo (§ 12) ---------- */

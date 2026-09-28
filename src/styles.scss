@@ -473,6 +473,24 @@ a.surface {
   z-index: 2000;
 }
 
+// Repères de l'outil Carte (Leaflet, hors de l'encapsulation des composants).
+.trail-pin {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  font: 700 0.85rem/1 var(--th-font-body);
+  color: #fff;
+  background: #13294b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.trail-pin--start {
+  background: #e4572e;
+}
+
 /* ---------- Ajustements Material ---------- */
 
 .mat-mdc-form-field {

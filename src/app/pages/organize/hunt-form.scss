@@ -97,3 +97,27 @@ h3 {
 .actions {
   padding-bottom: 24px;
 }
+
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tool-icon {
+  flex: none;
+  color: var(--th-primary-light);
+}
+
+.tool-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}

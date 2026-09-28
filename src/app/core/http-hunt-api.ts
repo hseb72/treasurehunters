@@ -22,6 +22,8 @@ import {
   ScanResult,
   Step,
   Team,
+  StoreItem,
+  CompassReading,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -164,6 +166,15 @@ export class HttpHuntApi extends HuntApi {
 
   getFeatures(): Observable<Features> {
     return this.http.get<Features>(`${this.url}/features`);
+  }
+  getStore(): Observable<StoreItem[]> {
+    return this.http.get<StoreItem[]>(`${this.url}/store`);
+  }
+  acquire(productId: string): Observable<StoreItem[]> {
+    return this.http.post<StoreItem[]>(`${this.url}/store/${encodeURIComponent(productId)}/acquire`, {});
+  }
+  compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
+    return this.http.post<CompassReading>(`${this.url}/hunts/${huntId}/compass`, pos);
   }
   submitPhoto(huntId: number, image: string): Observable<PhotoResult> {
     return this.http.post<PhotoResult>(`${this.url}/hunts/${huntId}/photos`, { image });
