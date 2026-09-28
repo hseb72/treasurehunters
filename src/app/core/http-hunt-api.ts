@@ -33,6 +33,7 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
 import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
+import { GenerationAccess } from '@shared/generation-access';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -187,6 +188,9 @@ export class HttpHuntApi extends HuntApi {
     return this.http.post<StoreItem[]>(`${this.url}/store/${encodeURIComponent(productId)}/acquire`, {});
   }
 
+  generationAccess(): Observable<GenerationAccess> {
+    return this.http.get<GenerationAccess>(`${this.url}/generation/access`);
+  }
   checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
     return this.http.post<CheckoutResult>(`${this.url}/store/${encodeURIComponent(productId)}/checkout`, { returnPath });
   }

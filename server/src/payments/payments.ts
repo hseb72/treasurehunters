@@ -7,6 +7,8 @@ import pg from 'pg';
 import { creationProductId, creationRef } from '../../../shared/creations.js';
 import { CheckoutResult, PayoutAccount, StoreItem } from '../../../shared/models.js';
 import { productById } from '../../../shared/store.js';
+import { generationOffer } from '../../../shared/generation-access.js';
+import { grantOffer } from '../generation/access.js';
 import { config } from '../config.js';
 import { publishedCreation } from '../creations.js';
 import { one, tx } from '../db.js';
@@ -48,6 +50,8 @@ export class Payments {
       const r = await one(this.pool, 'SELECT cat_title, cat_price, cat_author_htr, cat_withdrawn FROM th_catalog WHERE cat_id = $1', [Number(hunt[1])]);
       return r && !r['cat_withdrawn'] ? { id: productId, name: `Chasse « ${r['cat_title']} »`, price: r['cat_price'], sellerId: r['cat_author_htr'] } : null;
     }
+    const offer = generationOffer(productId);
+    if (offer) return { id: productId, name: offer.name, price: offer.price, sellerId: null };
     const ref = creationRef(productId);
     if (ref !== null) {
       const c = await publishedCreation(this.pool, ref);
@@ -70,7 +74,9 @@ export class Payments {
     if (!this.provider) throw new HttpError(503, 'Le paiement n’est pas activé : les extensions sont offertes.');
     const item = await this.sellable(productId);
     if (!item) throw notFound('Produit inconnu.');
-    if (item.price === 0 || item.sellerId === viewer || (await this.owned(viewer, productId))) {
+    // Chasse sur mesure (§ 21) : crédits et forfaits se rachètent, ils ne se « possèdent » pas.
+    const consumable = !!generationOffer(productId);
+    if (!consumable && (item.price === 0 || item.sellerId === viewer || (await this.owned(viewer, productId)))) {
       if (item.price === 0 && !productById(productId)?.included) {
         await this.pool.query('INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, 0) ON CONFLICT DO NOTHING', [viewer, productId]);
       }
@@ -114,6 +120,11 @@ export class Payments {
         const pay = await one(db, `SELECT * FROM th_payments WHERE pay_session = $1 FOR UPDATE`, [o['id']]);
         if (!pay || pay['pay_status'] === 'paid') return;
         await db.query(`UPDATE th_payments SET pay_status = 'paid', pay_paid = now() WHERE pay_id = $1`, [pay['pay_id']]);
+        const offer = generationOffer(pay['pay_product']);
+        if (offer) {
+          await grantOffer(db, pay['pay_hunter_htr'], offer, pay['pay_id']);
+          return;
+        }
         await db.query(
           'INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, $3) ON CONFLICT (pur_hunter_htr, pur_product) DO UPDATE SET pur_price = EXCLUDED.pur_price',
           [pay['pay_hunter_htr'], pay['pay_product'], pay['pay_amount']],

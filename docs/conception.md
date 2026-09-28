@@ -721,3 +721,26 @@ Les prix affichés deviennent payés quand Stripe est configuré. **Sans clés S
 
 **Maquette** : le paiement y est activé et simulé (retour immédiat, paiement confirmé), pour montrer les écrans.
 
+## 21. Chasse sur mesure payante
+
+Le catalogue d'abord (§ 13.5) ; si rien n'y plaît, la **chasse sur mesure** (§ 11) : l'IA en invente une. Chaque génération coûte (API d'IA, OpenStreetMap) : elle devient payante quand le paiement est activé (§ 20), et **des limites d'usage s'appliquent à tous**, décrites dans les conditions d'utilisation (`/conditions`).
+
+**Qui peut générer** (`shared/generation-access.ts`, `pickRight`, dans cet ordre)
+
+| Droit | Obtenu | Réglage |
+|---|---|---|
+| Gratuit | paiement non activé | comme avant, limites comprises |
+| Fondateur | `th_hunters.htr_founder` (posé en base) | inclus |
+| Forfait | `gen:month` (10 €, 30 jours) ou `gen:year` (100 €, 365 jours), sans reconduction ; un nouveau forfait prolonge le précédent | inclus, 40 chasses par 30 jours glissants |
+| Crédit | `gen:single` (2,99 €, une chasse), ou **bonus créateur** : 2 crédits par chasse partagée au catalogue et jouée jusqu'au bout par d'autres (copie organisée ou partie en autonomie), 20 au plus | un crédit par chasse réussie ; n'expire pas |
+
+Sans droit, la génération répond 402 et la page propose les formules. Les crédits et forfaits s'achètent comme les autres produits (`POST /store/gen:…/checkout`), mais se **rachètent** : le webhook de paiement les inscrit dans `th_genrights` au lieu de `th_purchases`.
+
+**Limites d'usage, pour tous** : 5 chasses réussies par 24 heures (`GENERATION_DAILY_QUOTA`), 20 essais par 24 heures échecs compris, 40 chasses par 30 jours avec un forfait. Une génération échouée n'est pas décomptée (ni crédit, ni forfait, ni limite quotidienne). Chaque génération note ce qui l'a réglée (`th_generations.gen_right`).
+
+**Accès** : `GET /generation/access` rend l'état du joueur (fondateur, fin du forfait, crédits achetés, gagnés, utilisés, disponibles, usage du jour et du forfait, droit qui réglera la prochaine chasse ou raison du blocage). La page « Chasse sur mesure » l'affiche en tête (et propose d'abord le catalogue en autonomie), le profil en fait un portefeuille, le catalogue renvoie vers la chasse sur mesure en bas de liste.
+
+**Maquette** : paiement simulé ; Seb est membre fondateur.
+
+Données : `th_genrights` (joueur, crédits ou forfait, période, source achat ou don, paiement), `th_hunters.htr_founder`, `th_generations.gen_right` ; migration `db/migrations/016_generation_access.sql`.
+

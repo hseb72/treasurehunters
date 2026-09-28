@@ -78,6 +78,8 @@ import { HuntGenerator } from './generation/generator.js';
 import { creationProducts, Creations, publishedCreation } from './creations.js';
 import { creationProductId, creationRef, samePuzzle } from '../../shared/creations.js';
 import { catalogProductId, Payments } from './payments/payments.js';
+import { generationAccess } from './generation/access.js';
+import { GENERATION_LIMITS, GenerationAccess } from '../../shared/generation-access.js';
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
@@ -1724,25 +1726,27 @@ export class Service {
         const missing = req.puzzles.map((t) => puzzleType(t)).find((t) => !owns(owned, t.pack));
         if (missing) throw forbidden(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
       }
+      // Qui règle la chasse (§ 21) : gratuite sans paiement, sinon fondateur, forfait ou crédit.
       // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
-      // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
-      const recent = await one(
-        db,
-        `SELECT count(*) FILTER (WHERE gen_status <> 'error')::int AS used, count(*)::int AS attempts
-         FROM th_generations WHERE gen_hunter_htr = $1 AND gen_creation > now() - interval '1 day'`,
-        [me],
-      );
-      if (recent!['used'] >= config.generationDailyQuota) {
-        throw new HttpError(429, `Vous avez déjà inventé ${config.generationDailyQuota} chasses aujourd’hui : revenez demain !`);
+      const access = await generationAccess(db, me, !!this.payments?.enabled);
+      if (!access.right) {
+        throw new HttpError(access.blocked ? 429 : 402, access.blocked ?? 'La chasse sur mesure est payante : choisissez une chasse à l’unité ou un forfait.');
       }
-      if (recent!['attempts'] >= config.generationDailyQuota * 4) {
+      // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
+      const recent = await one(db, `SELECT count(*)::int AS attempts FROM th_generations WHERE gen_hunter_htr = $1 AND gen_creation > now() - interval '1 day'`, [me]);
+      if (recent!['attempts'] >= config.generationDailyQuota * GENERATION_LIMITS.attemptsFactor) {
         throw new HttpError(429, 'Trop d’essais aujourd’hui : le générateur semble en difficulté, réessayez demain.');
       }
-      return one(db, `INSERT INTO th_generations (gen_hunter_htr, gen_params) VALUES ($1, $2) RETURNING *`, [me, JSON.stringify(req)]);
+      return one(db, `INSERT INTO th_generations (gen_hunter_htr, gen_params, gen_right) VALUES ($1, $2, $3) RETURNING *`, [me, JSON.stringify(req), access.right]);
     });
     const run = this.runGeneration(job!['gen_id'], me, req).finally(() => this.inflight.delete(run));
     this.inflight.add(run);
     return toJob(job!);
+  }
+
+  /** Accès du joueur à la chasse sur mesure : formules, crédits, limites (§ 21). */
+  async generationAccess(viewer: Viewer): Promise<GenerationAccess> {
+    return generationAccess(this.pool, requireUser(viewer), !!this.payments?.enabled);
   }
 
   async getGeneration(viewer: Viewer, id: string): Promise<GenerationJob> {

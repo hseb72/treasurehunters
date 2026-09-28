@@ -54,5 +54,19 @@ describe('MockHuntApi', () => {
     expect(board.rows.map((r) => r.rank)).toEqual([1, 2, 3]);
     expect(board.rows[0].time).toBeLessThan(board.rows[2].time);
   });
+
+  it('fait payer la chasse sur mesure, sauf aux fondateurs (§ 21)', async () => {
+    const request = { location: { query: 'Nîmes' }, durationMinutes: 45, travel: 'walk', difficulty: 'easy', theme: null, steps: 3, mode: 'play' } as const;
+    session.set(await firstValueFrom(api.login('zoe@example.com', 'demo')));
+    expect((await firstValueFrom(api.generationAccess())).right).toBeNull();
+    await expect(firstValueFrom(api.generateHunt(request))).rejects.toThrow(/payante/);
+    await firstValueFrom(api.checkout('gen:single', '/generate'));
+    expect((await firstValueFrom(api.generationAccess())).right).toBe('credit');
+    await firstValueFrom(api.generateHunt(request));
+    expect((await firstValueFrom(api.generationAccess())).credits.available).toBe(0);
+
+    session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
+    expect((await firstValueFrom(api.generationAccess())).right).toBe('founder');
+  });
 });
 

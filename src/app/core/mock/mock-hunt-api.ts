@@ -3,6 +3,7 @@ import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from '../api';
 import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } from '@shared/creations';
 import { MockCreations } from './mock-creations';
+import { creatorBonus, GENERATION_LIMITS, GenerationAccess, generationOffer, GenerationRight, pickRight } from '@shared/generation-access';
 import {
   AuthResult,
   AutonomyLeaderboard,
@@ -600,6 +601,10 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       if (request.skin) this.checkExtensions(me, { skin: request.skin }, null);
+      // Qui règle la chasse (§ 21), comme le serveur.
+      const access = this.access(me);
+      if (!access.right) throw new ApiError(access.blocked ?? 'La chasse sur mesure est payante : choisissez une chasse à l’unité ou un forfait.');
+      this.genUses.push({ hunterId: me, at: Date.now(), right: access.right });
       // Épreuves proposées par l'IA : seulement les types des packs du joueur.
       const missing = (request.puzzles ?? []).map((t) => puzzleType(t)).find((t) => !owns(this.purchases.get(me) ?? new Set(), t.pack));
       if (missing) throw new ApiError(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
@@ -1140,6 +1145,37 @@ export class MockHuntApi extends HuntApi {
     return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...this.creations.products(me)];
   }
 
+  /* ---------- Chasse sur mesure payante (§ 21) ---------- */
+
+  /** Droits achetés : crédits et fin du forfait. Seb est membre fondateur dans la maquette. */
+  private readonly genRights = new Map<number, { credits: number; passUntil: number | null }>();
+  private readonly genUses: { hunterId: number; at: number; right: GenerationRight }[] = [];
+
+  private access(me: number): GenerationAccess {
+    const rights = this.genRights.get(me) ?? { credits: 0, passUntil: null };
+    const uses = this.genUses.filter((u) => u.hunterId === me);
+    const since = (ms: number) => uses.filter((u) => u.at > Date.now() - ms);
+    // Chasses partagées par le joueur, jouées jusqu'au bout par d'autres.
+    const sharedPlayed = this.catalog.filter(
+      (e) => e.authorId === me && this.db.hunts.some((h) => h.catalogId === e.id && h.status === 'closed' && h.ownerId !== me && h.hostId !== me),
+    ).length;
+    const bonus = creatorBonus(sharedPlayed);
+    const used = uses.filter((u) => u.right === 'credit').length;
+    const base = {
+      paid: true,
+      founder: me === FOUNDER_ID,
+      passUntil: rights.passUntil ? new Date(rights.passUntil).toISOString() : null,
+      credits: { purchased: rights.credits, bonus, used, available: Math.max(0, rights.credits + bonus - used) },
+      sharedPlayed,
+      usage: { today: since(86_400_000).length, daily: GENERATION_LIMITS.daily, passPeriod: since(30 * 86_400_000).filter((u) => u.right === 'pass').length, passMonthly: GENERATION_LIMITS.passMonthly },
+    };
+    return { ...base, ...pickRight(base) };
+  }
+
+  generationAccess(): Observable<GenerationAccess> {
+    return this.reply(() => this.access(this.requireUser()));
+  }
+
   /* ---------- Paiement (§ 20), simulé : le paiement réussit aussitôt ---------- */
 
   private readonly payouts = new Map<number, { ready: boolean }>([[2, { ready: true }]]);
@@ -1162,6 +1198,15 @@ export class MockHuntApi extends HuntApi {
   checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
     return this.reply(() => {
       const me = this.requireUser();
+      // Chasse sur mesure (§ 21) : crédit ou forfait, accordé aussitôt (paiement simulé).
+      const offer = generationOffer(productId);
+      if (offer) {
+        const rights = this.genRights.get(me) ?? { credits: 0, passUntil: null };
+        if (offer.credits) rights.credits += offer.credits;
+        else rights.passUntil = Math.max(Date.now(), rights.passUntil ?? 0) + offer.days! * 86_400_000;
+        this.genRights.set(me, rights);
+        return { url: `${returnPath}${returnPath.includes('?') ? '&' : '?'}paid=1&product=${encodeURIComponent(productId)}`, items: [] };
+      }
       const sale = this.sellable(productId);
       if (!sale) throw new ApiError('Produit inconnu.');
       const owned = this.purchases.get(me) ?? new Set<string>();
@@ -1750,6 +1795,8 @@ export class MockHuntApi extends HuntApi {
 }
 
 const REVIEWER_ID = 1;
+/** Membre fondateur de la maquette : Seb. */
+const FOUNDER_ID = 1;
 
 /** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
 function openToLateTeams(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status'>): boolean {

@@ -20,7 +20,15 @@
       <p class="muted small kicker">Chasse sur mesure</p>
       <h1 class="display">Inventez-moi une chasse</h1>
       <p class="muted">Donnez un lieu et une durée : le maître du jeu repère de vrais lieux sur la carte et écrit les énigmes. Pas de QR code : on valide chaque étape en s'y rendant.</p>
+      <p class="small">Une chasse toute prête vous conviendrait peut-être : <a routerLink="/catalog" [queryParams]="{ jouer: 1 }">jouer en autonomie une chasse du catalogue</a>.</p>
     </header>
+
+    @if (access.value(); as a) {
+      <section class="surface stack">
+        <h2 class="step-title"><mat-icon>toll</mat-icon> Votre accès</h2>
+        <th-generation-access [access]="a" (changed)="access.reload()" />
+      </section>
+    }
 
     <section class="surface stack">
       <h2 class="step-title"><span class="num">1</span> Où ?</h2>
@@ -157,7 +165,7 @@
 
     <div class="actions">
       <a mat-button routerLink="/">Annuler</a>
-      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready()"><mat-icon>auto_awesome</mat-icon>Inventer ma chasse</button>
+      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready() || !canGenerate()"><mat-icon>auto_awesome</mat-icon>Inventer ma chasse</button>
     </div>
   </form>
 }

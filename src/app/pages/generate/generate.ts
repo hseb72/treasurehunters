@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { GenerationAccessPanel } from '../../shared/generation-access-panel';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -7,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, switchMap, takeWhile, timer } from 'rxjs';
+import { Subscription, switchMap, take, takeWhile, timer } from 'rxjs';
 import { DIFFICULTY_HINTS, DIFFICULTY_LABELS, plannedStepCount, searchRadius, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { Difficulty, GenerationJob, GenerationRequest, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
@@ -38,6 +40,7 @@ import { SkinPicker } from '../../shared/skin-picker';
 @Component({
   selector: 'th-generate',
   imports: [
+    GenerationAccessPanel,
     SkinPicker,
     FormsModule,
     MatButtonModule,
@@ -124,11 +127,27 @@ export class GeneratePage {
   );
   protected readonly ready = computed(() => (this.where() === 'city' ? this.query().trim().length > 1 : this.point() !== null));
 
+  /* ---------- Accès (§ 21) : gratuit, fondateur, forfait ou crédit ---------- */
+  protected readonly access = rxResource({ stream: () => this.api.generationAccess() });
+  protected readonly canGenerate = computed(() => !!this.access.value()?.right);
+  /** Retour de la page de paiement : « ?paid=1 » (0 si annulé). */
+  readonly paid = input<string | undefined>();
+
   protected readonly status = signal<GenerationJob | null>(null);
   protected readonly waitLine = signal(WAIT_LINES[0]);
   private polling: Subscription | null = null;
 
   constructor() {
+    effect(() => {
+      const paid = this.paid();
+      if (paid === undefined) return;
+      untracked(() => {
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! Inventez votre chasse.' : 'Paiement annulé : rien n’a été débité.');
+        // La confirmation de Stripe peut suivre de quelques secondes.
+        if (paid === '1') timer(0, 2000).pipe(take(6), takeWhile(() => !this.canGenerate())).subscribe(() => this.access.reload());
+      });
+    });
     inject(DestroyRef).onDestroy(() => this.polling?.unsubscribe());
     queueMicrotask(() => {
       const id = this.job();
