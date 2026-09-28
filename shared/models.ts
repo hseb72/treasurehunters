@@ -2,7 +2,7 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
-import type { Puzzle, PublicPuzzle } from './puzzles.js';
+import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
 
 export type HuntStatus = 'draft' | 'published' | 'running' | 'closed' | 'cancelled' | 'archived';
 
@@ -343,6 +343,11 @@ export interface GenerationRequest {
   mode: 'play' | 'organize';
   /** Skin de la chasse (shared/skins.ts) ; absent = skin par défaut. */
   skin?: string;
+  /**
+   * Types d'épreuves d'arrivée que l'IA peut proposer (§ 17.1), parmi ceux des packs du joueur ;
+   * absent ou vide = aucune épreuve.
+   */
+  puzzles?: PuzzleType[];
 }
 
 export interface GenerationJob {

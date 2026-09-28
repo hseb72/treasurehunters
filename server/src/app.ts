@@ -102,6 +102,11 @@ const generationRequest = z.object({
   steps: z.number().int().min(3).max(12).nullable(),
   mode: z.enum(['play', 'organize']),
   skin: z.enum(SKIN_IDS).optional(),
+  puzzles: z
+    .array(z.enum(PUZZLE_TYPE_IDS))
+    .max(PUZZLE_TYPE_IDS.length)
+    .transform((t) => [...new Set(t)])
+    .optional(),
 });
 
 const credentials = z.object({ email: z.email(), password: z.string().min(1).max(200) });

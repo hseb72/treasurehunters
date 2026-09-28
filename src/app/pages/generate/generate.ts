@@ -30,6 +30,9 @@ const WAIT_LINES = [
 ];
 
 import { DEFAULT_SKIN } from '@shared/skins';
+import { productById } from '@shared/store';
+import { PUZZLE_TYPES, PuzzleType } from '@shared/puzzles';
+import { Shop } from '../../core/shop';
 import { SkinPicker } from '../../shared/skin-picker';
 
 @Component({
@@ -68,6 +71,38 @@ export class GeneratePage {
   protected readonly difficulty = signal<Difficulty>('medium');
   protected readonly theme = signal('');
   protected readonly skin = signal(DEFAULT_SKIN);
+
+  /* ---------- Épreuves proposées par l'IA (§ 17.1) ---------- */
+  protected readonly shop = inject(Shop);
+  protected readonly puzzleTypes = PUZZLE_TYPES;
+  /** Choix du joueur ; null = tous les types de ses packs. */
+  private readonly pickedPuzzles = signal<PuzzleType[] | null>(null);
+  protected readonly chosenPuzzles = computed(() => {
+    const owned = PUZZLE_TYPES.filter((t) => this.shop.owns(t.pack)).map((t) => t.type);
+    return (this.pickedPuzzles() ?? owned).filter((t) => owned.includes(t));
+  });
+  protected readonly acquiring = signal(false);
+
+  /** Un type d'un pack pas encore obtenu : le pack s'obtient d'abord (offert), puis le type est choisi. */
+  protected togglePuzzle(type: PuzzleType, pack: string): void {
+    const current = this.chosenPuzzles();
+    if (this.shop.owns(pack)) {
+      this.pickedPuzzles.set(current.includes(type) ? current.filter((t) => t !== type) : [...current, type]);
+      return;
+    }
+    this.acquiring.set(true);
+    this.shop.acquire(pack).subscribe({
+      next: () => {
+        this.acquiring.set(false);
+        this.pickedPuzzles.set([...current, type]);
+        this.notify.info(`Pack « ${productById(pack)?.name} » ajouté à votre collection.`);
+      },
+      error: (e) => {
+        this.acquiring.set(false);
+        this.notify.error(e);
+      },
+    });
+  }
   protected readonly autoSteps = signal(true);
   protected readonly steps = signal(5);
   protected readonly mode = signal<GenerationRequest['mode']>('play');
@@ -129,6 +164,7 @@ export class GeneratePage {
       difficulty: this.difficulty(),
       theme: this.theme().trim() || null,
       skin: this.skin(),
+      puzzles: this.chosenPuzzles(),
       steps: this.autoSteps() ? null : this.steps(),
       mode: this.mode(),
     };

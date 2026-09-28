@@ -591,10 +591,13 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       if (request.skin) this.checkExtensions(me, { skin: request.skin }, null);
+      // Épreuves proposées par l'IA : seulement les types des packs du joueur.
+      const missing = (request.puzzles ?? []).map((t) => puzzleType(t)).find((t) => !owns(this.purchases.get(me) ?? new Set(), t.pack));
+      if (missing) throw new ApiError(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
       const { lat, lng, query } = request.location;
       const center = lat !== undefined && lng !== undefined ? { lat, lng } : MONTPELLIER;
       const placeName = query?.trim() || 'votre quartier';
-      const plan = demoPlan(center, plannedStepCount(request), placeName);
+      const plan = demoPlan(center, plannedStepCount(request), placeName, request.puzzles ?? []);
       const play = request.mode === 'play';
       if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
         this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
@@ -650,6 +653,7 @@ export class MockHuntApi extends HuntApi {
           latitude: p.latitude,
           longitude: p.longitude,
           address: p.address,
+          puzzle: order > 0 ? (p.puzzle ?? null) : null,
         }),
       );
       if (play) this.addTeam(h, this.nick(me), me, false);

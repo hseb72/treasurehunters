@@ -3,6 +3,7 @@
  * (générateur OpenStreetMap + IA) et au back-end simulé des maquettes.
  */
 import { Difficulty, GenerationRequest, Travel } from './models.js';
+import { Puzzle, PuzzleType } from './puzzles.js';
 
 /** Étape d'une chasse inventée ; la première est le départ (ordre 0). */
 export interface PlannedStep {
@@ -20,6 +21,8 @@ export interface PlannedStep {
   entrances?: { lat: number; lng: number }[];
   /** Lieu OpenStreetMap d'origine (« w42 »), pour placer l'étape à son entrée. */
   source?: string;
+  /** Épreuve d'arrivée proposée par l'IA (§ 17.1), à résoudre sur ce lieu. */
+  puzzle?: Puzzle | null;
 }
 
 export interface HuntPlan {
@@ -106,11 +109,20 @@ export const DIFFICULTY_HINTS: Record<Difficulty, string> = {
   hard: 'Charades et allusions cryptiques pour aventuriers aguerris.',
 };
 
+/** Épreuves du générateur de démonstration : jouables sans rien observer sur place. */
+export const DEMO_PUZZLES: Record<PuzzleType, Puzzle> = {
+  question: { type: 'question', prompt: 'Combien de lettres compte le mot « expédition » ?', answer: '10|dix', hint: 'Comptez sur vos doigts.' },
+  lock: { type: 'lock', prompt: 'Le cadenas s’ouvre sur l’année de la prise de la Bastille.', answer: '1789', hint: 'La Révolution française.' },
+  cipher: { type: 'cipher', prompt: 'Un explorateur a laissé ce message chiffré : tournez la roue.', answer: 'le tresor est proche', hint: 'Décalage de 3.', shift: 3 },
+  anagram: { type: 'anagram', prompt: 'Remettez les lettres dans l’ordre : l’instrument de tout explorateur.', answer: 'boussole', hint: 'Elle indique le nord.' },
+  rebus: { type: 'rebus', prompt: '🐱 + ce qui recouvre votre corps = ce que porte l’explorateur sur la tête', answer: 'chapeau', hint: 'Chat + peau.' },
+};
+
 /**
  * Chasse de démonstration, sans réseau ni IA : quelques lieux fictifs en spirale autour
  * du point de départ. Sert aux maquettes et aux tests du serveur.
  */
-export function demoPlan(center: { lat: number; lng: number }, count: number, placeName = 'la ville'): HuntPlan {
+export function demoPlan(center: { lat: number; lng: number }, count: number, placeName = 'la ville', puzzles: readonly PuzzleType[] = []): HuntPlan {
   const places = ['la vieille fontaine', 'la statue du fondateur', 'le cadran solaire', 'la porte aux lions', 'le belvédère', 'la chapelle oubliée'];
   const steps: PlannedStep[] = [
     {
@@ -136,6 +148,8 @@ export function demoPlan(center: { lat: number; lng: number }, count: number, pl
       latitude: center.lat + (Math.sin(angle) * dist) / 111_195,
       longitude: center.lng + (Math.cos(angle) * dist) / (111_195 * Math.cos((center.lat * Math.PI) / 180)),
       address: null,
+      // Une étape sur deux porte une épreuve, types permis à tour de rôle ; jamais le trésor.
+      puzzle: !final && puzzles.length && i % 2 === 1 ? DEMO_PUZZLES[puzzles[((i - 1) / 2) % puzzles.length]] : null,
     });
   }
   return {

@@ -1587,6 +1587,12 @@ export class Service {
       // Sérialise les demandes d'un même joueur pour que le quota tienne.
       await db.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 FOR UPDATE', [me]);
       if (req.skin) await this.checkExtensions(db, me, { skin: req.skin }, null);
+      // Épreuves proposées par l'IA : seulement les types des packs du joueur.
+      if (req.puzzles?.length) {
+        const owned = await this.ownedProducts(db, me);
+        const missing = req.puzzles.map((t) => puzzleType(t)).find((t) => !owns(owned, t.pack));
+        if (missing) throw forbidden(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
+      }
       // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
       // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
       const recent = await one(
@@ -1696,8 +1702,8 @@ export class Service {
     for (const [order, s] of plan.steps.entries()) {
       await db.query(
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                               cod_latitude, cod_longitude, cod_address, cod_entrances)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [
           huntId,
           order,
@@ -1712,6 +1718,7 @@ export class Service {
           s.longitude,
           s.address,
           s.entrances?.length ? JSON.stringify(s.entrances) : null,
+          order > 0 && s.puzzle ? JSON.stringify(s.puzzle) : null,
         ],
       );
     }

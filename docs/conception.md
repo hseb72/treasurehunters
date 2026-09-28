@@ -639,6 +639,18 @@ Les réponses se comparent sans casse, accents ni ponctuation ; plusieurs répon
 
 **Données** : `th_codes.cod_puzzle` (jsonb : type, consigne, réponse, indice, décalage), `th_arrivals` (équipe, étape, joueur, source, photo, essais, indice affiché ; unique par équipe et étape) ; migration `db/migrations/012_puzzles.sql`. Les énigmes suivent la chasse au catalogue et dans ses copies (l'empreinte des publications existantes ne change pas).
 
+### 17.1 Épreuves proposées par l'IA
+
+Dans « Chasse sur mesure » (§ 11), le joueur choisit les **épreuves sur place** que le maître du jeu peut proposer, parmi les types de ses packs (tous cochés par défaut ; un type d'un pack pas encore obtenu l'obtient d'abord, offert). La demande porte `puzzles: PuzzleType[]` ; un type d'un pack non possédé est refusé (403). Sans type, la chasse n'a pas d'épreuve.
+
+Claude reçoit les consignes des types permis et pose une épreuve sur **une étape sur deux environ**, jamais sur le trésor ni au départ :
+
+- **Question sur place** : seulement si les données OpenStreetMap du lieu (inscription, date, artiste…) garantissent une réponse observable ;
+- **Cadenas** : un code de 3 à 6 chiffres, souvent une année du lieu ;
+- **Message chiffré, anagramme, rébus** : des épreuves qui se suffisent à elles-mêmes, préférées quand rien d'observable n'est garanti.
+
+L'indice doit suffire à trouver la réponse même si le détail observé manque ou a disparu. Le serveur ne garde une proposition (`acceptProposal`) que si son type est permis et sa rédaction jouable (`puzzleProblem`) ; sinon l'étape reste sans épreuve. En mode « J'organise », l'organisateur relit et ajuste les épreuves dans l'éditeur ; en chasse surprise, elles s'affichent à l'arrivée. Le générateur de démonstration pose des épreuves fixes, jouables sans rien observer.
+
 ## 18. Photo du lieu
 
 Les maquettes montrent une photo en tête d'étape. L'organisateur choisit, pour chaque lieu (pas le départ), **une photo illustrative** : un détail, une ambiance, qui donne envie sans dévoiler la solution. C'est la même photo que la référence de l'arbitre photo (§ 12.1) ; dans une chasse en géolocalisation, elle ne sert qu'à illustrer.
