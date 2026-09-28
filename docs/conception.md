@@ -756,3 +756,31 @@ Avec les chasses jouées en autonomie (§ 13.5), plus personne n'est sur place p
 
 Données : `th_reports` (chasse, étape, joueur, catégorie, message, statut, traitement) ; migration `db/migrations/017_reports.sql`. Les statistiques se calculent à la demande à partir des validations et des jokers.
 
+
+## 23. Près de moi
+
+Le catalogue se cherche aussi autour de soi : « je suis au centre-ville, j'ai deux heures ».
+
+**Départ** : chaque version du catalogue retient le premier lieu placé de son parcours (le départ, sinon la première étape), à la publication (`cat_lat`, `cat_lng` ; migration `db/migrations/018_catalog_start.sql`, qui rattrape les versions déjà publiées depuis leur instantané). `CatalogEntry.start` le donne au front.
+
+**Recherche** : `GET /catalog?lat=&lng=&radius=&sort=distance` calcule la distance à vol d'oiseau jusqu'au départ (haversine en SQL, `CatalogEntry.distanceKm`), filtre dans le rayon (en km, 500 au plus) et trie les plus proches d'abord. Sans position, le tri « distance » revient aux mieux notées.
+
+**Front** : bouton « Près de moi » (position demandée au téléphone, jamais enregistrée), rayons 2, 5, 10, 30 km ou partout, tri « Plus proches », distance sur chaque carte de chasse ; vue **Carte** (Leaflet, OpenStreetMap) avec un repère par départ, dont la bulle mène à la fiche. Une recherche vide propose d'élargir le rayon.
+
+## 24. Souvenir de fin de partie
+
+À l'arrivée, chaque équipe peut garder et partager une image de sa partie (bouton « Mon souvenir à partager » dans le carnet, les résultats et la fiche du catalogue).
+
+`GET /hunts/:id/souvenir` (membres de l'équipe, une fois arrivée) donne le nom de la chasse, son skin, le lieu, la date, l'équipe, le temps (pénalités comprises), les lieux trouvés, les jokers, et le **rang** : parmi les équipes de la chasse (pendant la course seulement avec l'outil Direct, et provisoire), ou parmi tous les joueurs en autonomie de la version du catalogue (§ 13.5). Le **tracé** est la forme du parcours ramenée dans un carré (`shared/souvenir.ts`) : ni fond de carte, ni coordonnées, ni noms de lieux, pour ne rien dévoiler aux futurs joueurs.
+
+L'image (1080 × 1350, format des réseaux sociaux) est dessinée sur le téléphone (canevas) aux couleurs et polices du skin, avec la couverture du skin ou une **photo d'équipe** choisie sur l'appareil — elle n'est jamais envoyée au serveur. Partage natif du téléphone quand il sait partager un fichier (avec un lien vers la fiche du catalogue), sinon téléchargement.
+
+## 25. Assistant de rédaction
+
+Dans l'éditeur d'étapes, l'IA aide l'organisateur à écrire l'énigme qui mène au lieu suivant : **reformuler**, rendre **plus facile** ou **plus difficile**, **proposer trois jokers** progressifs, **relire** (ambiguïtés, indices invérifiables, lieu trop vague). Si l'énigme n'est pas encore écrite, elle en propose une première. L'IA connaît le lieu à faire trouver (l'étape suivante) mais ne doit jamais le nommer. Ses propositions ne remplacent rien d'office : l'organisateur les garde (« Remplacer mon énigme », « Utiliser ces jokers ») puis enregistre, ou les ignore.
+
+`POST /steps/:id/assist { action, instructions, hints }` (organisateur de la chasse) part du texte en cours d'écriture, même non enregistré ; `server/src/assist/writer.ts` (Claude, sortie structurée). Fonction annoncée par `features.assist`, active avec la clé d'IA.
+
+**Décompte** (`shared/assist.ts`) : chaque proposition reçue compte une suggestion, sur **30 jours glissants** — 30 pour tous, 200 avec un forfait de chasses sur mesure en cours (§ 21) ou pour les membres fondateurs — et 40 au plus par 24 heures. La suggestion est réservée avant l'appel à l'IA et rendue s'il échoue : une demande ratée n'est pas décomptée. `GET /assist/usage` renvoie la formule, la limite, les suggestions utilisées et restantes, celles du jour, leur répartition par nature et la date à laquelle la plus ancienne redevient disponible. Ce décompte est **toujours visible** dans l'éditeur (pastille « 18 / 30 restantes », verte, orange sous 20 %, rouge à zéro, qui s'ouvre sur le détail) et dans le profil, pour que l'organisateur choisisse ce qui mérite une relecture ou une reformulation. Les limites figurent dans les conditions d'utilisation.
+
+Données : `th_assists` (organisateur, chasse, nature, date) ; migration `db/migrations/019_assist.sql`.

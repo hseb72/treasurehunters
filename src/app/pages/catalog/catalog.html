@@ -28,10 +28,30 @@
         <input matInput name="q" [ngModel]="query()" (ngModelChange)="query.set($event)" autocomplete="off" />
       </mat-form-field>
       <mat-button-toggle-group [value]="sort()" (change)="sort.set($event.value)" hideSingleSelectionIndicator aria-label="Trier">
+        @if (near()) {
+          <mat-button-toggle value="distance">Plus proches</mat-button-toggle>
+        }
         <mat-button-toggle value="rating">Mieux notées</mat-button-toggle>
         <mat-button-toggle value="plays">Plus jouées</mat-button-toggle>
         <mat-button-toggle value="recent">Récentes</mat-button-toggle>
       </mat-button-toggle-group>
+    </div>
+
+    <div class="line near">
+      @if (near()) {
+        <span class="label"><mat-icon inline>my_location</mat-icon> Autour de vous</span>
+        <mat-button-toggle-group [value]="radius()" (change)="radius.set($event.value)" hideSingleSelectionIndicator aria-label="Rayon autour de vous">
+          @for (r of radii; track r) {
+            <mat-button-toggle [value]="r">{{ radiusLabel(r) }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <button mat-button type="button" (click)="forget()"><mat-icon>location_off</mat-icon>Oublier ma position</button>
+      } @else {
+        <button mat-stroked-button type="button" (click)="locate()" [disabled]="locating()">
+          <mat-icon>my_location</mat-icon>{{ locating() ? 'Localisation…' : 'Près de moi' }}
+        </button>
+        <span class="small muted">Les chasses qui partent près d'ici, les plus proches d'abord. Votre position n'est pas enregistrée.</span>
+      }
     </div>
 
     <div class="criteria">
@@ -64,13 +84,22 @@
 
     @if (filtered()) {
       <div class="line end">
-        <span class="small muted">{{ entries.value().length }} chasse{{ entries.value().length > 1 ? 's' : '' }}</span>
         <button mat-button type="button" (click)="reset()"><mat-icon>filter_alt_off</mat-icon>Tous les critères</button>
       </div>
     }
   </section>
 
-  @if (entries.value().length) {
+  <div class="line results">
+    <span class="small muted">{{ entries.value().length }} chasse{{ entries.value().length > 1 ? 's' : '' }}</span>
+    <mat-button-toggle-group [value]="view()" (change)="view.set($event.value)" hideSingleSelectionIndicator aria-label="Affichage">
+      <mat-button-toggle value="list"><mat-icon>view_agenda</mat-icon> Liste</mat-button-toggle>
+      <mat-button-toggle value="map"><mat-icon>map</mat-icon> Carte</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (view() === 'map') {
+    <th-catalog-map [entries]="entries.value()" [me]="near()" [radius]="near() ? radius() : null" />
+  } @else if (entries.value().length) {
     <div class="grid">
       @for (e of entries.value(); track e.id) {
         <th-catalog-card [entry]="e" />
@@ -80,12 +109,17 @@
     <section class="surface center">
       <mat-icon>travel_explore</mat-icon>
       <p class="muted">
-        @if (query() || filtered()) {
+        @if (near() && radius()) {
+          Aucune chasse ne part à moins de {{ radius() }} km d'ici avec ces critères.
+        } @else if (query() || filtered()) {
           Aucune chasse ne correspond à ces critères.
         } @else {
           Le catalogue est encore vide : partagez la première chasse depuis votre espace organisateur (onglet Catalogue) !
         }
       </p>
+      @if (near() && wider() !== null) {
+        <button mat-stroked-button type="button" (click)="radius.set(wider()!)"><mat-icon>zoom_out_map</mat-icon>Élargir {{ wider() ? 'à ' + wider() + ' km' : 'à toute la carte' }}</button>
+      }
     </section>
   }
 

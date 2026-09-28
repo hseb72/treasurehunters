@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, effect, inject, input, untracked } 
 import { rxResource } from '@angular/core/rxjs-interop';
 import { take, timer } from 'rxjs';
 import { GenerationAccessPanel } from '../../shared/generation-access-panel';
+import { AssistMeterView } from '../../shared/assist-meter';
+import { AssistMeter } from '../../core/assist-meter';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +17,7 @@ import { Session } from '../../core/session';
 
 @Component({
   selector: 'th-profile',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, RouterLink, GenerationAccessPanel],
+  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, RouterLink, GenerationAccessPanel, AssistMeterView],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -43,8 +45,16 @@ import { Session } from '../../core/session';
         </div>
       </form>
 
+      @if (meter.usage(); as u) {
+        <section class="surface stack card" id="assistant">
+          <h2><mat-icon>edit_note</mat-icon> Assistant de rédaction</h2>
+          <p class="small muted hint">Les suggestions de l'IA dans l'éditeur d'étapes : reformuler, ajuster la difficulté, proposer des jokers, relire.</p>
+          <th-assist-meter [usage]="u" [expanded]="true" [startOpen]="true" />
+        </section>
+      }
+
       @if (access.value(); as a) {
-        <section class="surface stack card">
+        <section class="surface stack card" id="portefeuille">
           <h2><mat-icon>toll</mat-icon> Chasses sur mesure</h2>
           <th-generation-access [access]="a" [showOffers]="true" returnPath="/me" (changed)="access.reload()" />
           <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer une chasse</a>
@@ -66,10 +76,13 @@ export class ProfilePage {
   private readonly notify = inject(Notify);
   /** Portefeuille de la chasse sur mesure (§ 21) : forfait, crédits achetés et gagnés. */
   protected readonly access = rxResource({ stream: () => this.api.generationAccess() });
+  /** Décompte de l'assistant de rédaction (§ 25), rechargé à chaque visite. */
+  protected readonly meter = inject(AssistMeter);
   /** Retour de la page de paiement. */
   readonly paid = input<string | undefined>();
 
   constructor() {
+    this.meter.reload();
     effect(() => {
       if (this.paid() === undefined) return;
       untracked(() => {

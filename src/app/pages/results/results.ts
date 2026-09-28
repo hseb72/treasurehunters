@@ -40,6 +40,8 @@ export class ResultsPage {
   });
 
   protected readonly myTeamId = computed(() => this.myTeam.value()?.id ?? null);
+  /** Équipe du joueur arrivée : son souvenir est prêt (§ 24). */
+  protected readonly souvenirReady = computed(() => !!this.myTeam.value()?.finished);
   protected readonly ranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank !== null));
   protected readonly unranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank === null));
   protected readonly modes = START_MODE_LABELS;

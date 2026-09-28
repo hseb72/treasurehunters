@@ -225,6 +225,39 @@ export interface PlayState {
   trail: { order: number; title: string; lat: number; lng: number }[] | null;
 }
 
+/* ---------- Souvenir de fin de partie (§ 24) ---------- */
+
+/** De quoi dessiner la carte souvenir d'une équipe arrivée. */
+export interface Souvenir {
+  huntId: number;
+  huntName: string;
+  skin: string;
+  location: string;
+  /** Départ de l'équipe. */
+  date: string;
+  teamName: string;
+  members: string[];
+  /** Temps de parcours en secondes, pénalités comprises. */
+  time: number;
+  /** Pénalités, en minutes. */
+  penalty: number;
+  /** Rang de l'équipe, parmi `ranked` équipes arrivées ; null s'il n'a pas de sens (seule en lice). */
+  rank: number | null;
+  ranked: number;
+  /** Rang parmi les équipes de la chasse, ou parmi tous les joueurs en autonomie de la version du catalogue. */
+  scope: 'hunt' | 'catalog';
+  /** Chasse encore en cours : le rang peut changer. */
+  provisional: boolean;
+  found: number;
+  skipped: number;
+  /** Étapes à trouver (arrivée comprise). */
+  totalSteps: number;
+  hints: number;
+  /** Tracé du parcours, ramené dans un carré [0, 1] : une forme, sans carte ni noms de lieux. */
+  trail: [number, number][];
+  catalogId: number | null;
+}
+
 /* ---------- Boutique (§ 16) ---------- */
 
 /** Une extension de la boutique, et si le joueur la possède. */
@@ -314,6 +347,8 @@ export interface Features {
   generation: boolean;
   /** Paiement Stripe configuré (§ 20) ; sinon l'acquisition reste offerte. */
   payments?: boolean;
+  /** Assistant de rédaction de l'éditeur (§ 25). */
+  assist?: boolean;
 }
 
 /** Ouverture d'un paiement : l'adresse de la page Stripe, ou null si rien n'était à payer. */
@@ -470,6 +505,10 @@ export interface CatalogEntry {
   withdrawn: boolean;
   /** Prix fixé par l'auteur, en centimes (§ 20) ; 0 = gratuite. Payé seulement si le paiement est activé. */
   price: number;
+  /** Premier lieu placé du parcours, pour la carte du catalogue (§ 23). */
+  start: { lat: number; lng: number } | null;
+  /** Distance à vol d'oiseau jusqu'au départ, en km, quand le joueur a donné sa position. */
+  distanceKm: number | null;
 }
 
 export interface CatalogReview {

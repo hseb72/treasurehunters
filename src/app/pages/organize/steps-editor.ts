@@ -17,6 +17,7 @@ import { AuthImage } from '../../shared/auth-image';
 import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
+import { AssistPanel } from './assist-panel';
 
 import { MatSelectModule } from '@angular/material/select';
 import { Puzzle, PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
@@ -24,7 +25,7 @@ import { Shop } from '../../core/shop';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [AssistPanel, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -46,6 +47,8 @@ export class StepsEditorPage {
   private readonly features = rxResource({ stream: () => this.api.getFeatures() });
   /** Photo du lieu (§ 18) : illustration pour les joueurs, et référence de l'arbitre photo des chasses à QR. */
   protected readonly photos = computed(() => !!this.features.value()?.photos);
+  /** Assistant de rédaction (§ 25), si le serveur a une clé d'IA. */
+  protected readonly assist = computed(() => !!this.features.value()?.assist);
   /** Envoi d'une photo de référence en cours, et compteur pour recharger l'aperçu. */
   protected readonly refBusy = signal(false);
   protected readonly refVersion = signal(0);
@@ -86,7 +89,7 @@ export class StepsEditorPage {
   protected readonly puzzleTypes = PUZZLE_TYPES;
   protected readonly shop = inject(Shop);
   protected readonly packBusy = signal(false);
-  private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
+  protected readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly puzzleKind = computed(() => this.formValue().puzzleType || null);
   /** Packs d'énigmes pas encore obtenus. */
   protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned && !i.creator));
@@ -142,6 +145,17 @@ export class StepsEditorPage {
         this.notify.error(e);
       },
     });
+  }
+
+  /** Proposition de l'assistant acceptée : dans le formulaire, à relire avant d'enregistrer. */
+  protected applyInstructions(text: string): void {
+    this.form.controls.instructions.setValue(text);
+    this.form.markAsDirty();
+  }
+
+  protected applyHints(hints: string[]): void {
+    this.form.controls.hints.setValue([0, 1, 2].map((i) => hints[i] ?? ''));
+    this.form.markAsDirty();
   }
 
   protected get hints(): FormArray {

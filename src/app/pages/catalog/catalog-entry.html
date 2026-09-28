@@ -53,6 +53,7 @@
         }
         @if (finishedPlays().length) {
           <p class="small muted">Vous l'avez déjà terminée {{ finishedPlays().length > 1 ? finishedPlays().length + ' fois' : 'une fois' }} : votre temps est dans le classement ci-dessous.</p>
+          <a mat-button [routerLink]="['/hunts', finishedPlays()[0]!.huntId, 'souvenir']"><mat-icon>photo_album</mat-icon>Mon souvenir de la dernière partie</a>
         }
       </section>
     }

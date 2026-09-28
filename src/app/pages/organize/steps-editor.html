@@ -179,6 +179,15 @@
               </mat-form-field>
             }
           </div>
+          @if (assist()) {
+            <th-assist-panel
+              [stepId]="step.id"
+              [instructions]="formValue().instructions ?? ''"
+              [hints]="formValue().hints ?? []"
+              (applyInstructions)="applyInstructions($event)"
+              (applyHints)="applyHints($event)"
+            />
+          }
         }
         @if (photos() && kind !== 'start') {
           <div class="reference">

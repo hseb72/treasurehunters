@@ -3,11 +3,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { GENERATION_LIMITS, GENERATION_OFFERS } from '@shared/generation-access';
 import { priceLabel } from '@shared/store';
+import { ASSIST_LIMITS } from '@shared/assist';
 
 /**
- * Conditions d'utilisation (§ 21) : ce que couvrent la chasse sur mesure, les forfaits et les
- * crédits, et les limites d'usage qui protègent le service. Les chiffres viennent des mêmes
- * constantes que le code (shared/generation-access.ts).
+ * Conditions d'utilisation (§ 21, § 25) : ce que couvrent la chasse sur mesure, les forfaits,
+ * les crédits et l'assistant de rédaction, et les limites d'usage qui protègent le service. Les
+ * chiffres viennent des mêmes constantes que le code (shared/generation-access.ts, shared/assist.ts).
  */
 @Component({
   selector: 'th-terms',
@@ -53,6 +54,25 @@ import { priceLabel } from '@shared/store';
         </p>
       </section>
 
+      <section class="surface" id="assistant">
+        <h2>Assistant de rédaction</h2>
+        <p>
+          Dans l'éditeur d'étapes, l'IA propose une énigme reformulée, plus facile ou plus difficile, trois jokers, ou une relecture. Ses
+          propositions ne remplacent jamais votre texte d'office : vous choisissez de les garder ou non. Chaque proposition reçue compte une
+          suggestion :
+        </p>
+        <ul>
+          <li><strong>{{ assist.monthly }} suggestions par 30 jours glissants</strong>, offertes à tous les organisateurs ;</li>
+          <li><strong>{{ assist.passMonthly }} par 30 jours</strong> avec un forfait de chasses sur mesure en cours, et pour les membres fondateurs ;</li>
+          <li>dans tous les cas, <strong>{{ assist.daily }} suggestions par 24 heures</strong> au plus.</li>
+        </ul>
+        <p>
+          Chaque suggestion redevient disponible 30 jours après avoir servi. Le décompte (utilisées, restantes, date du prochain retour) se
+          consulte à tout moment dans l'éditeur et dans <a routerLink="/me">votre profil</a>. Une demande qui échoue <strong>n'est pas
+          décomptée</strong>.
+        </p>
+      </section>
+
       <section class="surface">
         <h2>Achats et paiement</h2>
         <p>
@@ -81,6 +101,7 @@ import { priceLabel } from '@shared/store';
 })
 export class TermsPage {
   protected readonly limits = GENERATION_LIMITS;
+  protected readonly assist = ASSIST_LIMITS;
   private readonly label = (id: string) => priceLabel({ price: GENERATION_OFFERS.find((o) => o.id === id)!.price, included: false });
   protected readonly single = this.label('gen:single');
   protected readonly month = this.label('gen:month');

@@ -1,0 +1,56 @@
+<div #skinHost [thSkin]="souvenir.value()?.skin">
+  <div class="page stack">
+    <header class="banner head">
+      <h1 class="display">Votre souvenir</h1>
+      <p class="small">Une image à garder, ou à partager avec ceux qui étaient là. Elle ne dévoile aucun lieu du parcours : seulement sa forme.</p>
+    </header>
+
+    @if (souvenir.error(); as err) {
+      <section class="surface center">
+        <mat-icon>hourglass_top</mat-icon>
+        <p>{{ $any(err).message }}</p>
+        <a mat-stroked-button [routerLink]="['/play', id()]">Retour au carnet de route</a>
+      </section>
+    }
+
+    @if (souvenir.value(); as s) {
+      <section class="surface preview">
+        @if (image(); as img) {
+          <img [src]="img.url" [alt]="'Souvenir de « ' + s.huntName + ' » : ' + s.teamName" width="1080" height="1350" />
+        } @else {
+          <div class="placeholder" aria-hidden="true"></div>
+        }
+      </section>
+
+      <section class="surface actions">
+        <input #camera type="file" accept="image/*" hidden (change)="pickPhoto(camera)" />
+        @if (hasPhoto()) {
+          <button mat-stroked-button type="button" (click)="camera.click()"><mat-icon>add_a_photo</mat-icon>Changer la photo</button>
+          <button mat-button type="button" (click)="removePhoto()"><mat-icon>hide_image</mat-icon>Sans photo</button>
+        } @else {
+          <button mat-stroked-button type="button" (click)="camera.click()"><mat-icon>add_a_photo</mat-icon>Ajouter une photo de l'équipe</button>
+        }
+        <p class="small muted">La photo reste sur votre téléphone : elle n'est envoyée nulle part.</p>
+        <div class="buttons">
+          @if (canShare()) {
+            <button mat-flat-button class="th-cta" type="button" (click)="share()" [disabled]="!image()"><mat-icon>share</mat-icon>Partager</button>
+          }
+          @if (image(); as img) {
+            @if (canShare()) {
+              <a mat-stroked-button [href]="img.url" [download]="fileName(s)"><mat-icon>download</mat-icon>Télécharger l'image</a>
+            } @else {
+              <a mat-flat-button class="th-cta" [href]="img.url" [download]="fileName(s)"><mat-icon>download</mat-icon>Télécharger l'image</a>
+            }
+          }
+        </div>
+      </section>
+
+      <div class="links">
+        <a mat-button [routerLink]="['/hunts', s.huntId, 'results']"><mat-icon>emoji_events</mat-icon>Résultats</a>
+        @if (s.catalogId !== null) {
+          <a mat-button [routerLink]="['/catalog', s.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Classement de la chasse</a>
+        }
+      </div>
+    }
+  </div>
+</div>

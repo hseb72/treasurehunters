@@ -5,6 +5,7 @@ import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } 
 import { MockCreations } from './mock-creations';
 import { PlayData, stepStats } from '@shared/step-stats';
 import { creatorBonus, GENERATION_LIMITS, GenerationAccess, generationOffer, GenerationRight, pickRight } from '@shared/generation-access';
+import { AssistAction, AssistPlan, AssistReply, AssistRequest, AssistSuggestion, AssistUsage, assistUsage } from '@shared/assist';
 import {
   AuthResult,
   HuntStats,
@@ -40,11 +41,13 @@ import {
   StoreItem,
   CompassReading,
   PuzzleResult,
+  Souvenir,
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
+import { sketchTrail } from '@shared/souvenir';
 import {
   checkinAllowance,
   computeRanking,
@@ -747,14 +750,17 @@ export class MockHuntApi extends HuntApi {
       if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
-      const views = list.map((e) => this.entryView(e));
-      const sort = opts.sort ?? 'rating';
+      let views = list.map((e) => this.entryView(e, opts.near));
+      if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
+      const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
       return views.sort((a, b) =>
         sort === 'recent'
           ? b.id - a.id
           : sort === 'plays'
             ? b.plays - a.plays || b.id - a.id
-            : (b.rating.stars ?? -1) - (a.rating.stars ?? -1) || b.rating.count - a.rating.count || b.id - a.id,
+            : sort === 'distance'
+              ? (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity) || b.id - a.id
+              : (b.rating.stars ?? -1) - (a.rating.stars ?? -1) || b.rating.count - a.rating.count || b.id - a.id,
       );
     });
   }
@@ -787,24 +793,80 @@ export class MockHuntApi extends HuntApi {
   }
 
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
+    return this.reply(() => this.autonomyBoard(id));
+  }
+
+  /** Souvenir de fin de partie (§ 24), comme le serveur. */
+  getSouvenir(huntId: number): Observable<Souvenir> {
     return this.reply(() => {
-      const me = this.viewer();
-      const hunts = this.db.hunts.filter((h) => h.catalogId === id && h.surprise && h.hostId !== null);
-      let players = 0;
-      const rows: (AutonomyRow & { at: number })[] = [];
-      for (const h of hunts) {
-        const teams = this.db.teams.filter((t) => t.huntId === h.id);
-        players += teams.filter((t) => t.started).length;
-        for (const r of this.ranking(h.id)) {
-          if (r.time === null || !r.finished) continue;
-          const team = teams.find((t) => t.id === r.teamId)!;
-          rows.push({ rank: 0, teamName: r.teamName, members: r.members.length, time: r.time, penalty: r.penalty, hints: r.hints, skips: r.skips, finished: r.finished, mine: team.members.some((m) => m.hunterId === me), at: Date.parse(r.finished) });
-        }
+      const me = this.requireUser();
+      const h = this.visibleHunt(huntId);
+      const team = this.teamOf(huntId, me);
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team.finished || !team.started) throw new ApiError('Le souvenir sera prêt à l’arrivée de votre équipe.');
+      const steps = this.stepsOf(huntId);
+      const ranking = this.ranking(huntId);
+      const row = ranking.find((r) => r.teamId === team.id)!;
+      let rank: number | null = null;
+      let ranked = 0;
+      let scope: Souvenir['scope'] = 'hunt';
+      if (h.surprise && h.hostId !== null && h.catalogId !== null) {
+        const board = this.autonomyBoard(h.catalogId);
+        scope = 'catalog';
+        ranked = board.finishers;
+        rank = board.rows.find((r) => r.mine && r.finished === team.finished)?.rank ?? null;
+      } else if (h.status !== 'running' || h.tools.includes('live')) {
+        ranked = ranking.filter((r) => r.rank !== null).length;
+        rank = row.rank;
       }
-      rows.sort((a, b) => a.time - b.time || a.at - b.at);
-      rows.forEach((r, i) => (r.rank = i + 1));
-      return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
+      const found = this.db.validations
+        .filter((v) => v.teamId === team.id && v.source !== 'SKIP')
+        .map((v) => steps.find((s) => s.id === v.stepId)!)
+        .sort((a, b) => a.order - b.order);
+      const places = [steps.find((s) => s.order === 0), ...found]
+        .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+        .map((s) => ({ lat: s.latitude!, lng: s.longitude! }));
+      return {
+        huntId,
+        huntName: h.name,
+        skin: h.skin,
+        location: h.location,
+        date: team.started,
+        teamName: team.name,
+        members: team.members.map((m) => m.nickname),
+        time: row.time ?? 0,
+        penalty: row.penalty / 60,
+        rank: ranked > 1 ? rank : null,
+        ranked,
+        scope,
+        provisional: scope === 'hunt' && h.status === 'running',
+        found: found.length,
+        skipped: row.skips,
+        totalSteps: finalOrder(steps),
+        hints: row.hints,
+        trail: sketchTrail(places),
+        catalogId: h.catalogId,
+      };
     });
+  }
+
+  private autonomyBoard(id: number): AutonomyLeaderboard {
+    const me = this.viewer();
+    const hunts = this.db.hunts.filter((h) => h.catalogId === id && h.surprise && h.hostId !== null);
+    let players = 0;
+    const rows: (AutonomyRow & { at: number })[] = [];
+    for (const h of hunts) {
+      const teams = this.db.teams.filter((t) => t.huntId === h.id);
+      players += teams.filter((t) => t.started).length;
+      for (const r of this.ranking(h.id)) {
+        if (r.time === null || !r.finished) continue;
+        const team = teams.find((t) => t.id === r.teamId)!;
+        rows.push({ rank: 0, teamName: r.teamName, members: r.members.length, time: r.time, penalty: r.penalty, hints: r.hints, skips: r.skips, finished: r.finished, mine: team.members.some((m) => m.hunterId === me), at: Date.parse(r.finished) });
+      }
+    }
+    rows.sort((a, b) => a.time - b.time || a.at - b.at);
+    rows.forEach((r, i) => (r.rank = i + 1));
+    return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
   }
 
   private catalogEntryFor(id: number, me: number, verb: string): MockEntry {
@@ -976,7 +1038,10 @@ export class MockHuntApi extends HuntApi {
     return [...(e.huntId ? [e.huntId] : []), ...copies];
   }
 
-  private entryView(e: MockEntry): CatalogEntry {
+  private entryView(e: MockEntry, near?: { lat: number; lng: number }): CatalogEntry {
+    // Premier lieu placé du parcours, comme le serveur (§ 23).
+    const placed = e.content.steps.filter((s) => s.latitude !== null && s.longitude !== null).sort((a, b) => a.order - b.order)[0];
+    const start = placed ? { lat: placed.latitude!, lng: placed.longitude! } : null;
     const hunts = new Set(this.entryHunts(e));
     const played = this.db.hunts.filter((h) => hunts.has(h.id) && ['closed', 'archived'].includes(h.status));
     const times = this.db.teams
@@ -1012,6 +1077,8 @@ export class MockHuntApi extends HuntApi {
       published: e.published,
       withdrawn: e.withdrawn,
       price: e.price,
+      start,
+      distanceKm: start && near ? Math.round(distanceMeters(start, near) / 100) / 10 : null,
     };
   }
 
@@ -1437,7 +1504,69 @@ export class MockHuntApi extends HuntApi {
 
   getFeatures(): Observable<Features> {
     // La maquette montre le paiement activé, simulé (§ 20).
-    return this.reply(() => ({ photos: true, generation: true, payments: true }));
+    return this.reply(() => ({ photos: true, generation: true, payments: true, assist: true }));
+  }
+
+  /* ---------- Assistant de rédaction (§ 25), simulé ---------- */
+
+  /** Suggestions déjà utilisées : une douzaine pour Camille (formule de base), pour que le décompte parle en maquette. */
+  private readonly assists = new Map<number, { action: AssistAction; at: string }[]>([
+    [
+      2,
+      (['rephrase', 'hints', 'review', 'rephrase', 'easier', 'hints', 'review', 'rephrase', 'harder', 'hints', 'rephrase', 'review'] as AssistAction[]).map((action, i) => ({
+        action,
+        at: new Date(Date.now() - (27 - i * 2.2) * 86_400_000).toISOString(),
+      })),
+    ],
+  ]);
+
+  private assistUsageOf(me: number): AssistUsage {
+    const plan: AssistPlan = me === FOUNDER_ID ? 'founder' : (this.genRights.get(me)?.passUntil ?? 0) > Date.now() ? 'pass' : 'base';
+    return assistUsage(this.assists.get(me) ?? [], plan);
+  }
+
+  assistUsage(): Observable<AssistUsage> {
+    return this.reply(() => this.assistUsageOf(this.requireUser()));
+  }
+
+  assist(stepId: number, req: AssistRequest): Observable<AssistReply> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      if (!this.stepsOf(step.huntId).some((s) => s.order === step.order + 1)) throw new ApiError('L’arrivée n’a pas d’énigme : il n’y a plus de lieu à trouver.');
+      const text = req.instructions.trim();
+      if (!text && req.action !== 'rephrase') throw new ApiError('Écrivez d’abord une première version de l’énigme.');
+      const usage = this.assistUsageOf(me);
+      if (usage.blocked) throw new ApiError(usage.blocked);
+      const suggestion: AssistSuggestion = { action: req.action, instructions: null, hints: null, review: null };
+      const first = text.split(/(?<=[.!?])\s+/)[0] ?? text;
+      switch (req.action) {
+        case 'rephrase':
+          suggestion.instructions = text
+            ? `${first} Ouvrez l’œil : ce que vous cherchez ne se cache pas, il attend qu’on le remarque.`
+            : 'Quittez ce lieu par où le soleil se lève. Au bout de la rue, là où les passants s’arrêtent pour lever les yeux, votre prochain indice vous attend.';
+          break;
+        case 'easier':
+          suggestion.instructions = `${text} Petit coup de pouce : c’est à moins de cinq minutes à pied, et on le voit de loin.`;
+          break;
+        case 'harder':
+          suggestion.instructions = `${first.replace(/[.!?]$/, '')}… mais seuls ceux qui lisent les murs sauront où s’arrêter.`;
+          break;
+        case 'hints':
+          suggestion.hints = ['Regardez vers le haut plutôt que vers le sol.', 'Le lieu porte un nom lié à l’eau.', 'Cherchez la plus grande place du quartier, côté fontaine.'];
+          break;
+        case 'review':
+          suggestion.review = '- « La grande porte » peut désigner deux lieux du quartier : précisez lequel.\n- L’énigme se lit bien sinon.';
+          suggestion.instructions = `${text} (Celle qui fait face au jardin.)`;
+          break;
+      }
+      const list = this.assists.get(me) ?? [];
+      list.push({ action: req.action, at: new Date().toISOString() });
+      this.assists.set(me, list);
+      return { suggestion, usage: this.assistUsageOf(me) };
+    });
   }
 
   /** Arbitre simulé : la première photo d'une étape n'est pas reconnue, les suivantes le sont. */

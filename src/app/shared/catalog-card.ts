@@ -8,6 +8,7 @@ import { SkinCatalog } from '../core/skin-catalog';
 import { Shop } from '../core/shop';
 import { priceLabel } from '@shared/store';
 import { Stars } from './stars';
+import { distanceLabel } from './distance';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
 @Component({
@@ -32,6 +33,9 @@ import { Stars } from './stars';
       }
       <div class="row small muted meta">
         <span class="row"><mat-icon>location_on</mat-icon>{{ e.location }}</span>
+        @if (e.distanceKm !== null) {
+          <span class="row distance" title="Distance à vol d'oiseau jusqu'au départ"><mat-icon>near_me</mat-icon>{{ distance(e.distanceKm) }}</span>
+        }
         <span class="row"><mat-icon>person_pin</mat-icon>{{ e.authorNickname }}</span>
       </div>
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
@@ -59,6 +63,7 @@ import { Stars } from './stars';
     .card { display: flex; flex-direction: column; gap: 6px; height: 100%; overflow: hidden; }
     .cover { display: block; width: calc(100% + 32px); margin: -16px -16px 0; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
     h3 { margin: 0; }
+    .distance { color: var(--th-primary); font-weight: 600; }
     .price { color: var(--th-primary); font-weight: 700; }
     .autonomy { align-self: flex-start; padding: 2px 8px; border-radius: 999px; font-weight: 600; color: var(--th-success); background: color-mix(in srgb, var(--th-success) 12%, transparent); }
     .meta { flex-wrap: wrap; gap: 4px 14px; }
@@ -94,4 +99,5 @@ export class CatalogCard {
   protected readonly means = TRAVEL_MEANS;
   protected readonly formula = TRAVEL_LABELS;
   protected readonly minutes = minutesLabel;
+  protected readonly distance = distanceLabel;
 }

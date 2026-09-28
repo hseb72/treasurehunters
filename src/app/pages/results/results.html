@@ -28,6 +28,9 @@
   @if (rows.value(); as all) {
     <section class="surface podium-card">
       <th-podium [rows]="all" [highlight]="myTeamId()" />
+      @if (souvenirReady()) {
+        <a mat-stroked-button class="souvenir" [routerLink]="['/hunts', id(), 'souvenir']"><mat-icon>photo_album</mat-icon>Mon souvenir à partager</a>
+      }
     </section>
 
     <section>
