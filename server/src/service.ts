@@ -31,8 +31,11 @@ import {
   PhotoReview,
   Difficulty,
   Travel,
+  StoreItem,
+  CompassReading,
 } from '../../shared/models.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
+import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import {
   checkinAllowance,
   computeRanking,
@@ -214,6 +217,7 @@ export class Service {
     const me = requireUser(viewer);
     this.checkHuntData(data);
     return tx(this.pool, async (db) => {
+      await this.checkExtensions(db, me, data, null);
       const assignments = huntAssignments(data as Partial<Hunt>);
       const cols = ['hun_owner_htr', 'hun_joincode', ...assignments.map(([c]) => c)];
       const values = [me, joinCode(), ...assignments.map(([, v]) => v)];
@@ -242,6 +246,7 @@ export class Service {
         if (changed.length) throw conflict('Les règles ne peuvent plus changer une fois la course lancée.');
       }
       this.checkHuntData({ ...hunt, ...data });
+      await this.checkExtensions(db, requireUser(viewer), data, hunt);
       const assignments = huntAssignments(data as Partial<Hunt>);
       if (assignments.length) {
         const set = assignments.map(([c], i) => `${c} = $${i + 2}`).join(', ');
@@ -777,7 +782,7 @@ export class Service {
 
     // Position provisoire : les joueurs ne voient que celle de leur équipe (§ 5.3).
     let position: PlayState['position'] = null;
-    if (hunt.status === 'running' && team.started) {
+    if (hunt.status === 'running' && team.started && hunt.tools.includes('live')) {
       const teams = await teamsWhere(db, 't.tea_hunt_hun = $1', [huntId]);
       position = teamPosition(computeRanking(hunt, teams, allValidations, allHints), team.id);
     }
@@ -795,7 +800,66 @@ export class Service {
       selfStart: canSelfStart(hunt, team, me),
       photoProof: !!this.photos && hunt.validation === 'qr',
       start: startOf(steps),
+      // Outil Carte : seulement les lieux que l'équipe a déjà trouvés.
+      trail: hunt.tools.includes('map')
+        ? validated
+            .filter((v) => !v.skipped)
+            .map((v) => steps.find((x) => x.order === v.order)!)
+            .filter((x) => x.latitude !== null && x.longitude !== null)
+            .map((x) => ({ order: x.order, title: x.title, lat: Number(x.latitude), lng: Number(x.longitude) }))
+        : null,
     };
+  }
+
+  /* ================================================================ Boutique (§ 16) */
+
+  private async ownedProducts(db: Db, me: number | null): Promise<Set<string>> {
+    if (me === null) return new Set();
+    const list = await rows(db, 'SELECT pur_product FROM th_purchases WHERE pur_hunter_htr = $1', [me]);
+    return new Set(list.map((r) => r['pur_product'] as string));
+  }
+
+  async store(viewer: Viewer): Promise<StoreItem[]> {
+    const owned = await this.ownedProducts(this.pool, viewer);
+    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+  }
+
+  /** Obtenir une extension : offerte tant que le paiement n'est pas branché. */
+  async acquire(viewer: Viewer, productId: string): Promise<StoreItem[]> {
+    const me = requireUser(viewer);
+    const product = productById(productId);
+    if (!product) throw notFound('Extension inconnue.');
+    if (!product.included) {
+      await this.pool.query('INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, 0) ON CONFLICT DO NOTHING', [me, product.id]);
+    }
+    return this.store(me);
+  }
+
+  /**
+   * Un organisateur n'installe que les univers et outils qu'il possède. Ce qu'une chasse a
+   * déjà (copie du catalogue, chasse d'avant la boutique) reste permis.
+   */
+  private async checkExtensions(db: Db, me: number, data: Partial<Hunt>, current: Hunt | null): Promise<void> {
+    const wanted = [
+      ...(data.skin !== undefined && data.skin !== current?.skin ? [`skin:${data.skin}`] : []),
+      ...(data.tools ?? []).filter((t) => !current?.tools.includes(t)).map((t) => `tool:${t}`),
+    ];
+    if (!wanted.length) return;
+    const owned = await this.ownedProducts(db, me);
+    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
+    if (missing) throw forbidden(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+  }
+
+  /** Outil Boussole : direction et fourchette de distance du prochain lieu, jamais sa position. */
+  async compass(viewer: Viewer, huntId: number, pos: { lat: number; lng: number }): Promise<CompassReading> {
+    const me = requireUser(viewer);
+    const state = await this.playState(this.pool, me, huntId);
+    if (!state.hunt.tools.includes('compass')) throw forbidden('Cette chasse n’a pas de boussole.');
+    if (!state.clue) throw conflict('Aucune étape à trouver pour le moment.');
+    const target = (await stepsOf(this.pool, huntId)).find((s) => s.order === state.clue!.targetOrder)!;
+    if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : la boussole ne peut pas le trouver.');
+    const to = { lat: Number(target.latitude), lng: Number(target.longitude) };
+    return compassReading(pos, to, distanceMeters(pos, to));
   }
 
   /* ================================================================ Résultats et pilotage */
@@ -1380,6 +1444,7 @@ export class Service {
     const job = await tx(this.pool, async (db) => {
       // Sérialise les demandes d'un même joueur pour que le quota tienne.
       await db.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 FOR UPDATE', [me]);
+      if (req.skin) await this.checkExtensions(db, me, { skin: req.skin }, null);
       // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
       // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
       const recent = await one(
@@ -1450,15 +1515,16 @@ export class Service {
   private async createFromPlan(db: Db, me: number, req: GenerationRequest, plan: HuntPlan, location: string): Promise<number> {
     const play = req.mode === 'play';
     const owner = play ? await this.systemAccount(db) : me;
+    const owned = await this.ownedProducts(db, me);
     const r = await one(
       db,
       `INSERT INTO th_hunts (hun_owner_htr, hun_joincode, hun_name, hun_description, hun_location, hun_begin, hun_end,
                              hun_autostart, hun_autoclose, hun_award, hun_starttext, hun_startmode, hun_penalty1, hun_penalty2,
                              hun_penalty3, hun_skippenalty, hun_teamgame, hun_teammin, hun_teammax, hun_public, hun_status_hst,
                              hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr, hun_travel, hun_difficulty, hun_duration,
-                             hun_skin)
+                             hun_skin, hun_tools)
        VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13, $14, $15, $16,
-               $17)
+               $17, $18)
        RETURNING hun_id`,
       [
         owner,
@@ -1480,6 +1546,8 @@ export class Service {
         req.difficulty,
         req.durationMinutes,
         req.skin ?? DEFAULT_SKIN,
+        // Les outils que le joueur possède, en plus de la position en direct.
+        [...new Set([...DEFAULT_TOOLS, ...TOOL_IDS.filter((t) => owned.has(`tool:${t}`))])],
       ],
     );
     const huntId = r!['hun_id'] as number;
@@ -1670,7 +1738,7 @@ interface CatalogContent {
     | 'geoRadius'
     | 'contribution'
   > &
-    Partial<Pick<Hunt, 'skin'>>;
+    Partial<Pick<Hunt, 'skin' | 'tools'>>;
   steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances'>>)[];
 }
 
@@ -1693,6 +1761,7 @@ function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
       geoRadius: h.geoRadius,
       contribution: Number(h.contribution),
       skin: h.skin,
+      tools: h.tools,
     },
     steps: steps.map((s) => ({
       order: s.order,

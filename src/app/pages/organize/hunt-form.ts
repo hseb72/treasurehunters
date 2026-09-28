@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,8 @@ function nextSaturday(hour: number): string {
 
 /** Création (/organize/new) et modification (onglet « Infos ») d'une chasse. */
 import { DEFAULT_SKIN } from '@shared/skins';
+import { DEFAULT_TOOLS, TOOLS } from '@shared/store';
+import { Shop } from '../../core/shop';
 import { SkinPicker } from '../../shared/skin-picker';
 
 @Component({
@@ -68,7 +70,43 @@ export class HuntFormPage {
     isPublic: [true],
     contribution: [0, [Validators.min(0)]],
     skin: [DEFAULT_SKIN],
+    tools: [[...DEFAULT_TOOLS] as string[]],
   });
+  protected readonly toolList = TOOLS;
+  protected readonly shop = inject(Shop);
+  protected readonly toolBusy = signal<string | null>(null);
+
+  protected hasTool(id: string): boolean {
+    return (this.values().tools ?? []).includes(id);
+  }
+
+  /** Outil disponible : obtenu, ou déjà sur la chasse. */
+  protected canUse(id: string): boolean {
+    return this.shop.owns(`tool:${id}`) || (this.hunt()?.tools ?? []).includes(id);
+  }
+
+  protected setTool(id: string, on: boolean): void {
+    const tools = new Set(this.form.controls.tools.value);
+    if (on) tools.add(id);
+    else tools.delete(id);
+    this.form.controls.tools.setValue(TOOLS.map((t) => t.id).filter((t) => tools.has(t)));
+    this.form.markAsDirty();
+  }
+
+  /** Obtenir un outil (offert pendant le lancement) puis l'activer. */
+  protected obtainTool(id: string): void {
+    this.toolBusy.set(id);
+    this.shop.acquire(`tool:${id}`).subscribe({
+      next: () => {
+        this.toolBusy.set(null);
+        this.setTool(id, true);
+      },
+      error: (e) => {
+        this.toolBusy.set(null);
+        this.notify.error(e);
+      },
+    });
+  }
 
   protected readonly hunt = computed(() => this.workspace?.hunt.value() ?? null);
   protected readonly isNew = !this.workspace;

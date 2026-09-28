@@ -44,6 +44,30 @@
   </section>
 
   <section class="surface">
+    <h2 class="section-title">Outils de jeu</h2>
+    <p class="small muted">Ce que le carnet de route propose aux joueurs, dans sa barre d'outils.</p>
+    <div class="tools">
+      @for (t of toolList; track t.id) {
+        <div class="tool">
+          <mat-icon class="tool-icon">{{ t.icon }}</mat-icon>
+          <div class="tool-text">
+            <strong>{{ t.name }}</strong>
+            <span class="small muted">{{ t.description }}</span>
+            @if (t.needsPlaces && !geo()) {
+              <span class="small muted"><mat-icon inline>info</mat-icon> Les étapes doivent être placées sur la carte.</span>
+            }
+          </div>
+          @if (canUse(t.id)) {
+            <mat-slide-toggle [checked]="hasTool(t.id)" (change)="setTool(t.id, $event.checked)" [attr.aria-label]="t.name" />
+          } @else {
+            <button mat-stroked-button type="button" (click)="obtainTool(t.id)" [disabled]="toolBusy() === t.id">Obtenir — offert</button>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="surface">
     <h2 class="section-title">Calendrier</h2>
     <div class="two">
       <mat-form-field>

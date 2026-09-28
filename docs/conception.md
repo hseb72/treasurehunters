@@ -302,6 +302,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | E17 | **Fiche d'une version** : présentation, extrait, avis, versions, « Créer ma chasse à partir de celle-ci » | `/catalog/:id` | tous |
 | E18 | Onglet **Catalogue** de l'espace organisateur : origine, publications, publier une version | `/organize/:id/catalog` | organisateur |
 | E19 | **Fiche d'organisateur** : sa note (s'il l'accepte), ses chasses au catalogue | `/organizers/:id` | tous |
+| E20 | **Boutique** : univers, outils de jeu, packs (à venir) ; prix affichés, « Obtenir » | `/store` | tous (obtenir : connecté) |
 
 ---
 
@@ -572,5 +573,40 @@ L'application est sobre ; **chaque chasse a son style**. Le skin habille tout ce
 - Sons : courts, désactivables depuis le carnet de route (réglage mémorisé sur l'appareil). Animations : rien si l'appareil demande moins de mouvement.
 - Données : `th_hunts.hun_skin` (migration `db/migrations/010_hunt_skin.sql`, `aventure` par défaut) ; `CatalogEntry.skin` est lu dans l'instantané publié.
 
-À venir (lot 2 et suivants) : une **boutique** d'extensions (skins, outils de jeu comme la carte, la boussole ou la position en direct, packs d'énigmes interactives) ; les prix y sont affichés mais l'acquisition reste gratuite tant que le paiement n'est pas branché, la possession étant déjà enregistrée. Plus tard, des **créateurs** pourront publier et vendre leurs skins et packs : le format déclaratif et le contrôle des valeurs en sont la base.
+Les univers autres qu'Aventurier et Contemporain s'obtiennent dans la **boutique** (§ 16). Plus tard, des **créateurs** pourront publier et vendre leurs skins et packs : le format déclaratif et le contrôle des valeurs en sont la base.
+
+---
+
+## 16. Boutique d'extensions
+
+Un organisateur donne à ses chasses un **univers** (skin, § 15) et des **outils de jeu**. La boutique (E20) les présente avec leur prix ; tant que le paiement n'est pas branché, **l'acquisition est offerte** : « Obtenir » les ajoute à la collection du joueur, et le prix payé (0) est enregistré. Les extensions sont créées par la plateforme ; celles de créateurs viendront ensuite.
+
+**Produits** (`shared/store.ts`) : identifiants `skin:<id>` et `tool:<id>`, nom, description, prix affiché (centimes), inclus ou non.
+
+| Produit | Prix affiché | Inclus |
+|---|---|---|
+| Univers Aventurier, Contemporain | — | oui |
+| Six autres univers | 2,99 € | non |
+| Outil **Carte** | 1,99 € | non |
+| Outil **Boussole** | 2,99 € | non |
+| Outil **Position en direct** | — | oui |
+
+**Règles**
+
+- On n'installe sur une chasse (onglet Infos, chasse sur mesure) que ce qu'on possède ; ce que la chasse a déjà reste permis (copie du catalogue, chasse d'avant la boutique). Refus : 403 « … s'obtient d'abord dans la boutique ». Le choix d'un univers pas encore obtenu l'obtient d'abord, en un geste.
+- Une chasse inventée par le générateur reçoit d'office les outils que possède le joueur, en plus de la position en direct.
+- Les chasses existantes et les nouvelles ont la **position en direct** (le classement provisoire déjà affiché avant la boutique) ; l'organisateur peut la retirer.
+
+**Outils, dans la barre du carnet de route** (elle remplace les onglets de l'application pendant la partie, aux couleurs du skin : Carte, Boussole, Indices, Équipe, Accueil)
+
+- **Carte** : le départ, les lieux déjà trouvés (numérotés, reliés) et, sur demande, la position de l'équipe. `PlayState.trail` ne contient que les lieux validés (hors épreuves abandonnées) : jamais le prochain.
+- **Boussole** : `POST /hunts/:id/compass` avec la position du téléphone rend un cap arrondi à 45° (huit directions) et une fourchette de distance (moins de 50 m, 50 à 150 m, 150 à 400 m, 400 m à 1 km, 1 à 3 km, plus de 3 km), jamais les coordonnées du lieu. Refusée (403) si la chasse n'a pas l'outil.
+- **Position en direct** : `PlayState.position` n'est rempli que si la chasse a l'outil.
+- Carte et boussole demandent des étapes placées sur la carte ; l'onglet Infos le rappelle pour une chasse à QR codes.
+
+**Données** : `th_purchases` (joueur, produit, prix payé, date ; unique par joueur et produit), `th_hunts.hun_tools` (text[], `{live}` par défaut) ; migration `db/migrations/011_store.sql`. Les outils suivent la chasse au catalogue et dans ses copies.
+
+**API** : `GET /store` (produits et possession du joueur connecté), `POST /store/:product/acquire`, `POST /hunts/:id/compass`.
+
+À venir : les **packs d'énigmes** interactives (rébus, cadenas à code, messages chiffrés) à glisser entre les étapes, puis le **paiement** (Stripe Connect, § 13.4) et les **créateurs**. D'après les maquettes, aussi : une photo du lieu en tête d'étape et une validation par réponse saisie (« Quel symbole est gravé sur la pierre ? »).
 

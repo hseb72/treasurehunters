@@ -146,6 +146,8 @@ describe('chasse générée à organiser', () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
     const body = { ...request('organize'), durationMinutes: 120, travel: 'motor', theme: '  Parcs et coulées vertes ', skin: 'spatial' };
     expect((await camille.post('/api/hunts/generate', { ...body, skin: 'inconnu' })).status).toBe(400);
+    expect((await camille.post('/api/hunts/generate', body)).status).toBe(403); // univers à obtenir en boutique
+    await camille.post('/api/store/skin:spatial/acquire');
     expect((await camille.post('/api/hunts/generate', { ...body, travel: 'plane' })).status).toBe(400);
     const started = await camille.post('/api/hunts/generate', body);
     expect(started.status).toBe(202);

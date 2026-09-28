@@ -16,6 +16,7 @@
     <mat-menu #account="matMenu">
       <div class="menu-user">{{ user.nickname }}</div>
       <a mat-menu-item routerLink="/me"><mat-icon>person</mat-icon>Mon profil</a>
+      <a mat-menu-item routerLink="/store"><mat-icon>storefront</mat-icon>Boutique</a>
       @if (demo) {
         <a mat-menu-item routerLink="/demo"><mat-icon>science</mat-icon>Guide de démonstration</a>
       }
@@ -33,6 +34,7 @@
   <router-outlet />
 </main>
 
+@if (!playing()) {
 <nav class="tabbar no-print" aria-label="Navigation principale">
   @for (t of tabs; track t.path) {
     <a [routerLink]="t.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: t.path === '/' }">
@@ -45,3 +47,4 @@
     <span>Profil</span>
   </a>
 </nav>
+}

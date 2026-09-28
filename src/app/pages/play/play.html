@@ -319,6 +319,62 @@
   </div>
 
   @if (phase() === 'playing') {
+    <!-- Barre d'outils du carnet de route (§ 16) : outils de la chasse, énigme, équipe. -->
+    <nav class="toolbar no-print" aria-label="Outils de jeu">
+      @if (s.hunt.tools.includes('map')) {
+        <button type="button" (click)="openSheet('map')" [class.on]="sheet() === 'map'"><mat-icon>map</mat-icon>Carte</button>
+      }
+      @if (s.hunt.tools.includes('compass') && s.clue) {
+        <button type="button" (click)="openSheet('compass')" [class.on]="sheet() === 'compass'"><mat-icon>explore</mat-icon>Boussole</button>
+      }
+      <button type="button" (click)="showClue()"><mat-icon>lightbulb</mat-icon>Indices</button>
+      <button type="button" (click)="openSheet('team')" [class.on]="sheet() === 'team'"><mat-icon>groups</mat-icon>Équipe</button>
+      <a routerLink="/"><mat-icon>home</mat-icon>Accueil</a>
+    </nav>
+
+    @if (sheet(); as k) {
+      <div class="sheet-backdrop no-print" (click)="sheet.set(null)" aria-hidden="true"></div>
+      <section class="surface sheet no-print" role="dialog" [attr.aria-label]="sheetTitles[k]">
+        <div class="sheet-head">
+          <h2>{{ sheetTitles[k] }}</h2>
+          <button mat-icon-button type="button" (click)="sheet.set(null)" aria-label="Fermer"><mat-icon>close</mat-icon></button>
+        </div>
+        @switch (k) {
+          @case ('map') {
+            <th-trail-map [start]="s.start" [trail]="s.trail ?? []" [me]="me()" />
+            <div class="sheet-actions">
+              <span class="small muted">{{ (s.trail ?? []).length }} lieu{{ (s.trail ?? []).length > 1 ? 'x' : '' }} trouvé{{ (s.trail ?? []).length > 1 ? 's' : '' }}</span>
+              <button mat-button type="button" (click)="locateMe()" [disabled]="locatingMe()"><mat-icon>my_location</mat-icon>Me situer</button>
+            </div>
+          }
+          @case ('compass') {
+            @if (reading(); as r) {
+              <div class="rose" aria-hidden="true">
+                <span class="cardinal n">N</span><span class="cardinal e">E</span><span class="cardinal s">S</span><span class="cardinal w">O</span>
+                <div class="needle" [style.transform]="'rotate(' + r.bearing + 'deg)'"></div>
+              </div>
+              <p class="center">Le prochain lieu est vers <strong>{{ r.direction }}</strong>, <strong>{{ r.band }}</strong>.</p>
+              <p class="small muted center">Le nord est en haut : orientez-vous avec le soleil, les rues ou votre téléphone.</p>
+            } @else {
+              <p class="center muted">{{ compassBusy() ? 'La boussole cherche votre position…' : 'Touchez « Actualiser » pour interroger la boussole.' }}</p>
+            }
+            <div class="sheet-actions">
+              <span class="spacer"></span>
+              <button mat-flat-button type="button" (click)="useCompass()" [disabled]="compassBusy()"><mat-icon>refresh</mat-icon>Actualiser</button>
+            </div>
+          }
+          @case ('team') {
+            <ul class="members">
+              @for (m of s.team.members; track m.hunterId) {
+                <li><mat-icon inline>person</mat-icon> {{ m.nickname }}</li>
+              }
+            </ul>
+            <th-invite-panel [hunt]="s.hunt" [team]="s.team" />
+          }
+        }
+      </section>
+    }
+
     @if (s.hunt.validation === 'geo') {
       <button mat-fab extended class="scan-fab no-print" type="button" (click)="arrived()" [disabled]="locating()">
         <mat-icon>{{ locating() ? 'satellite_alt' : 'where_to_vote' }}</mat-icon>{{ locating() ? 'Localisation…' : 'Je suis arrivé' }}

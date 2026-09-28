@@ -25,8 +25,11 @@ import {
   ScanResult,
   Step,
   Team,
+  StoreItem,
+  CompassReading,
 } from '@shared/models';
 import { DEFAULT_SKIN } from '@shared/skins';
+import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import {
   checkinAllowance,
@@ -137,10 +140,12 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       if (data.id) {
         const h = this.ownedHunt(data.id);
+        this.checkExtensions(me, data, h);
         const { id, ownerId, status, started, closed, hostId, hostNickname, selfPaced, catalogId, ...editable } = data;
         Object.assign(h, editable);
         return this.huntView(h);
       }
+      this.checkExtensions(me, data, null);
       const id = this.nextId(this.db.hunts);
       const h: MockDb['hunts'][number] = {
         name: 'Nouvelle chasse',
@@ -165,6 +170,7 @@ export class MockHuntApi extends HuntApi {
         startText: null,
         travel: 'walk',
         skin: DEFAULT_SKIN,
+        tools: [...DEFAULT_TOOLS],
         difficulty: null,
         durationMinutes: null,
         ...data,
@@ -535,6 +541,7 @@ export class MockHuntApi extends HuntApi {
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {
     return this.reply(() => {
       const me = this.requireUser();
+      if (request.skin) this.checkExtensions(me, { skin: request.skin }, null);
       const { lat, lng, query } = request.location;
       const center = lat !== undefined && lng !== undefined ? { lat, lng } : MONTPELLIER;
       const placeName = query?.trim() || 'votre quartier';
@@ -568,6 +575,8 @@ export class MockHuntApi extends HuntApi {
         surprise: play,
         travel: request.travel,
         skin: request.skin ?? DEFAULT_SKIN,
+        // Les outils que le joueur possède, en plus de la position en direct.
+        tools: [...new Set([...DEFAULT_TOOLS, ...TOOL_IDS.filter((t) => this.purchases.get(me)?.has(`tool:${t}`))])],
         difficulty: request.difficulty,
         durationMinutes: request.durationMinutes,
         hostId: play ? me : null,
@@ -690,6 +699,7 @@ export class MockHuntApi extends HuntApi {
       const h: MockDb['hunts'][number] = {
         ...structuredClone(e.content.hunt),
         skin: e.content.hunt.skin ?? DEFAULT_SKIN,
+        tools: [...(e.content.hunt.tools ?? DEFAULT_TOOLS)],
         id: this.nextId(this.db.hunts),
         ownerId: me,
         begin: new Date(begin).toISOString(),
@@ -785,9 +795,9 @@ export class MockHuntApi extends HuntApi {
     if (missing) throw new ApiError(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
     const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
     if (!sample) throw new ApiError('Choisissez comme extrait une énigme du parcours.');
-    const { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin } = h;
+    const { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin, tools } = h;
     const content: MockEntry['content'] = {
-      hunt: { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin },
+      hunt: { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin, tools },
       steps: steps.map(({ order, title, arrival, instructions, hints, latitude, longitude, address }) => ({ order, title, arrival, instructions, hints, latitude, longitude, address })),
     };
     const fingerprint = JSON.stringify({ rules: [hintPenalties, skipPenalty, validation, geoRadius], steps: content.steps });
@@ -919,6 +929,56 @@ export class MockHuntApi extends HuntApi {
   }
 
   /* ---------- Preuve par photo (§ 12) ---------- */
+
+  /* ---------- Boutique (§ 16) ---------- */
+
+  private readonly purchases = new Map<number, Set<string>>();
+
+  private storeFor(me: number | null): StoreItem[] {
+    const owned = (me !== null && this.purchases.get(me)) || new Set<string>();
+    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+  }
+
+  getStore(): Observable<StoreItem[]> {
+    return this.reply(() => this.storeFor(this.viewer()));
+  }
+
+  acquire(productId: string): Observable<StoreItem[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const product = productById(productId);
+      if (!product) throw new ApiError('Extension inconnue.');
+      if (!product.included) {
+        const owned = this.purchases.get(me) ?? new Set<string>();
+        owned.add(product.id);
+        this.purchases.set(me, owned);
+      }
+      return this.storeFor(me);
+    });
+  }
+
+  compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
+    return this.reply(() => {
+      const state = this.playState(huntId);
+      if (!state.hunt.tools.includes('compass')) throw new ApiError('Cette chasse n’a pas de boussole.');
+      if (!state.clue) throw new ApiError('Aucune étape à trouver pour le moment.');
+      const target = this.stepsOf(huntId).find((s) => s.order === state.clue!.targetOrder)!;
+      if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : la boussole ne peut pas le trouver.');
+      const to = { lat: target.latitude, lng: target.longitude };
+      return compassReading(pos, to, distanceMeters(pos, to));
+    });
+  }
+
+  /** Comme le serveur : seulement les extensions obtenues, sauf ce que la chasse a déjà. */
+  private checkExtensions(me: number, data: Partial<Hunt>, current: MockDb['hunts'][number] | null): void {
+    const owned = this.purchases.get(me) ?? new Set<string>();
+    const wanted = [
+      ...(data.skin !== undefined && data.skin !== current?.skin ? [`skin:${data.skin}`] : []),
+      ...(data.tools ?? []).filter((t) => !current?.tools.includes(t)).map((t) => `tool:${t}`),
+    ];
+    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
+    if (missing) throw new ApiError(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+  }
 
   getFeatures(): Observable<Features> {
     return this.reply(() => ({ photos: true, generation: true }));
@@ -1184,7 +1244,7 @@ export class MockHuntApi extends HuntApi {
         canSkip: current.order + 1 < finalOrder(steps),
       };
     }
-    const position = hunt.status === 'running' && team.started ? teamPosition(this.ranking(huntId), team.id) : null;
+    const position = hunt.status === 'running' && team.started && hunt.tools.includes('live') ? teamPosition(this.ranking(huntId), team.id) : null;
     return {
       hunt,
       team,
@@ -1197,6 +1257,13 @@ export class MockHuntApi extends HuntApi {
       position,
       selfStart: canSelfStart(hunt, team, me),
       photoProof: hunt.validation === 'qr',
+      trail: hunt.tools.includes('map')
+        ? validated
+            .filter((v) => !v.skipped)
+            .map((v) => steps.find((x) => x.order === v.order)!)
+            .filter((x) => x.latitude !== null && x.longitude !== null)
+            .map((x) => ({ order: x.order, title: x.title, lat: x.latitude!, lng: x.longitude! }))
+        : null,
       start: (() => {
         const s = steps.find((x) => x.order === 0);
         return s && s.latitude !== null && s.longitude !== null ? { name: s.address?.trim() || null, lat: s.latitude, lng: s.longitude } : null;
@@ -1331,7 +1398,7 @@ interface MockEntry {
       | 'geoRadius'
       | 'contribution'
     > &
-      Partial<Pick<Hunt, 'skin'>>;
+      Partial<Pick<Hunt, 'skin' | 'tools'>>;
     steps: Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'>[];
   };
   fingerprint: string;

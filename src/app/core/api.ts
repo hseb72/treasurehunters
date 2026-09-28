@@ -23,6 +23,8 @@ import {
   Team,
   Difficulty,
   Travel,
+  StoreItem,
+  CompassReading,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -91,6 +93,13 @@ export abstract class HuntApi {
 
   /** Fonctions activées sur le serveur (preuve par photo, génération). */
   abstract getFeatures(): Observable<Features>;
+
+  /* Boutique (§ 16) */
+  abstract getStore(): Observable<StoreItem[]>;
+  /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
+  abstract acquire(productId: string): Observable<StoreItem[]>;
+  /** Outil Boussole : direction et fourchette de distance du prochain lieu. */
+  abstract compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading>;
 
   /* Preuve par photo (§ 12) : images en « data URL » JPEG, déjà réduites par le téléphone. */
   /** QR introuvable : photo du lieu, jugée par l'IA. */
