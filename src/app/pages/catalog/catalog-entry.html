@@ -20,6 +20,9 @@
       </div>
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
+    @if (!e.withdrawn) {
+      <div class="entry-lists"><th-list-button [catalogId]="e.id" /></div>
+    }
 
     @if (challenge.value(); as c) {
       <section class="surface challenge" role="note">
@@ -149,6 +152,12 @@
         <li><mat-icon>child_care</mat-icon>{{ age(e.minAge) }}</li>
         @for (t of practicalOf(e.practical); track t.id) {
           <li><mat-icon>{{ t.icon }}</mat-icon>{{ t.hint }}</li>
+        }
+        @if (audienceOf(e.audience); as a) {
+          <li><mat-icon>diversity_3</mat-icon>Idéale {{ a }}</li>
+        }
+        @if (settingOf(e.setting); as st) {
+          <li><mat-icon>{{ st.icon }}</mat-icon>{{ st.label }}</li>
         }
       </ul>
     </section>

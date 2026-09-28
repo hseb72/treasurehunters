@@ -20,6 +20,18 @@
     </button>
   </div>
 
+  <section class="presets" aria-label="Je cherche une Secret Track…">
+    <span class="label">Je cherche une Secret Track…</span>
+    <div class="chips">
+      <button type="button" class="chip chip--dice" (click)="surpriseMe.open()"><mat-icon>casino</mat-icon>Surprends-moi</button>
+      @for (p of presets; track p.id) {
+        <button type="button" class="chip" [class.chip--on]="p.on()" [attr.aria-pressed]="p.on()" (click)="p.toggle()">
+          <mat-icon>{{ p.icon }}</mat-icon>{{ p.label }}
+        </button>
+      }
+    </div>
+  </section>
+
   <section class="surface filters">
     <div class="line">
       <mat-form-field subscriptSizing="dynamic" class="search">
@@ -79,6 +91,43 @@
           @for (t of practicalTags; track t.id) {
             <mat-button-toggle [value]="t.id" [aria-label]="t.label" [title]="t.hint"><mat-icon>{{ t.icon }}</mat-icon> <span class="toggle-text">{{ t.label }}</span></mat-button-toggle>
           }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion">
+        <span class="label">Avec qui</span>
+        <mat-button-toggle-group multiple [value]="audience()" (change)="audience.set($event.value)" hideMultipleSelectionIndicator aria-label="Avec qui">
+          @for (t of audienceTags; track t.id) {
+            <mat-button-toggle [value]="t.id" [aria-label]="t.label"><mat-icon>{{ t.icon }}</mat-icon> <span class="toggle-text">{{ t.label }}</span></mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion">
+        <span class="label">Où</span>
+        <mat-button-toggle-group multiple [value]="setting()" (change)="setting.set($event.value)" hideMultipleSelectionIndicator aria-label="Où">
+          @for (t of settings; track t.id) {
+            <mat-button-toggle [value]="t.id" [aria-label]="t.label"><mat-icon>{{ t.icon }}</mat-icon> <span class="toggle-text">{{ t.label }}</span></mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion">
+        <span class="label">Longueur du parcours</span>
+        <mat-button-toggle-group [value]="maxKm()" (change)="maxKm.set($event.value)" hideSingleSelectionIndicator aria-label="Longueur du parcours">
+          <mat-button-toggle [value]="null">Toutes</mat-button-toggle>
+          @for (k of kms; track k) {
+            <mat-button-toggle [value]="k">&lt; {{ k }} km</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="criterion">
+        <span class="label">Prix</span>
+        <mat-button-toggle-group [value]="price()" (change)="price.set($event.value)" hideSingleSelectionIndicator aria-label="Prix">
+          <mat-button-toggle [value]="null">Toutes</mat-button-toggle>
+          <mat-button-toggle value="free">Gratuites</mat-button-toggle>
+          <mat-button-toggle value="paid">Payantes</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
 

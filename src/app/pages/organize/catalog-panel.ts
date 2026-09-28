@@ -3,7 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MIN_AGES, PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
+import { AUDIENCE_TAGS, AudienceTag, MIN_AGES, PRACTICAL_TAGS, PracticalTag, Setting, SETTINGS } from '@shared/practical';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -77,7 +77,12 @@ export class CatalogPanelPage {
     /** Repères pratiques (§ 26). */
     practical: [[] as PracticalTag[]],
     minAge: [null as number | null],
+    /** Pour qui, où (§ 36). */
+    audience: [[] as AudienceTag[]],
+    setting: [null as Setting | null],
   });
+  protected readonly audienceTags = AUDIENCE_TAGS;
+  protected readonly settings = SETTINGS;
   protected readonly practicalTags = PRACTICAL_TAGS;
   protected readonly ages = MIN_AGES;
   protected readonly shop = inject(Shop);
@@ -105,6 +110,8 @@ export class CatalogPanelPage {
       const c = this.form.controls;
       if (!c.practical.dirty) c.practical.setValue(last.practical);
       if (!c.minAge.dirty) c.minAge.setValue(last.minAge);
+      if (!c.audience.dirty) c.audience.setValue(last.audience);
+      if (!c.setting.dirty) c.setting.setValue(last.setting);
     });
   }
 
@@ -127,6 +134,8 @@ export class CatalogPanelPage {
         price: Math.round((Number(v.euros) || 0) * 100),
         practical: v.practical,
         minAge: v.minAge,
+        audience: v.audience,
+        setting: v.setting,
       })
       .subscribe({
         next: () => {

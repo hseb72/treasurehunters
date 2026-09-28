@@ -2,7 +2,7 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
-import type { PracticalTag } from './practical.js';
+import type { AudienceTag, PracticalTag, Setting } from './practical.js';
 import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
 import type { SkinManifest } from './skins.js';
 
@@ -537,6 +537,10 @@ export interface CatalogEntry {
   km: number | null;
   /** Équipes arrivées au bout : la durée constatée ne s'affiche qu'à partir de MEASURED_MIN. */
   finishers: number;
+  /** Publics visés (§ 36) ; vide : non précisé. */
+  audience: AudienceTag[];
+  /** Dehors, dedans ou les deux ; null : non précisé. */
+  setting: Setting | null;
 }
 
 export interface CatalogReview {
@@ -617,6 +621,9 @@ export interface CatalogPublication {
   /** Repères pratiques (§ 26) ; absents = aucun. */
   practical?: PracticalTag[];
   minAge?: number | null;
+  /** Publics visés et cadre (§ 36) ; absents = non précisés. */
+  audience?: AudienceTag[];
+  setting?: Setting | null;
 }
 
 /** Avis d'un joueur sur une chasse jouée, après sa clôture. */

@@ -23,3 +23,27 @@ export function practicalTag(id: PracticalTag) {
 export function ageLabel(minAge: number | null): string {
   return minAge ? `Dès ${minAge} ans` : 'Tous âges';
 }
+
+/** Pour qui (§ 36) : les publics auxquels l'auteur destine sa chasse, pour le filtre « Avec qui ». */
+export type AudienceTag = 'family' | 'couple' | 'friends' | 'solo' | 'group';
+
+export const AUDIENCE_TAGS: { id: AudienceTag; label: string; icon: string }[] = [
+  { id: 'family', label: 'En famille', icon: 'family_restroom' },
+  { id: 'couple', label: 'En couple', icon: 'favorite' },
+  { id: 'friends', label: 'Entre amis', icon: 'groups' },
+  { id: 'solo', label: 'Seul', icon: 'person' },
+  { id: 'group', label: 'Grand groupe', icon: 'diversity_3' },
+];
+
+export const AUDIENCE_IDS = AUDIENCE_TAGS.map((t) => t.id) as [AudienceTag, ...AudienceTag[]];
+
+/** Où se joue le parcours : dehors, à l'intérieur (musée, château…), ou les deux. */
+export type Setting = 'outdoor' | 'indoor' | 'mixed';
+
+export const SETTINGS: { id: Setting; label: string; icon: string }[] = [
+  { id: 'outdoor', label: 'En extérieur', icon: 'park' },
+  { id: 'indoor', label: 'En intérieur', icon: 'museum' },
+  { id: 'mixed', label: 'Intérieur et extérieur', icon: 'holiday_village' },
+];
+
+export const SETTING_IDS = SETTINGS.map((s) => s.id) as [Setting, ...Setting[]];

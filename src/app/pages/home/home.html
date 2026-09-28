@@ -19,6 +19,7 @@
   <div class="quick">
     <a class="action" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
     <a class="action" routerLink="/catalog" [queryParams]="{ jouer: 1 }"><mat-icon>hiking</mat-icon>Jouer en autonomie</a>
+    <button type="button" class="action" (click)="surpriseMe.open()"><mat-icon>casino</mat-icon>Surprends-moi</button>
     <a class="action" routerLink="/store"><mat-icon>storefront</mat-icon>Boutique</a>
     @if (session.loggedIn()) {
       <a class="action" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Secret Track sur mesure</a>

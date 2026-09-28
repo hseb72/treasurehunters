@@ -81,6 +81,24 @@
           </mat-select>
         </mat-form-field>
       </fieldset>
+      <fieldset class="practical">
+        <legend>Pour qui, où</legend>
+        <p class="small muted">Les joueurs du catalogue filtrent sur ces choix (« Avec qui », « Où »).</p>
+        <mat-button-toggle-group multiple formControlName="audience" hideMultipleSelectionIndicator aria-label="Pour qui">
+          @for (t of audienceTags; track t.id) {
+            <mat-button-toggle [value]="t.id"><mat-icon>{{ t.icon }}</mat-icon> {{ t.label }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>Où se joue-t-elle ?</mat-label>
+          <mat-select formControlName="setting">
+            <mat-option [value]="null">Non précisé</mat-option>
+            @for (t of settings; track t.id) {
+              <mat-option [value]="t.id">{{ t.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </fieldset>
       <mat-form-field>
         <mat-label>Énigme en extrait</mat-label>
         <mat-select formControlName="sampleOrder">

@@ -44,13 +44,16 @@ import {
   Souvenir,
   Challenge,
   GameInProgress,
+  Travel,
 } from '@shared/models';
 import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
 import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
-import { PracticalTag } from '@shared/practical';
+import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
+import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
+import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
 import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
@@ -91,6 +94,8 @@ export class MockHuntApi extends HuntApi {
   private readonly refPhotos = new Map<number, string>();
   /** Catalogue (§ 13) et avis (§ 14). */
   private readonly catalog: MockEntry[] = [];
+  /** Favoris et listes (§ 38). */
+  private readonly lists: MockList[] = [];
   private readonly ratings: { huntId: number; hunterId: number; rating: Rating; at: string }[] = [];
 
   constructor() {
@@ -98,6 +103,8 @@ export class MockHuntApi extends HuntApi {
     this.seedCatalog();
     this.seedAutonomy();
     this.seedPlacePhotos();
+    // Une liste partagée de Camille, que seb a rejointe (§ 38).
+    this.lists.push({ id: 1, ownerId: 2, name: 'Balades en famille', icon: 'family_restroom', favorite: false, code: 'FAMILLE2', members: [1], items: this.catalog.filter((e) => !e.withdrawn).map((e) => e.id).reverse() });
   }
 
   /**
@@ -756,7 +763,11 @@ export class MockHuntApi extends HuntApi {
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
       if (opts.practical?.length) list = list.filter((e) => opts.practical!.every((t) => e.practical.includes(t)));
+      if (opts.audience?.length) list = list.filter((e) => opts.audience!.some((a) => e.audience.includes(a)));
+      if (opts.setting?.length) list = list.filter((e) => e.setting !== null && opts.setting!.includes(e.setting));
+      if (opts.price) list = list.filter((e) => (opts.price === 'free' ? e.price === 0 : e.price > 0));
       let views = list.map((e) => this.entryView(e, opts.near));
+      if (opts.maxKm) views = views.filter((v) => v.km !== null && v.km <= opts.maxKm!);
       if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
       const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
       return views.sort((a, b) =>
@@ -803,6 +814,135 @@ export class MockHuntApi extends HuntApi {
   }
 
   /** Parties à reprendre (§ 35), comme le serveur. */
+  /* ---------- Favoris et listes (§ 38), comme le serveur ---------- */
+
+  private listView(l: MockList, me: number): TrackList {
+    return {
+      id: l.id,
+      name: l.name,
+      icon: l.icon,
+      favorite: l.favorite,
+      ownerNickname: this.nick(l.ownerId),
+      mine: l.ownerId === me,
+      code: l.code,
+      members: l.members.map((m) => this.nick(m)),
+      catalogIds: [...l.items],
+    };
+  }
+
+  private memberList(id: number): { l: MockList; me: number } {
+    const me = this.requireUser();
+    const l = this.lists.find((x) => x.id === id && (x.ownerId === me || x.members.includes(me)));
+    if (!l) throw new ApiError('Liste introuvable.');
+    return { l, me };
+  }
+
+  private ownedList(id: number): { l: MockList; me: number } {
+    const r = this.memberList(id);
+    if (r.l.ownerId !== r.me) throw new ApiError('Seul le créateur de la liste peut la modifier.');
+    return r;
+  }
+
+  myLists(): Observable<TrackList[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      if (!this.lists.some((l) => l.ownerId === me && l.favorite)) {
+        this.lists.push({ id: this.lists.length + 1, ownerId: me, name: FAVORITE_NAME, icon: 'favorite', favorite: true, code: null, members: [], items: [] });
+      }
+      return this.lists
+        .filter((l) => l.ownerId === me || l.members.includes(me))
+        .sort((a, b) => Number(b.ownerId === me && b.favorite) - Number(a.ownerId === me && a.favorite) || a.id - b.id)
+        .map((l) => this.listView(l, me));
+    });
+  }
+
+  getList(id: number): Observable<TrackListDetail> {
+    return this.reply(() => {
+      const { l, me } = this.memberList(id);
+      const entries = l.items.map((c) => this.catalog.find((e) => e.id === c && !e.withdrawn)).filter((e): e is MockEntry => !!e);
+      return { ...this.listView(l, me), entries: entries.map((e) => this.entryView(e)) };
+    });
+  }
+
+  createList(name: string, icon: string): Observable<TrackList> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      if (this.lists.filter((l) => l.ownerId === me).length >= LISTS_MAX) throw new ApiError(`${LISTS_MAX} listes au plus : supprimez-en une avant d'en créer une autre.`);
+      const l: MockList = { id: this.lists.length + 1, ownerId: me, name: name.trim(), icon, favorite: false, code: null, members: [], items: [] };
+      this.lists.push(l);
+      return this.listView(l, me);
+    });
+  }
+
+  updateList(id: number, data: { name?: string; icon?: string; shared?: boolean }): Observable<TrackList> {
+    return this.reply(() => {
+      const { l, me } = this.ownedList(id);
+      if (data.name !== undefined && !l.favorite) l.name = data.name.trim();
+      if (data.icon !== undefined) l.icon = data.icon;
+      if (data.shared === true && !l.code) l.code = randomToken(8).toUpperCase().replace(/[^A-Z2-9]/g, 'X');
+      if (data.shared === false) Object.assign(l, { code: null, members: [] });
+      return this.listView(l, me);
+    });
+  }
+
+  deleteList(id: number): Observable<void> {
+    return this.reply(() => {
+      const { l } = this.ownedList(id);
+      if (l.favorite) throw new ApiError('La liste « À faire » ne se supprime pas ; retirez-en les Secret Tracks.');
+      this.lists.splice(this.lists.indexOf(l), 1);
+    });
+  }
+
+  joinList(code: string): Observable<TrackList> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const l = this.lists.find((x) => x.code && x.code === code.trim().toUpperCase());
+      if (!l) throw new ApiError('Aucune liste partagée avec ce code.');
+      if (l.ownerId !== me && !l.members.includes(me)) l.members.push(me);
+      return this.listView(l, me);
+    });
+  }
+
+  leaveList(id: number): Observable<void> {
+    return this.reply(() => {
+      const { l, me } = this.memberList(id);
+      if (l.ownerId === me) throw new ApiError('Vous avez créé cette liste : supprimez-la plutôt.');
+      l.members = l.members.filter((m) => m !== me);
+    });
+  }
+
+  listAdd(id: number, catalogId: number): Observable<TrackList> {
+    return this.reply(() => {
+      const { l, me } = this.memberList(id);
+      if (!this.catalog.some((e) => e.id === catalogId && !e.withdrawn)) throw new ApiError('Cette Secret Track n’est pas au catalogue.');
+      if (!l.items.includes(catalogId)) l.items.unshift(catalogId);
+      return this.listView(l, me);
+    });
+  }
+
+  listRemove(id: number, catalogId: number): Observable<TrackList> {
+    return this.reply(() => {
+      const { l, me } = this.memberList(id);
+      l.items = l.items.filter((c) => c !== catalogId);
+      return this.listView(l, me);
+    });
+  }
+
+  /** Surprends-moi (§ 37), comme le serveur. */
+  surprise(q: SurpriseQuery): Observable<Surprise> {
+    return this.reply(() => {
+      const me = this.viewer();
+      let views = this.catalog.filter((e) => !e.withdrawn && e.validation === 'geo').map((e) => this.entryView(e, q.near));
+      if (q.near) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= (q.radius ?? SURPRISE_RADIUS));
+      const mine = this.db.teams.filter((t) => t.finished && me !== null && t.members.some((m) => m.hunterId === me)).map((t) => this.db.hunts.find((h) => h.id === t.huntId)!);
+      const played = new Set(mine.flatMap((h) => [h.catalogId, ...this.catalog.filter((e) => e.huntId === h.id).map((e) => e.id)]).filter((x): x is number => x !== null));
+      const counts = new Map<Travel, number>();
+      for (const h of mine) if (h.travel) counts.set(h.travel, (counts.get(h.travel) ?? 0) + 1);
+      const usualTravel = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+      return pickSurprise(views, { played, usualTravel, minutes: q.minutes, exclude: q.exclude });
+    });
+  }
+
   getInProgress(): Observable<GameInProgress[]> {
     return this.reply(() => {
       const me = this.requireUser();
@@ -1082,6 +1222,8 @@ export class MockHuntApi extends HuntApi {
         price: pub.price ?? 0,
         practical: [...new Set(pub.practical ?? [])],
         minAge: pub.minAge ?? null,
+        audience: [...new Set(pub.audience ?? [])],
+        setting: pub.setting ?? null,
       });
     }
     const parentId = previous?.id ?? h.catalogId;
@@ -1112,6 +1254,8 @@ export class MockHuntApi extends HuntApi {
       price: pub.price ?? 0,
       practical: [...new Set(pub.practical ?? [])],
       minAge: pub.minAge ?? null,
+      audience: [...new Set(pub.audience ?? [])],
+      setting: pub.setting ?? null,
     };
     this.catalog.push(entry);
     return entry;
@@ -1168,6 +1312,8 @@ export class MockHuntApi extends HuntApi {
       minAge: e.minAge,
       km: routeKm(e.content.steps.filter((x) => x.latitude !== null && x.longitude !== null).sort((a, b) => a.order - b.order).map((x) => ({ lat: x.latitude!, lng: x.longitude! }))),
       finishers: times.length,
+      audience: [...e.audience],
+      setting: e.setting,
     };
   }
 
@@ -1206,7 +1352,7 @@ export class MockHuntApi extends HuntApi {
     if (!closed) return;
     try {
       // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
-      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399, practical: ['toilets'] });
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399, practical: ['toilets'], audience: ['friends', 'group'], setting: 'outdoor' });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -1274,7 +1420,7 @@ export class MockHuntApi extends HuntApi {
     );
     let entry: MockEntry;
     try {
-      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0, practical: ['stroller', 'toilets', 'cafe'], minAge: 6 });
+      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0, practical: ['stroller', 'toilets', 'cafe'], minAge: 6, audience: ['family', 'couple', 'solo'], setting: 'outdoor' });
     } catch {
       return;
     }
@@ -2305,6 +2451,8 @@ interface MockEntry {
   /** Repères pratiques (§ 26). */
   practical: PracticalTag[];
   minAge: number | null;
+  audience: AudienceTag[];
+  setting: Setting | null;
   /** Prix fixé par l'auteur (§ 20), en centimes. */
   price: number;
   authorId: number;
@@ -2351,3 +2499,14 @@ interface MockEntry {
 const average = (values: number[]): number | null =>
   values.length ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10 : null;
 
+/** Liste de Secret Tracks (§ 38). */
+interface MockList {
+  id: number;
+  ownerId: number;
+  name: string;
+  icon: string;
+  favorite: boolean;
+  code: string | null;
+  members: number[];
+  items: number[];
+}

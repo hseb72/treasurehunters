@@ -1,3 +1,4 @@
+import { SurpriseMe } from '../../shared/surprise-dialog';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { DomTranslator } from '../../core/dom-translator';
@@ -25,6 +26,8 @@ import { HuntCard } from '../../shared/hunt-card';
   styleUrl: './home.scss',
 })
 export class HomePage {
+  /** Surprends-moi (§ 37). */
+  protected readonly surpriseMe = inject(SurpriseMe);
   private readonly api = inject(HuntApi);
   private readonly router = inject(Router);
   private readonly notify = inject(Notify);

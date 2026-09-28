@@ -82,3 +82,40 @@
 .center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 /* Sur téléphone, les tris et rayons défilent plutôt que de déborder. */
 .line mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
+
+/* Je cherche une Secret Track… (§ 36) : raccourcis en pastilles, défilant sur téléphone. */
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--th-border);
+  border-radius: 999px;
+  background: var(--th-surface-raised);
+  color: var(--th-ink);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  mat-icon { width: 18px; height: 18px; font-size: 18px; color: var(--th-primary); }
+  &:hover { border-color: var(--th-primary-light); }
+  &.chip--on {
+    background: var(--th-primary);
+    border-color: var(--th-primary);
+    color: var(--th-on-primary);
+    mat-icon { color: var(--th-on-primary); }
+  }
+}
+
+.chip--dice { border-color: var(--th-accent); background: var(--th-accent-light); font-weight: 600; }

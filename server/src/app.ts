@@ -16,7 +16,8 @@ import { PaymentProvider, StripeProvider } from './payments/stripe.js';
 import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
-import { PRACTICAL_IDS } from '../../shared/practical.js';
+import { LIST_ICONS } from '../../shared/lists.js';
+import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -420,6 +421,10 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         lng: z.coerce.number().min(-180).max(180),
         radius: z.coerce.number().positive().max(500),
         practical: list(PRACTICAL_IDS),
+        audience: list(AUDIENCE_IDS),
+        setting: list(SETTING_IDS),
+        price: z.enum(['free', 'paid']),
+        maxKm: z.coerce.number().positive().max(500),
       })
       .partial()
       .parse(req.query);
@@ -427,6 +432,52 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const near = lat !== undefined && lng !== undefined ? { lat, lng } : undefined;
     // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
     return service.listCatalog(req.viewer, { ...rest, near, mine: !!q.mine, autonomous: !!q.autonomous });
+  });
+  /* ----- Favoris et listes (§ 38) */
+  const lists = service.lists;
+  const listFields = { name: z.string().trim().min(1).max(60), icon: z.enum(LIST_ICONS as [string, ...string[]]) };
+  app.get('/api/me/lists', async (req) => lists.mine(req.viewer));
+  app.post('/api/lists', async (req, reply) => reply.status(201).send(await lists.create(req.viewer, z.object(listFields).parse(req.body))));
+  app.post('/api/lists/join', async (req) => lists.join(req.viewer, z.object({ code: z.string().trim().min(4).max(12) }).parse(req.body).code));
+  app.get('/api/lists/:id', async (req) => lists.get(req.viewer, idParams.parse(req.params).id));
+  app.patch('/api/lists/:id', async (req) =>
+    lists.update(req.viewer, idParams.parse(req.params).id, z.object({ ...listFields, shared: z.boolean() }).partial().parse(req.body)),
+  );
+  app.delete('/api/lists/:id', async (req, reply) => {
+    await lists.remove(req.viewer, idParams.parse(req.params).id);
+    return reply.status(204).send();
+  });
+  app.delete('/api/lists/:id/membership', async (req, reply) => {
+    await lists.leave(req.viewer, idParams.parse(req.params).id);
+    return reply.status(204).send();
+  });
+  const itemParams = z.object({ id, catalogId: id });
+  app.put('/api/lists/:id/items/:catalogId', async (req) => {
+    const p = itemParams.parse(req.params);
+    return lists.add(req.viewer, p.id, p.catalogId);
+  });
+  app.delete('/api/lists/:id/items/:catalogId', async (req) => {
+    const p = itemParams.parse(req.params);
+    return lists.drop(req.viewer, p.id, p.catalogId);
+  });
+
+  app.get('/api/catalog/surprise', async (req) => {
+    const q = z
+      .object({
+        lat: z.coerce.number().min(-90).max(90),
+        lng: z.coerce.number().min(-180).max(180),
+        radius: z.coerce.number().positive().max(500),
+        minutes: z.coerce.number().int().min(15).max(1440),
+        exclude: z
+          .string()
+          .max(200)
+          .transform((s) => s.split(',').filter(Boolean).map(Number))
+          .pipe(z.array(z.number().int().positive()).max(30)),
+      })
+      .partial()
+      .parse(req.query);
+    const { lat, lng, ...rest } = q;
+    return service.surprise(req.viewer, { ...rest, near: lat !== undefined && lng !== undefined ? { lat, lng } : undefined });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
   /* ----- Signalements et statistiques d'étape (§ 22) */
@@ -496,6 +547,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
           .transform((t) => [...new Set(t)])
           .optional(),
         minAge: z.number().int().min(2).max(18).nullable().optional(),
+        audience: z
+          .array(z.enum(AUDIENCE_IDS))
+          .max(AUDIENCE_IDS.length)
+          .transform((t) => [...new Set(t)])
+          .optional(),
+        setting: z.enum(SETTING_IDS).nullable().optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));

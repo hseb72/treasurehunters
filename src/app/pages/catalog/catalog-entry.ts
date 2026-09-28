@@ -1,4 +1,4 @@
-import { ageLabel, PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
+import { ageLabel, AUDIENCE_TAGS, AudienceTag, PRACTICAL_TAGS, PracticalTag, Setting, SETTINGS } from '@shared/practical';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -20,11 +20,12 @@ import { Confirm } from '../../shared/confirm-dialog';
 import { ShareLink } from '../../core/share';
 import { DomTranslator } from '../../core/dom-translator';
 import { Stars } from '../../shared/stars';
+import { ListButton } from '../../shared/list-button';
 
 /** Fiche d'une version du catalogue : présentation, extrait, avis, versions, et copie. */
 @Component({
   selector: 'th-catalog-entry',
-  imports: [DatePipe, MatButtonModule, MatIconModule, RouterLink, Stars],
+  imports: [DatePipe, ListButton, MatButtonModule, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-entry.html',
   styleUrl: './catalog-entry.scss',
@@ -38,6 +39,12 @@ export class CatalogEntryPage {
     return e.measuredMinutes !== null && e.finishers >= MEASURED_MIN ? e.measuredMinutes : null;
   }
   protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
+  /** « en famille, entre amis ou seul » (§ 36) ; null si l'auteur n'a rien précisé. */
+  protected readonly audienceOf = (ids: AudienceTag[]): string | null => {
+    const labels = AUDIENCE_TAGS.filter((t) => ids.includes(t.id)).map((t) => t.label.toLowerCase());
+    return labels.length ? (labels.length > 1 ? `${labels.slice(0, -1).join(', ')} ou ${labels.at(-1)}` : labels[0]!) : null;
+  };
+  protected readonly settingOf = (id: Setting | null) => SETTINGS.find((t) => t.id === id) ?? null;
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
   private readonly router = inject(Router);

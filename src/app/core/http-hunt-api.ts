@@ -1,5 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Surprise, SurpriseQuery } from '@shared/surprise';
+import { TrackList, TrackListDetail } from '@shared/lists';
 import {
   AuthResult,
   HuntStats,
@@ -159,12 +161,54 @@ export class HttpHuntApi extends HuntApi {
     if (opts.maxDuration) params['maxDuration'] = String(opts.maxDuration);
     if (opts.autonomous) params['autonomous'] = '1';
     if (opts.practical?.length) params['practical'] = opts.practical.join(',');
+    if (opts.audience?.length) params['audience'] = opts.audience.join(',');
+    if (opts.setting?.length) params['setting'] = opts.setting.join(',');
+    if (opts.price) params['price'] = opts.price;
+    if (opts.maxKm) params['maxKm'] = String(opts.maxKm);
     if (opts.near) {
       params['lat'] = opts.near.lat.toFixed(5);
       params['lng'] = opts.near.lng.toFixed(5);
       if (opts.radius) params['radius'] = String(opts.radius);
     }
     return this.http.get<CatalogEntry[]>(`${this.url}/catalog`, { params });
+  }
+  myLists(): Observable<TrackList[]> {
+    return this.http.get<TrackList[]>(`${this.url}/me/lists`);
+  }
+  getList(id: number): Observable<TrackListDetail> {
+    return this.http.get<TrackListDetail>(`${this.url}/lists/${id}`);
+  }
+  createList(name: string, icon: string): Observable<TrackList> {
+    return this.http.post<TrackList>(`${this.url}/lists`, { name, icon });
+  }
+  updateList(id: number, data: { name?: string; icon?: string; shared?: boolean }): Observable<TrackList> {
+    return this.http.patch<TrackList>(`${this.url}/lists/${id}`, data);
+  }
+  deleteList(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/lists/${id}`);
+  }
+  joinList(code: string): Observable<TrackList> {
+    return this.http.post<TrackList>(`${this.url}/lists/join`, { code });
+  }
+  leaveList(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/lists/${id}/membership`);
+  }
+  listAdd(id: number, catalogId: number): Observable<TrackList> {
+    return this.http.put<TrackList>(`${this.url}/lists/${id}/items/${catalogId}`, {});
+  }
+  listRemove(id: number, catalogId: number): Observable<TrackList> {
+    return this.http.delete<TrackList>(`${this.url}/lists/${id}/items/${catalogId}`);
+  }
+  surprise(q: SurpriseQuery): Observable<Surprise> {
+    const params: Record<string, string> = {};
+    if (q.near) {
+      params['lat'] = q.near.lat.toFixed(5);
+      params['lng'] = q.near.lng.toFixed(5);
+      if (q.radius) params['radius'] = String(q.radius);
+    }
+    if (q.minutes) params['minutes'] = String(q.minutes);
+    if (q.exclude?.length) params['exclude'] = q.exclude.join(',');
+    return this.http.get<Surprise>(`${this.url}/catalog/surprise`, { params });
   }
   getCatalogEntry(id: number): Observable<CatalogDetail> {
     return this.http.get<CatalogDetail>(`${this.url}/catalog/${id}`);

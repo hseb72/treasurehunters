@@ -4,7 +4,9 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
-import { PracticalTag } from '@shared/practical';
+import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
+import { Surprise, SurpriseQuery } from '@shared/surprise';
+import { TrackList, TrackListDetail } from '@shared/lists';
 import { ExplorerJournal } from '@shared/journal';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
@@ -68,6 +70,11 @@ export interface CatalogQuery {
   radius?: number;
   /** Repères pratiques exigés (§ 26). */
   practical?: PracticalTag[];
+  /** Je cherche une Secret Track… (§ 36) : l'un de ces publics, ce cadre, prix, longueur maximale en km. */
+  audience?: AudienceTag[];
+  setting?: Setting[];
+  price?: 'free' | 'paid';
+  maxKm?: number;
 }
 
 /**
@@ -188,6 +195,8 @@ export abstract class HuntApi {
   /** mine : mes publications ; hunt : celles d'une de mes chasses (retirées comprises). */
   abstract listCatalog(opts?: CatalogQuery): Observable<CatalogEntry[]>;
   abstract getCatalogEntry(id: number): Observable<CatalogDetail>;
+  /** Surprends-moi (§ 37) : une Secret Track jouable en autonomie, choisie pour le joueur. */
+  abstract surprise(q: SurpriseQuery): Observable<Surprise>;
   /** Crée un brouillon à partir d'une version du catalogue. */
   abstract copyFromCatalog(id: number): Observable<Hunt>;
   abstract withdrawFromCatalog(id: number): Observable<CatalogDetail>;
@@ -205,6 +214,19 @@ export abstract class HuntApi {
   abstract getOfflinePack(huntId: number): Observable<OfflinePack>;
   /** Rejoue les actions jouées sans réseau. */
   abstract offlineSync(huntId: number, events: OfflineEvent[]): Observable<OfflineSyncResult & { state: PlayState }>;
+
+  /* ---------- Favoris et listes (§ 38) ---------- */
+  /** Listes du joueur, « À faire » d'abord (créée d'office). */
+  abstract myLists(): Observable<TrackList[]>;
+  abstract getList(id: number): Observable<TrackListDetail>;
+  abstract createList(name: string, icon: string): Observable<TrackList>;
+  /** Renommer, changer d'icône, partager (code) ou cesser de partager. */
+  abstract updateList(id: number, data: { name?: string; icon?: string; shared?: boolean }): Observable<TrackList>;
+  abstract deleteList(id: number): Observable<void>;
+  abstract joinList(code: string): Observable<TrackList>;
+  abstract leaveList(id: number): Observable<void>;
+  abstract listAdd(id: number, catalogId: number): Observable<TrackList>;
+  abstract listRemove(id: number, catalogId: number): Observable<TrackList>;
 
   /** Parties commencées et pas finies, à reprendre (§ 35). */
   abstract getInProgress(): Observable<GameInProgress[]>;

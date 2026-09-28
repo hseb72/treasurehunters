@@ -45,7 +45,9 @@ import {
   GameInProgress,
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
-import { PracticalTag } from '../../shared/practical.js';
+import { AudienceTag, PracticalTag, Setting } from '../../shared/practical.js';
+import { Lists } from './lists.js';
+import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '../../shared/surprise.js';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
@@ -142,6 +144,7 @@ export class Service {
   private readonly inflight = new Set<Promise<void>>();
   /** Créations de la communauté (§ 19). */
   readonly creations: Creations;
+  readonly lists: Lists;
   /** Paiement (§ 20) : posé par l'application ; inactif sans Stripe. */
   payments: Payments | null = null;
   /** Assistant de rédaction (§ 25) ; null sans clé d'API. */
@@ -157,6 +160,7 @@ export class Service {
     private readonly photos: { store: PhotoStore; judge: PhotoJudge | null } | null = null,
   ) {
     this.creations = new Creations(pool);
+    this.lists = new Lists(pool, (db, where, params) => catalogEntries(db, where, params));
   }
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
@@ -1815,8 +1819,19 @@ export class Service {
       if (previous && !previous['cat_withdrawn'] && previous['cat_fingerprint'] === fingerprint) {
         await db.query(
           `UPDATE th_catalog SET cat_summary = $2, cat_travel = $3, cat_difficulty = $4, cat_duration = $5, cat_sample_order = $6, cat_sample = $7,
-                                 cat_price = $8, cat_practical = $9, cat_minage = $10, cat_lastupdate = now() WHERE cat_id = $1`,
-          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions, pub.price ?? 0, pub.practical ?? [], pub.minAge ?? null],
+                                 cat_price = $8, cat_practical = $9, cat_minage = $10, cat_audience = $11, cat_setting = $12, cat_lastupdate = now() WHERE cat_id = $1`,
+          [
+            previous['cat_id'],
+            pub.summary.trim() || hunt.description,
+            ...settings,
+            sample.order,
+            sample.instructions,
+            pub.price ?? 0,
+            pub.practical ?? [],
+            pub.minAge ?? null,
+            pub.audience ?? [],
+            pub.setting ?? null,
+          ],
         );
         await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
         return previous['cat_id'] as number;
@@ -1834,8 +1849,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel, cat_price, cat_lat, cat_lng, cat_practical, cat_minage, cat_km)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING cat_id`,
+                                 cat_travel, cat_price, cat_lat, cat_lng, cat_practical, cat_minage, cat_km, cat_audience, cat_setting)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1859,6 +1874,8 @@ export class Service {
           pub.practical ?? [],
           pub.minAge ?? null,
           contentKm(content),
+          pub.audience ?? [],
+          pub.setting ?? null,
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -1909,6 +1926,22 @@ export class Service {
       params.push(opts.practical);
       where.push(`c.cat_practical @> $${params.length}::varchar[]`);
     }
+    // Je cherche une Secret Track… (§ 36) : pour l'un des publics demandés, dans ce cadre,
+    // gratuite ou payante, d'une longueur maximale.
+    if (opts.audience?.length) {
+      params.push(opts.audience);
+      where.push(`c.cat_audience && $${params.length}::varchar[]`);
+    }
+    if (opts.setting?.length) {
+      params.push(opts.setting);
+      where.push(`c.cat_setting = ANY($${params.length})`);
+    }
+    if (opts.price === 'free') where.push('c.cat_price = 0');
+    if (opts.price === 'paid') where.push('c.cat_price > 0');
+    if (opts.maxKm) {
+      params.push(opts.maxKm);
+      where.push(`c.cat_km <= $${params.length}`);
+    }
     // Près de moi (§ 23) : distance à vol d'oiseau jusqu'au départ, en km (haversine).
     let distance: string | undefined;
     if (opts.near) {
@@ -1930,6 +1963,35 @@ export class Service {
       distance: `${distance} ASC NULLS LAST, c.cat_id DESC`,
     }[sort];
     return catalogEntries(this.pool, where.join(' AND '), params, order, distance);
+  }
+
+  /**
+   * Surprends-moi (§ 37) : une Secret Track jouable en autonomie autour du joueur, dans son temps,
+   * pas encore jouée, qui ressemble à ce qu'il a aimé (son déplacement le plus fréquent).
+   */
+  async surprise(viewer: Viewer, q: SurpriseQuery): Promise<Surprise> {
+    const candidates = await this.listCatalog(viewer, {
+      autonomous: true,
+      near: q.near,
+      radius: q.near ? (q.radius ?? SURPRISE_RADIUS) : undefined,
+      sort: q.near ? 'distance' : 'rating',
+    });
+    let played = new Set<number>();
+    let usualTravel: Travel | null = null;
+    if (viewer) {
+      const mine = await rows(
+        this.pool,
+        `SELECT h.hun_catalog_cat, h.hun_travel, (SELECT c.cat_id FROM th_catalog c WHERE c.cat_hunt_hun = h.hun_id ORDER BY c.cat_id DESC LIMIT 1) AS origin
+         FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun
+         WHERE m.thr_hunter_htr = $1 AND t.tea_finished IS NOT NULL`,
+        [viewer],
+      );
+      played = new Set(mine.flatMap((r) => [r['hun_catalog_cat'], r['origin']]).filter((x): x is number => typeof x === 'number'));
+      const counts = new Map<Travel, number>();
+      for (const r of mine) if (r['hun_travel']) counts.set(r['hun_travel'], (counts.get(r['hun_travel']) ?? 0) + 1);
+      usualTravel = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    }
+    return pickSurprise(candidates, { played, usualTravel, minutes: q.minutes, exclude: q.exclude });
   }
 
   async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
@@ -2604,6 +2666,11 @@ export interface CatalogQuery {
   radius?: number;
   /** Repères pratiques exigés (§ 26). */
   practical?: PracticalTag[];
+  /** Je cherche une Secret Track… (§ 36). */
+  audience?: AudienceTag[];
+  setting?: Setting[];
+  price?: 'free' | 'paid';
+  maxKm?: number;
 }
 
 /**
@@ -2720,7 +2787,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
-            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers,
+            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -2762,6 +2829,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     distanceKm: r['distance'] === null ? null : Math.round(Number(r['distance']) * 10) / 10,
     practical: r['cat_practical'] ?? [],
     minAge: r['cat_minage'],
+    audience: r['cat_audience'] ?? [],
+    setting: r['cat_setting'] ?? null,
     km: r['cat_km'] === null ? null : Math.round(Number(r['cat_km']) * 10) / 10,
     finishers: r['finishers'],
   }));
