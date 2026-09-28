@@ -19,7 +19,7 @@ import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 
 import { MatSelectModule } from '@angular/material/select';
-import { PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
+import { Puzzle, PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
 import { Shop } from '../../core/shop';
 
 @Component({
@@ -89,7 +89,26 @@ export class StepsEditorPage {
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly puzzleKind = computed(() => this.formValue().puzzleType || null);
   /** Packs d'énigmes pas encore obtenus. */
-  protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned));
+  protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned && !i.creator));
+  /** Packs de créateurs obtenus (§ 19) : des énigmes prêtes à poser. */
+  protected readonly creatorPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && i.owned && i.creator));
+  protected readonly drawPack = signal<string | null>(null);
+  protected readonly drawPuzzles = signal<Puzzle[]>([]);
+
+  protected openPack(ref: string): void {
+    this.drawPack.set(ref);
+    this.drawPuzzles.set([]);
+    this.api.packPuzzles(Number(ref.slice(1))).subscribe({
+      next: (list) => this.drawPuzzles.set(list),
+      error: (e) => this.notify.error(e),
+    });
+  }
+
+  /** Recopie une énigme du pack dans le formulaire : l'organisateur peut encore l'ajuster. */
+  protected usePuzzle(p: Puzzle): void {
+    this.form.patchValue({ puzzleType: p.type, puzzlePrompt: p.prompt, puzzleAnswer: p.answer, puzzleHint: p.hint ?? '', puzzleShift: p.shift ?? 3 });
+    this.form.markAsDirty();
+  }
 
   protected typeInfo(t: PuzzleType) {
     return puzzleType(t);

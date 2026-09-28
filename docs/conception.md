@@ -667,3 +667,23 @@ Les maquettes montrent une photo en tête d'étape. L'organisateur choisit, pour
 
 La photo ne suit pas la chasse au catalogue (§ 13) : elle reste celle de l'organisateur. Migration `db/migrations/013_step_photo.sql`.
 
+## 19. Ouverture aux créateurs
+
+Des créateurs proposent des **skins** et des **packs d'énigmes** depuis l'atelier créateur ; un relecteur les publie dans la boutique à leur nom. Le guide complet, format et règles de contrôle compris, est `docs/skins.md` (« Proposer une création »).
+
+- **Contenu déclaratif contrôlé** (`shared/creations.ts`) : `checkSkinContent` ne garde que les jetons, polices, couverture, sons et effets que le moteur de skins applique sans risque ; `checkPackContent`, des énigmes jouables (`puzzleProblem`). Le serveur contrôle à chaque enregistrement et à la publication.
+- **Statuts** : brouillon → en relecture → publiée, ou « à corriger » avec la note du relecteur. Relecteurs : `th_hunters.htr_reviewer`.
+- **Boutique** : une création publiée devient le produit `skin:u<id>` ou `pack:u<id>` (`StoreItem.creator`, manifeste du skin, nombre d'énigmes du pack — jamais les réponses). L'acquisition suit les règles du § 16 ; l'auteur possède d'office ses créations.
+- **Skins de créateurs** : une chasse porte `hun_skin = 'u<id>'` s'il est publié et possédé par l'organisateur. Le front les enregistre depuis la boutique, ou les charge par `GET /api/skins/u<id>` (public) pour les joueurs (`SkinCatalog`).
+- **Packs de créateurs** : `GET /api/creations/:id/puzzles` pour les acheteurs, l'auteur et les relecteurs ; l'éditeur d'étapes y pioche. Une énigme d'un pack obtenu se pose sans le pack de son type, tant que type, consigne, réponse et décalage sont ceux du pack.
+- **Page du créateur** : `GET /api/creators/:id`, `/creators/:id`.
+
+| Route | Rôle | Qui |
+|---|---|---|
+| `GET /creations/mine`, `POST /creations`, `PATCH\|DELETE /creations/:id` | ses créations | auteur |
+| `POST /creations/:id/submit`, `/withdraw` | proposer, retirer de la relecture | auteur |
+| `GET /creations/review`, `POST /creations/:id/review { approve, note }` | relecture | relecteur |
+| `GET /creators/:id`, `GET /skins/u<id>` | page du créateur, manifeste d'un skin publié | tous |
+
+Données : `th_creations` (auteur, genre, nom, description, prix affiché de 0 à 20 €, contenu jsonb, statut, note, relecteur, date de publication), `th_hunters.htr_reviewer` ; migration `db/migrations/014_creations.sql`.
+

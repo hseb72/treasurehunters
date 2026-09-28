@@ -111,6 +111,29 @@
                 }
               </p>
             }
+            @if (creatorPacks().length) {
+              <div class="draw">
+                <mat-form-field class="field-full" subscriptSizing="dynamic">
+                  <mat-label>Piocher dans un pack de créateur</mat-label>
+                  <mat-icon matPrefix>style</mat-icon>
+                  <mat-select [value]="drawPack()" (selectionChange)="openPack($event.value)">
+                    @for (pk of creatorPacks(); track pk.id) {
+                      <mat-option [value]="pk.ref">{{ pk.name }} — {{ pk.creator?.nickname }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (drawPuzzles().length) {
+                  <div class="draw-list">
+                    @for (p of drawPuzzles(); track $index) {
+                      <button type="button" class="draw-item" (click)="usePuzzle(p)" title="Poser cette énigme (elle reste modifiable)">
+                        <mat-icon>{{ typeInfo(p.type).icon }}</mat-icon>
+                        <span>{{ p.prompt }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
             @if (puzzleKind(); as t) {
               <p class="small muted">{{ typeInfo(t).description }}</p>
               <mat-form-field class="field-full">

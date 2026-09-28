@@ -2,6 +2,7 @@
   <header class="head">
     <h1>Boutique</h1>
     <p class="muted">Donnez à chaque chasse son univers et ses outils. <span class="launch">Tout est offert pendant le lancement.</span></p>
+    <p class="small"><mat-icon inline>brush</mat-icon> Vous créez des univers ou des énigmes ? <a routerLink="/creator">Proposez-les dans l'atelier créateur</a>.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Rayons de la boutique">
@@ -24,6 +25,9 @@
           <div class="tool-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
         }
         <h3>{{ item.name }}</h3>
+        @if (item.creator; as c) {
+          <p class="small by">par <a [routerLink]="['/creators', c.id]">{{ c.nickname }}</a>{{ item.puzzleCount ? ' · ' + item.puzzleCount + ' énigmes prêtes à poser' : '' }}</p>
+        }
         <p class="small muted description">{{ item.description }}</p>
         <div class="buy">
           <span class="price">

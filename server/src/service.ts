@@ -38,7 +38,7 @@ import {
 } from '../../shared/models.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
-import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
+import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import {
   checkinAllowance,
   computeRanking,
@@ -73,6 +73,8 @@ import {
   validationsOfHunt,
 } from './repo.js';
 import { HuntGenerator } from './generation/generator.js';
+import { creationProducts, Creations, publishedCreation } from './creations.js';
+import { creationProductId, creationRef, samePuzzle } from '../../shared/creations.js';
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
@@ -117,6 +119,8 @@ const GENERATION_STALE_MINUTES = 10;
 export class Service {
   /** Générations en cours dans ce processus (attendues par les tests). */
   private readonly inflight = new Set<Promise<void>>();
+  /** Créations de la communauté (§ 19). */
+  readonly creations: Creations;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -124,7 +128,9 @@ export class Service {
     private readonly log: (err: unknown, msg: string) => void = () => {},
     /** Preuve par photo (§ 12) : stockage et arbitre IA ; null si le stockage n'est pas configuré. */
     private readonly photos: { store: PhotoStore; judge: PhotoJudge | null } | null = null,
-  ) {}
+  ) {
+    this.creations = new Creations(pool);
+  }
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
@@ -853,13 +859,16 @@ export class Service {
 
   async store(viewer: Viewer): Promise<StoreItem[]> {
     const owned = await this.ownedProducts(this.pool, viewer);
-    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+    return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...(await creationProducts(this.pool, owned, viewer))];
   }
 
   /** Obtenir une extension : offerte tant que le paiement n'est pas branché. */
   async acquire(viewer: Viewer, productId: string): Promise<StoreItem[]> {
     const me = requireUser(viewer);
-    const product = productById(productId);
+    const ref = creationRef(productId);
+    const creation = ref !== null ? await publishedCreation(this.pool, ref) : null;
+    // Création de la communauté : publiée, et du genre annoncé (« skin:u12 » pour un skin).
+    const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
     if (!product) throw notFound('Extension inconnue.');
     if (!product.included) {
       await this.pool.query('INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, 0) ON CONFLICT DO NOTHING', [me, product.id]);
@@ -878,8 +887,18 @@ export class Service {
     ];
     if (!wanted.length) return;
     const owned = await this.ownedProducts(db, me);
-    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
-    if (missing) throw forbidden(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+    for (const id of wanted) {
+      const ref = creationRef(id);
+      if (ref !== null) {
+        // Skin de créateur : publié, et obtenu (son auteur l'a d'office).
+        const c = await publishedCreation(db, ref);
+        if (!c || creationProductId(c.kind, c.id) !== id) throw badRequest('Ce skin n’existe pas ou n’est plus publié.');
+        if (c.authorId !== me && !owned.has(id)) throw forbidden(`« ${c.name} » s’obtient d’abord dans la boutique.`);
+        continue;
+      }
+      const p = productById(id);
+      if (p && !owns(owned, p.id)) throw forbidden(`« ${p.name} » s’obtient d’abord dans la boutique.`);
+    }
   }
 
   /** Outil Boussole : direction et fourchette de distance du prochain lieu, jamais sa position. */
@@ -1256,7 +1275,16 @@ export class Service {
     if (problem) throw badRequest(problem);
     if (step.puzzle?.type === data.puzzle.type) return;
     const pack = productById(puzzleType(data.puzzle.type).pack)!;
-    if (!owns(await this.ownedProducts(db, me), pack.id)) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+    const owned = await this.ownedProducts(db, me);
+    // Une énigme tirée d'un pack de créateur obtenu (§ 19) se pose sans le pack de son type.
+    if (!owns(owned, pack.id) && !(await this.fromCreatorPack(db, owned, data.puzzle))) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+  }
+
+  private async fromCreatorPack(db: Db, owned: ReadonlySet<string>, puzzle: Puzzle): Promise<boolean> {
+    const ids = [...owned].map((id) => (id.startsWith('pack:') ? creationRef(id) : null)).filter((id): id is number => id !== null);
+    if (!ids.length) return false;
+    const packs = await rows(db, `SELECT cre_content FROM th_creations WHERE cre_id = ANY($1) AND cre_kind = 'pack' AND cre_status = 'published'`, [ids]);
+    return packs.some((r) => (r['cre_content'].puzzles as Puzzle[]).some((p) => samePuzzle(p, puzzle)));
   }
 
   /** Affiche l'indice de l'énigme d'arrivée (gratuit). */

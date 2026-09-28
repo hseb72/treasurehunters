@@ -3,6 +3,7 @@
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
 import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
+import type { SkinManifest } from './skins.js';
 
 export type HuntStatus = 'draft' | 'published' | 'running' | 'closed' | 'cancelled' | 'archived';
 
@@ -18,6 +19,8 @@ export interface Hunter {
   email: string;
   /** Accepte d'être noté en tant qu'organisateur (§ 14). */
   rateable: boolean;
+  /** Relecteur des créations de la communauté (§ 19). */
+  reviewer?: boolean;
 }
 
 export interface Hunt {
@@ -237,6 +240,12 @@ export interface StoreItem {
   cover: string | null;
   icon: string | null;
   owned: boolean;
+  /** Création de la communauté (§ 19) : son auteur. */
+  creator?: { id: number; nickname: string } | null;
+  /** Skin de créateur : son manifeste, pour l'aperçu et l'habillage. */
+  skin?: SkinManifest;
+  /** Pack de créateur : nombre d'énigmes prêtes à poser. */
+  puzzleCount?: number;
 }
 
 /** Énigme d'arrivée en cours, vue par l'équipe (sans la réponse). */

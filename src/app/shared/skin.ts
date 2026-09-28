@@ -1,4 +1,5 @@
-import { Directive, ElementRef, inject, Injectable, input, effect, Renderer2, RendererStyleFlags2, signal } from '@angular/core';
+import { Directive, ElementRef, inject, Injectable, input, effect, Renderer2, RendererStyleFlags2, signal, untracked } from '@angular/core';
+import { SkinCatalog } from '../core/skin-catalog';
 import { SkinManifest, SkinSound, SkinSoundEvent, safeSkinUrl, skinById, skinStyle } from '@shared/skins';
 
 /**
@@ -16,11 +17,15 @@ export class SkinDirective {
 
   private readonly el = inject(ElementRef<HTMLElement>);
   private readonly renderer = inject(Renderer2);
+  private readonly catalog = inject(SkinCatalog);
   private applied: string[] = [];
 
   constructor() {
     effect(() => {
       const value = this.thSkin();
+      // Skin de créateur : chargé à la demande, l'habillage se refait à son arrivée.
+      this.catalog.version();
+      if (typeof value === 'string') untracked(() => this.catalog.ensure(value));
       // Tant que la chasse n'est pas chargée : l'habillage neutre de l'application.
       const skin = typeof value === 'object' && value ? value : value ? skinById(value) : NEUTRAL;
       const host = this.el.nativeElement as HTMLElement;

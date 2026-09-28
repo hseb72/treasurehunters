@@ -9,7 +9,7 @@ import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
-import { SKIN_IDS } from '../../shared/skins.js';
+import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
 import { Service, Viewer } from './service.js';
@@ -51,7 +51,7 @@ const huntFields = {
   validation: z.enum(['qr', 'geo']),
   geoRadius: z.number().int().min(10).max(500),
   travel: z.enum(['walk', 'active', 'motor']),
-  skin: z.enum(SKIN_IDS),
+  skin: z.string().max(40).refine(skinIdShape, 'Skin inconnu.'),
   tools: z
     .array(z.enum(TOOL_IDS))
     .max(TOOL_IDS.length)
@@ -101,7 +101,7 @@ const generationRequest = z.object({
     .transform((t) => t || null),
   steps: z.number().int().min(3).max(12).nullable(),
   mode: z.enum(['play', 'organize']),
-  skin: z.enum(SKIN_IDS).optional(),
+  skin: z.string().max(40).refine(skinIdShape, 'Skin inconnu.').optional(),
   puzzles: z
     .array(z.enum(PUZZLE_TYPE_IDS))
     .max(PUZZLE_TYPE_IDS.length)
@@ -194,9 +194,36 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   /* ----- Boutique (§ 16) */
   app.get('/api/store', async (req) => service.store(req.viewer));
   app.post('/api/store/:product/acquire', async (req) => {
-    const { product } = z.object({ product: z.enum(PRODUCT_IDS) }).parse(req.params);
+    const { product } = z.object({ product: z.union([z.enum(PRODUCT_IDS), z.string().regex(/^(skin|pack):u\d{1,9}$/)]) }).parse(req.params);
     return service.acquire(req.viewer, product);
   });
+  /* ----- Créations de la communauté (§ 19) */
+  const creationFields = {
+    name: text(40).min(1),
+    description: text(300),
+    price: z.number().int().min(0).max(2000),
+    content: z.unknown(),
+  };
+  const creations = service.creations;
+  app.get('/api/creations/mine', async (req) => creations.mine(req.viewer));
+  app.post('/api/creations', async (req, reply) =>
+    reply.status(201).send(await creations.create(req.viewer, z.object({ kind: z.enum(['skin', 'pack']), ...creationFields }).parse(req.body))),
+  );
+  app.patch('/api/creations/:id', async (req) => creations.update(req.viewer, idParams.parse(req.params).id, z.object(creationFields).partial().parse(req.body)));
+  app.delete('/api/creations/:id', async (req, reply) => {
+    await creations.remove(req.viewer, idParams.parse(req.params).id);
+    reply.status(204).send();
+  });
+  app.post('/api/creations/:id/submit', async (req) => creations.submit(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/creations/:id/withdraw', async (req) => creations.withdraw(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/creations/review', async (req) => creations.reviewQueue(req.viewer));
+  app.post('/api/creations/:id/review', async (req) =>
+    creations.review(req.viewer, idParams.parse(req.params).id, z.object({ approve: z.boolean(), note: nullableText(500).default(null) }).parse(req.body)),
+  );
+  app.get('/api/creations/:id/puzzles', async (req) => creations.packPuzzles(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/creators/:id', async (req) => creations.creator(idParams.parse(req.params).id));
+  app.get('/api/skins/:id', async (req) => creations.skin(Number(z.object({ id: z.string().regex(/^u\d{1,9}$/) }).parse(req.params).id.slice(1))));
+
   app.post('/api/hunts/:id/puzzle', async (req) => {
     const { answer } = z.object({ answer: text(200) }).parse(req.body);
     return service.solvePuzzle(req.viewer, idParams.parse(req.params).id, answer);

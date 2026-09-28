@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from '../api';
+import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } from '@shared/creations';
+import { MockCreations } from './mock-creations';
 import {
   AuthResult,
   CatalogDetail,
@@ -30,9 +32,9 @@ import {
   CompassReading,
   PuzzleResult,
 } from '@shared/models';
-import { DEFAULT_SKIN } from '@shared/skins';
+import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
-import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
+import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import {
   checkinAllowance,
@@ -295,7 +297,9 @@ export class MockHuntApi extends HuntApi {
           const problem = puzzleProblem(editable.puzzle);
           if (problem) throw new ApiError(problem);
           const pack = puzzleType(editable.puzzle.type).pack;
-          if (s.puzzle?.type !== editable.puzzle.type && !owns(this.purchases.get(this.requireUser()) ?? new Set(), pack)) {
+          const owned = this.purchases.get(this.requireUser()) ?? new Set<string>();
+          // Une énigme tirée d'un pack de créateur obtenu (§ 19) se pose sans le pack de son type.
+          if (s.puzzle?.type !== editable.puzzle.type && !owns(owned, pack) && !this.creations.fromOwnedPack(owned, editable.puzzle)) {
             throw new ApiError(`« ${puzzleType(editable.puzzle.type).name} » vient du pack « ${productById(pack)!.name} » : obtenez-le d’abord dans la boutique.`);
           }
         }
@@ -990,7 +994,55 @@ export class MockHuntApi extends HuntApi {
 
   private storeFor(me: number | null): StoreItem[] {
     const owned = (me !== null && this.purchases.get(me)) || new Set<string>();
-    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+    return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...this.creations.products(me)];
+  }
+
+  /* ---------- Créations de la communauté (§ 19) ---------- */
+
+  private readonly creations = new MockCreations((id) => this.nick(id), this.purchases);
+  /** Relecteur de la maquette : Seb. */
+  private isReviewer(me: number): boolean {
+    return me === REVIEWER_ID;
+  }
+
+  myCreations(): Observable<Creation[]> {
+    return this.reply(() => this.creations.mine(this.requireUser()));
+  }
+  createCreation(data: CreationInput): Observable<Creation> {
+    return this.reply(() => this.creations.create(this.requireUser(), data));
+  }
+  updateCreation(id: number, data: Partial<Omit<CreationInput, 'kind'>>): Observable<Creation> {
+    return this.reply(() => this.creations.update(this.requireUser(), id, data));
+  }
+  deleteCreation(id: number): Observable<void> {
+    return this.reply(() => this.creations.remove(this.requireUser(), id));
+  }
+  submitCreation(id: number): Observable<Creation> {
+    return this.reply(() => this.creations.submit(this.requireUser(), id));
+  }
+  withdrawCreation(id: number): Observable<Creation> {
+    return this.reply(() => this.creations.withdraw(this.requireUser(), id));
+  }
+  reviewQueue(): Observable<Creation[]> {
+    return this.reply(() => this.creations.queue(this.isReviewer(this.requireUser())));
+  }
+  reviewCreation(id: number, approve: boolean, note: string | null): Observable<Creation> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      return this.creations.review(me, this.isReviewer(me), id, approve, note);
+    });
+  }
+  packPuzzles(id: number): Observable<Puzzle[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      return this.creations.puzzles(me, this.isReviewer(me), id);
+    });
+  }
+  getCreator(id: number): Observable<CreatorPage> {
+    return this.reply(() => this.creations.creator(id, this.db.hunters.some((h) => h.id === id)));
+  }
+  creatorSkin(id: string): Observable<SkinManifest> {
+    return this.reply(() => this.creations.skin(id));
   }
 
   getStore(): Observable<StoreItem[]> {
@@ -1000,7 +1052,9 @@ export class MockHuntApi extends HuntApi {
   acquire(productId: string): Observable<StoreItem[]> {
     return this.reply(() => {
       const me = this.requireUser();
-      const product = productById(productId);
+      const ref = creationRef(productId);
+      const creation = ref !== null ? this.creations.published(ref) : undefined;
+      const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
       if (!product) throw new ApiError('Extension inconnue.');
       if (!product.included) {
         const owned = this.purchases.get(me) ?? new Set<string>();
@@ -1030,8 +1084,17 @@ export class MockHuntApi extends HuntApi {
       ...(data.skin !== undefined && data.skin !== current?.skin ? [`skin:${data.skin}`] : []),
       ...(data.tools ?? []).filter((t) => !current?.tools.includes(t)).map((t) => `tool:${t}`),
     ];
-    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
-    if (missing) throw new ApiError(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+    for (const id of wanted) {
+      const ref = creationRef(id);
+      if (ref !== null) {
+        const c = this.creations.published(ref);
+        if (!c || creationProductId(c.kind, c.id) !== id) throw new ApiError('Ce skin n’existe pas ou n’est plus publié.');
+        if (c.authorId !== me && !owned.has(id)) throw new ApiError(`« ${c.name} » s’obtient d’abord dans la boutique.`);
+        continue;
+      }
+      const p = productById(id);
+      if (p && !owns(owned, p.id)) throw new ApiError(`« ${p.name} » s’obtient d’abord dans la boutique.`);
+    }
   }
 
   getFeatures(): Observable<Features> {
@@ -1484,13 +1547,15 @@ export class MockHuntApi extends HuntApi {
   }
 
   private publicHunter(h: Hunter): Hunter {
-    return { id: h.id, nickname: h.nickname, email: h.email, rateable: h.rateable };
+    return { id: h.id, nickname: h.nickname, email: h.email, rateable: h.rateable, reviewer: this.isReviewer(h.id) };
   }
 
   private nextId(list: { id: number }[]): number {
     return list.reduce((max, x) => Math.max(max, x.id), 0) + 1;
   }
 }
+
+const REVIEWER_ID = 1;
 
 /** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
 function openToLateTeams(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status'>): boolean {

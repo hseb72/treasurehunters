@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StoreItem } from '@shared/models';
 import { priceLabel } from '@shared/store';
 import { Notify } from '../../core/notify';
@@ -13,7 +13,7 @@ type Tab = 'skin' | 'tool' | 'pack';
 /** Boutique d'extensions (§ 16) : univers graphiques et outils de jeu pour ses chasses. */
 @Component({
   selector: 'th-store',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './store.html',
   styleUrl: './store.scss',

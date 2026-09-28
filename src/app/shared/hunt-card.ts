@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Hunt } from '@shared/models';
 import { skinById } from '@shared/skins';
+import { SkinCatalog } from '../core/skin-catalog';
 import { START_MODE_LABELS } from './labels';
 import { StatusBadge } from './status-badge';
 
@@ -52,5 +53,6 @@ export class HuntCard {
   readonly link = input<unknown[] | null>(null);
   protected readonly modes = START_MODE_LABELS;
   /** Couverture du skin de la chasse. */
-  protected readonly cover = computed(() => skinById(this.hunt().skin).cover);
+  private readonly skins = inject(SkinCatalog);
+  protected readonly cover = computed(() => (this.skins.version(), this.skins.ensure(this.hunt().skin), skinById(this.hunt().skin).cover));
 }

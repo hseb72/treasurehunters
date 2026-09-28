@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
 import { CatalogEntry } from '@shared/models';
 import { skinById } from '@shared/skins';
+import { SkinCatalog } from '../core/skin-catalog';
 import { Stars } from './stars';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
@@ -74,7 +75,8 @@ import { Stars } from './stars';
 })
 export class CatalogCard {
   readonly entry = input.required<CatalogEntry>();
-  protected readonly cover = computed(() => skinById(this.entry().skin).cover);
+  private readonly skins = inject(SkinCatalog);
+  protected readonly cover = computed(() => (this.skins.version(), this.skins.ensure(this.entry().skin), skinById(this.entry().skin).cover));
   protected readonly difficulty = DIFFICULTY_LABELS;
   protected readonly icons = TRAVEL_ICONS;
   protected readonly means = TRAVEL_MEANS;

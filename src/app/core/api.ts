@@ -1,4 +1,7 @@
 import { Observable } from 'rxjs';
+import { Creation, CreationInput, CreatorPage } from '@shared/creations';
+import { Puzzle } from '@shared/puzzles';
+import { SkinManifest } from '@shared/skins';
 import {
   AuthResult,
   CatalogDetail,
@@ -99,6 +102,21 @@ export abstract class HuntApi {
   abstract getStore(): Observable<StoreItem[]>;
   /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
   abstract acquire(productId: string): Observable<StoreItem[]>;
+
+  /* ---------- Créations de la communauté (§ 19) ---------- */
+  abstract myCreations(): Observable<Creation[]>;
+  abstract createCreation(data: CreationInput): Observable<Creation>;
+  abstract updateCreation(id: number, data: Partial<Omit<CreationInput, 'kind'>>): Observable<Creation>;
+  abstract deleteCreation(id: number): Observable<void>;
+  abstract submitCreation(id: number): Observable<Creation>;
+  abstract withdrawCreation(id: number): Observable<Creation>;
+  abstract reviewQueue(): Observable<Creation[]>;
+  abstract reviewCreation(id: number, approve: boolean, note: string | null): Observable<Creation>;
+  /** Énigmes d'un pack de créateur obtenu (avec les réponses). */
+  abstract packPuzzles(id: number): Observable<Puzzle[]>;
+  abstract getCreator(id: number): Observable<CreatorPage>;
+  /** Manifeste public d'un skin de créateur publié (« u12 »). */
+  abstract creatorSkin(id: string): Observable<SkinManifest>;
   /** Outil Boussole : direction et fourchette de distance du prochain lieu. */
   abstract compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading>;
 
