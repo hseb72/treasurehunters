@@ -27,9 +27,11 @@ import {
   Team,
   StoreItem,
   CompassReading,
+  PuzzleResult,
 } from '@shared/models';
 import { DEFAULT_SKIN } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
+import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import {
   checkinAllowance,
@@ -250,6 +252,15 @@ export class MockHuntApi extends HuntApi {
         const s = this.db.steps.find((x) => x.id === step.id && x.huntId === step.huntId);
         if (!s) throw new ApiError('Étape introuvable.');
         const { id, huntId, order, token, entrances, ...editable } = step;
+        if (editable.puzzle) {
+          if (s.order === 0) throw new ApiError('Le départ n’a pas d’énigme d’arrivée.');
+          const problem = puzzleProblem(editable.puzzle);
+          if (problem) throw new ApiError(problem);
+          const pack = puzzleType(editable.puzzle.type).pack;
+          if (s.puzzle?.type !== editable.puzzle.type && !owns(this.purchases.get(this.requireUser()) ?? new Set(), pack)) {
+            throw new ApiError(`« ${puzzleType(editable.puzzle.type).name} » vient du pack « ${productById(pack)!.name} » : obtenez-le d’abord dans la boutique.`);
+          }
+        }
         // Déplacer l'étape, c'est changer de lieu : les entrées de l'ancien ne valent plus.
         const moved = (editable.latitude !== undefined && editable.latitude !== s.latitude) || (editable.longitude !== undefined && editable.longitude !== s.longitude);
         Object.assign(s, editable, moved ? { entrances: [] } : {});
@@ -421,6 +432,7 @@ export class MockHuntApi extends HuntApi {
       if (!clue.canSkip) throw new ApiError('L’arrivée ne peut pas être abandonnée : il faut trouver le trésor.');
       const target = this.stepsOf(huntId).find((s) => s.order === clue.targetOrder)!;
       this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'SKIP', at: new Date().toISOString() });
+      this.arrivals.delete(`${state.team.id}:${target.id}`);
       return this.playState(huntId);
     });
   }
@@ -441,9 +453,10 @@ export class MockHuntApi extends HuntApi {
       const final = finalOrder(steps);
       const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
 
-      if (outcome === 'validated') {
-        this.db.validations.push({ teamId: team!.id, stepId: step!.id, hunterId: me!, source: 'QR', at: new Date().toISOString() });
-        if (step!.order === final) team!.finished = new Date().toISOString();
+      if (outcome === 'validated' && this.arrive(team!.id, step!, me!, 'QR') === 'puzzle') {
+        result.outcome = 'puzzle';
+        result.step = { ...stepInfo, arrival: null };
+        return result;
       }
       if (outcome === 'organizer') {
         result.step = stepInfo;
@@ -482,12 +495,9 @@ export class MockHuntApi extends HuntApi {
       const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
       const allowed = Math.round(checkinAllowance(h, pos.accuracy));
       if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
-      const now = new Date().toISOString();
       const final = finalOrder(steps);
-      this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'GEO', at: now });
-      if (target.order === final) {
-        this.db.teams.find((t) => t.id === state.team.id)!.finished = now;
-        this.closeSurpriseIfAllArrived(h);
+      if (this.arrive(state.team.id, target, me, 'GEO') === 'puzzle') {
+        return { outcome: 'puzzle', distance, allowed, step: null, state: this.playState(huntId) } satisfies CheckinResult;
       }
       return {
         outcome: 'validated',
@@ -652,6 +662,7 @@ export class MockHuntApi extends HuntApi {
       if (step.order !== lastValidatedOrder(steps, vals) + 1) throw new ApiError('Seule l’étape suivante de l’équipe peut être validée.');
       const now = new Date().toISOString();
       this.db.validations.push({ teamId, stepId, hunterId: t.ownerId, source: 'MANUAL', at: now });
+      this.arrivals.delete(`${teamId}:${stepId}`);
       if (step.order === finalOrder(steps)) t.finished = now;
       return this.liveRows(h.id);
     });
@@ -1079,12 +1090,66 @@ export class MockHuntApi extends HuntApi {
   }
 
   private validateByPhoto(photo: MockPhoto, me: number): void {
-    const team = this.db.teams.find((t) => t.id === photo.teamId)!;
-    const steps = this.stepsOf(team.huntId);
-    const now = new Date().toISOString();
     photo.counted = true;
-    this.db.validations.push({ teamId: team.id, stepId: photo.stepId, hunterId: me, source: 'PHOTO', at: now });
-    if (steps.find((s) => s.id === photo.stepId)!.order === finalOrder(steps)) team.finished = now;
+    this.arrive(photo.teamId, this.db.steps.find((s) => s.id === photo.stepId)!, me, 'PHOTO');
+  }
+
+  /* ---------- Énigmes d'arrivée (§ 17) ---------- */
+
+  private readonly arrivals = new Map<string, { source: 'QR' | 'GEO' | 'PHOTO'; attempts: number; hint: boolean }>();
+
+  /** Comme le serveur : sans énigme, l'étape est validée ; avec, l'arrivée attend la bonne réponse. */
+  private arrive(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO'): 'validated' | 'puzzle' {
+    if (step.puzzle) {
+      const key = `${teamId}:${step.id}`;
+      this.arrivals.set(key, { attempts: 0, hint: false, ...this.arrivals.get(key), source });
+      return 'puzzle';
+    }
+    this.recordValidation(teamId, step, me, source);
+    return 'validated';
+  }
+
+  private recordValidation(teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO'): void {
+    const team = this.db.teams.find((t) => t.id === teamId)!;
+    const now = new Date().toISOString();
+    this.db.validations.push({ teamId, stepId: step.id, hunterId: me, source, at: now });
+    const steps = this.stepsOf(team.huntId);
+    if (step.order === finalOrder(steps)) {
+      team.finished = now;
+      this.closeSurpriseIfAllArrived(this.db.hunts.find((h) => h.id === team.huntId)!);
+    }
+  }
+
+  solvePuzzle(huntId: number, answer: string): Observable<PuzzleResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.playState(huntId);
+      if (!state.puzzle) throw new ApiError('Aucune énigme à résoudre : rendez-vous d’abord sur le lieu.');
+      const steps = this.stepsOf(huntId);
+      const step = steps.find((s) => s.id === state.puzzle!.stepId)!;
+      const key = `${state.team.id}:${step.id}`;
+      const arrival = this.arrivals.get(key)!;
+      if (!checkAnswer(step.puzzle!, answer)) {
+        arrival.attempts++;
+        return { correct: false, step: null, state: this.playState(huntId) } satisfies PuzzleResult;
+      }
+      this.arrivals.delete(key);
+      this.recordValidation(state.team.id, step, me, arrival.source);
+      return {
+        correct: true,
+        step: { order: step.order, title: step.title, arrival: step.arrival, isFinal: step.order === finalOrder(steps) },
+        state: this.playState(huntId),
+      } satisfies PuzzleResult;
+    });
+  }
+
+  puzzleHint(huntId: number): Observable<PlayState> {
+    return this.reply(() => {
+      const state = this.playState(huntId);
+      if (!state.puzzle) throw new ApiError('Aucune énigme en cours.');
+      this.arrivals.get(`${state.team.id}:${state.puzzle.stepId}`)!.hint = true;
+      return this.playState(huntId);
+    });
   }
 
   private photosOf(huntId: number): PhotoAttempt[] {
@@ -1244,6 +1309,21 @@ export class MockHuntApi extends HuntApi {
         canSkip: current.order + 1 < finalOrder(steps),
       };
     }
+    let puzzle: PlayState['puzzle'] = null;
+    const target = clue ? steps.find((s) => s.order === clue!.targetOrder) : undefined;
+    const arrival = target?.puzzle ? this.arrivals.get(`${team.id}:${target.id}`) : undefined;
+    if (target?.puzzle && arrival) {
+      const view = publicPuzzle(target.puzzle, target.id);
+      puzzle = {
+        stepId: target.id,
+        order: target.order,
+        title: target.title,
+        puzzle: { ...view, hint: arrival.hint ? view.hint : null },
+        hasHint: !!view.hint,
+        attempts: arrival.attempts,
+        hintShown: arrival.hint,
+      };
+    }
     const position = hunt.status === 'running' && team.started && hunt.tools.includes('live') ? teamPosition(this.ranking(huntId), team.id) : null;
     return {
       hunt,
@@ -1257,6 +1337,7 @@ export class MockHuntApi extends HuntApi {
       position,
       selfStart: canSelfStart(hunt, team, me),
       photoProof: hunt.validation === 'qr',
+      puzzle,
       trail: hunt.tools.includes('map')
         ? validated
             .filter((v) => !v.skipped)
@@ -1320,6 +1401,7 @@ export class MockHuntApi extends HuntApi {
       address: null,
       referencePhoto: false,
       entrances: [],
+      puzzle: null,
     };
   }
 

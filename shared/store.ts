@@ -5,7 +5,7 @@
  */
 import { SKINS } from './skins.js';
 
-export type ProductKind = 'skin' | 'tool';
+export type ProductKind = 'skin' | 'tool' | 'pack';
 
 /** Outils de jeu : ce que le carnet de route propose aux joueurs d'une chasse. */
 export const TOOL_IDS = ['map', 'compass', 'live'] as const;
@@ -65,6 +65,31 @@ export const TOOLS: ToolDefinition[] = [
   },
 ];
 
+/** Packs d'énigmes d'arrivée (§ 17) : chacun apporte des types d'énigmes. */
+export const PACKS: { id: string; name: string; description: string; icon: string; price: number }[] = [
+  {
+    id: 'pack:question',
+    name: 'Question sur place',
+    description: 'Une question dont la réponse se lit sur le lieu : une date gravée, un nom, un symbole.',
+    icon: 'quiz',
+    price: 0,
+  },
+  {
+    id: 'pack:codes',
+    name: 'Codes secrets',
+    description: 'Cadenas à molettes et messages chiffrés à la roue de César, à ouvrir sur place.',
+    icon: 'lock',
+    price: 299,
+  },
+  {
+    id: 'pack:lettres',
+    name: 'Jeux de lettres',
+    description: 'Anagrammes à remettre dans l’ordre et rébus en images.',
+    icon: 'abc',
+    price: 299,
+  },
+];
+
 /** Univers inclus d'office ; les autres s'obtiennent en boutique. */
 const INCLUDED_SKINS = ['aventure', 'epure'];
 /** Prix affiché des univers de la boutique. */
@@ -85,6 +110,17 @@ export const PRODUCTS: Product[] = [
       icon: null,
     };
   }),
+  ...PACKS.map((p) => ({
+    id: p.id,
+    kind: 'pack' as const,
+    ref: p.id.slice(5),
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    included: p.price === 0,
+    cover: null,
+    icon: p.icon,
+  })),
   ...TOOLS.map((t) => ({
     id: `tool:${t.id}`,
     kind: 'tool' as const,

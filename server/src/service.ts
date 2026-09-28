@@ -33,9 +33,11 @@ import {
   Travel,
   StoreItem,
   CompassReading,
+  PuzzleResult,
 } from '../../shared/models.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
+import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import {
   checkinAllowance,
   computeRanking,
@@ -80,7 +82,7 @@ export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
 export type HuntInput = Partial<
   Omit<Hunt, 'id' | 'ownerId' | 'ownerNickname' | 'status' | 'started' | 'closed' | 'joinCode' | 'stepCount' | 'teamCount' | 'generated' | 'surprise'>
 >;
-export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude'>>;
+export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude' | 'puzzle'>>;
 
 /** Champs modifiables pendant la course (les autres changeraient les règles en cours de jeu). */
 const RUNNING_EDITABLE = new Set<keyof HuntInput>(['name', 'description', 'location', 'award', 'startText', 'end', 'autoClose', 'isPublic']);
@@ -358,6 +360,7 @@ export class Service {
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title) VALUES ($1, $2, $3, $4) RETURNING cod_id`,
         [huntId, final, randomToken(), data.title ?? `Étape ${final}`],
       );
+      await this.checkPuzzle(db, requireUser(viewer), (await stepById(db, r!['cod_id']))!, data);
       return this.writeStep(db, r!['cod_id'], data);
     });
   }
@@ -368,6 +371,7 @@ export class Service {
       if (!step) throw notFound('Étape introuvable.');
       const hunt = await this.ownedHunt(db, viewer, step.huntId);
       if (['closed', 'cancelled', 'archived'].includes(hunt.status)) throw conflict('Cette expédition ne peut plus être modifiée.');
+      await this.checkPuzzle(db, requireUser(viewer), step, data);
       return this.writeStep(db, stepId, data);
     });
   }
@@ -386,6 +390,7 @@ export class Service {
       const moved = (data.latitude !== undefined && Number(data.latitude) !== Number(before.latitude)) || (data.longitude !== undefined && Number(data.longitude) !== Number(before.longitude));
       if (moved) cols.push(['cod_entrances', null]);
     }
+    if (data.puzzle !== undefined) cols.push(['cod_puzzle', data.puzzle ? JSON.stringify(data.puzzle) : null]);
     if (data.hints !== undefined) {
       const hints = data.hints.filter((h) => h.trim());
       [1, 2, 3].forEach((n) => cols.push([`cod_hint${n}`, hints[n - 1] ?? null]));
@@ -579,6 +584,7 @@ export class Service {
         `INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source) VALUES ($1, $2, $3, 'SKIP')`,
         [team.id, target.id, me],
       );
+      await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, target.id]);
       return this.playState(db, me, huntId);
     });
   }
@@ -616,14 +622,9 @@ export class Service {
       if (outcome === 'too_far') return { outcome, distance, allowed, step: null, state };
 
       const final = finalOrder(steps);
-      await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source) VALUES ($1, $2, $3, 'GEO')`, [
-        team.id,
-        target.id,
-        me,
-      ]);
-      if (target.order === final) {
-        await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [team.id]);
-        await this.closeSurpriseIfAllArrived(db, hunt);
+      // Étape à énigme : l'équipe est sur place, l'énigme l'attend (§ 17).
+      if ((await this.arrive(db, team.id, target, me, 'GEO')) === 'puzzle') {
+        return { outcome: 'puzzle', distance, allowed, step: null, state: await this.playState(db, me, huntId) };
       }
       return {
         outcome,
@@ -703,13 +704,12 @@ export class Service {
       const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
 
       if (outcome === 'validated') {
-        await db.query('INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_creation) VALUES ($1, $2, $3, $4)', [
-          team!.id,
-          step!.id,
-          viewer,
-          now,
-        ]);
-        if (step!.order === final) await db.query('UPDATE th_teams SET tea_finished = $2 WHERE tea_id = $1', [team!.id, now]);
+        // Étape à énigme : le scan prouve l'arrivée ; l'étape se valide en résolvant l'énigme (§ 17).
+        if ((await this.arrive(db, team!.id, step!, viewer!, 'QR', null, now)) === 'puzzle') {
+          result.outcome = 'puzzle';
+          result.step = { ...stepInfo, arrival: null };
+          return result;
+        }
         result.team = await teamById(db, team!.id);
       }
       if (outcome === 'organizer') {
@@ -780,6 +780,25 @@ export class Service {
       };
     }
 
+    // Énigme d'arrivée : l'équipe est sur le lieu cherché, l'étape attend la bonne réponse (§ 17).
+    let puzzle: PlayState['puzzle'] = null;
+    if (clue) {
+      const target = steps.find((s) => s.order === clue!.targetOrder);
+      const arrival = target?.puzzle ? await one(db, 'SELECT * FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, target.id]) : null;
+      if (target?.puzzle && arrival) {
+        const view = publicPuzzle(target.puzzle, target.id);
+        puzzle = {
+          stepId: target.id,
+          order: target.order,
+          title: target.title,
+          puzzle: { ...view, hint: arrival['arr_hint'] ? view.hint : null },
+          hasHint: !!view.hint,
+          attempts: arrival['arr_attempts'],
+          hintShown: arrival['arr_hint'],
+        };
+      }
+    }
+
     // Position provisoire : les joueurs ne voient que celle de leur équipe (§ 5.3).
     let position: PlayState['position'] = null;
     if (hunt.status === 'running' && team.started && hunt.tools.includes('live')) {
@@ -800,6 +819,7 @@ export class Service {
       selfStart: canSelfStart(hunt, team, me),
       photoProof: !!this.photos && hunt.validation === 'qr',
       start: startOf(steps),
+      puzzle,
       // Outil Carte : seulement les lieux que l'équipe a déjà trouvés.
       trail: hunt.tools.includes('map')
         ? validated
@@ -892,6 +912,8 @@ export class Service {
         `INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_by_htr) VALUES ($1, $2, $3, 'MANUAL', $4)`,
         [teamId, stepId, team.ownerId, me],
       );
+      // L'organisateur tranche : une énigme d'arrivée en attente n'a plus lieu d'être.
+      await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [teamId, stepId]);
       if (step.order === finalOrder(steps)) await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [teamId]);
       return this.liveRows(db, hunt.id);
     });
@@ -1119,14 +1141,91 @@ export class Service {
   }
 
   private async validateByPhoto(db: Db, teamId: number, step: Step, me: number, photoId: number): Promise<void> {
-    await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_photo_pho) VALUES ($1, $2, $3, 'PHOTO', $4)`, [
-      teamId,
-      step.id,
-      me,
-      photoId,
-    ]);
+    await this.arrive(db, teamId, step, me, 'PHOTO', photoId);
+  }
+
+  /* ================================================================ Énigmes d'arrivée (§ 17) */
+
+  /**
+   * L'équipe est sur le lieu d'une étape (QR, géolocalisation, photo). Sans énigme, l'étape est
+   * validée ; avec une énigme, l'arrivée est notée et l'étape attend la bonne réponse.
+   */
+  private async arrive(db: Db, teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO', photoId: number | null = null, at: Date | null = null): Promise<'validated' | 'puzzle'> {
+    if (step.puzzle) {
+      await db.query(
+        `INSERT INTO th_arrivals (arr_team_tea, arr_code_cod, arr_hunter_htr, arr_source, arr_photo_pho) VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (arr_team_tea, arr_code_cod) DO UPDATE SET arr_source = EXCLUDED.arr_source, arr_photo_pho = coalesce(EXCLUDED.arr_photo_pho, th_arrivals.arr_photo_pho)`,
+        [teamId, step.id, me, source, photoId],
+      );
+      return 'puzzle';
+    }
+    await this.recordValidation(db, teamId, step, me, source, photoId, at);
+    return 'validated';
+  }
+
+  private async recordValidation(db: Db, teamId: number, step: Step, me: number, source: 'QR' | 'GEO' | 'PHOTO', photoId: number | null, at: Date | null): Promise<void> {
+    await db.query(
+      `INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_photo_pho, val_creation) VALUES ($1, $2, $3, $4, $5, coalesce($6, now()))`,
+      [teamId, step.id, me, source, photoId, at],
+    );
     const steps = await stepsOf(db, step.huntId);
-    if (step.order === finalOrder(steps)) await db.query('UPDATE th_teams SET tea_finished = now() WHERE tea_id = $1', [teamId]);
+    if (step.order === finalOrder(steps)) {
+      await db.query('UPDATE th_teams SET tea_finished = coalesce($2, now()) WHERE tea_id = $1', [teamId, at]);
+      const hunt = (await huntById(db, step.huntId))!;
+      await this.closeSurpriseIfAllArrived(db, hunt);
+    }
+  }
+
+  /** Réponse à l'énigme d'arrivée : juste, l'étape est validée ; fausse, on peut réessayer. */
+  async solvePuzzle(viewer: Viewer, huntId: number, answer: string): Promise<PuzzleResult> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const team = await teamOf(db, huntId, me);
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      await teamById(db, team.id, true); // sérialisé avec les scans de l'équipe
+      const state = await this.playState(db, me, huntId);
+      if (!state.puzzle) throw conflict('Aucune énigme à résoudre : rendez-vous d’abord sur le lieu.');
+      const steps = await stepsOf(db, huntId);
+      const step = steps.find((s) => s.id === state.puzzle!.stepId)!;
+      const arrival = (await one(db, 'SELECT * FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, step.id]))!;
+      if (!checkAnswer(step.puzzle!, answer)) {
+        await db.query('UPDATE th_arrivals SET arr_attempts = arr_attempts + 1 WHERE arr_id = $1', [arrival['arr_id']]);
+        return { correct: false, step: null, state: await this.playState(db, me, huntId) };
+      }
+      await db.query('DELETE FROM th_arrivals WHERE arr_id = $1', [arrival['arr_id']]);
+      await this.recordValidation(db, team.id, step, me, arrival['arr_source'], arrival['arr_photo_pho'], null);
+      const final = finalOrder(steps);
+      return {
+        correct: true,
+        step: { order: step.order, title: step.title, arrival: step.arrival, isFinal: step.order === final },
+        state: await this.playState(db, me, huntId),
+      };
+    });
+  }
+
+  /**
+   * Une énigme d'arrivée se pose sur une étape du parcours (pas le départ), bien rédigée, d'un
+   * type que l'organisateur possède (pack de la boutique) ou que l'étape avait déjà.
+   */
+  private async checkPuzzle(db: Db, me: number, step: Step, data: StepInput): Promise<void> {
+    if (!data.puzzle) return;
+    if (step.order === 0) throw badRequest('Le départ n’a pas d’énigme d’arrivée.');
+    const problem = puzzleProblem(data.puzzle);
+    if (problem) throw badRequest(problem);
+    if (step.puzzle?.type === data.puzzle.type) return;
+    const pack = productById(puzzleType(data.puzzle.type).pack)!;
+    if (!owns(await this.ownedProducts(db, me), pack.id)) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+  }
+
+  /** Affiche l'indice de l'énigme d'arrivée (gratuit). */
+  async puzzleHint(viewer: Viewer, huntId: number): Promise<PlayState> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const state = await this.playState(db, me, huntId);
+      if (!state.puzzle) throw conflict('Aucune énigme en cours.');
+      await db.query('UPDATE th_arrivals SET arr_hint = true WHERE arr_team_tea = $1 AND arr_code_cod = $2', [state.team.id, state.puzzle.stepId]);
+      return this.playState(db, me, huntId);
+    });
   }
 
   private async ownedStepPhoto(viewer: Viewer, stepId: number) {
@@ -1345,8 +1444,8 @@ export class Service {
       for (const s of content.steps) {
         await db.query(
           `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                                 cod_latitude, cod_longitude, cod_address, cod_entrances)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+                                 cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
           [
             huntId,
             s.order,
@@ -1361,6 +1460,7 @@ export class Service {
             s.longitude,
             s.address,
             s.entrances?.length ? JSON.stringify(s.entrances) : null,
+            s.puzzle ? JSON.stringify(s.puzzle) : null,
           ],
         );
       }
@@ -1739,7 +1839,7 @@ interface CatalogContent {
     | 'contribution'
   > &
     Partial<Pick<Hunt, 'skin' | 'tools'>>;
-  steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances'>>)[];
+  steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances' | 'puzzle'>>)[];
 }
 
 function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
@@ -1774,6 +1874,7 @@ function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
       address: s.address,
       // Seulement s'il y en a : l'empreinte des publications antérieures reste la même.
       ...(s.entrances.length ? { entrances: s.entrances } : {}),
+      ...(s.puzzle ? { puzzle: s.puzzle } : {}),
     })),
   };
 }

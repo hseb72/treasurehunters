@@ -19,6 +19,7 @@ import { InvitePanel } from '../../shared/invite-panel';
 import { StartPlace } from '../../shared/start-place';
 import { Trail } from '../../shared/trail';
 import { TrailMap } from '../../shared/trail-map';
+import { PuzzleCard } from '../../shared/puzzle-card';
 import { LatLng } from '../../shared/location-map';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
@@ -28,7 +29,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail, TrailMap],
+  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],
@@ -50,6 +51,42 @@ export class PlayPage {
   protected readonly skin = computed(() => this.state.value()?.hunt.skin);
   protected readonly fx = inject(SkinEffects);
   protected readonly fxClass = computed(() => this.fx.validateClass(this.skin()));
+
+  /* ---------- Énigme d'arrivée (§ 17) ---------- */
+
+  protected solvePuzzle(answer: string): void {
+    this.busy.set(true);
+    this.api.solvePuzzle(this.id(), answer).subscribe({
+      next: (r) => {
+        this.state.set(r.state);
+        this.busy.set(false);
+        if (r.correct && r.step) {
+          // Même annonce qu'une arrivée validée : tampon, message d'arrivée, son.
+          this.checkin.set({ outcome: 'validated', distance: 0, allowed: 0, step: r.step, state: r.state });
+          this.celebrate(r.step.isFinal);
+        }
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.busy.set(false);
+      },
+    });
+  }
+
+  protected puzzleHint(): void {
+    this.busy.set(true);
+    this.api.puzzleHint(this.id()).subscribe({
+      next: (s) => {
+        this.state.set(s);
+        this.fx.hint(this.skin());
+        this.busy.set(false);
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.busy.set(false);
+      },
+    });
+  }
 
   /* ---------- Barre d'outils (§ 16) ---------- */
 

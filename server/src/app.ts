@@ -11,6 +11,7 @@ import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
 import { SKIN_IDS } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
+import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -70,6 +71,15 @@ const stepFields = z
     address: nullableText(255),
     latitude: z.number().min(-90).max(90).nullable(),
     longitude: z.number().min(-180).max(180).nullable(),
+    puzzle: z
+      .object({
+        type: z.enum(PUZZLE_TYPE_IDS),
+        prompt: text(1000),
+        answer: text(200),
+        hint: nullableText(500).optional(),
+        shift: z.number().int().min(1).max(25).optional(),
+      })
+      .nullable(),
   })
   .partial();
 
@@ -181,6 +191,11 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const { product } = z.object({ product: z.enum(PRODUCT_IDS) }).parse(req.params);
     return service.acquire(req.viewer, product);
   });
+  app.post('/api/hunts/:id/puzzle', async (req) => {
+    const { answer } = z.object({ answer: text(200) }).parse(req.body);
+    return service.solvePuzzle(req.viewer, idParams.parse(req.params).id, answer);
+  });
+  app.post('/api/hunts/:id/puzzle/hint', async (req) => service.puzzleHint(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/compass', async (req) => {
     const pos = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(req.body);
     return service.compass(req.viewer, idParams.parse(req.params).id, pos);
