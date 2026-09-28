@@ -399,6 +399,20 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return service.listCatalog(req.viewer, { ...q, mine: !!q.mine, autonomous: !!q.autonomous });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
+  /* ----- Signalements et statistiques d'étape (§ 22) */
+  app.post('/api/hunts/:id/reports', { config: { rateLimit: { max: 20, timeWindow: '1 hour' } } }, async (req, reply) => {
+    const data = z
+      .object({ stepOrder: z.number().int().min(1), category: z.enum(['closed', 'works', 'qr', 'riddle', 'danger', 'other']), message: nullableText(500).default(null) })
+      .parse(req.body);
+    return reply.status(201).send(await service.reportStep(req.viewer, idParams.parse(req.params).id, data));
+  });
+  app.get('/api/hunts/:id/reports', async (req) => service.huntReports(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/hunts/:id/stats', async (req) => service.huntStats(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/catalog/:id/reports', async (req) => service.catalogReports(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/catalog/:id/stats', async (req) => service.catalogStats(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/reports/:id/resolve', async (req) =>
+    service.resolveReport(req.viewer, idParams.parse(req.params).id, z.object({ resolved: z.boolean() }).parse(req.body).resolved),
+  );
   app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
   app.get('/api/catalog/:id/leaderboard', async (req) => service.autonomyLeaderboard(req.viewer, idParams.parse(req.params).id));
   app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));

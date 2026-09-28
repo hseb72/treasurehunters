@@ -21,6 +21,7 @@ import { Trail } from '../../shared/trail';
 import { TrailMap } from '../../shared/trail-map';
 import { PuzzleCard } from '../../shared/puzzle-card';
 import { PlacePhoto } from '../../shared/place-photo';
+import { ReportProblem } from '../../shared/report-dialog';
 import { LatLng } from '../../shared/location-map';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
@@ -366,6 +367,9 @@ export class PlayPage {
   }
 
   /** Photo du lieu d'une étape que l'équipe vient de valider, si l'organisateur la montre. */
+  /** Signaler un problème sur une étape (§ 22). */
+  protected readonly report = inject(ReportProblem);
+
   protected pictureOf(state: PlayState, order: number): number | null {
     return state.validated.find((v) => v.order === order)?.illustration ?? null;
   }

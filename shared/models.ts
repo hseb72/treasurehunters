@@ -490,6 +490,8 @@ export interface CatalogDetail extends CatalogEntry {
   owned: boolean;
   /** Parties en autonomie du lecteur (§ 13.5), la plus récente d'abord. */
   myPlays: AutonomyPlay[];
+  /** Problèmes signalés et pas encore traités par l'auteur (§ 22). */
+  openReports: ReportNotice[];
 }
 
 /** Une partie en autonomie d'une chasse du catalogue : à lancer avant `until`, en cours, ou finie. */
@@ -564,3 +566,52 @@ export interface OrganizerProfile {
   entries: CatalogEntry[];
 }
 
+
+/* ---------- Signalements et statistiques d'étape (§ 22) ---------- */
+
+export type ReportCategory = 'closed' | 'works' | 'qr' | 'riddle' | 'danger' | 'other';
+
+/** Un signalement, tel que le voit l'organisateur ou l'auteur. */
+export interface StepReport {
+  id: number;
+  huntId: number;
+  stepOrder: number;
+  stepTitle: string;
+  category: ReportCategory;
+  message: string | null;
+  nickname: string | null;
+  status: 'open' | 'resolved';
+  at: string;
+  resolvedAt: string | null;
+}
+
+/** Signalement encore ouvert, montré aux joueurs sur la fiche du catalogue (sans le message). */
+export interface ReportNotice {
+  stepOrder: number;
+  category: ReportCategory;
+  at: string;
+}
+
+/** Ce qui se passe à une étape : les équipes qui la cherchent, la trouvent, l'abandonnent, y bloquent. */
+export interface StepStats {
+  order: number;
+  title: string;
+  /** Équipes qui ont reçu l'énigme menant à cette étape. */
+  teams: number;
+  found: number;
+  skipped: number;
+  /** Jokers pris sur l'énigme qui mène à cette étape. */
+  hints: number;
+  /** Temps moyen pour la trouver, en minutes (null sans donnée). */
+  avgMinutes: number | null;
+  /** Équipes restées bloquées sur cette énigme (parties terminées, équipe non arrivée). */
+  stuck: number;
+}
+
+export interface HuntStats {
+  /** Parties comptées (la chasse, ou toutes les parties d'une version du catalogue). */
+  plays: number;
+  teams: number;
+  finished: number;
+  steps: StepStats[];
+}

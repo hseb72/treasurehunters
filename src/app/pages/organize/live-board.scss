@@ -133,3 +133,6 @@
   font-family: var(--th-font-note);
 }
 .to-review { color: var(--th-danger); font-weight: 600; }
+
+.follow { margin-top: 16px; }
+.follow .section-title { display: flex; align-items: center; gap: 6px; margin-top: 0; }

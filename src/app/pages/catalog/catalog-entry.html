@@ -21,6 +21,18 @@
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
 
+    @if (e.openReports.length) {
+      <section class="surface notices" role="note">
+        <h2 class="section-title"><mat-icon>warning</mat-icon> Signalé récemment par des joueurs</h2>
+        <ul>
+          @for (n of e.openReports; track $index) {
+            <li class="small"><strong>Étape {{ n.stepOrder }}</strong> : {{ reportLabel(n.category) }} <span class="muted">({{ n.at | date: 'd MMM' }})</span></li>
+          }
+        </ul>
+        <p class="small muted">L'auteur a été prévenu. Sur place, contournez ou signalez à votre tour depuis votre carnet de route.</p>
+      </section>
+    }
+
     @if (autonomous()) {
       <section class="surface action play-block">
         <h2 class="section-title"><mat-icon>hiking</mat-icon> Jouer en autonomie</h2>

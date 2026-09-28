@@ -20,6 +20,9 @@ import {
   Step,
   Team,
   AutonomyLeaderboard,
+  HuntStats,
+  ReportCategory,
+  StepReport,
   AutonomyRow,
   CatalogDetail,
   CatalogEntry,
@@ -79,6 +82,7 @@ import { creationProducts, Creations, publishedCreation } from './creations.js';
 import { creationProductId, creationRef, samePuzzle } from '../../shared/creations.js';
 import { catalogProductId, Payments } from './payments/payments.js';
 import { generationAccess } from './generation/access.js';
+import { PlayData, stepStats } from '../../shared/step-stats.js';
 import { GENERATION_LIMITS, GenerationAccess } from '../../shared/generation-access.js';
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
@@ -1498,9 +1502,16 @@ export class Service {
        WHERE h.hun_catalog_cat = $1 AND h.hun_surprise AND h.hun_host_htr IS NOT NULL AND m.thr_hunter_htr = $2 ORDER BY h.hun_id DESC`,
       [id, viewer],
     );
+    const notices = await rows(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT c.cod_order, r.rep_category, r.rep_creation FROM th_reports r JOIN eh ON eh.hun_id = r.rep_hunt_hun
+       JOIN th_codes c ON c.cod_id = r.rep_code_cod WHERE eh.cat_id = $1 AND r.rep_status = 'open' ORDER BY r.rep_id DESC LIMIT 10`,
+      [id],
+    );
     return {
       ...entry,
       owned,
+      openReports: notices.map((n) => ({ stepOrder: n['cod_order'], category: n['rep_category'], at: (n['rep_creation'] as Date).toISOString() })),
       myPlays: plays.map((p) => ({
         huntId: p['hun_id'],
         started: p['tea_started'] ? (p['tea_started'] as Date).toISOString() : null,
@@ -1549,6 +1560,119 @@ export class Service {
       await this.addTeam(db, (await huntById(db, huntId))!, nickname, me, false);
       return (await huntById(db, huntId))!;
     });
+  }
+
+  /* ================================================================ Signalements et statistiques (§ 22) */
+
+  /**
+   * Un joueur signale un problème sur une étape qu'il a atteinte ou qu'il cherche : lieu
+   * fermé, travaux, QR absent, énigme fausse… L'organisateur (ou l'auteur de la version du
+   * catalogue) le voit et le traite. Dix signalements par jour et par chasse au plus.
+   */
+  async reportStep(viewer: Viewer, huntId: number, data: { stepOrder: number; category: ReportCategory; message: string | null }): Promise<StepReport> {
+    const me = requireUser(viewer);
+    const state = await this.playState(this.pool, me, huntId);
+    const reachable = state.clue ? state.clue.targetOrder : state.team.finished ? state.totalSteps : 0;
+    if (data.stepOrder < 1 || data.stepOrder > reachable) throw badRequest('Signalez une étape que vous avez atteinte ou que vous cherchez.');
+    const step = (await stepsOf(this.pool, huntId)).find((s) => s.order === data.stepOrder)!;
+    const recent = await one(this.pool, `SELECT count(*)::int AS n FROM th_reports WHERE rep_hunter_htr = $1 AND rep_hunt_hun = $2 AND rep_creation > now() - interval '1 day'`, [me, huntId]);
+    if (recent!['n'] >= 10) throw new HttpError(429, 'Merci ! Vous avez déjà beaucoup signalé aujourd’hui.');
+    const r = await one(
+      this.pool,
+      'INSERT INTO th_reports (rep_hunt_hun, rep_code_cod, rep_hunter_htr, rep_category, rep_message) VALUES ($1, $2, $3, $4, $5) RETURNING rep_id',
+      [huntId, step.id, me, data.category, data.message?.trim() || null],
+    );
+    return (await this.reportsWhere('r.rep_id = $1', [r!['rep_id']]))[0];
+  }
+
+  /** Signalements d'une chasse, pour son organisateur. */
+  async huntReports(viewer: Viewer, huntId: number): Promise<StepReport[]> {
+    await this.ownedHunt(this.pool, viewer, huntId);
+    return this.reportsWhere('r.rep_hunt_hun = $1', [huntId]);
+  }
+
+  /** Signalements de toutes les parties d'une version du catalogue (copies et autonomie comprises), pour son auteur. */
+  async catalogReports(viewer: Viewer, catalogId: number): Promise<StepReport[]> {
+    await this.authoredEntry(viewer, catalogId);
+    return this.reportsWhere(`r.rep_hunt_hun IN (${ENTRY_HUNTS} SELECT hun_id FROM eh WHERE cat_id = $1)`, [catalogId]);
+  }
+
+  /** Marquer un signalement traité (ou le rouvrir) : l'organisateur de la chasse, ou l'auteur de la version. */
+  async resolveReport(viewer: Viewer, reportId: number, resolved: boolean): Promise<StepReport> {
+    const me = requireUser(viewer);
+    const r = await one(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT h.hun_owner_htr, (SELECT bool_or(c.cat_author_htr = $2) FROM eh JOIN th_catalog c ON c.cat_id = eh.cat_id WHERE eh.hun_id = h.hun_id) AS author
+       FROM th_reports r JOIN th_hunts h ON h.hun_id = r.rep_hunt_hun WHERE r.rep_id = $1`,
+      [reportId, me],
+    );
+    if (!r || (r['hun_owner_htr'] !== me && !r['author'])) throw notFound('Signalement introuvable.');
+    await this.pool.query(
+      `UPDATE th_reports SET rep_status = $2, rep_resolved = CASE WHEN $3 THEN now() END, rep_resolver_htr = CASE WHEN $3 THEN $4::int END WHERE rep_id = $1`,
+      [reportId, resolved ? 'resolved' : 'open', resolved, me],
+    );
+    return (await this.reportsWhere('r.rep_id = $1', [reportId]))[0];
+  }
+
+  private async reportsWhere(where: string, params: unknown[]): Promise<StepReport[]> {
+    const list = await rows(
+      this.pool,
+      `SELECT r.*, c.cod_order, c.cod_title, u.htr_nickname FROM th_reports r JOIN th_codes c ON c.cod_id = r.rep_code_cod
+       LEFT JOIN th_hunters u ON u.htr_id = r.rep_hunter_htr WHERE ${where} ORDER BY r.rep_status = 'open' DESC, r.rep_id DESC LIMIT 200`,
+      params,
+    );
+    return list.map((x) => ({
+      id: x['rep_id'],
+      huntId: x['rep_hunt_hun'],
+      stepOrder: x['cod_order'],
+      stepTitle: x['cod_title'],
+      category: x['rep_category'],
+      message: x['rep_message'],
+      nickname: x['htr_nickname'],
+      status: x['rep_status'],
+      at: (x['rep_creation'] as Date).toISOString(),
+      resolvedAt: x['rep_resolved'] ? (x['rep_resolved'] as Date).toISOString() : null,
+    }));
+  }
+
+  private async authoredEntry(viewer: Viewer, catalogId: number): Promise<Row> {
+    const me = requireUser(viewer);
+    const r = await one(this.pool, 'SELECT * FROM th_catalog WHERE cat_id = $1', [catalogId]);
+    if (!r) throw notFound('Cette chasse n’est pas au catalogue.');
+    if (r['cat_author_htr'] !== me) throw forbidden('Réservé à l’auteur de la chasse.');
+    return r;
+  }
+
+  /** Statistiques par étape d'une chasse, pour son organisateur. */
+  async huntStats(viewer: Viewer, huntId: number): Promise<HuntStats> {
+    await this.ownedHunt(this.pool, viewer, huntId);
+    const steps = await stepsOf(this.pool, huntId);
+    return this.statsFor([huntId], new Map(steps.map((s) => [s.order, s.title])));
+  }
+
+  /** Statistiques par étape d'une version du catalogue : toutes ses parties, copies et autonomie comprises. */
+  async catalogStats(viewer: Viewer, catalogId: number): Promise<HuntStats> {
+    const entry = await this.authoredEntry(viewer, catalogId);
+    const hunts = await rows(this.pool, `${ENTRY_HUNTS} SELECT hun_id FROM eh WHERE cat_id = $1`, [catalogId]);
+    const content = entry['cat_content'] as CatalogContent;
+    return this.statsFor(hunts.map((h) => h['hun_id'] as number), new Map(content.steps.map((s) => [s.order, s.title])));
+  }
+
+  /** Statistiques par étape (shared/step-stats.ts) d'un ensemble de parties. */
+  private async statsFor(huntIds: number[], titles: Map<number, string>): Promise<HuntStats> {
+    const plays: PlayData[] = [];
+    for (const huntId of huntIds) {
+      const hunt = await huntById(this.pool, huntId);
+      if (!hunt) continue;
+      plays.push({
+        over: hunt.status === 'closed' || hunt.status === 'archived',
+        orderOf: new Map((await stepsOf(this.pool, huntId)).map((s) => [s.id, s.order])),
+        teams: await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [huntId]),
+        validations: await validationsOfHunt(this.pool, huntId),
+        hints: await hintUsesOfHunt(this.pool, huntId),
+      });
+    }
+    return stepStats(plays, titles);
   }
 
   /** Classement des parties en autonomie d'une version : les équipes arrivées, au temps pénalités comprises. */

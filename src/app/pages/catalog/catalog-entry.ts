@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { priceLabel } from '@shared/store';
+import { ReportCategory } from '@shared/models';
+import { REPORT_CATEGORIES } from '@shared/reports';
 import { formatDuration } from '@shared/rules';
 import { Shop } from '../../core/shop';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
@@ -43,6 +45,10 @@ export class CatalogEntryPage {
   protected readonly icons = TRAVEL_ICONS;
   protected readonly minutes = minutesLabel;
   protected readonly isAuthor = computed(() => this.entry.value()?.authorId === this.session.user()?.id);
+
+  protected reportLabel(c: ReportCategory): string {
+    return REPORT_CATEGORIES.find((x) => x.id === c)?.label.toLowerCase() ?? c;
+  }
 
   /* ---------- Jouer en autonomie (§ 13.5) ---------- */
   /** Jouable sans organisateur : validée par géolocalisation, pas de QR à poser. */

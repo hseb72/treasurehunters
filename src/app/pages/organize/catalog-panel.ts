@@ -13,6 +13,7 @@ import { Difficulty, Travel } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { Shop } from '../../core/shop';
 import { PayoutsPanel } from '../../shared/payouts-panel';
+import { EntryFollowUp } from './entry-follow-up';
 import { Notify } from '../../core/notify';
 import { CatalogCard } from '../../shared/catalog-card';
 import { WorkspaceState } from './workspace-state';
@@ -23,7 +24,7 @@ import { WorkspaceState } from './workspace-state';
  */
 @Component({
   selector: 'th-catalog-panel',
-  imports: [CatalogCard, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, PayoutsPanel],
+  imports: [CatalogCard, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, ReactiveFormsModule, RouterLink, PayoutsPanel, EntryFollowUp],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-panel.html',
   styleUrl: './catalog-panel.scss',

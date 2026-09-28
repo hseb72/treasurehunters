@@ -105,3 +105,11 @@
   .time { font-variant-numeric: tabular-nums; }
   .you { color: var(--th-primary); font-weight: 600; }
 }
+
+.notices {
+  border-left: 4px solid var(--th-accent);
+  .section-title { display: flex; align-items: center; gap: 6px; margin-top: 0; color: var(--th-ink); }
+  mat-icon { color: var(--th-accent); }
+  ul { margin: 4px 0; padding-left: 18px; }
+  p { margin: 0; }
+}

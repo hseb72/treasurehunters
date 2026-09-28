@@ -104,6 +104,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.mock.ts"
+                },
+                {
+                  "replace": "src/app/core/api-provider.ts",
+                  "with": "src/app/core/api-provider.mock.ts"
                 }
               ],
               "outputHashing": "all",
