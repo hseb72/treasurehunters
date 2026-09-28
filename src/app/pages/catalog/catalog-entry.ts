@@ -1,10 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
-import { filter, switchMap } from 'rxjs';
+import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
+import { priceLabel } from '@shared/store';
+import { Shop } from '../../core/shop';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { HuntApi } from '../../core/api';
 import { Notify } from '../../core/notify';
@@ -40,6 +42,46 @@ export class CatalogEntryPage {
   protected readonly icons = TRAVEL_ICONS;
   protected readonly minutes = minutesLabel;
   protected readonly isAuthor = computed(() => this.entry.value()?.authorId === this.session.user()?.id);
+
+  /* ---------- Chasse payante (§ 20) ---------- */
+  private readonly shop = inject(Shop);
+  protected readonly mustBuy = computed(() => {
+    const e = this.entry.value();
+    return !!e && this.shop.payments() && e.price > 0 && !e.owned && !this.isAuthor();
+  });
+  protected readonly price = (cents: number) => priceLabel({ price: cents, included: false });
+  /** Retour de la page de paiement : « ?paid=1 » (ou 0 si annulé). */
+  readonly paid = input<string | undefined>();
+
+  constructor() {
+    effect(() => {
+      const paid = this.paid();
+      if (paid === undefined) return;
+      untracked(() => {
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! Vous pouvez créer votre chasse.' : 'Paiement annulé : rien n’a été débité.');
+        // La confirmation de Stripe peut suivre de quelques secondes.
+        if (paid === '1') timer(0, 2000).pipe(take(6), takeWhile(() => !this.entry.value()?.owned)).subscribe(() => this.entry.reload());
+      });
+    });
+  }
+
+  protected buy(): void {
+    if (!this.session.loggedIn()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+    this.busy.set(true);
+    this.shop.obtain(`hunt:c${this.id()}`, `/catalog/${this.id()}`).subscribe({
+      next: () => this.entry.reload(),
+      error: (e) => {
+        this.busy.set(false);
+        this.notify.error(e);
+      },
+      // Payante : on part vers le paiement, ou on en revient (maquette) ; gratuite : déjà rechargée.
+      complete: () => this.busy.set(false),
+    });
+  }
   protected readonly criteria = computed(() => {
     const r = this.entry.value()?.rating;
     return r

@@ -28,6 +28,18 @@ export const config = {
   },
   /** Les photos des équipes sont effacées ce nombre de jours après la clôture de la chasse. */
   photoRetentionDays: Number(process.env['PHOTO_RETENTION_DAYS'] ?? 30),
+  /**
+   * Paiement (§ 20) : Stripe Checkout et Connect. Désactivé (acquisition offerte) sans clé
+   * secrète ET secret de webhook. Les clés ne se versionnent jamais : Secret Kubernetes.
+   */
+  stripe: {
+    secretKey: process.env['STRIPE_SECRET_KEY']?.trim() || null,
+    webhookSecret: process.env['STRIPE_WEBHOOK_SECRET']?.trim() || null,
+    /** Part de la plateforme sur les ventes des créateurs et auteurs, en pourcentage. */
+    commissionPercent: Number(process.env['STRIPE_COMMISSION_PERCENT'] ?? 20),
+  },
+  /** Adresse publique du front : retours du paiement et de l'inscription des vendeurs. */
+  appUrl: (process.env['APP_URL'] ?? process.env['CORS_ORIGIN']?.split(',')[0] ?? 'http://localhost:4200').trim().replace(/\/$/, ''),
   /** Identification exigée par les services OpenStreetMap (Nominatim, Overpass). */
   osmUserAgent: process.env['OSM_USER_AGENT'] ?? 'TreasureHunters/1.0 (+https://treasurehunters.crealcs.com)',
   nominatimUrl: process.env['NOMINATIM_URL'] ?? 'https://nominatim.openstreetmap.org',

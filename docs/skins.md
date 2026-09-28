@@ -1,8 +1,8 @@
 # Créer un skin de chasse
 
 Un skin habille une chasse pour ses joueurs : couleurs, polices, matières, couverture, sons et
-animations. Ce guide décrit le format ; il servira aussi de base aux créateurs quand la
-marketplace s'ouvrira (voir « Et ensuite »).
+animations. Ce guide décrit le format, et comment **proposer un skin ou un pack d'énigmes** depuis
+l'atelier créateur (voir « Proposer une création »).
 
 ## Principe : un skin est une donnée
 
@@ -87,10 +87,72 @@ Aucune animation si l'appareil demande moins de mouvement.
 - contraste : le texte (`ink`) doit rester lisible sur `surface-raised` et `page-bg`, et
   `banner-title` sur `banner-bg`.
 
+## Proposer une création
+
+L'**atelier créateur** (menu du compte → Atelier créateur, `/creator`) accueille deux sortes de
+créations, publiées dans la boutique au nom de leur auteur une fois relues.
+
+### Un skin
+
+1. **Nouveau skin** : partez d'un univers intégré (toutes ses valeurs sont recopiées), puis retouchez
+   le schéma clair ou sombre, les couleurs principales, les polices des titres et du texte (parmi
+   celles livrées avec l'application), l'animation de validation et les sons (empruntés à un univers).
+2. **Couverture** : importez une image (réduite à 640 px, 250 Ko au plus) ou laissez l'atelier la
+   dessiner d'après vos couleurs.
+3. **Manifeste complet** (avancé) : le JSON du contenu (`scheme`, `tokens`, `fonts`, `cover`,
+   `sounds`, `effects`), pour régler n'importe quel jeton de la liste ci-dessus, ajouter une police
+   woff2 en https ou un son.
+4. L'aperçu joueur se met à jour en direct ; « Essayer » joue le son et l'animation de validation.
+
+Le serveur contrôle le contenu à chaque enregistrement (`checkSkinContent`, `shared/creations.ts`) :
+
+| Élément | Règle |
+|---|---|
+| Jetons | seulement ceux de la liste ; valeur sans `; { } < > \`, `@import`, `expression(`, `javascript:` ; `url(...)` en https ou `data:` image, police woff2 ou son |
+| Polices | 4 au plus ; nom simple (lettres, chiffres, espaces, tirets) ; fichier woff2 en https (ou `data:font/woff2`) |
+| Couverture | obligatoire ; https ou `data:image/…` ; 250 Ko au plus |
+| Sons | fichier en https ou `data:audio/…`, ou 12 notes au plus (0 à 4 000 Hz, 10 à 1 500 ms) |
+| Effets | `validate` : `stamp`, `pulse`, `none` ; `treasure` : `confetti`, `none` ; 8 couleurs hexadécimales au plus |
+| Taille | 400 Ko au plus pour tout le contenu |
+
+Ce qui est refusé est **retiré** du brouillon et signalé ; le reste est gardé. Un skin publié
+reçoit l'identifiant `u<numéro>` : une chasse le porte comme un univers intégré
+(`hun_skin = 'u12'`), et les joueurs le chargent par `GET /api/skins/u12`.
+
+### Un pack d'énigmes
+
+**Nouveau pack d'énigmes** : de 3 à 40 énigmes d'arrivée prêtes à poser (anagramme, message chiffré,
+rébus, cadenas, question), chacune contrôlée comme dans l'éditeur d'étapes (`puzzleProblem`).
+Préférez des énigmes qui se suffisent à elles-mêmes : elles serviront sur n'importe quel lieu.
+
+Un organisateur qui a obtenu le pack **pioche** ses énigmes dans l'éditeur d'étapes (« Piocher dans
+un pack de créateur ») : l'énigme est recopiée dans le formulaire et se pose **sans le pack de son
+type** tant que sa consigne, sa réponse et son décalage restent ceux du pack (l'indice peut être
+retouché). Les réponses ne sortent jamais de la boutique ni de la page du créateur : seuls les
+acheteurs, l'auteur et les relecteurs les lisent.
+
+### Relecture et publication
+
+```
+brouillon ──proposer──▶ en relecture ──publier──▶ publiée (boutique, page du créateur)
+    ▲                        │
+    └──── à corriger ◀───────┘ (note du relecteur)
+```
+
+- **Proposer à la relecture** exige un contenu sans problème et un nom. Une création en relecture
+  se retire de la relecture pour être modifiée.
+- Les **relecteurs** (`th_hunters.htr_reviewer`, posé en base) voient l'onglet « À relire » :
+  aperçu du skin ou liste des énigmes avec leurs réponses. Ils vérifient les droits sur les images
+  et les polices, la lisibilité (contraste) et le ton ; un refus porte toujours une note.
+  On ne relit pas ses propres créations.
+- Une création **publiée** ne se modifie plus (on en propose une nouvelle version) et ne se
+  supprime pas : ceux qui l'ont obtenue la gardent.
+- La **page du créateur** (`/creators/:id`) présente ses créations publiées ; la boutique renvoie
+  vers elle (« par … »).
+
 ## Et ensuite
 
-- **Boutique** : les skins, outils de jeu et packs d'énigmes auront une fiche, un prix et un
-  propriétaire ; l'acquisition sera d'abord gratuite, le paiement viendra ensuite.
-- **Créateurs** : ils pourront soumettre un manifeste (et ses fichiers) depuis l'application. Le
-  format déclaratif et le contrôle des valeurs permettent de les accepter sans exécuter leur code ;
-  une relecture restera prévue pour le contenu (droits sur les images et les polices, lisibilité).
+- **Paiement** : le prix affiché par le créateur deviendra un prix payé, avec reversement au
+  créateur (voir conception § 20).
+- **Fichiers** : aujourd'hui les polices et sons externes se donnent par URL https ; un dépôt de
+  fichiers dans l'atelier pourra suivre.

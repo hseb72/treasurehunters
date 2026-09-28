@@ -43,7 +43,7 @@ async function runner() {
 describe('preuve par photo', () => {
   it('annonce la fonction, et la refuse sans stockage', async () => {
     const player = await runner();
-    expect((await player.get('/api/features')).body).toEqual({ photos: true, generation: false });
+    expect((await player.get('/api/features')).body).toEqual({ photos: true, generation: false, payments: false });
     expect((await player.get('/api/hunts/1/play')).body.photoProof).toBe(true);
     const bare = await buildApp(ctx.pool, { photoStore: null });
     const res = await (await loginAs(bare, 'seb@example.com')).post('/api/hunts/1/photos', { image: jpeg('x') });
@@ -109,6 +109,52 @@ describe('preuve par photo', () => {
     const after = (await player.get('/api/hunts/1/play')).body;
     expect(after.skipsUsed).toBe(before.skipsUsed + 1);
     expect(after.validated.find((v: { order: number }) => v.order === target)).toMatchObject({ skipped: true, photo: 'rejected' });
+  });
+
+  it('montre la photo du lieu aux joueurs, en tête de l’énigme ou à l’arrivée, si l’organisateur le veut', async () => {
+    const player = await runner();
+    const camille = await loginAs(app, 'camille@example.com');
+    const outsider = await loginAs(app, 'louis@example.com');
+    // L'équipe repart du début, pour avoir deux étapes devant elle.
+    const team = (await player.get('/api/hunts/1/play')).body.team.id;
+    await ctx.pool.query('DELETE FROM th_validations WHERE val_team_tea = $1', [team]);
+    const before = (await player.get('/api/hunts/1/play')).body;
+    const target = before.clue.targetOrder;
+    const steps = (await camille.get('/api/hunts/1/steps')).body;
+    const step = steps.find((s: { order: number }) => s.order === target);
+    const next = steps.find((s: { order: number }) => s.order === target + 1);
+    expect(next.order).toBeLessThan(before.totalSteps); // l'étape d'après n'est pas l'arrivée
+
+    // Par défaut, la photo reste une référence privée.
+    await camille.put(`/api/steps/${step.id}/reference-photo`, { image: jpeg('fontaine') });
+    expect((await player.get('/api/hunts/1/play')).body.clue.illustration).toBeNull();
+    expect((await player.get(`/api/steps/${step.id}/illustration`)).status).toBe(404);
+    expect((await camille.get(`/api/steps/${step.id}/illustration`)).status).toBe(200);
+
+    // En tête de l'énigme : l'équipe la voit dès maintenant, pas les autres joueurs.
+    expect((await camille.patch(`/api/steps/${step.id}`, { photoShow: 'clue' })).body.photoShow).toBe('clue');
+    expect((await player.get('/api/hunts/1/play')).body.clue.illustration).toBe(step.id);
+    const image = await player.get(`/api/steps/${step.id}/illustration`);
+    expect(image.status).toBe(200);
+    expect(image.body.toString()).toContain('fontaine');
+    expect((await outsider.get(`/api/steps/${step.id}/illustration`)).status).toBe(404); // hors de la chasse
+
+    // À l'arrivée : cachée tant que le lieu n'est pas trouvé.
+    await camille.put(`/api/steps/${next.id}/reference-photo`, { image: jpeg('kiosque') });
+    await camille.patch(`/api/steps/${next.id}`, { photoShow: 'arrival' });
+    judge.verdicts = [{ match: true, reason: 'Reconnu.' }];
+    const found = (await player.post('/api/hunts/1/photos', { image: jpeg('ici') })).body.state;
+    expect(found.validated.find((v: { order: number }) => v.order === target).illustration).toBe(step.id);
+    expect(found.clue).toMatchObject({ targetOrder: target + 1, illustration: null });
+    expect((await player.get(`/api/steps/${next.id}/illustration`)).status).toBe(404);
+    judge.verdicts = [{ match: true, reason: 'Reconnu.' }];
+    const there = (await player.post('/api/hunts/1/photos', { image: jpeg('là') })).body.state;
+    expect(there.validated.find((v: { order: number }) => v.order === target + 1).illustration).toBe(next.id);
+    expect((await player.get(`/api/steps/${next.id}/illustration`)).status).toBe(200);
+
+    // Photo retirée : plus rien à montrer.
+    await camille.del(`/api/steps/${next.id}/reference-photo`);
+    expect((await player.get('/api/hunts/1/play')).body.validated.find((v: { order: number }) => v.order === target + 1).illustration).toBeNull();
   });
 
   it('efface les photos des équipes 30 jours après la clôture', async () => {

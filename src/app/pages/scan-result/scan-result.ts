@@ -12,11 +12,12 @@ import { formatClock } from '../../shared/format';
 import { Podium } from '../../shared/podium';
 
 /** Page ouverte par un QR code : https://<domaine>/q/<jeton> (docs/conception.md § 4). */
+import { PlacePhoto } from '../../shared/place-photo';
 import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-scan-result',
-  imports: [SkinDirective, DatePipe, MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, Podium],
+  imports: [SkinDirective, DatePipe, MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, Podium, PlacePhoto],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './scan-result.html',
   styleUrl: './scan-result.scss',

@@ -40,7 +40,7 @@ relais passe par Kong, jamais directement par l'API.
 | Tag des images | `deploy/values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI |
 | Ce qu'Argo CD lit | la branche d'environnement **`deploy-state`** : copie de `deploy/` depuis `master`, plus le tag d'image. Tenue à jour par `.github/workflows/deploy.yml` (master est protégée, et Argo exige une seule révision par dépôt) |
 | Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
-| Secret `treasurehunters-api-secrets` (`DATABASE_URL`, `ANTHROPIC_API_KEY` facultative) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
+| Secret `treasurehunters-api-secrets` (`DATABASE_URL`, `ANTHROPIC_API_KEY`, `PHOTO_S3_*`, `STRIPE_*` facultatives) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
 | Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
 
 L'API applique elle-même les migrations SQL au démarrage. Elles sont protégées par
@@ -125,6 +125,23 @@ ouverte ; rien à faire, sauf si un pare-feu filtre la sortie de la VM.
 Sans clé, tout le reste fonctionne et le bouton photo n'apparaît pas. L'avis de
 l'IA sur les photos utilise la même clé Anthropic que le générateur ; sans elle,
 les équipes peuvent quand même insister et l'organisateur contrôle chaque photo.
+
+**Paiement** (docs/conception.md § 20) : Stripe Checkout pour les achats, Stripe
+Connect (comptes Express) pour reverser leur part aux créateurs. Désactivé tant que
+les deux valeurs suivantes ne sont pas dans le Secret ; les extensions restent alors
+offertes et les chasses du catalogue gratuites.
+
+1. dans le tableau de bord Stripe : activer Connect, puis déclarer l'endpoint de
+   webhook `https://api.treasurehunters.crealcs.com/api/payments/webhook` (adresse de
+   l'API derrière Kong) avec les événements `checkout.session.completed`,
+   `checkout.session.async_payment_succeeded`, `checkout.session.expired` et
+   `account.updated` (cocher « événements des comptes connectés » pour ce dernier) ;
+2. `STRIPE_SECRET_KEY='sk_live_…' STRIPE_WEBHOOK_SECRET='whsec_…' ./deploy/create-secrets.sh`
+   puis redémarrer l'API. Relancé sans elles, le script conserve celles en place ;
+3. commission et adresse de retour : `STRIPE_COMMISSION_PERCENT` et `APP_URL` dans
+   `api.env` de `values.yaml`.
+
+Essayez d'abord avec les clés de test (`sk_test_…`) et la carte 4242 4242 4242 4242.
 
 Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
 copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des

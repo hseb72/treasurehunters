@@ -8,6 +8,7 @@ import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import { z } from 'zod/v4';
 import { HuntPlan, PlannedStep } from '../../../shared/generation.js';
 import { Difficulty, Travel } from '../../../shared/models.js';
+import { acceptProposal, PUZZLE_TYPE_IDS, PuzzleType } from '../../../shared/puzzles.js';
 import { config } from '../config.js';
 import { HttpError } from '../errors.js';
 import { distanceMeters } from '../../../shared/rules.js';
@@ -34,6 +35,16 @@ const PlanSchema = z.object({
         riddle: z.string().describe('Énigme qui mène À ce lieu depuis le lieu précédent (ou depuis le lieu de rendez-vous)'),
         hints: z.array(z.string()).describe('Exactement 3 jokers pour trouver ce lieu, du plus vague au plus précis'),
         arrival: z.string().describe('Message d’arrivée sur ce lieu : bravo et anecdote vraie et prudente sur le lieu'),
+        puzzle: z
+          .object({
+            type: z.enum(PUZZLE_TYPE_IDS).describe('Type d’épreuve, parmi ceux permis'),
+            prompt: z.string().describe('Consigne lue sur place, sans la réponse'),
+            answer: z.string().describe('Réponse attendue ; variantes acceptées séparées par « | »'),
+            hint: z.string().describe('Indice qui suffit à trouver la réponse même si le détail observé manque'),
+            shift: z.number().int().describe('Message chiffré : décalage de 1 à 25 ; 0 pour les autres types'),
+          })
+          .nullable()
+          .describe('Épreuve d’arrivée à résoudre sur ce lieu, ou null ; toujours null sans épreuves permises et pour le dernier lieu'),
       }),
     )
     .describe('Lieux dans l’ordre du parcours ; le dernier cache le trésor'),
@@ -98,6 +109,26 @@ export interface ClaudePlanInput {
   durationMinutes: number;
   /** Thème libre demandé par le joueur, ou null. */
   theme: string | null;
+  /** Types d'épreuves d'arrivée permis (packs du joueur) ; vide = aucune. */
+  puzzles?: readonly PuzzleType[];
+}
+
+/** Consignes des épreuves d'arrivée (§ 17.1), selon les types permis. */
+const PUZZLE_RULES: Record<PuzzleType, string> = {
+  question:
+    'question : une question dont la réponse se lit sur le lieu (date gravée, nom sur une plaque, nombre d’arches). Seulement si les données du lieu (inscription, start_date, artist_name…) la garantissent ; jamais un détail supposé.',
+  lock: 'lock : un cadenas à molettes, code de 3 à 6 chiffres (souvent une année du lieu, tirée de start_date ou d’une inscription) ; l’answer ne contient que des chiffres.',
+  cipher: 'cipher : un message court en clair (answer, 2 à 6 mots, lettres sans chiffres) lié au lieu ou au récit ; l’application le chiffre par décalage (shift, de 1 à 25) et fournit la roue.',
+  anagram: 'anagram : un mot de 4 à 12 lettres lié au lieu ou au récit (answer) ; l’application mélange les lettres. La consigne dit ce que le mot désigne.',
+  rebus: 'rebus : des émojis et syllabes (dans prompt) qui se lisent en un mot ou une courte expression (answer) liée au lieu ou au récit.',
+};
+
+function puzzleBrief(types: readonly PuzzleType[], count: number): string {
+  if (!types.length) return 'Épreuves d’arrivée : aucune, mettez puzzle à null partout.';
+  const n = Math.max(1, Math.round((count - 1) / 2));
+  return `Épreuves d'arrivée : proposez-en sur environ ${n} lieu${n > 1 ? 'x' : ''} (pas le dernier, qui cache le trésor), en variant les types permis :
+${types.map((t) => `- ${PUZZLE_RULES[t]}`).join('\n')}
+Une épreuve se résout sur place, une fois le lieu trouvé : elle ne doit pas dévoiler le lieu suivant. Préférez les épreuves qui se suffisent à elles-mêmes (anagramme, message chiffré, rébus) quand les données du lieu ne garantissent rien d'observable. L'indice doit permettre de trouver la réponse même si le détail observé manque ou a disparu. Les réponses sont en français, sans ambiguïté ; ajoutez les variantes raisonnables avec « | » (chiffres et lettres : « 3|trois »).`;
 }
 
 /** Chasse rédigée, et comment le thème a été suivi. */
@@ -164,6 +195,7 @@ Durée visée : environ ${input.durationMinutes} minutes.
 Nombre de lieux à trouver : exactement ${input.count} (le dernier cache le trésor), plus un lieu de rendez-vous.
 Déplacement : ${TRAVEL_BRIEF[input.travel]}
 Énigmes : ${DIFFICULTY_BRIEF[input.difficulty]}
+${puzzleBrief(input.puzzles ?? [], input.count)}
 ${input.theme ? `Thème souhaité par le joueur : « ${input.theme} » (${themed} lieu${themed > 1 ? 'x' : ''} marqué${themed > 1 ? 's' : ''} "theme": true).` : 'Pas de thème demandé.'}
 
 Lieux disponibles (JSON) :
@@ -263,6 +295,8 @@ export function toHuntPlan(plan: Omit<Plan, 'themeNote'>, input: ClaudePlanInput
         longitude: poi.lng,
         address: poi.name.slice(0, 255),
         source: poi.id,
+        // Épreuve proposée par l'IA : gardée si son type est permis et sa rédaction jouable ; jamais sur le trésor.
+        puzzle: next ? acceptProposal(p.puzzle, input.puzzles ?? []) : null,
       };
     }),
   ];

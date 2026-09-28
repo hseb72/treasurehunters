@@ -25,7 +25,9 @@
           <span class="small muted"><mat-icon inline>location_on</mat-icon> {{ step.address }}</span>
         }
         @if (photos() && step.referencePhoto) {
-          <span class="small muted"><mat-icon inline>photo_camera</mat-icon> Photo de référence</span>
+          <span class="small muted">
+            <mat-icon inline>photo_camera</mat-icon> Photo du lieu{{ step.photoShow === 'clue' ? ', montrée avec l’énigme' : step.photoShow === 'arrival' ? ', montrée à l’arrivée' : '' }}
+          </span>
         }
         @if (step.puzzle) {
           <span class="small muted"><mat-icon inline>extension</mat-icon> Épreuve : {{ typeInfo(step.puzzle.type).name }}</span>
@@ -105,9 +107,32 @@
             @if (lockedPacks().length) {
               <p class="small muted packs">
                 @for (pk of lockedPacks(); track pk.id) {
-                  <button mat-stroked-button type="button" (click)="obtainPack(pk.id)" [disabled]="packBusy()"><mat-icon>lock_open</mat-icon>{{ pk.name }} — offert</button>
+                  <button mat-stroked-button type="button" (click)="obtainPack(pk.id)" [disabled]="packBusy()"><mat-icon>lock_open</mat-icon>{{ pk.name }} — {{ shop.offer(pk.id) }}</button>
                 }
               </p>
+            }
+            @if (creatorPacks().length) {
+              <div class="draw">
+                <mat-form-field class="field-full" subscriptSizing="dynamic">
+                  <mat-label>Piocher dans un pack de créateur</mat-label>
+                  <mat-icon matPrefix>style</mat-icon>
+                  <mat-select [value]="drawPack()" (selectionChange)="openPack($event.value)">
+                    @for (pk of creatorPacks(); track pk.id) {
+                      <mat-option [value]="pk.ref">{{ pk.name }} — {{ pk.creator?.nickname }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (drawPuzzles().length) {
+                  <div class="draw-list">
+                    @for (p of drawPuzzles(); track $index) {
+                      <button type="button" class="draw-item" (click)="usePuzzle(p)" title="Poser cette énigme (elle reste modifiable)">
+                        <mat-icon>{{ typeInfo(p.type).icon }}</mat-icon>
+                        <span>{{ p.prompt }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
             }
             @if (puzzleKind(); as t) {
               <p class="small muted">{{ typeInfo(t).description }}</p>
@@ -158,14 +183,31 @@
         @if (photos() && kind !== 'start') {
           <div class="reference">
             @if (step.referencePhoto) {
-              <th-auth-image class="reference-img" kind="reference" [id]="step.id" [version]="refVersion()" alt="Photo de référence" />
+              <th-auth-image class="reference-img" kind="reference" [id]="step.id" [version]="refVersion()" alt="Photo du lieu" />
             }
             <div class="reference-text">
-              <strong class="small">Photo de référence</strong>
+              <strong class="small">Photo du lieu</strong>
               <span class="small muted">
-                Photographiez le lieu où vous posez le QR. Si une équipe ne le trouve pas, elle pourra envoyer sa propre photo : l'IA la comparera à
-                celle-ci. Les joueurs ne la voient jamais.
+                @if (geo()) {
+                  Une photo qui illustre le lieu, choisie pour ne pas dévoiler la solution.
+                } @else {
+                  Photographiez le lieu où vous posez le QR. Si une équipe ne le trouve pas, elle pourra envoyer sa propre photo : l'IA la comparera à
+                  celle-ci.
+                }
               </span>
+              @if (step.referencePhoto) {
+                <mat-form-field class="photo-show" subscriptSizing="dynamic">
+                  <mat-label>Montrer aux joueurs</mat-label>
+                  <mat-select formControlName="photoShow">
+                    <mat-option value="">Jamais{{ geo() ? '' : ' (référence de l’arbitre seulement)' }}</mat-option>
+                    <mat-option value="arrival">À l'arrivée, avec le message</mat-option>
+                    <mat-option value="clue">Dès l'énigme qui mène au lieu</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                @if (form.controls.photoShow.value === 'clue') {
+                  <span class="small muted"><mat-icon inline>visibility</mat-icon> Un détail, une ambiance : les joueurs la verront avant d'avoir trouvé.</span>
+                }
+              }
               <div class="row">
                 <button mat-stroked-button type="button" (click)="refInput.click()" [disabled]="refBusy()">
                   <mat-icon>add_a_photo</mat-icon>{{ step.referencePhoto ? 'Remplacer' : 'Ajouter' }}

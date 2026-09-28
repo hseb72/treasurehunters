@@ -126,3 +126,13 @@
 .wait-line { font-size: 1.1rem; min-height: 1.6em; }
 
 .big-icon { width: 56px; height: 56px; font-size: 56px; color: var(--th-danger); }
+
+.puzzle-types { display: flex; flex-wrap: wrap; gap: 6px; }
+.puzzle-type {
+  display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px;
+  border: 1px solid var(--th-border); border-radius: 999px; background: var(--th-surface-raised);
+  color: var(--th-ink); font: inherit; font-size: 0.9rem; cursor: pointer;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &.on { border-color: var(--th-primary-light); background: color-mix(in srgb, var(--th-primary-light) 16%, transparent); font-weight: 600; }
+  .small { color: var(--th-primary-light); }
+}

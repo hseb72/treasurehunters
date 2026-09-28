@@ -21,6 +21,9 @@
               <span class="stamp stamp--success drop">Étape {{ r.step?.order }} validée</span>
             }
             <h1>{{ r.step?.title }}</h1>
+            @if (r.step?.illustration; as pic) {
+              <th-place-photo [stepId]="pic" />
+            }
             @if (r.step?.arrival) {
               <p class="arrival">{{ r.step?.arrival }}</p>
             }
@@ -28,6 +31,9 @@
           @if (r.next; as next) {
             <section class="surface taped clue">
               <span class="stamp">{{ next.targetOrder === r.hunt?.stepCount ? 'Vers le trésor' : 'Énigme n° ' + next.targetOrder }}</span>
+              @if (next.illustration; as pic) {
+                <th-place-photo [stepId]="pic" alt="Le lieu à trouver" />
+              }
               <p class="note clue-text">{{ next.instructions }}</p>
             </section>
           }
@@ -131,10 +137,16 @@
             <div class="row"><span class="stamp stamp--success">QR opérationnel</span></div>
             <h1>Étape {{ r.step?.order }} — {{ r.step?.title }}</h1>
             <p class="muted small">Mode organisateur : ce scan n'est pas enregistré. Voici ce que verront les joueurs.</p>
+            @if (r.step?.illustration; as pic) {
+              <th-place-photo [stepId]="pic" />
+            }
             @if (r.step?.arrival) {
               <p class="arrival">{{ r.step?.arrival }}</p>
             }
             @if (r.next; as next) {
+              @if (next.illustration; as pic) {
+                <th-place-photo [stepId]="pic" caption="En tête de l'énigme suivante" />
+              }
               <p class="note">{{ next.instructions }}</p>
               @for (h of next.hintsRevealed; track $index) {
                 <p class="small"><mat-icon inline>key</mat-icon> Joker {{ $index + 1 }} : {{ h }}</p>

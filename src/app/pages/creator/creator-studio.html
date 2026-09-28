@@ -1,0 +1,164 @@
+<div class="page page--wide stack">
+  <header class="head">
+    <h1>Atelier créateur</h1>
+    <p class="muted">
+      Proposez vos univers graphiques et vos packs d'énigmes. Un relecteur vérifie chaque création avant de la publier dans la
+      <a routerLink="/store">boutique</a>, à votre nom.
+    </p>
+  </header>
+
+  @if (!session.loggedIn()) {
+    <section class="surface center">
+      <p>Connectez-vous pour ouvrir votre atelier.</p>
+      <a mat-flat-button routerLink="/login" [queryParams]="{ returnUrl: '/creator' }">Connexion</a>
+    </section>
+  } @else {
+    <th-payouts-panel what="créations" />
+    @if (reviewer()) {
+      <div class="tabs" role="tablist" aria-label="Atelier">
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'mine'" [class.on]="tab() === 'mine'" (click)="tab.set('mine')"><mat-icon>brush</mat-icon>Mes créations</button>
+        <button type="button" role="tab" [attr.aria-selected]="tab() === 'review'" [class.on]="tab() === 'review'" (click)="tab.set('review')">
+          <mat-icon>fact_check</mat-icon>À relire
+          @if (queue.value().length) {
+            <span class="count">{{ queue.value().length }}</span>
+          }
+        </button>
+      </div>
+    }
+
+    @if (tab() === 'mine') {
+      @if (draft(); as d) {
+        <section class="surface stack editor">
+          <div class="row">
+            <mat-icon>{{ d.kind === 'skin' ? 'palette' : 'extension' }}</mat-icon>
+            <h2>{{ d.id ? 'Modifier' : 'Nouveau' }} {{ d.kind === 'skin' ? 'skin' : 'pack d’énigmes' }}</h2>
+          </div>
+          <div class="meta">
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>Nom</mat-label>
+              <input matInput maxlength="40" [ngModel]="d.name" (ngModelChange)="patchDraft({ name: $event })" />
+            </mat-form-field>
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>Prix affiché (€)</mat-label>
+              <input matInput type="number" min="0" max="20" step="0.5" [ngModel]="d.euros" (ngModelChange)="patchDraft({ euros: +$event })" />
+              <mat-hint>0 = offert.{{ shop.payments() ? '' : ' Tout est offert pendant le lancement.' }}</mat-hint>
+            </mat-form-field>
+          </div>
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="2" maxlength="300" [ngModel]="d.description" (ngModelChange)="patchDraft({ description: $event })"></textarea>
+          </mat-form-field>
+
+          @if (d.kind === 'skin') {
+            <th-skin-editor [content]="d.skin" (contentChange)="patchDraft({ skin: $event })" [name]="d.name" />
+          } @else {
+            <th-pack-editor [content]="d.pack" (contentChange)="patchDraft({ pack: $event })" />
+          }
+
+          @if (problems().length) {
+            <div class="problems" role="alert">
+              <strong class="small">À corriger avant la relecture</strong>
+              <ul>
+                @for (p of problems(); track $index) {
+                  <li class="small">{{ p }}</li>
+                }
+              </ul>
+            </div>
+          }
+          <div class="row actions">
+            <button mat-button type="button" (click)="draft.set(null)">Fermer</button>
+            <span class="spacer"></span>
+            <button mat-stroked-button type="button" (click)="save(false)" [disabled]="busy()"><mat-icon>save</mat-icon>Enregistrer</button>
+            <button mat-flat-button class="th-cta" type="button" (click)="save(true)" [disabled]="busy() || !d.name.trim()"><mat-icon>send</mat-icon>Proposer à la relecture</button>
+          </div>
+        </section>
+      } @else {
+        <div class="row">
+          <button mat-flat-button type="button" (click)="create('skin')"><mat-icon>palette</mat-icon>Nouveau skin</button>
+          <button mat-stroked-button type="button" (click)="create('pack')"><mat-icon>extension</mat-icon>Nouveau pack d'énigmes</button>
+        </div>
+        @if (!mine.value().length && !mine.isLoading()) {
+          <p class="muted">Aucune création pour l'instant : partez d'un univers intégré et donnez-lui votre style.</p>
+        }
+        <div class="grid">
+          @for (c of mine.value(); track c.id) {
+            @let st = status[c.status];
+            <article class="surface creation">
+              @if (c.cover) {
+                <img class="cover" [src]="c.cover" alt="" />
+              } @else {
+                <div class="pack-icon"><mat-icon>extension</mat-icon><span class="small">{{ c.puzzleCount }} énigmes</span></div>
+              }
+              <div class="row">
+                <h3>{{ c.name || 'Sans nom' }}</h3>
+                <span class="spacer"></span>
+                <span class="badge {{ st.badge }}"><mat-icon>{{ st.icon }}</mat-icon>{{ st.label }}</span>
+              </div>
+              <p class="small muted">{{ c.kind === 'skin' ? 'Skin' : 'Pack d’énigmes' }} · {{ price(c) }}</p>
+              @if (c.status === 'rejected' && c.note) {
+                <p class="small note-box"><mat-icon inline>rate_review</mat-icon> {{ c.note }}</p>
+              }
+              <div class="row actions">
+                @switch (c.status) {
+                  @case ('review') {
+                    <button mat-button type="button" (click)="withdraw(c)">Retirer de la relecture</button>
+                  }
+                  @case ('published') {
+                    <a mat-button [routerLink]="['/creators', c.authorId]">Voir ma page</a>
+                  }
+                  @default {
+                    <button mat-button type="button" class="danger" (click)="remove(c)">Supprimer</button>
+                    <span class="spacer"></span>
+                    <button mat-stroked-button type="button" (click)="edit(c)"><mat-icon>edit</mat-icon>Modifier</button>
+                  }
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    } @else {
+      @if (!queue.value().length) {
+        <p class="muted">Rien à relire pour l'instant.</p>
+      }
+      @for (c of queue.value(); track c.id) {
+        <section class="surface stack review">
+          <div class="row">
+            <h2>{{ c.name }}</h2>
+            <span class="spacer"></span>
+            <span class="small muted">{{ c.kind === 'skin' ? 'Skin' : 'Pack' }} de {{ c.authorNickname }} · {{ price(c) }}</span>
+          </div>
+          <p class="small">{{ c.description }}</p>
+          @if (c.kind === 'skin') {
+            <div class="skin-review">
+              <img class="cover" [src]="c.cover" alt="Couverture" />
+              <div class="preview" [thSkin]="previewOf(c)">
+                <div class="banner preview-head"><strong class="display">{{ c.name }}</strong></div>
+                <div class="surface taped"><span class="stamp">Énigme n° 1</span><p class="note">« Cherchez là où l'eau chante. »</p></div>
+                <button type="button" class="th-cta cta">Je suis arrivé</button>
+              </div>
+            </div>
+          } @else {
+            <ol class="small">
+              @for (p of puzzlesOf(c); track $index) {
+                <li><strong>{{ typeName(p.type) }}</strong> — {{ p.prompt }} <span class="muted">→ {{ p.answer }}</span></li>
+              }
+            </ol>
+          }
+          @if (c.problems?.length) {
+            <p class="small problems">{{ c.problems!.join(' ') }}</p>
+          }
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>Note au créateur</mat-label>
+            <textarea matInput rows="2" maxlength="500" [ngModel]="notes()[c.id] ?? ''" (ngModelChange)="setNote(c.id, $event)" placeholder="Obligatoire pour un refus : ce qu'il faut corriger."></textarea>
+          </mat-form-field>
+          <div class="row actions">
+            <span class="spacer"></span>
+            <button mat-stroked-button type="button" class="danger" (click)="review(c, false)" [disabled]="busy()"><mat-icon>undo</mat-icon>À corriger</button>
+            <button mat-flat-button class="th-cta" type="button" (click)="review(c, true)" [disabled]="busy()"><mat-icon>verified</mat-icon>Publier</button>
+          </div>
+        </section>
+      }
+    }
+  }
+</div>

@@ -134,3 +134,23 @@ export function puzzleProblem(p: Puzzle): string | null {
   if (p.type === 'anagram' && normalizeAnswer(answers[0]).replace(/ /g, '').length > 16) return 'Une anagramme compte au plus 16 lettres.';
   return null;
 }
+
+/**
+ * Énigme proposée par l'IA (§ 17.1) : gardée si son type est permis et sa rédaction jouable,
+ * textes bornés comme dans l'éditeur ; sinon écartée (l'étape reste sans épreuve).
+ */
+export function acceptProposal(
+  p: { type: string; prompt: string; answer: string; hint?: string | null; shift?: number | null } | null | undefined,
+  allowed: readonly PuzzleType[],
+): Puzzle | null {
+  if (!p || !allowed.includes(p.type as PuzzleType)) return null;
+  const type = p.type as PuzzleType;
+  const puzzle: Puzzle = {
+    type,
+    prompt: p.prompt.trim().slice(0, 1000),
+    answer: p.answer.trim().slice(0, 200),
+    hint: p.hint?.trim().slice(0, 500) || null,
+    ...(type === 'cipher' ? { shift: Number.isInteger(p.shift) && p.shift! >= 1 && p.shift! <= 25 ? p.shift! : 3 } : {}),
+  };
+  return puzzleProblem(puzzle) ? null : puzzle;
+}

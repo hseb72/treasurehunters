@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { take, takeWhile, timer } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StoreItem } from '@shared/models';
 import { priceLabel } from '@shared/store';
 import { Notify } from '../../core/notify';
@@ -13,7 +14,7 @@ type Tab = 'skin' | 'tool' | 'pack';
 /** Boutique d'extensions (§ 16) : univers graphiques et outils de jeu pour ses chasses. */
 @Component({
   selector: 'th-store',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './store.html',
   styleUrl: './store.scss',
@@ -34,13 +35,39 @@ export class StorePage {
   protected readonly busy = signal<string | null>(null);
   protected readonly price = priceLabel;
 
+  /** Retour de la page de paiement (§ 20) : « ?paid=1&product=… », ou 0 si annulé. */
+  readonly paid = input<string | undefined>();
+  readonly product = input<string | undefined>();
+
+  constructor() {
+    effect(() => {
+      const paid = this.paid();
+      const product = this.product();
+      if (paid === undefined) return;
+      untracked(() => {
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        if (paid !== '1') {
+          this.notify.info('Paiement annulé : rien n’a été débité.');
+          return;
+        }
+        this.notify.info('Paiement reçu, merci ! L’extension rejoint votre collection.', 6000);
+        const kind = product?.split(':')[0];
+        if (kind === 'skin' || kind === 'tool' || kind === 'pack') this.tab.set(kind);
+        // La confirmation de Stripe peut arriver quelques secondes après le retour.
+        timer(0, 2000)
+          .pipe(take(6), takeWhile(() => !product || !this.shop.owns(product)))
+          .subscribe(() => this.shop.items.reload());
+      });
+    });
+  }
+
   protected acquire(item: StoreItem): void {
     if (!this.session.loggedIn()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/store' } });
       return;
     }
     this.busy.set(item.id);
-    this.shop.acquire(item.id).subscribe({
+    this.shop.obtain(item.id).subscribe({
       next: () => {
         this.busy.set(null);
         this.notify.info(
@@ -56,6 +83,7 @@ export class StorePage {
         this.busy.set(null);
         this.notify.error(e);
       },
+      complete: () => this.busy.set(null),
     });
   }
 }

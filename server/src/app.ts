@@ -9,7 +9,9 @@ import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
-import { SKIN_IDS } from '../../shared/skins.js';
+import { Payments } from './payments/payments.js';
+import { PaymentProvider, StripeProvider } from './payments/stripe.js';
+import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
 import { Service, Viewer } from './service.js';
@@ -51,7 +53,7 @@ const huntFields = {
   validation: z.enum(['qr', 'geo']),
   geoRadius: z.number().int().min(10).max(500),
   travel: z.enum(['walk', 'active', 'motor']),
-  skin: z.enum(SKIN_IDS),
+  skin: z.string().max(40).refine(skinIdShape, 'Skin inconnu.'),
   tools: z
     .array(z.enum(TOOL_IDS))
     .max(TOOL_IDS.length)
@@ -80,6 +82,7 @@ const stepFields = z
         shift: z.number().int().min(1).max(25).optional(),
       })
       .nullable(),
+    photoShow: z.enum(['arrival', 'clue']).nullable(),
   })
   .partial();
 
@@ -100,7 +103,12 @@ const generationRequest = z.object({
     .transform((t) => t || null),
   steps: z.number().int().min(3).max(12).nullable(),
   mode: z.enum(['play', 'organize']),
-  skin: z.enum(SKIN_IDS).optional(),
+  skin: z.string().max(40).refine(skinIdShape, 'Skin inconnu.').optional(),
+  puzzles: z
+    .array(z.enum(PUZZLE_TYPE_IDS))
+    .max(PUZZLE_TYPE_IDS.length)
+    .transform((t) => [...new Set(t)])
+    .optional(),
 });
 
 const credentials = z.object({ email: z.email(), password: z.string().min(1).max(200) });
@@ -120,6 +128,8 @@ export interface AppOptions {
   photoStore?: PhotoStore | null;
   /** Arbitre des photos ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
   photoJudge?: PhotoJudge | null;
+  /** Paiement (§ 20) ; par défaut Stripe si STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET sont définis. */
+  payments?: PaymentProvider | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -151,6 +161,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     (err, msg) => app.log.error(err, msg),
     photoStore ? { store: photoStore, judge: photoJudge } : null,
   );
+
+  const stripe = config.stripe;
+  const provider = opts.payments !== undefined ? opts.payments : stripe.secretKey && stripe.webhookSecret ? new StripeProvider(stripe.secretKey, stripe.webhookSecret) : null;
+  if (stripe.secretKey && !stripe.webhookSecret) app.log.error('STRIPE_WEBHOOK_SECRET manquant : paiement désactivé (les achats ne seraient jamais confirmés).');
+  const payments = new Payments(pool, provider, (viewer) => service.store(viewer), (err, msg) => app.log.error(err, msg));
+  service.payments = payments;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -188,9 +204,50 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   /* ----- Boutique (§ 16) */
   app.get('/api/store', async (req) => service.store(req.viewer));
   app.post('/api/store/:product/acquire', async (req) => {
-    const { product } = z.object({ product: z.enum(PRODUCT_IDS) }).parse(req.params);
+    const { product } = z.object({ product: z.union([z.enum(PRODUCT_IDS), z.string().regex(/^(skin|pack):u\d{1,9}$/)]) }).parse(req.params);
     return service.acquire(req.viewer, product);
   });
+  /* ----- Paiement (§ 20) */
+  const returnPath = z.object({ returnPath: z.string().max(300).regex(/^\/(?!\/)[^\s]*$/).default('/store') });
+  app.post('/api/store/:product/checkout', async (req) => {
+    const { product } = z.object({ product: z.string().regex(/^((skin|tool|pack):[a-z0-9]{1,40}|hunt:c\d{1,9})$/) }).parse(req.params);
+    return payments.checkout(req.viewer, product, returnPath.parse(req.body ?? {}).returnPath);
+  });
+  app.get('/api/payments/account', async (req) => payments.account(req.viewer));
+  app.post('/api/payments/account', async (req) => payments.onboard(req.viewer, returnPath.parse(req.body ?? {}).returnPath));
+  // Webhook Stripe : la signature porte sur le corps brut, lu tel quel dans ce seul contexte.
+  await app.register(async (scope) => {
+    scope.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => done(null, body));
+    scope.post('/api/payments/webhook', async (req) => payments.webhook(req.body as string, req.headers['stripe-signature'] as string | undefined));
+  });
+
+  /* ----- Créations de la communauté (§ 19) */
+  const creationFields = {
+    name: text(40).min(1),
+    description: text(300),
+    price: z.number().int().min(0).max(2000),
+    content: z.unknown(),
+  };
+  const creations = service.creations;
+  app.get('/api/creations/mine', async (req) => creations.mine(req.viewer));
+  app.post('/api/creations', async (req, reply) =>
+    reply.status(201).send(await creations.create(req.viewer, z.object({ kind: z.enum(['skin', 'pack']), ...creationFields }).parse(req.body))),
+  );
+  app.patch('/api/creations/:id', async (req) => creations.update(req.viewer, idParams.parse(req.params).id, z.object(creationFields).partial().parse(req.body)));
+  app.delete('/api/creations/:id', async (req, reply) => {
+    await creations.remove(req.viewer, idParams.parse(req.params).id);
+    reply.status(204).send();
+  });
+  app.post('/api/creations/:id/submit', async (req) => creations.submit(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/creations/:id/withdraw', async (req) => creations.withdraw(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/creations/review', async (req) => creations.reviewQueue(req.viewer));
+  app.post('/api/creations/:id/review', async (req) =>
+    creations.review(req.viewer, idParams.parse(req.params).id, z.object({ approve: z.boolean(), note: nullableText(500).default(null) }).parse(req.body)),
+  );
+  app.get('/api/creations/:id/puzzles', async (req) => creations.packPuzzles(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/creators/:id', async (req) => creations.creator(idParams.parse(req.params).id));
+  app.get('/api/skins/:id', async (req) => creations.skin(Number(z.object({ id: z.string().regex(/^u\d{1,9}$/) }).parse(req.params).id.slice(1))));
+
   app.post('/api/hunts/:id/puzzle', async (req) => {
     const { answer } = z.object({ answer: text(200) }).parse(req.body);
     return service.solvePuzzle(req.viewer, idParams.parse(req.params).id, answer);
@@ -351,6 +408,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         durationMinutes: z.number().int().min(10).max(1440),
         sampleOrder: z.number().int().min(0),
         changes: text(2000).nullable(),
+        price: z.number().int().min(0).max(5000).optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));
@@ -379,6 +437,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const { approve } = z.object({ approve: z.boolean() }).parse(req.body);
     return service.reviewPhoto(req.viewer, idParams.parse(req.params).id, approve);
   });
+  app.get('/api/steps/:id/illustration', async (req, reply) => sendImage(reply, await service.illustrationImage(req.viewer, idParams.parse(req.params).id)));
   app.get('/api/photos/:id/image', async (req, reply) => sendImage(reply, await service.photoImage(req.viewer, idParams.parse(req.params).id)));
   app.get('/api/steps/:id/reference-photo', async (req, reply) =>
     sendImage(reply, await service.referenceImage(req.viewer, idParams.parse(req.params).id)),

@@ -2,7 +2,8 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
-import type { Puzzle, PublicPuzzle } from './puzzles.js';
+import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
+import type { SkinManifest } from './skins.js';
 
 export type HuntStatus = 'draft' | 'published' | 'running' | 'closed' | 'cancelled' | 'archived';
 
@@ -18,6 +19,8 @@ export interface Hunter {
   email: string;
   /** Accepte d'être noté en tant qu'organisateur (§ 14). */
   rateable: boolean;
+  /** Relecteur des créations de la communauté (§ 19). */
+  reviewer?: boolean;
 }
 
 export interface Hunt {
@@ -107,7 +110,14 @@ export interface Step {
   puzzle: Puzzle | null;
   /** L'organisateur a déposé une photo du lieu, référence pour la preuve par photo. */
   referencePhoto: boolean;
+  /**
+   * Photo du lieu montrée aux joueurs (§ 18) : jamais (null, elle ne sert que de référence),
+   * à l'arrivée avec le message, ou dès l'énigme qui mène au lieu.
+   */
+  photoShow: PhotoShow | null;
 }
+
+export type PhotoShow = 'arrival' | 'clue';
 
 export interface Member {
   hunterId: number;
@@ -173,6 +183,8 @@ export interface PlayStep {
   skipped: boolean;
   /** Étape validée par photo : contrôle de l'organisateur (une photo refusée compte comme un abandon). */
   photo: PhotoReview | null;
+  /** Photo du lieu à montrer (§ 18) : identifiant de l'étape, pour GET /api/steps/:id/illustration. */
+  illustration: number | null;
 }
 
 export interface PlayClue {
@@ -184,6 +196,8 @@ export interface PlayClue {
   hintsTotal: number;
   /** L'équipe peut abandonner cette épreuve (jamais l'arrivée). */
   canSkip: boolean;
+  /** Photo du lieu cherché, en tête de l'énigme si l'organisateur l'a voulu (§ 18). */
+  illustration: number | null;
 }
 
 export interface PlayState {
@@ -226,6 +240,12 @@ export interface StoreItem {
   cover: string | null;
   icon: string | null;
   owned: boolean;
+  /** Création de la communauté (§ 19) : son auteur. */
+  creator?: { id: number; nickname: string } | null;
+  /** Skin de créateur : son manifeste, pour l'aperçu et l'habillage. */
+  skin?: SkinManifest;
+  /** Pack de créateur : nombre d'énigmes prêtes à poser. */
+  puzzleCount?: number;
 }
 
 /** Énigme d'arrivée en cours, vue par l'équipe (sans la réponse). */
@@ -292,6 +312,22 @@ export interface PhotoResult {
 export interface Features {
   photos: boolean;
   generation: boolean;
+  /** Paiement Stripe configuré (§ 20) ; sinon l'acquisition reste offerte. */
+  payments?: boolean;
+}
+
+/** Ouverture d'un paiement : l'adresse de la page Stripe, ou null si rien n'était à payer. */
+export interface CheckoutResult {
+  url: string | null;
+  items: StoreItem[];
+}
+
+/** Compte vendeur (Stripe Connect) d'un créateur ou d'un auteur du catalogue (§ 20). */
+export interface PayoutAccount {
+  enabled: boolean;
+  account: boolean;
+  ready: boolean;
+  commissionPercent: number;
 }
 
 /** Résultat d'un « Je suis arrivé » (validation par géolocalisation). */
@@ -332,6 +368,11 @@ export interface GenerationRequest {
   mode: 'play' | 'organize';
   /** Skin de la chasse (shared/skins.ts) ; absent = skin par défaut. */
   skin?: string;
+  /**
+   * Types d'épreuves d'arrivée que l'IA peut proposer (§ 17.1), parmi ceux des packs du joueur ;
+   * absent ou vide = aucune épreuve.
+   */
+  puzzles?: PuzzleType[];
 }
 
 export interface GenerationJob {
@@ -370,7 +411,7 @@ export interface ScanResult {
   outcome: ScanOutcome;
   hunt: Hunt | null;
   /** Étape scannée (titre et message d'arrivée seulement si l'accès est autorisé). */
-  step: { order: number; title: string; arrival: string | null; isFinal: boolean } | null;
+  step: { order: number; title: string; arrival: string | null; isFinal: boolean; illustration?: number | null } | null;
   /** Énigme suivante, si débloquée. */
   next: PlayClue | null;
   team: Team | null;
@@ -427,6 +468,8 @@ export interface CatalogEntry {
   changes: string | null;
   published: string;
   withdrawn: boolean;
+  /** Prix fixé par l'auteur, en centimes (§ 20) ; 0 = gratuite. Payé seulement si le paiement est activé. */
+  price: number;
 }
 
 export interface CatalogReview {
@@ -443,6 +486,8 @@ export interface CatalogDetail extends CatalogEntry {
   versions: { id: number; title: string; authorNickname: string; published: string; withdrawn: boolean }[];
   /** Chasse d'où vient la publication, si le lecteur en est l'auteur. */
   huntId: number | null;
+  /** Le lecteur a acheté cette chasse (§ 20). */
+  owned: boolean;
 }
 
 export interface CatalogPublication {
@@ -453,6 +498,8 @@ export interface CatalogPublication {
   /** Étape dont l'énigme sert d'extrait (0 = énigme de départ). */
   sampleOrder: number;
   changes: string | null;
+  /** Prix de la chasse, en centimes (0 à 50 €) ; absent = gratuite. */
+  price?: number;
 }
 
 /** Avis d'un joueur sur une chasse jouée, après sa clôture. */

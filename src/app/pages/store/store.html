@@ -1,7 +1,15 @@
 <div class="page page--wide stack">
   <header class="head">
     <h1>Boutique</h1>
-    <p class="muted">Donnez à chaque chasse son univers et ses outils. <span class="launch">Tout est offert pendant le lancement.</span></p>
+    <p class="muted">
+      Donnez à chaque chasse son univers et ses outils.
+      @if (!shop.payments()) {
+        <span class="launch">Tout est offert pendant le lancement.</span>
+      } @else {
+        Paiement sécurisé par Stripe ; ce qui est acheté l'est pour toutes vos chasses.
+      }
+    </p>
+    <p class="small"><mat-icon inline>brush</mat-icon> Vous créez des univers ou des énigmes ? <a routerLink="/creator">Proposez-les dans l'atelier créateur</a>.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Rayons de la boutique">
@@ -24,11 +32,18 @@
           <div class="tool-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
         }
         <h3>{{ item.name }}</h3>
+        @if (item.creator; as c) {
+          <p class="small by">par <a [routerLink]="['/creators', c.id]">{{ c.nickname }}</a>{{ item.puzzleCount ? ' · ' + item.puzzleCount + ' énigmes prêtes à poser' : '' }}</p>
+        }
         <p class="small muted description">{{ item.description }}</p>
         <div class="buy">
           <span class="price">
             @if (item.included) {
               Inclus
+            } @else if (!item.price) {
+              <strong>Offert</strong>
+            } @else if (shop.payments()) {
+              <strong>{{ price(item) }}</strong>
             } @else {
               <s>{{ price(item) }}</s> <strong>Offert</strong>
             }
@@ -37,7 +52,9 @@
           @if (item.owned) {
             <span class="have"><mat-icon inline>check_circle</mat-icon> Dans votre collection</span>
           } @else {
-            <button mat-flat-button type="button" (click)="acquire(item)" [disabled]="busy() === item.id">Obtenir</button>
+            <button mat-flat-button type="button" (click)="acquire(item)" [disabled]="busy() === item.id">
+              {{ shop.payments() && item.price && !item.included ? 'Acheter' : 'Obtenir' }}
+            </button>
           }
         </div>
       </article>

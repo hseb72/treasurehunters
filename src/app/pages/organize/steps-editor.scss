@@ -187,6 +187,8 @@
   gap: 6px;
 }
 
+.photo-show { width: 100%; }
+
 .puzzle-edit {
   display: flex;
   flex-direction: column;
@@ -209,4 +211,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.draw { display: flex; flex-direction: column; gap: 6px; }
+.draw-list { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow: auto; }
+.draw-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px; text-align: left;
+  border: 1px solid var(--th-border); border-radius: 8px; background: var(--th-surface-raised); color: var(--th-ink); font: inherit; font-size: 0.9rem; cursor: pointer;
+  &:disabled { opacity: 0.5; cursor: default; }
+  span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

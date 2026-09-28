@@ -264,6 +264,7 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `POST /hunts/:id/photos` · `POST /photos/:id/insist` · `GET /photos/:id/image` | preuve par photo : envoi jugé par l'IA, insistance de l'équipe, image (§ 12) | membre (image : membre ou organisateur) |
 | `GET /hunts/:id/photos` · `POST /photos/:id/review` | photos de la chasse, contrôle (tamponner ou refuser) | organisateur |
 | `GET\|PUT\|DELETE /steps/:id/reference-photo` | photo de référence d'une étape | organisateur |
+| `GET /steps/:id/illustration` | photo du lieu montrée aux joueurs (§ 18) | organisateur, équipe à qui elle est montrée |
 | `GET /features` | fonctions activées sur le serveur (photos, génération) | public |
 | `GET /catalog?q=&sort=rating\|plays\|recent` · `GET /catalog/:id` | catalogue et fiche d'une version (§ 13) | public |
 | `GET /catalog?mine=1` · `GET /catalog?hunt=:id` | mes publications, celles d'une de mes chasses (retirées comprises) | connecté |
@@ -451,7 +452,7 @@ Un QR peut disparaître, être abîmé ou déplacé. L'équipe photographie alor
 
 ### 12.1 Photo de référence
 
-Dans l'onglet Étapes, l'organisateur peut déposer pour chaque lieu une **photo de l'endroit où il a posé le QR** (`cod_refphoto`). Elle sert de référence à l'IA. **Les joueurs ne la voient jamais** : elle dévoilerait la solution.
+Dans l'onglet Étapes, l'organisateur peut déposer pour chaque lieu une **photo de l'endroit où il a posé le QR** (`cod_refphoto`). Elle sert de référence à l'IA. Par défaut **les joueurs ne la voient pas** : elle dévoilerait la solution. L'organisateur peut choisir de la leur montrer (§ 18).
 
 ### 12.2 Avis de l'IA, insistance de l'équipe
 
@@ -579,6 +580,8 @@ Les univers autres qu'Aventurier et Contemporain s'obtiennent dans la **boutique
 
 ## 16. Boutique d'extensions
 
+> Le paiement des extensions (et des créations, et des chasses du catalogue) est décrit au § 20 : il ne s'active qu'avec des clés Stripe.
+
 Un organisateur donne à ses chasses un **univers** (skin, § 15) et des **outils de jeu**. La boutique (E20) les présente avec leur prix ; tant que le paiement n'est pas branché, **l'acquisition est offerte** : « Obtenir » les ajoute à la collection du joueur, et le prix payé (0) est enregistré. Les extensions sont créées par la plateforme ; celles de créateurs viendront ensuite.
 
 **Produits** (`shared/store.ts`) : identifiants `skin:<id>` et `tool:<id>`, nom, description, prix affiché (centimes), inclus ou non.
@@ -637,4 +640,72 @@ Une étape du parcours (pas le départ) peut porter une **épreuve à résoudre 
 Les réponses se comparent sans casse, accents ni ponctuation ; plusieurs réponses sont acceptées, séparées par « | » (« 1789|mille sept cent quatre-vingt-neuf »). Pour un cadenas, seuls les chiffres comptent. L'éditeur d'étapes propose les types des packs obtenus (ou le type que l'étape a déjà), et fait obtenir un pack en un geste ; le serveur contrôle la rédaction (`puzzleProblem`) et la possession (403).
 
 **Données** : `th_codes.cod_puzzle` (jsonb : type, consigne, réponse, indice, décalage), `th_arrivals` (équipe, étape, joueur, source, photo, essais, indice affiché ; unique par équipe et étape) ; migration `db/migrations/012_puzzles.sql`. Les énigmes suivent la chasse au catalogue et dans ses copies (l'empreinte des publications existantes ne change pas).
+
+### 17.1 Épreuves proposées par l'IA
+
+Dans « Chasse sur mesure » (§ 11), le joueur choisit les **épreuves sur place** que le maître du jeu peut proposer, parmi les types de ses packs (tous cochés par défaut ; un type d'un pack pas encore obtenu l'obtient d'abord, offert). La demande porte `puzzles: PuzzleType[]` ; un type d'un pack non possédé est refusé (403). Sans type, la chasse n'a pas d'épreuve.
+
+Claude reçoit les consignes des types permis et pose une épreuve sur **une étape sur deux environ**, jamais sur le trésor ni au départ :
+
+- **Question sur place** : seulement si les données OpenStreetMap du lieu (inscription, date, artiste…) garantissent une réponse observable ;
+- **Cadenas** : un code de 3 à 6 chiffres, souvent une année du lieu ;
+- **Message chiffré, anagramme, rébus** : des épreuves qui se suffisent à elles-mêmes, préférées quand rien d'observable n'est garanti.
+
+L'indice doit suffire à trouver la réponse même si le détail observé manque ou a disparu. Le serveur ne garde une proposition (`acceptProposal`) que si son type est permis et sa rédaction jouable (`puzzleProblem`) ; sinon l'étape reste sans épreuve. En mode « J'organise », l'organisateur relit et ajuste les épreuves dans l'éditeur ; en chasse surprise, elles s'affichent à l'arrivée. Le générateur de démonstration pose des épreuves fixes, jouables sans rien observer.
+
+## 18. Photo du lieu
+
+Les maquettes montrent une photo en tête d'étape. L'organisateur choisit, pour chaque lieu (pas le départ), **une photo illustrative** : un détail, une ambiance, qui donne envie sans dévoiler la solution. C'est la même photo que la référence de l'arbitre photo (§ 12.1) ; dans une chasse en géolocalisation, elle ne sert qu'à illustrer.
+
+**Montrer aux joueurs** (`th_codes.cod_photoshow`, réglage de l'étape dans l'éditeur) :
+
+| Réglage | Ce que voient les joueurs |
+|---|---|
+| Jamais (défaut) | rien : la photo reste la référence privée de l'arbitre |
+| À l'arrivée | la photo accompagne le message d'arrivée (carnet de route, page du scan, check-in, épreuve résolue) et reste dans le journal de bord |
+| Dès l'énigme | la photo s'affiche en tête de l'énigme qui mène au lieu, puis à l'arrivée comme ci-dessus |
+
+**Accès** : le carnet de route (`PlayClue.illustration`, `PlayStep.illustration`) et le scan (`ScanResult.step.illustration`) donnent l'identifiant de l'étape dont la photo peut être montrée ; l'image se charge par `GET /steps/:id/illustration`, que le serveur n'accorde qu'à l'organisateur, ou à une équipe de la chasse pour qui l'étape est l'énigme en cours (réglage « dès l'énigme ») ou déjà validée. Un joueur d'une autre équipe qui n'y est pas encore, ou hors de la chasse, reçoit 404. Une épreuve d'arrivée en attente (§ 17) ne montre pas encore la photo d'arrivée. Sans stockage de photos configuré, rien n'est montré.
+
+La photo ne suit pas la chasse au catalogue (§ 13) : elle reste celle de l'organisateur. Migration `db/migrations/013_step_photo.sql`.
+
+## 19. Ouverture aux créateurs
+
+Des créateurs proposent des **skins** et des **packs d'énigmes** depuis l'atelier créateur ; un relecteur les publie dans la boutique à leur nom. Le guide complet, format et règles de contrôle compris, est `docs/skins.md` (« Proposer une création »).
+
+- **Contenu déclaratif contrôlé** (`shared/creations.ts`) : `checkSkinContent` ne garde que les jetons, polices, couverture, sons et effets que le moteur de skins applique sans risque ; `checkPackContent`, des énigmes jouables (`puzzleProblem`). Le serveur contrôle à chaque enregistrement et à la publication.
+- **Statuts** : brouillon → en relecture → publiée, ou « à corriger » avec la note du relecteur. Relecteurs : `th_hunters.htr_reviewer`.
+- **Boutique** : une création publiée devient le produit `skin:u<id>` ou `pack:u<id>` (`StoreItem.creator`, manifeste du skin, nombre d'énigmes du pack — jamais les réponses). L'acquisition suit les règles du § 16 ; l'auteur possède d'office ses créations.
+- **Skins de créateurs** : une chasse porte `hun_skin = 'u<id>'` s'il est publié et possédé par l'organisateur. Le front les enregistre depuis la boutique, ou les charge par `GET /api/skins/u<id>` (public) pour les joueurs (`SkinCatalog`).
+- **Packs de créateurs** : `GET /api/creations/:id/puzzles` pour les acheteurs, l'auteur et les relecteurs ; l'éditeur d'étapes y pioche. Une énigme d'un pack obtenu se pose sans le pack de son type, tant que type, consigne, réponse et décalage sont ceux du pack.
+- **Page du créateur** : `GET /api/creators/:id`, `/creators/:id`.
+
+| Route | Rôle | Qui |
+|---|---|---|
+| `GET /creations/mine`, `POST /creations`, `PATCH\|DELETE /creations/:id` | ses créations | auteur |
+| `POST /creations/:id/submit`, `/withdraw` | proposer, retirer de la relecture | auteur |
+| `GET /creations/review`, `POST /creations/:id/review { approve, note }` | relecture | relecteur |
+| `GET /creators/:id`, `GET /skins/u<id>` | page du créateur, manifeste d'un skin publié | tous |
+
+Données : `th_creations` (auteur, genre, nom, description, prix affiché de 0 à 20 €, contenu jsonb, statut, note, relecteur, date de publication), `th_hunters.htr_reviewer` ; migration `db/migrations/014_creations.sql`.
+
+## 20. Paiement
+
+Les prix affichés deviennent payés quand Stripe est configuré. **Sans clés Stripe, rien ne change** : les extensions s'obtiennent gratuitement (§ 16), les chasses du catalogue se copient gratuitement, et les écrans disent « offert ». Les clés (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) vivent dans le Secret de l'API (`deploy/create-secrets.sh`), jamais dans le dépôt ; `GET /features` annonce `payments`.
+
+**Ce qui se vend**
+
+| Produit | Prix | Vendeur |
+|---|---|---|
+| Univers, outils, packs intégrés (`skin:…`, `tool:…`, `pack:…`) | celui de la boutique | la plateforme |
+| Créations de la communauté (`skin:u12`, `pack:u7`, § 19) | fixé par le créateur (0 à 20 €) | le créateur |
+| Chasses du catalogue (`hunt:c12`) | fixé par l'auteur à la publication (0 à 50 €) ; achetée une fois, copiée à volonté | l'auteur |
+
+**Achat** : `POST /store/:product/checkout { returnPath }`. Gratuit, déjà possédé, ou vendu par soi-même : obtenu aussitôt (`url: null`). Sinon, un paiement `pending` est noté (`th_payments`) et le joueur part vers **Stripe Checkout** ; il revient sur `returnPath?paid=1&product=…` (ou `paid=0` s'il annule). La possession n'est accordée qu'à la **confirmation signée** de Stripe (webhook `checkout.session.completed`, signature HMAC vérifiée sur le corps brut, 5 minutes de tolérance, rejouable sans effet) ; le front recharge la boutique quelques secondes le temps qu'elle arrive. Paiement activé, `POST /store/:product/acquire` refuse un produit payant (402), et la copie d'une chasse payante non achetée aussi.
+
+**Vendeurs (Stripe Connect)** : un créateur ou un auteur s'inscrit depuis l'atelier créateur ou l'onglet Catalogue de sa chasse (« Activer mes paiements », `POST /payments/account` → page d'inscription Stripe, compte Express). `GET /payments/account` dit s'il peut encaisser (`charges_enabled`, rafraîchi au retour et par le webhook `account.updated`). Tant qu'il ne le peut pas, ses produits payants ne s'achètent pas (409). À chaque vente, Stripe verse le prix au vendeur **moins la commission** de la plateforme (`STRIPE_COMMISSION_PERCENT`, 20 % par défaut : `application_fee_amount`), l'argent transitant par le compte de la plateforme (`transfer_data.destination`).
+
+**Données** : `th_payments` (acheteur, produit, montant, commission, vendeur, session Stripe, statut `pending` / `paid` / `expired`), `th_purchases.pur_price` (prix payé), `th_hunters.htr_stripe_account` / `htr_stripe_ready`, `th_catalog.cat_price` ; migration `db/migrations/015_payments.sql`. Le serveur parle à Stripe par son API REST (`server/src/payments/stripe.ts`), sans SDK.
+
+**Maquette** : le paiement y est activé et simulé (retour immédiat, paiement confirmé), pour montrer les écrans.
 

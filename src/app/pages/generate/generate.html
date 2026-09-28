@@ -87,6 +87,33 @@
           </div>
         }
       </div>
+      <span class="small label">Épreuves sur place</span>
+      <div class="puzzle-types" role="group" aria-label="Épreuves que le maître du jeu peut proposer">
+        @for (t of puzzleTypes; track t.type) {
+          @let owned = shop.owns(t.pack);
+          <button
+            type="button"
+            class="puzzle-type"
+            [class.on]="owned && chosenPuzzles().includes(t.type)"
+            [attr.aria-pressed]="owned && chosenPuzzles().includes(t.type)"
+            (click)="togglePuzzle(t.type, t.pack)"
+            [disabled]="acquiring()"
+            [title]="t.description"
+          >
+            <mat-icon>{{ owned ? t.icon : 'lock_open' }}</mat-icon>{{ t.name }}
+            @if (!owned) {
+              <span class="small">— {{ shop.offer(t.pack) }}</span>
+            }
+          </button>
+        }
+      </div>
+      <p class="muted small">
+        @if (chosenPuzzles().length) {
+          Le maître du jeu pose une épreuve sur une étape sur deux environ : l'équipe la résout une fois sur place pour valider l'étape.
+        } @else {
+          Pas d'épreuve : arriver sur le lieu suffit à valider l'étape.
+        }
+      </p>
     </section>
 
     <section class="surface stack">

@@ -38,7 +38,9 @@ export function client(app: FastifyInstance, token?: string) {
       payload: payload as never,
       headers: token ? { authorization: `Bearer ${token}` } : {},
     });
-    return { status: res.statusCode, body: res.body ? res.json() : null };
+    // Une image (photo servie par l'API) se lit en octets.
+    const json = String(res.headers['content-type'] ?? '').includes('json');
+    return { status: res.statusCode, body: res.body ? (json ? res.json() : res.rawPayload) : null };
   };
   return {
     get: (url: string) => call('GET', url),

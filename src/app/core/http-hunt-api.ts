@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -27,6 +29,9 @@ import {
   PuzzleResult,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
+import { Creation, CreationInput, CreatorPage } from '@shared/creations';
+import { Puzzle } from '@shared/puzzles';
+import { SkinManifest } from '@shared/skins';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -174,6 +179,50 @@ export class HttpHuntApi extends HuntApi {
   acquire(productId: string): Observable<StoreItem[]> {
     return this.http.post<StoreItem[]>(`${this.url}/store/${encodeURIComponent(productId)}/acquire`, {});
   }
+
+  checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
+    return this.http.post<CheckoutResult>(`${this.url}/store/${encodeURIComponent(productId)}/checkout`, { returnPath });
+  }
+  payoutAccount(): Observable<PayoutAccount> {
+    return this.http.get<PayoutAccount>(`${this.url}/payments/account`);
+  }
+  startPayouts(returnPath: string): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.url}/payments/account`, { returnPath });
+  }
+
+  myCreations(): Observable<Creation[]> {
+    return this.http.get<Creation[]>(`${this.url}/creations/mine`);
+  }
+  createCreation(data: CreationInput): Observable<Creation> {
+    return this.http.post<Creation>(`${this.url}/creations`, data);
+  }
+  updateCreation(id: number, data: Partial<Omit<CreationInput, 'kind'>>): Observable<Creation> {
+    return this.http.patch<Creation>(`${this.url}/creations/${id}`, data);
+  }
+  deleteCreation(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/creations/${id}`);
+  }
+  submitCreation(id: number): Observable<Creation> {
+    return this.http.post<Creation>(`${this.url}/creations/${id}/submit`, {});
+  }
+  withdrawCreation(id: number): Observable<Creation> {
+    return this.http.post<Creation>(`${this.url}/creations/${id}/withdraw`, {});
+  }
+  reviewQueue(): Observable<Creation[]> {
+    return this.http.get<Creation[]>(`${this.url}/creations/review`);
+  }
+  reviewCreation(id: number, approve: boolean, note: string | null): Observable<Creation> {
+    return this.http.post<Creation>(`${this.url}/creations/${id}/review`, { approve, note });
+  }
+  packPuzzles(id: number): Observable<Puzzle[]> {
+    return this.http.get<Puzzle[]>(`${this.url}/creations/${id}/puzzles`);
+  }
+  getCreator(id: number): Observable<CreatorPage> {
+    return this.http.get<CreatorPage>(`${this.url}/creators/${id}`);
+  }
+  creatorSkin(id: string): Observable<SkinManifest> {
+    return this.http.get<SkinManifest>(`${this.url}/skins/${encodeURIComponent(id)}`);
+  }
   compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
     return this.http.post<CompassReading>(`${this.url}/hunts/${huntId}/compass`, pos);
   }
@@ -200,6 +249,9 @@ export class HttpHuntApi extends HuntApi {
   }
   referenceImage(stepId: number): Observable<Blob> {
     return this.http.get(`${this.url}/steps/${stepId}/reference-photo`, { responseType: 'blob' });
+  }
+  illustrationImage(stepId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/steps/${stepId}/illustration`, { responseType: 'blob' });
   }
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
     const url = `${this.url}/steps/${stepId}/reference-photo`;

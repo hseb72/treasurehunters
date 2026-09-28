@@ -1,8 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from '../api';
+import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } from '@shared/creations';
+import { MockCreations } from './mock-creations';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -17,6 +21,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoShow,
   PlayClue,
   PlayState,
   RankingRow,
@@ -29,9 +34,9 @@ import {
   CompassReading,
   PuzzleResult,
 } from '@shared/models';
-import { DEFAULT_SKIN } from '@shared/skins';
+import { DEFAULT_SKIN, SkinManifest } from '@shared/skins';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '@shared/store';
-import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
+import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import {
   checkinAllowance,
@@ -75,6 +80,43 @@ export class MockHuntApi extends HuntApi {
   constructor() {
     super();
     this.seedCatalog();
+    this.seedPlacePhotos();
+  }
+
+  /**
+   * Photos du lieu de la démo (§ 18) : un détail du boulodrome en tête de l'énigme qui y
+   * mène, les rayonnages de la médiathèque à l'arrivée. Des dessins, faute de vraies photos.
+   */
+  private seedPlacePhotos(): void {
+    const svg = (body: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${body}</svg>`)}`;
+    const boule = (x: number, y: number, r: number) =>
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#m)"/><path d="M${x - r * 0.8} ${y - r * 0.2} q${r * 0.8} ${r * 0.5} ${r * 1.6} 0" stroke="#5b636b" stroke-width="2" fill="none"/>`;
+    const gravel = Array.from({ length: 140 }, (_, i) => `<circle cx="${(i * 97) % 400}" cy="${120 + ((i * 53) % 180)}" r="${1 + (i % 3)}" fill="#b89d6e"/>`).join('');
+    const boulodrome = svg(
+      `<defs><radialGradient id="m" cx="35%" cy="30%"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".5" stop-color="#9aa3ab"/><stop offset="1" stop-color="#3f464d"/></radialGradient>` +
+        `<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fae5a"/><stop offset="1" stop-color="#4f7d38"/></linearGradient></defs>` +
+        `<rect width="400" height="130" fill="url(#s)"/><rect y="110" width="400" height="190" fill="#d9c49a"/>${gravel}` +
+        `<ellipse cx="200" cy="262" rx="140" ry="14" fill="#000" opacity=".12"/>${boule(130, 225, 34)}${boule(215, 238, 30)}${boule(290, 214, 27)}` +
+        `<circle cx="250" cy="180" r="9" fill="#c0392b"/><circle cx="247" cy="177" r="3" fill="#e8806f"/>`,
+    );
+    const colors = ['#8e3b2e', '#2f5d7c', '#c49a3a', '#4b7a47', '#6d4c7d', '#b5602f', '#2e6f6a', '#9c2f4f'];
+    const shelf = (y: number, seed: number) =>
+      `<rect x="20" y="${y + 70}" width="360" height="10" fill="#7a5230"/>` +
+      Array.from({ length: 16 }, (_, i) => {
+        const h = 50 + ((i * 7 + seed) % 20);
+        return `<rect x="${26 + i * 22}" y="${y + 70 - h}" width="19" height="${h}" rx="2" fill="${colors[(i + seed) % colors.length]}"/><rect x="${30 + i * 22}" y="${y + 80 - h}" width="11" height="3" fill="#f3e6c8" opacity=".7"/>`;
+      }).join('');
+    const mediatheque = svg(`<rect width="400" height="300" fill="#efe4cf"/>${shelf(0, 1)}${shelf(95, 4)}${shelf(190, 6)}`);
+    for (const [order, image, show] of [
+      [3, boulodrome, 'clue'],
+      [2, mediatheque, 'arrival'],
+    ] as const) {
+      const step = this.db.steps.find((s) => s.huntId === 1 && s.order === order);
+      if (!step) continue;
+      this.refPhotos.set(step.id, image);
+      step.referencePhoto = true;
+      step.photoShow = show;
+    }
   }
 
   logout(): Observable<void> {
@@ -257,7 +299,9 @@ export class MockHuntApi extends HuntApi {
           const problem = puzzleProblem(editable.puzzle);
           if (problem) throw new ApiError(problem);
           const pack = puzzleType(editable.puzzle.type).pack;
-          if (s.puzzle?.type !== editable.puzzle.type && !owns(this.purchases.get(this.requireUser()) ?? new Set(), pack)) {
+          const owned = this.purchases.get(this.requireUser()) ?? new Set<string>();
+          // Une énigme tirée d'un pack de créateur obtenu (§ 19) se pose sans le pack de son type.
+          if (s.puzzle?.type !== editable.puzzle.type && !owns(owned, pack) && !this.creations.fromOwnedPack(owned, editable.puzzle)) {
             throw new ApiError(`« ${puzzleType(editable.puzzle.type).name} » vient du pack « ${productById(pack)!.name} » : obtenez-le d’abord dans la boutique.`);
           }
         }
@@ -451,11 +495,11 @@ export class MockHuntApi extends HuntApi {
       if (outcome === 'unknown') return result;
       result.hunt = this.huntView(rawHunt!);
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
+      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
 
       if (outcome === 'validated' && this.arrive(team!.id, step!, me!, 'QR') === 'puzzle') {
         result.outcome = 'puzzle';
-        result.step = { ...stepInfo, arrival: null };
+        result.step = { ...stepInfo, arrival: null, illustration: null };
         return result;
       }
       if (outcome === 'organizer') {
@@ -468,6 +512,7 @@ export class MockHuntApi extends HuntApi {
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
               canSkip: step!.order + 1 < final,
+              illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -552,10 +597,13 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       if (request.skin) this.checkExtensions(me, { skin: request.skin }, null);
+      // Épreuves proposées par l'IA : seulement les types des packs du joueur.
+      const missing = (request.puzzles ?? []).map((t) => puzzleType(t)).find((t) => !owns(this.purchases.get(me) ?? new Set(), t.pack));
+      if (missing) throw new ApiError(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
       const { lat, lng, query } = request.location;
       const center = lat !== undefined && lng !== undefined ? { lat, lng } : MONTPELLIER;
       const placeName = query?.trim() || 'votre quartier';
-      const plan = demoPlan(center, plannedStepCount(request), placeName);
+      const plan = demoPlan(center, plannedStepCount(request), placeName, request.puzzles ?? []);
       const play = request.mode === 'play';
       if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
         this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
@@ -611,6 +659,7 @@ export class MockHuntApi extends HuntApi {
           latitude: p.latitude,
           longitude: p.longitude,
           address: p.address,
+          puzzle: order > 0 ? (p.puzzle ?? null) : null,
         }),
       );
       if (play) this.addTeam(h, this.nick(me), me, false);
@@ -706,6 +755,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
       if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+      if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError('Cette chasse est payante : achetez-la pour la copier.');
       const begin = Date.now() + 7 * 86_400_000;
       const h: MockDb['hunts'][number] = {
         ...structuredClone(e.content.hunt),
@@ -823,6 +873,7 @@ export class MockHuntApi extends HuntApi {
         durationMinutes: pub.durationMinutes,
         sampleOrder: sample.order,
         sample: sample.instructions!,
+        price: pub.price ?? 0,
       });
     }
     const parentId = previous?.id ?? h.catalogId;
@@ -850,6 +901,7 @@ export class MockHuntApi extends HuntApi {
       fingerprint,
       published: new Date().toISOString(),
       withdrawn: false,
+      price: pub.price ?? 0,
     };
     this.catalog.push(entry);
     return entry;
@@ -896,6 +948,7 @@ export class MockHuntApi extends HuntApi {
       changes: e.changes,
       published: e.published,
       withdrawn: e.withdrawn,
+      price: e.price,
     };
   }
 
@@ -906,6 +959,7 @@ export class MockHuntApi extends HuntApi {
     const hunts = new Set(this.entryHunts(e));
     return {
       ...this.entryView(e),
+      owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
       sample: { order: e.sampleOrder, text: e.sample },
       reviews: this.ratings
         .filter((r) => hunts.has(r.huntId) && r.rating.comment)
@@ -923,7 +977,8 @@ export class MockHuntApi extends HuntApi {
     const closed = this.db.hunts.find((h) => h.status === 'closed');
     if (!closed) return;
     try {
-      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null });
+      // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399 });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -947,7 +1002,103 @@ export class MockHuntApi extends HuntApi {
 
   private storeFor(me: number | null): StoreItem[] {
     const owned = (me !== null && this.purchases.get(me)) || new Set<string>();
-    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+    return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...this.creations.products(me)];
+  }
+
+  /* ---------- Paiement (§ 20), simulé : le paiement réussit aussitôt ---------- */
+
+  private readonly payouts = new Map<number, { ready: boolean }>([[2, { ready: true }]]);
+
+  private sellable(productId: string): { price: number; sellerId: number | null } | null {
+    const hunt = /^hunt:c(\d+)$/.exec(productId);
+    if (hunt) {
+      const e = this.catalog.find((x) => x.id === Number(hunt[1]) && !x.withdrawn);
+      return e ? { price: e.price, sellerId: e.authorId } : null;
+    }
+    const ref = creationRef(productId);
+    if (ref !== null) {
+      const c = this.creations.published(ref);
+      return c && creationProductId(c.kind, c.id) === productId ? { price: c.price, sellerId: c.authorId } : null;
+    }
+    const p = productById(productId);
+    return p ? { price: p.included ? 0 : p.price, sellerId: null } : null;
+  }
+
+  checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const sale = this.sellable(productId);
+      if (!sale) throw new ApiError('Produit inconnu.');
+      const owned = this.purchases.get(me) ?? new Set<string>();
+      this.purchases.set(me, owned);
+      const free = sale.price === 0 || sale.sellerId === me || owned.has(productId);
+      if (!productById(productId)?.included) owned.add(productId);
+      if (free) return { url: null, items: this.storeFor(me) };
+      // Au lieu de la page Stripe : retour direct, paiement « confirmé ».
+      return { url: `${returnPath}${returnPath.includes('?') ? '&' : '?'}paid=1&product=${encodeURIComponent(productId)}`, items: [] };
+    });
+  }
+
+  payoutAccount(): Observable<PayoutAccount> {
+    return this.reply(() => {
+      const a = this.payouts.get(this.requireUser());
+      return { enabled: true, account: !!a, ready: !!a?.ready, commissionPercent: 20 };
+    });
+  }
+
+  startPayouts(returnPath: string): Observable<{ url: string }> {
+    return this.reply(() => {
+      this.payouts.set(this.requireUser(), { ready: true });
+      return { url: `${returnPath}${returnPath.includes('?') ? '&' : '?'}stripe=retour` };
+    });
+  }
+
+  /* ---------- Créations de la communauté (§ 19) ---------- */
+
+  private readonly creations = new MockCreations((id) => this.nick(id), this.purchases);
+  /** Relecteur de la maquette : Seb. */
+  private isReviewer(me: number): boolean {
+    return me === REVIEWER_ID;
+  }
+
+  myCreations(): Observable<Creation[]> {
+    return this.reply(() => this.creations.mine(this.requireUser()));
+  }
+  createCreation(data: CreationInput): Observable<Creation> {
+    return this.reply(() => this.creations.create(this.requireUser(), data));
+  }
+  updateCreation(id: number, data: Partial<Omit<CreationInput, 'kind'>>): Observable<Creation> {
+    return this.reply(() => this.creations.update(this.requireUser(), id, data));
+  }
+  deleteCreation(id: number): Observable<void> {
+    return this.reply(() => this.creations.remove(this.requireUser(), id));
+  }
+  submitCreation(id: number): Observable<Creation> {
+    return this.reply(() => this.creations.submit(this.requireUser(), id));
+  }
+  withdrawCreation(id: number): Observable<Creation> {
+    return this.reply(() => this.creations.withdraw(this.requireUser(), id));
+  }
+  reviewQueue(): Observable<Creation[]> {
+    return this.reply(() => this.creations.queue(this.isReviewer(this.requireUser())));
+  }
+  reviewCreation(id: number, approve: boolean, note: string | null): Observable<Creation> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      return this.creations.review(me, this.isReviewer(me), id, approve, note);
+    });
+  }
+  packPuzzles(id: number): Observable<Puzzle[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      return this.creations.puzzles(me, this.isReviewer(me), id);
+    });
+  }
+  getCreator(id: number): Observable<CreatorPage> {
+    return this.reply(() => this.creations.creator(id, this.db.hunters.some((h) => h.id === id)));
+  }
+  creatorSkin(id: string): Observable<SkinManifest> {
+    return this.reply(() => this.creations.skin(id));
   }
 
   getStore(): Observable<StoreItem[]> {
@@ -957,8 +1108,12 @@ export class MockHuntApi extends HuntApi {
   acquire(productId: string): Observable<StoreItem[]> {
     return this.reply(() => {
       const me = this.requireUser();
-      const product = productById(productId);
+      const ref = creationRef(productId);
+      const creation = ref !== null ? this.creations.published(ref) : undefined;
+      const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
       if (!product) throw new ApiError('Extension inconnue.');
+      const sale = this.sellable(productId);
+      if (sale && sale.price > 0 && sale.sellerId !== me) throw new ApiError('Ce produit est payant : passez par le paiement.');
       if (!product.included) {
         const owned = this.purchases.get(me) ?? new Set<string>();
         owned.add(product.id);
@@ -987,12 +1142,22 @@ export class MockHuntApi extends HuntApi {
       ...(data.skin !== undefined && data.skin !== current?.skin ? [`skin:${data.skin}`] : []),
       ...(data.tools ?? []).filter((t) => !current?.tools.includes(t)).map((t) => `tool:${t}`),
     ];
-    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
-    if (missing) throw new ApiError(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+    for (const id of wanted) {
+      const ref = creationRef(id);
+      if (ref !== null) {
+        const c = this.creations.published(ref);
+        if (!c || creationProductId(c.kind, c.id) !== id) throw new ApiError('Ce skin n’existe pas ou n’est plus publié.');
+        if (c.authorId !== me && !owned.has(id)) throw new ApiError(`« ${c.name} » s’obtient d’abord dans la boutique.`);
+        continue;
+      }
+      const p = productById(id);
+      if (p && !owns(owned, p.id)) throw new ApiError(`« ${p.name} » s’obtient d’abord dans la boutique.`);
+    }
   }
 
   getFeatures(): Observable<Features> {
-    return this.reply(() => ({ photos: true, generation: true }));
+    // La maquette montre le paiement activé, simulé (§ 20).
+    return this.reply(() => ({ photos: true, generation: true, payments: true }));
   }
 
   /** Arbitre simulé : la première photo d'une étape n'est pas reconnue, les suivantes le sont. */
@@ -1075,6 +1240,27 @@ export class MockHuntApi extends HuntApi {
 
   referenceImage(stepId: number): Observable<Blob> {
     return this.blob(() => this.refPhotos.get(stepId) ?? null);
+  }
+
+  /** Photo du lieu montrée aux joueurs (§ 18), comme le serveur. */
+  private illustration(step: Step | undefined, moment: PhotoShow): number | null {
+    if (!step?.referencePhoto || !step.photoShow) return null;
+    return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
+  }
+
+  illustrationImage(stepId: number): Observable<Blob> {
+    return this.blob(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) return null;
+      const hunt = this.db.hunts.find((h) => h.id === step.huntId);
+      const me = this.viewer();
+      let allowed = hunt?.ownerId === me;
+      if (!allowed && step.photoShow && me !== null && this.teamOf(step.huntId, me)) {
+        const state = this.playState(step.huntId);
+        allowed = state.validated.some((v) => v.illustration === step.id) || state.clue?.illustration === step.id;
+      }
+      return allowed ? (this.refPhotos.get(stepId) ?? null) : null;
+    });
   }
 
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
@@ -1290,7 +1476,15 @@ export class MockHuntApi extends HuntApi {
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
         const photo = this.photos.find((p) => p.teamId === team.id && p.stepId === s.id && p.counted);
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null };
+        return {
+          order: s.order,
+          title: s.title,
+          arrival: s.arrival,
+          at: v.at,
+          skipped: v.source === 'SKIP',
+          photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null,
+          illustration: this.illustration(s, 'arrival'),
+        };
       })
       .sort((a, b) => a.order - b.order);
     const hints = this.db.hintUses.filter((u) => u.teamId === team.id);
@@ -1307,6 +1501,7 @@ export class MockHuntApi extends HuntApi {
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]),
         hintsTotal: current.hints.length,
         canSkip: current.order + 1 < finalOrder(steps),
+        illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
     let puzzle: PlayState['puzzle'] = null;
@@ -1400,6 +1595,7 @@ export class MockHuntApi extends HuntApi {
       longitude: null,
       address: null,
       referencePhoto: false,
+      photoShow: null,
       entrances: [],
       puzzle: null,
     };
@@ -1410,13 +1606,15 @@ export class MockHuntApi extends HuntApi {
   }
 
   private publicHunter(h: Hunter): Hunter {
-    return { id: h.id, nickname: h.nickname, email: h.email, rateable: h.rateable };
+    return { id: h.id, nickname: h.nickname, email: h.email, rateable: h.rateable, reviewer: this.isReviewer(h.id) };
   }
 
   private nextId(list: { id: number }[]): number {
     return list.reduce((max, x) => Math.max(max, x.id), 0) + 1;
   }
 }
+
+const REVIEWER_ID = 1;
 
 /** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
 function openToLateTeams(h: Pick<Hunt, 'surprise' | 'selfPaced' | 'status'>): boolean {
@@ -1447,6 +1645,8 @@ interface MockPhoto {
 
 interface MockEntry {
   id: number;
+  /** Prix fixé par l'auteur (§ 20), en centimes. */
+  price: number;
   authorId: number;
   huntId: number | null;
   parentId: number | null;

@@ -709,6 +709,22 @@ export const SKINS: SkinManifest[] = [
 export const DEFAULT_SKIN = 'aventure';
 export const SKIN_IDS = SKINS.map((s) => s.id) as [string, ...string[]];
 
+/** Skins de créateurs publiés (« u12 »), connus une fois chargés (docs/skins.md). */
+const CREATOR_SKINS = new Map<string, SkinManifest>();
+
+export function registerSkin(skin: SkinManifest): void {
+  CREATOR_SKINS.set(skin.id, skin);
+}
+
+export function knownSkin(id: string): boolean {
+  return SKINS.some((s) => s.id === id) || CREATOR_SKINS.has(id);
+}
+
+/** Identifiant de skin acceptable pour une chasse : intégré, ou de créateur (« u12 »). */
+export function skinIdShape(id: string): boolean {
+  return (SKIN_IDS as string[]).includes(id) || /^u\d{1,9}$/.test(id);
+}
+
 export function skinById(id: string | null | undefined): SkinManifest {
-  return SKINS.find((s) => s.id === id) ?? SKINS.find((s) => s.id === DEFAULT_SKIN)!;
+  return SKINS.find((s) => s.id === id) ?? (id ? CREATOR_SKINS.get(id) : undefined) ?? SKINS.find((s) => s.id === DEFAULT_SKIN)!;
 }

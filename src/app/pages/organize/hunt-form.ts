@@ -96,7 +96,7 @@ export class HuntFormPage {
   /** Obtenir un outil (offert pendant le lancement) puis l'activer. */
   protected obtainTool(id: string): void {
     this.toolBusy.set(id);
-    this.shop.acquire(`tool:${id}`).subscribe({
+    this.shop.obtain(`tool:${id}`).subscribe({
       next: () => {
         this.toolBusy.set(null);
         this.setTool(id, true);

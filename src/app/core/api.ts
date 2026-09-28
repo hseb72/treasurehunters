@@ -1,6 +1,11 @@
 import { Observable } from 'rxjs';
+import { Creation, CreationInput, CreatorPage } from '@shared/creations';
+import { Puzzle } from '@shared/puzzles';
+import { SkinManifest } from '@shared/skins';
 import {
   AuthResult,
+  CheckoutResult,
+  PayoutAccount,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -99,6 +104,28 @@ export abstract class HuntApi {
   abstract getStore(): Observable<StoreItem[]>;
   /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
   abstract acquire(productId: string): Observable<StoreItem[]>;
+
+  /* ---------- Paiement (§ 20) ---------- */
+  /** Ouvre le paiement d'un produit (« skin:medieval », « hunt:c12 ») ; url null s'il n'y avait rien à payer. */
+  abstract checkout(productId: string, returnPath: string): Observable<CheckoutResult>;
+  abstract payoutAccount(): Observable<PayoutAccount>;
+  /** Inscription du vendeur chez Stripe Connect : l'adresse où l'envoyer. */
+  abstract startPayouts(returnPath: string): Observable<{ url: string }>;
+
+  /* ---------- Créations de la communauté (§ 19) ---------- */
+  abstract myCreations(): Observable<Creation[]>;
+  abstract createCreation(data: CreationInput): Observable<Creation>;
+  abstract updateCreation(id: number, data: Partial<Omit<CreationInput, 'kind'>>): Observable<Creation>;
+  abstract deleteCreation(id: number): Observable<void>;
+  abstract submitCreation(id: number): Observable<Creation>;
+  abstract withdrawCreation(id: number): Observable<Creation>;
+  abstract reviewQueue(): Observable<Creation[]>;
+  abstract reviewCreation(id: number, approve: boolean, note: string | null): Observable<Creation>;
+  /** Énigmes d'un pack de créateur obtenu (avec les réponses). */
+  abstract packPuzzles(id: number): Observable<Puzzle[]>;
+  abstract getCreator(id: number): Observable<CreatorPage>;
+  /** Manifeste public d'un skin de créateur publié (« u12 »). */
+  abstract creatorSkin(id: string): Observable<SkinManifest>;
   /** Outil Boussole : direction et fourchette de distance du prochain lieu. */
   abstract compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading>;
 
@@ -115,6 +142,8 @@ export abstract class HuntApi {
   abstract reviewPhoto(photoId: number, approve: boolean): Observable<PhotoAttempt[]>;
   abstract photoImage(photoId: number): Observable<Blob>;
   abstract referenceImage(stepId: number): Observable<Blob>;
+  /** Photo du lieu montrée aux joueurs (§ 18). */
+  abstract illustrationImage(stepId: number): Observable<Blob>;
   /** Photo de référence d'une étape ; null la retire. */
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
 

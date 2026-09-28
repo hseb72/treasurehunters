@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { SKINS, skinById } from '@shared/skins';
 import { Notify } from '../core/notify';
 import { Shop } from '../core/shop';
+import { SkinCatalog } from '../core/skin-catalog';
 import { SkinDirective, SkinEffects } from './skin';
 
 /**
@@ -16,15 +17,18 @@ import { SkinDirective, SkinEffects } from './skin';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="skins" role="radiogroup" aria-label="Skin de la chasse">
-      @for (s of skins; track s.id) {
+      @for (s of skins(); track s.id) {
         @let owned = s.id === value() || shop.owns('skin:' + s.id);
         <button type="button" class="skin-card" role="radio" [attr.aria-checked]="value() === s.id" [class.on]="value() === s.id" (click)="choose(s.id)" [disabled]="busy()">
           <img [src]="s.cover" alt="" />
           <span class="name">{{ s.name }}</span>
+          @if (creatorOf(s.id); as author) {
+            <span class="by small muted">par {{ author }}</span>
+          }
           @if (owned) {
             <span class="price">Dans votre collection</span>
           } @else {
-            <span class="price locked"><mat-icon inline>lock_open</mat-icon> Obtenir — offert</span>
+            <span class="price locked"><mat-icon inline>lock_open</mat-icon> Obtenir — {{ shop.offer('skin:' + s.id) }}</span>
           }
         </button>
       }
@@ -57,6 +61,7 @@ import { SkinDirective, SkinEffects } from './skin';
     }
     .skin-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; margin-bottom: 4px; }
     .skin-card .name { padding: 0 10px; font-weight: 700; }
+    .skin-card .by { padding: 0 10px; }
     .skin-card .price { padding: 0 10px; font-size: 0.8rem; color: var(--th-success); font-weight: 600; }
     .skin-card .price.locked { color: var(--th-primary-light); }
     .skin-card.on { border-color: var(--th-primary-light); box-shadow: 0 0 0 3px color-mix(in srgb, var(--th-primary-light) 25%, transparent); }
@@ -71,11 +76,24 @@ import { SkinDirective, SkinEffects } from './skin';
 })
 export class SkinPicker {
   readonly value = model.required<string>();
-  protected readonly skins = SKINS;
+  private readonly catalog = inject(SkinCatalog);
+  /** Univers intégrés, puis ceux de créateurs que l'organisateur possède (ou que la chasse porte déjà). */
+  protected readonly skins = computed(() => {
+    this.catalog.version();
+    const creators = this.shop.items
+      .value()
+      .filter((i) => i.skin && (i.owned || i.ref === this.value()))
+      .map((i) => i.skin!);
+    return [...SKINS, ...creators];
+  });
   protected readonly fx = inject(SkinEffects);
   protected readonly shop = inject(Shop);
   private readonly notify = inject(Notify);
-  protected readonly selected = computed(() => skinById(this.value()));
+  protected readonly selected = computed(() => (this.catalog.version(), skinById(this.value())));
+
+  protected creatorOf(id: string): string | null {
+    return this.shop.item(`skin:${id}`)?.creator?.nickname ?? null;
+  }
   protected readonly busy = signal(false);
 
   /** Un univers pas encore obtenu l'est d'abord (offert pendant le lancement), puis choisi. */
@@ -85,7 +103,7 @@ export class SkinPicker {
       return;
     }
     this.busy.set(true);
-    this.shop.acquire(`skin:${id}`).subscribe({
+    this.shop.obtain(`skin:${id}`).subscribe({
       next: () => {
         this.busy.set(false);
         this.value.set(id);

@@ -63,6 +63,7 @@ export class OsmClaudeGenerator implements HuntGenerator {
       difficulty: req.difficulty,
       durationMinutes: req.durationMinutes,
       theme,
+      puzzles: req.puzzles ?? [],
     });
     // Parcs, musées, églises… : l'étape se valide depuis leurs entrées, pour rester jouable
     // quand ils sont fermés. Sans réponse d'Overpass, l'étape garde le point du lieu.
@@ -133,6 +134,6 @@ export class DemoGenerator implements HuntGenerator {
     const { lat = 43.6085, lng = 3.8795, query } = req.location;
     const location = query?.trim() || 'les environs';
     const note = req.theme?.trim() ? `Thème « ${req.theme.trim()} » : le générateur de démonstration ne cherche pas de vrais lieux, il ne l’a pas suivi.` : null;
-    return { plan: demoPlan({ lat, lng }, plannedStepCount(req), location), location, note };
+    return { plan: demoPlan({ lat, lng }, plannedStepCount(req), location, req.puzzles ?? []), location, note };
   }
 }

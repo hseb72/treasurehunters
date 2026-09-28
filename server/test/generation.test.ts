@@ -212,9 +212,29 @@ describe('limites de la génération', () => {
   });
 });
 
+describe('épreuves proposées par l’IA', () => {
+  it('pose des épreuves des packs du joueur sur les étapes inventées', async () => {
+    const zoe = await loginAs(ctx.app, 'zoe@example.com');
+    const ask = (puzzles: string[]) => zoe.post('/api/hunts/generate', { ...request('organize'), puzzles });
+    const refused = await ask(['question', 'anagram']);
+    expect(refused.status).toBe(403);
+    expect(refused.body.message).toMatch(/Jeux de lettres/);
+
+    await zoe.post('/api/store/pack:lettres/acquire');
+    const started = await ask(['question', 'anagram']);
+    expect(started.status).toBe(202);
+    await ctx.app.service.settle();
+    const job = (await zoe.get(`/api/generations/${started.body.id}`)).body;
+    const steps = (await zoe.get(`/api/hunts/${job.huntId}/steps`)).body as { order: number; puzzle: { type: string } | null }[];
+    const types = steps.map((s) => s.puzzle?.type ?? null);
+    expect(types).toEqual([null, 'question', null, 'anagram', null]); // une étape sur deux, jamais le départ ni le trésor
+  });
+});
+
 describe('réponse du modèle', () => {
   const poi = (id: string, lat: number) => ({ id, name: `Lieu ${id}`, kind: 'fountain', lat, lng: 3.88, details: {}, themed: false, gated: false });
-  const place = (poiId: string) => ({ poiId, title: `Étape ${poiId}`, riddle: `Énigme vers ${poiId}`, hints: ['a', 'b', 'c', 'd'], arrival: `Bravo ${poiId}` });
+  type Proposal = { type: 'question' | 'lock' | 'cipher' | 'anagram' | 'rebus'; prompt: string; answer: string; hint: string; shift: number } | null;
+  const place = (poiId: string, puzzle: Proposal = null) => ({ poiId, title: `Étape ${poiId}`, riddle: `Énigme vers ${poiId}`, hints: ['a', 'b', 'c', 'd'], arrival: `Bravo ${poiId}`, puzzle });
   const input = { placeName: 'Montpellier', center: { lat: 43.6, lng: 3.88 }, pois: [poi('n1', 43.601), poi('n2', 43.602), poi('n3', 43.603), poi('n4', 43.6005)], count: 3, difficulty: 'easy' as const, durationMinutes: 30, travel: 'walk' as const, theme: null };
 
   const start = { poiId: 'n4', meeting: 'Rendez-vous devant le lieu n4.' };
@@ -242,4 +262,19 @@ describe('réponse du modèle', () => {
     const places = [place('n1'), place('x9'), place('n1'), place('n2')];
     expect(() => toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', start, places }, input)).toThrow(/incomplète/);
   });
+
+  it('garde les épreuves permises et jouables, jamais sur le trésor', () => {
+    const anagram: Proposal = { type: 'anagram', prompt: ' Le mot du lieu. ', answer: 'fontaine', hint: 'De l’eau.', shift: 0 };
+    const cipher: Proposal = { type: 'cipher', prompt: 'Déchiffrez.', answer: 'sous le pont', hint: '', shift: 42 };
+    const badLock: Proposal = { type: 'lock', prompt: 'Le code.', answer: '12', hint: '', shift: 0 };
+    const places = [place('n1', anagram), place('n2', cipher), place('n3', anagram)];
+    const plan = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', start, places }, { ...input, puzzles: ['anagram', 'cipher', 'lock'] });
+    expect(plan.steps[1].puzzle).toEqual({ type: 'anagram', prompt: 'Le mot du lieu.', answer: 'fontaine', hint: 'De l’eau.' });
+    expect(plan.steps[2].puzzle).toMatchObject({ type: 'cipher', shift: 3, hint: null }); // décalage hors bornes ramené à 3
+    expect(plan.steps[3].puzzle).toBeNull(); // le trésor
+    // Type non permis, ou rédaction injouable : l'étape reste sans épreuve.
+    const refused = toHuntPlan({ name: 'N', description: 'D', startText: 'S', award: '', start, places: [place('n1', anagram), place('n2', badLock), place('n3')] }, { ...input, puzzles: ['lock'] });
+    expect(refused.steps.slice(1).map((s) => s.puzzle)).toEqual([null, null, null]);
+  });
 });
+

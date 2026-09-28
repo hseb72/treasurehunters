@@ -29,6 +29,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoShow,
   Difficulty,
   Travel,
   StoreItem,
@@ -37,7 +38,7 @@ import {
 } from '../../shared/models.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
-import { checkAnswer, publicPuzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
+import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import {
   checkinAllowance,
   computeRanking,
@@ -72,6 +73,9 @@ import {
   validationsOfHunt,
 } from './repo.js';
 import { HuntGenerator } from './generation/generator.js';
+import { creationProducts, Creations, publishedCreation } from './creations.js';
+import { creationProductId, creationRef, samePuzzle } from '../../shared/creations.js';
+import { catalogProductId, Payments } from './payments/payments.js';
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
@@ -82,7 +86,7 @@ export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
 export type HuntInput = Partial<
   Omit<Hunt, 'id' | 'ownerId' | 'ownerNickname' | 'status' | 'started' | 'closed' | 'joinCode' | 'stepCount' | 'teamCount' | 'generated' | 'surprise'>
 >;
-export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude' | 'puzzle'>>;
+export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude' | 'puzzle' | 'photoShow'>>;
 
 /** Champs modifiables pendant la course (les autres changeraient les règles en cours de jeu). */
 const RUNNING_EDITABLE = new Set<keyof HuntInput>(['name', 'description', 'location', 'award', 'startText', 'end', 'autoClose', 'isPublic']);
@@ -116,6 +120,10 @@ const GENERATION_STALE_MINUTES = 10;
 export class Service {
   /** Générations en cours dans ce processus (attendues par les tests). */
   private readonly inflight = new Set<Promise<void>>();
+  /** Créations de la communauté (§ 19). */
+  readonly creations: Creations;
+  /** Paiement (§ 20) : posé par l'application ; inactif sans Stripe. */
+  payments: Payments | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -123,11 +131,13 @@ export class Service {
     private readonly log: (err: unknown, msg: string) => void = () => {},
     /** Preuve par photo (§ 12) : stockage et arbitre IA ; null si le stockage n'est pas configuré. */
     private readonly photos: { store: PhotoStore; judge: PhotoJudge | null } | null = null,
-  ) {}
+  ) {
+    this.creations = new Creations(pool);
+  }
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
-    return { photos: !!this.photos, generation: !!this.generator };
+    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled };
   }
 
   /* ================================================================ Comptes */
@@ -391,6 +401,7 @@ export class Service {
       if (moved) cols.push(['cod_entrances', null]);
     }
     if (data.puzzle !== undefined) cols.push(['cod_puzzle', data.puzzle ? JSON.stringify(data.puzzle) : null]);
+    if (data.photoShow !== undefined) cols.push(['cod_photoshow', data.photoShow]);
     if (data.hints !== undefined) {
       const hints = data.hints.filter((h) => h.trim());
       [1, 2, 3].forEach((n) => cols.push([`cod_hint${n}`, hints[n - 1] ?? null]));
@@ -701,13 +712,13 @@ export class Service {
       result.hunt = hunt;
 
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
+      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
 
       if (outcome === 'validated') {
         // Étape à énigme : le scan prouve l'arrivée ; l'étape se valide en résolvant l'énigme (§ 17).
         if ((await this.arrive(db, team!.id, step!, viewer!, 'QR', null, now)) === 'puzzle') {
           result.outcome = 'puzzle';
-          result.step = { ...stepInfo, arrival: null };
+          result.step = { ...stepInfo, arrival: null, illustration: null };
           return result;
         }
         result.team = await teamById(db, team!.id);
@@ -722,6 +733,7 @@ export class Service {
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
               canSkip: step!.order + 1 < final,
+              illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -760,7 +772,15 @@ export class Service {
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photoReviews.get(s.id) ?? null };
+        return {
+          order: s.order,
+          title: s.title,
+          arrival: s.arrival,
+          at: v.at,
+          skipped: v.source === 'SKIP',
+          photo: photoReviews.get(s.id) ?? null,
+          illustration: this.illustration(s, 'arrival'),
+        };
       })
       .sort((a, b) => a.order - b.order);
 
@@ -777,6 +797,7 @@ export class Service {
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]).filter((h) => h !== undefined),
         hintsTotal: current.hints.length,
         canSkip: current.order + 1 < finalOrder(steps),
+        illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
 
@@ -841,14 +862,22 @@ export class Service {
 
   async store(viewer: Viewer): Promise<StoreItem[]> {
     const owned = await this.ownedProducts(this.pool, viewer);
-    return PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) }));
+    return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...(await creationProducts(this.pool, owned, viewer))];
   }
 
   /** Obtenir une extension : offerte tant que le paiement n'est pas branché. */
   async acquire(viewer: Viewer, productId: string): Promise<StoreItem[]> {
     const me = requireUser(viewer);
-    const product = productById(productId);
+    const ref = creationRef(productId);
+    const creation = ref !== null ? await publishedCreation(this.pool, ref) : null;
+    // Création de la communauté : publiée, et du genre annoncé (« skin:u12 » pour un skin).
+    const product = creation && productId === creationProductId(creation.kind, creation.id) ? { id: productId, included: false } : productById(productId);
     if (!product) throw notFound('Extension inconnue.');
+    // Paiement activé : un produit payant s'achète (checkout) ; gratuit, il s'obtient ici.
+    if (this.payments?.enabled && !product.included) {
+      const item = await this.payments.sellable(productId);
+      if (item && item.price > 0 && item.sellerId !== me) throw new HttpError(402, 'Ce produit est payant : passez par le paiement.');
+    }
     if (!product.included) {
       await this.pool.query('INSERT INTO th_purchases (pur_hunter_htr, pur_product, pur_price) VALUES ($1, $2, 0) ON CONFLICT DO NOTHING', [me, product.id]);
     }
@@ -866,8 +895,18 @@ export class Service {
     ];
     if (!wanted.length) return;
     const owned = await this.ownedProducts(db, me);
-    const missing = wanted.map((id) => productById(id)).find((p) => p && !owns(owned, p.id));
-    if (missing) throw forbidden(`« ${missing.name} » s’obtient d’abord dans la boutique.`);
+    for (const id of wanted) {
+      const ref = creationRef(id);
+      if (ref !== null) {
+        // Skin de créateur : publié, et obtenu (son auteur l'a d'office).
+        const c = await publishedCreation(db, ref);
+        if (!c || creationProductId(c.kind, c.id) !== id) throw badRequest('Ce skin n’existe pas ou n’est plus publié.');
+        if (c.authorId !== me && !owned.has(id)) throw forbidden(`« ${c.name} » s’obtient d’abord dans la boutique.`);
+        continue;
+      }
+      const p = productById(id);
+      if (p && !owns(owned, p.id)) throw forbidden(`« ${p.name} » s’obtient d’abord dans la boutique.`);
+    }
   }
 
   /** Outil Boussole : direction et fourchette de distance du prochain lieu, jamais sa position. */
@@ -1090,6 +1129,36 @@ export class Service {
     return image;
   }
 
+  /**
+   * Photo du lieu montrée aux joueurs (§ 18) : l'étape dont on peut demander l'image, ou null.
+   * « clue » : dès l'énigme qui y mène ; « arrival » : une fois le lieu trouvé (une photo
+   * montrée avec l'énigme l'est aussi à l'arrivée).
+   */
+  private illustration(step: Step | undefined, moment: PhotoShow): number | null {
+    if (!this.photos || !step?.referencePhoto || !step.photoShow) return null;
+    return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
+  }
+
+  /** Image de la photo du lieu, pour l'organisateur ou une équipe à qui elle est montrée. */
+  async illustrationImage(viewer: Viewer, stepId: number): Promise<StoredPhoto> {
+    const photos = this.requirePhotos();
+    const me = requireUser(viewer);
+    const step = await stepById(this.pool, stepId);
+    if (!step) throw notFound('Étape introuvable.');
+    const hunt = await huntById(this.pool, step.huntId);
+    let allowed = hunt?.ownerId === me;
+    if (!allowed && step.photoShow && (await teamOf(this.pool, step.huntId, me))) {
+      const state = await this.playState(this.pool, me, step.huntId);
+      allowed =
+        state.validated.some((v) => v.order === step.order && v.illustration === step.id) ||
+        state.clue?.illustration === step.id;
+    }
+    const key = allowed && step.referencePhoto ? (await one(this.pool, 'SELECT cod_refphoto FROM th_codes WHERE cod_id = $1', [stepId]))!['cod_refphoto'] : null;
+    const image = key ? await photos.store.get(key) : null;
+    if (!image) throw notFound('Pas de photo à montrer pour cette étape.');
+    return image;
+  }
+
   async setReferencePhoto(viewer: Viewer, stepId: number, image: string | null): Promise<Step> {
     const photos = this.requirePhotos();
     const { step, key: old } = await this.ownedStepPhoto(viewer, stepId);
@@ -1214,7 +1283,16 @@ export class Service {
     if (problem) throw badRequest(problem);
     if (step.puzzle?.type === data.puzzle.type) return;
     const pack = productById(puzzleType(data.puzzle.type).pack)!;
-    if (!owns(await this.ownedProducts(db, me), pack.id)) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+    const owned = await this.ownedProducts(db, me);
+    // Une énigme tirée d'un pack de créateur obtenu (§ 19) se pose sans le pack de son type.
+    if (!owns(owned, pack.id) && !(await this.fromCreatorPack(db, owned, data.puzzle))) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+  }
+
+  private async fromCreatorPack(db: Db, owned: ReadonlySet<string>, puzzle: Puzzle): Promise<boolean> {
+    const ids = [...owned].map((id) => (id.startsWith('pack:') ? creationRef(id) : null)).filter((id): id is number => id !== null);
+    if (!ids.length) return false;
+    const packs = await rows(db, `SELECT cre_content FROM th_creations WHERE cre_id = ANY($1) AND cre_kind = 'pack' AND cre_status = 'published'`, [ids]);
+    return packs.some((r) => (r['cre_content'].puzzles as Puzzle[]).some((p) => samePuzzle(p, puzzle)));
   }
 
   /** Affiche l'indice de l'énigme d'arrivée (gratuit). */
@@ -1298,8 +1376,8 @@ export class Service {
       if (previous && !previous['cat_withdrawn'] && previous['cat_fingerprint'] === fingerprint) {
         await db.query(
           `UPDATE th_catalog SET cat_summary = $2, cat_travel = $3, cat_difficulty = $4, cat_duration = $5, cat_sample_order = $6, cat_sample = $7,
-                                 cat_lastupdate = now() WHERE cat_id = $1`,
-          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions],
+                                 cat_price = $8, cat_lastupdate = now() WHERE cat_id = $1`,
+          [previous['cat_id'], pub.summary.trim() || hunt.description, ...settings, sample.order, sample.instructions, pub.price ?? 0],
         );
         await db.query('UPDATE th_hunts SET hun_travel = $2, hun_difficulty = $3, hun_duration = $4, hun_lastupdate = now() WHERE hun_id = $1', [huntId, ...settings]);
         return previous['cat_id'] as number;
@@ -1317,8 +1395,8 @@ export class Service {
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
                                  cat_duration, cat_stepcount, cat_validation, cat_sample_order, cat_sample, cat_changes, cat_content, cat_fingerprint,
-                                 cat_travel)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING cat_id`,
+                                 cat_travel, cat_price)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING cat_id`,
         [
           me,
           huntId,
@@ -1336,6 +1414,7 @@ export class Service {
           JSON.stringify(content),
           fingerprint,
           pub.travel,
+          pub.price ?? 0,
         ],
       );
       // La chasse garde ces réglages : la prochaine publication les reprend.
@@ -1404,8 +1483,10 @@ export class Service {
        WHERE c.cat_parent_cat = $1 AND (c.cat_withdrawn IS NULL OR c.cat_author_htr = $2) ORDER BY c.cat_id`,
       [id, viewer],
     );
+    const owned = viewer !== null && !!(await one(this.pool, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [viewer, catalogProductId(id)]));
     return {
       ...entry,
+      owned,
       sample: { order: r['cat_sample_order'], text: r['cat_sample'] },
       reviews: reviews.map((x) => ({ nickname: x['htr_nickname'], stars: x['rat_stars'], comment: x['rat_comment'], at: (x['rat_creation'] as Date).toISOString() })),
       versions: versions.map((x) => ({
@@ -1423,8 +1504,13 @@ export class Service {
   async copyFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
-      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration FROM th_catalog WHERE cat_id = $1', [id]);
+      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr FROM th_catalog WHERE cat_id = $1', [id]);
       if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
+      // Chasse payante (§ 20) : achetée une fois, copiée autant qu'on veut ; gratuite sans paiement activé.
+      if (this.payments?.enabled && r['cat_price'] > 0 && r['cat_author_htr'] !== me) {
+        const bought = await one(db, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [me, catalogProductId(id)]);
+        if (!bought) throw new HttpError(402, 'Cette chasse est payante : achetez-la pour la copier.');
+      }
       const content = r['cat_content'] as CatalogContent;
       const begin = new Date(Date.now() + 7 * 86_400_000);
       const data: Partial<Hunt> = {
@@ -1545,6 +1631,12 @@ export class Service {
       // Sérialise les demandes d'un même joueur pour que le quota tienne.
       await db.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 FOR UPDATE', [me]);
       if (req.skin) await this.checkExtensions(db, me, { skin: req.skin }, null);
+      // Épreuves proposées par l'IA : seulement les types des packs du joueur.
+      if (req.puzzles?.length) {
+        const owned = await this.ownedProducts(db, me);
+        const missing = req.puzzles.map((t) => puzzleType(t)).find((t) => !owns(owned, t.pack));
+        if (missing) throw forbidden(`« ${missing.name} » vient du pack « ${productById(missing.pack)!.name} » : obtenez-le d’abord dans la boutique.`);
+      }
       // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
       // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
       const recent = await one(
@@ -1654,8 +1746,8 @@ export class Service {
     for (const [order, s] of plan.steps.entries()) {
       await db.query(
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                               cod_latitude, cod_longitude, cod_address, cod_entrances)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [
           huntId,
           order,
@@ -1670,6 +1762,7 @@ export class Service {
           s.longitude,
           s.address,
           s.entrances?.length ? JSON.stringify(s.entrances) : null,
+          order > 0 && s.puzzle ? JSON.stringify(s.puzzle) : null,
         ],
       );
     }
@@ -1915,7 +2008,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
+            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -1952,6 +2045,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     changes: r['cat_changes'],
     published: (r['cat_creation'] as Date).toISOString(),
     withdrawn: !!r['cat_withdrawn'],
+    price: r['cat_price'] ?? 0,
   }));
 }
 

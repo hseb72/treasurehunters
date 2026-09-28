@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { filter, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
-import { Step } from '@shared/models';
+import { PhotoShow, Step } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -19,7 +19,7 @@ import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 
 import { MatSelectModule } from '@angular/material/select';
-import { PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
+import { Puzzle, PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
 import { Shop } from '../../core/shop';
 
 @Component({
@@ -44,7 +44,8 @@ export class StepsEditorPage {
 
   /** Preuve par photo activée sur le serveur (et chasse à QR codes) : photos de référence. */
   private readonly features = rxResource({ stream: () => this.api.getFeatures() });
-  protected readonly photos = computed(() => !!this.features.value()?.photos && !this.geo());
+  /** Photo du lieu (§ 18) : illustration pour les joueurs, et référence de l'arbitre photo des chasses à QR. */
+  protected readonly photos = computed(() => !!this.features.value()?.photos);
   /** Envoi d'une photo de référence en cours, et compteur pour recharger l'aperçu. */
   protected readonly refBusy = signal(false);
   protected readonly refVersion = signal(0);
@@ -77,17 +78,37 @@ export class StepsEditorPage {
     puzzleAnswer: [''],
     puzzleHint: [''],
     puzzleShift: [3],
+    photoShow: ['' as PhotoShow | ''],
   });
 
   /* ---------- Énigme d'arrivée (§ 17) ---------- */
 
   protected readonly puzzleTypes = PUZZLE_TYPES;
-  private readonly shop = inject(Shop);
+  protected readonly shop = inject(Shop);
   protected readonly packBusy = signal(false);
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly puzzleKind = computed(() => this.formValue().puzzleType || null);
   /** Packs d'énigmes pas encore obtenus. */
-  protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned));
+  protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned && !i.creator));
+  /** Packs de créateurs obtenus (§ 19) : des énigmes prêtes à poser. */
+  protected readonly creatorPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && i.owned && i.creator));
+  protected readonly drawPack = signal<string | null>(null);
+  protected readonly drawPuzzles = signal<Puzzle[]>([]);
+
+  protected openPack(ref: string): void {
+    this.drawPack.set(ref);
+    this.drawPuzzles.set([]);
+    this.api.packPuzzles(Number(ref.slice(1))).subscribe({
+      next: (list) => this.drawPuzzles.set(list),
+      error: (e) => this.notify.error(e),
+    });
+  }
+
+  /** Recopie une énigme du pack dans le formulaire : l'organisateur peut encore l'ajuster. */
+  protected usePuzzle(p: Puzzle): void {
+    this.form.patchValue({ puzzleType: p.type, puzzlePrompt: p.prompt, puzzleAnswer: p.answer, puzzleHint: p.hint ?? '', puzzleShift: p.shift ?? 3 });
+    this.form.markAsDirty();
+  }
 
   protected typeInfo(t: PuzzleType) {
     return puzzleType(t);
@@ -114,7 +135,7 @@ export class StepsEditorPage {
 
   protected obtainPack(id: string): void {
     this.packBusy.set(true);
-    this.shop.acquire(id).subscribe({
+    this.shop.obtain(id).subscribe({
       next: () => this.packBusy.set(false),
       error: (e) => {
         this.packBusy.set(false);
@@ -142,6 +163,7 @@ export class StepsEditorPage {
       puzzleAnswer: step.puzzle?.answer ?? '',
       puzzleHint: step.puzzle?.hint ?? '',
       puzzleShift: step.puzzle?.shift ?? 3,
+      photoShow: step.photoShow ?? '',
     });
     this.point.set(step.latitude !== null && step.longitude !== null ? { lat: step.latitude, lng: step.longitude } : null);
   }
@@ -184,6 +206,7 @@ export class StepsEditorPage {
               ...(v.puzzleType === 'cipher' ? { shift: Number(v.puzzleShift) } : {}),
             }
           : null,
+        photoShow: v.photoShow || null,
       })
       .subscribe({
         next: () => {
@@ -194,7 +217,10 @@ export class StepsEditorPage {
       });
   }
 
-  /** Photo du lieu où le QR est posé : référence de l'IA quand une équipe envoie une photo à la place du QR. */
+  /**
+   * Photo du lieu : référence de l'IA quand une équipe envoie une photo à la place du QR, et
+   * illustration montrée aux joueurs si l'organisateur le choisit.
+   */
   protected async setReference(step: Step, event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -202,7 +228,7 @@ export class StepsEditorPage {
     if (!file) return;
     this.refBusy.set(true);
     try {
-      this.updateReference(step, await compressPhoto(file), 'Photo de référence enregistrée.');
+      this.updateReference(step, await compressPhoto(file), 'Photo du lieu enregistrée.');
     } catch (e) {
       this.notify.error(e);
       this.refBusy.set(false);
@@ -211,7 +237,7 @@ export class StepsEditorPage {
 
   protected removeReference(step: Step): void {
     this.refBusy.set(true);
-    this.updateReference(step, null, 'Photo de référence retirée.');
+    this.updateReference(step, null, 'Photo du lieu retirée.');
   }
 
   private updateReference(step: Step, image: string | null, done: string): void {
