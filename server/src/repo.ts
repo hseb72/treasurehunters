@@ -143,6 +143,7 @@ export function toStep(r: Row): Step {
     longitude: r['cod_longitude'],
     address: r['cod_address'],
     entrances: r['cod_entrances'] ?? [],
+    puzzle: r['cod_puzzle'] ?? null,
     referencePhoto: !!r['cod_refphoto'],
   };
 }

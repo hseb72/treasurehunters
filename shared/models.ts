@@ -2,6 +2,7 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
+import type { Puzzle, PublicPuzzle } from './puzzles.js';
 
 export type HuntStatus = 'draft' | 'published' | 'running' | 'closed' | 'cancelled' | 'archived';
 
@@ -102,6 +103,8 @@ export interface Step {
    * un lieu fermé reste validable depuis ses abords. Effacés si l'organisateur déplace l'étape.
    */
   entrances: { lat: number; lng: number }[];
+  /** Énigme d'arrivée (§ 17), à résoudre sur place pour valider l'étape ; avec la réponse (organisateur). */
+  puzzle: Puzzle | null;
   /** L'organisateur a déposé une photo du lieu, référence pour la preuve par photo. */
   referencePhoto: boolean;
 }
@@ -202,6 +205,8 @@ export interface PlayState {
   photoProof: boolean;
   /** Point de départ (étape 0), s'il est placé sur la carte. */
   start: { name: string | null; lat: number; lng: number } | null;
+  /** Énigme d'arrivée en cours : l'équipe est sur le lieu et doit la résoudre (§ 17). */
+  puzzle: PlayPuzzle | null;
   /** Outil Carte : les lieux déjà trouvés par l'équipe, placés (null sans l'outil). */
   trail: { order: number; title: string; lat: number; lng: number }[] | null;
 }
@@ -211,7 +216,7 @@ export interface PlayState {
 /** Une extension de la boutique, et si le joueur la possède. */
 export interface StoreItem {
   id: string;
-  kind: 'skin' | 'tool';
+  kind: 'skin' | 'tool' | 'pack';
   ref: string;
   name: string;
   description: string;
@@ -221,6 +226,25 @@ export interface StoreItem {
   cover: string | null;
   icon: string | null;
   owned: boolean;
+}
+
+/** Énigme d'arrivée en cours, vue par l'équipe (sans la réponse). */
+export interface PlayPuzzle {
+  stepId: number;
+  order: number;
+  title: string;
+  puzzle: PublicPuzzle;
+  /** L'énigme a un indice (affiché une fois demandé). */
+  hasHint: boolean;
+  attempts: number;
+  hintShown: boolean;
+}
+
+/** Réponse proposée à une énigme d'arrivée. */
+export interface PuzzleResult {
+  correct: boolean;
+  step: { order: number; title: string; arrival: string | null; isFinal: boolean } | null;
+  state: PlayState;
 }
 
 /** Indication de la boussole vers le prochain lieu. */
@@ -272,7 +296,8 @@ export interface Features {
 
 /** Résultat d'un « Je suis arrivé » (validation par géolocalisation). */
 export interface CheckinResult {
-  outcome: 'validated' | 'too_far';
+  /** 'puzzle' : l'équipe est sur place, l'énigme d'arrivée l'attend (§ 17). */
+  outcome: 'validated' | 'too_far' | 'puzzle';
   /** Distance au lieu cherché, en mètres (arrondie). */
   distance: number;
   /** Distance maximale acceptée pour ce check-in, en mètres. */
@@ -337,7 +362,9 @@ export type ScanOutcome =
   | 'team_finished'
   | 'already_validated'
   | 'skipped'
-  | 'validated';
+  | 'validated'
+  /** Arrivée sur une étape à énigme : l'étape se valide en la résolvant (§ 17). */
+  | 'puzzle';
 
 export interface ScanResult {
   outcome: ScanOutcome;

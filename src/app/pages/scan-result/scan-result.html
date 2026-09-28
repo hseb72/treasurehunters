@@ -34,6 +34,16 @@
           <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>menu_book</mat-icon>Ouvrir mon carnet de route</a>
         }
 
+        @case ('puzzle') {
+          <section class="surface center hero-card">
+            <mat-icon class="hero-icon">extension</mat-icon>
+            <span class="stamp stamp--accent drop">Vous y êtes !</span>
+            <h1>{{ r.step?.title }}</h1>
+            <p>Une dernière épreuve vous attend pour valider cette étape.</p>
+          </section>
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>extension</mat-icon>Résoudre l'épreuve</a>
+        }
+
         @case ('already_validated') {
           <section class="surface center">
             <mat-icon class="hero-icon">replay</mat-icon>

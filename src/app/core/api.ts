@@ -25,6 +25,7 @@ import {
   Travel,
   StoreItem,
   CompassReading,
+  PuzzleResult,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -100,6 +101,10 @@ export abstract class HuntApi {
   abstract acquire(productId: string): Observable<StoreItem[]>;
   /** Outil Boussole : direction et fourchette de distance du prochain lieu. */
   abstract compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading>;
+
+  /* Énigmes d'arrivée (§ 17) */
+  abstract solvePuzzle(huntId: number, answer: string): Observable<PuzzleResult>;
+  abstract puzzleHint(huntId: number): Observable<PlayState>;
 
   /* Preuve par photo (§ 12) : images en « data URL » JPEG, déjà réduites par le téléphone. */
   /** QR introuvable : photo du lieu, jugée par l'IA. */

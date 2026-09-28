@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,9 +18,13 @@ import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 
+import { MatSelectModule } from '@angular/material/select';
+import { PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
+import { Shop } from '../../core/shop';
+
 @Component({
   selector: 'th-steps-editor',
-  imports: [AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -68,7 +72,56 @@ export class StepsEditorPage {
     arrival: [''],
     instructions: [''],
     hints: this.fb.array(['', '', '']),
+    puzzleType: ['' as PuzzleType | ''],
+    puzzlePrompt: [''],
+    puzzleAnswer: [''],
+    puzzleHint: [''],
+    puzzleShift: [3],
   });
+
+  /* ---------- Énigme d'arrivée (§ 17) ---------- */
+
+  protected readonly puzzleTypes = PUZZLE_TYPES;
+  private readonly shop = inject(Shop);
+  protected readonly packBusy = signal(false);
+  private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
+  protected readonly puzzleKind = computed(() => this.formValue().puzzleType || null);
+  /** Packs d'énigmes pas encore obtenus. */
+  protected readonly lockedPacks = computed(() => this.shop.items.value().filter((i) => i.kind === 'pack' && !i.owned));
+
+  protected typeInfo(t: PuzzleType) {
+    return puzzleType(t);
+  }
+
+  protected packName(id: string): string {
+    return this.shop.item(id)?.name ?? '';
+  }
+
+  /** Type d'énigme disponible : pack obtenu, ou déjà posé sur l'étape. */
+  protected canUsePuzzle(t: PuzzleType, step: Step): boolean {
+    return step.puzzle?.type === t || this.shop.owns(puzzleType(t).pack);
+  }
+
+  protected promptPlaceholder(t: PuzzleType): string {
+    return {
+      question: 'Quelle année est gravée au-dessus de la porte ?',
+      lock: 'Le code : le nombre de marches du perron, puis le nombre de colonnes.',
+      cipher: 'Déchiffrez le message du gardien.',
+      anagram: 'Remettez ces lettres dans l’ordre : ce que les marins guettaient la nuit.',
+      rebus: '🐟 + 🌙 = ?',
+    }[t];
+  }
+
+  protected obtainPack(id: string): void {
+    this.packBusy.set(true);
+    this.shop.acquire(id).subscribe({
+      next: () => this.packBusy.set(false),
+      error: (e) => {
+        this.packBusy.set(false);
+        this.notify.error(e);
+      },
+    });
+  }
 
   protected get hints(): FormArray {
     return this.form.controls.hints;
@@ -84,6 +137,11 @@ export class StepsEditorPage {
       arrival: step.arrival ?? '',
       instructions: step.instructions ?? '',
       hints: [0, 1, 2].map((i) => step.hints[i] ?? ''),
+      puzzleType: step.puzzle?.type ?? '',
+      puzzlePrompt: step.puzzle?.prompt ?? '',
+      puzzleAnswer: step.puzzle?.answer ?? '',
+      puzzleHint: step.puzzle?.hint ?? '',
+      puzzleShift: step.puzzle?.shift ?? 3,
     });
     this.point.set(step.latitude !== null && step.longitude !== null ? { lat: step.latitude, lng: step.longitude } : null);
   }
@@ -117,6 +175,15 @@ export class StepsEditorPage {
         arrival: v.arrival || null,
         instructions: v.instructions || null,
         hints: v.hints.filter((h) => h.trim()),
+        puzzle: v.puzzleType
+          ? {
+              type: v.puzzleType,
+              prompt: v.puzzlePrompt.trim(),
+              answer: v.puzzleAnswer.trim(),
+              hint: v.puzzleHint.trim() || null,
+              ...(v.puzzleType === 'cipher' ? { shift: Number(v.puzzleShift) } : {}),
+            }
+          : null,
       })
       .subscribe({
         next: () => {

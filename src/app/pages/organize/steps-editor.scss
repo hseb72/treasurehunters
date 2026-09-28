@@ -186,3 +186,27 @@
   flex-direction: column;
   gap: 6px;
 }
+
+.puzzle-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px dashed var(--th-border);
+  border-radius: 12px;
+
+  p {
+    margin: 0;
+  }
+
+  mat-icon {
+    color: var(--th-primary-light);
+  }
+}
+
+.packs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

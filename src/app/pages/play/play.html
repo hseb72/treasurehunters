@@ -128,7 +128,11 @@
             @if (photoPreview(); as src) {
               <img class="photo-thumb" [src]="src" alt="Votre photo" />
             }
-            @if (r.photo.review) {
+            @if (!r.photo.review && r.state.puzzle?.order === r.photo.stepOrder) {
+              <span class="stamp stamp--success">Lieu retenu</span>
+              <p>Une épreuve vous attend pour valider l'étape.</p>
+              <button mat-button type="button" (click)="closePhoto()">Voir l'épreuve</button>
+            } @else if (r.photo.review) {
               <span class="stamp stamp--success" [class]="fxClass()">Étape {{ r.photo.stepOrder }} validée</span>
               @if (photoStep(); as st) {
                 <h2>{{ st.title }}</h2>
@@ -177,7 +181,16 @@
             </section>
           }
         }
-        @if (s.clue; as clue) {
+        @if (s.puzzle; as pz) {
+          <th-puzzle-card [puzzle]="pz" [busy]="busy()" (answer)="solvePuzzle($event)" (hint)="puzzleHint()" />
+          @if (s.clue?.canSkip) {
+            <div class="give-up">
+              <button mat-button type="button" class="give-up-btn" (click)="skip(pz.order)" [disabled]="busy()">
+                <mat-icon>skip_next</mat-icon>Abandonner cette épreuve <span class="small">(+{{ s.hunt.skipPenalty }} min)</span>
+              </button>
+            </div>
+          }
+        } @else if (s.clue; as clue) {
           <section class="surface taped clue">
             <div class="clue-head">
               <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
@@ -375,7 +388,9 @@
       </section>
     }
 
-    @if (s.hunt.validation === 'geo') {
+    @if (s.puzzle) {
+      <!-- Énigme en cours : on est sur place, plus rien à scanner. -->
+    } @else if (s.hunt.validation === 'geo') {
       <button mat-fab extended class="scan-fab no-print" type="button" (click)="arrived()" [disabled]="locating()">
         <mat-icon>{{ locating() ? 'satellite_alt' : 'where_to_vote' }}</mat-icon>{{ locating() ? 'Localisation…' : 'Je suis arrivé' }}
       </button>

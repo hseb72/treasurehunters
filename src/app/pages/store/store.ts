@@ -46,7 +46,9 @@ export class StorePage {
         this.notify.info(
           item.kind === 'skin'
             ? `« ${item.name} » rejoint votre collection : choisissez-le dans l’onglet Infos d’une chasse.`
-            : `« ${item.name} » rejoint votre collection : activez-le dans l’onglet Infos d’une chasse.`,
+            : item.kind === 'pack'
+              ? `« ${item.name} » rejoint votre collection : posez ses épreuves dans l’éditeur d’étapes.`
+              : `« ${item.name} » rejoint votre collection : activez-le dans l’onglet Infos d’une chasse.`,
           6000,
         );
       },

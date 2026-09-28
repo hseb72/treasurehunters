@@ -27,6 +27,9 @@
         @if (photos() && step.referencePhoto) {
           <span class="small muted"><mat-icon inline>photo_camera</mat-icon> Photo de référence</span>
         }
+        @if (step.puzzle) {
+          <span class="small muted"><mat-icon inline>extension</mat-icon> Épreuve : {{ typeInfo(step.puzzle.type).name }}</span>
+        }
         @if (geo() && step.entrances.length) {
           <span class="small muted"><mat-icon inline>door_front</mat-icon> Validable aussi depuis {{ step.entrances.length }} autre{{ step.entrances.length > 1 ? 's' : '' }} entrée{{ step.entrances.length > 1 ? 's' : '' }}</span>
         }
@@ -81,6 +84,57 @@
           </div>
         }
         @if (kind !== 'start') {
+          <div class="puzzle-edit">
+            <div class="row">
+              <mat-icon>extension</mat-icon>
+              <strong>Épreuve à l'arrivée</strong>
+              <span class="small muted">(facultative)</span>
+            </div>
+            <p class="small muted">Une fois sur place, l'équipe valide l'étape en la résolvant.</p>
+            <mat-form-field class="field-full" subscriptSizing="dynamic">
+              <mat-label>Type d'épreuve</mat-label>
+              <mat-select formControlName="puzzleType">
+                <mat-option value="">Aucune : le lieu suffit</mat-option>
+                @for (t of puzzleTypes; track t.type) {
+                  <mat-option [value]="t.type" [disabled]="!canUsePuzzle(t.type, step)">
+                    {{ t.name }}{{ canUsePuzzle(t.type, step) ? '' : ' — pack « ' + packName(t.pack) + ' »' }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (lockedPacks().length) {
+              <p class="small muted packs">
+                @for (pk of lockedPacks(); track pk.id) {
+                  <button mat-stroked-button type="button" (click)="obtainPack(pk.id)" [disabled]="packBusy()"><mat-icon>lock_open</mat-icon>{{ pk.name }} — offert</button>
+                }
+              </p>
+            }
+            @if (puzzleKind(); as t) {
+              <p class="small muted">{{ typeInfo(t).description }}</p>
+              <mat-form-field class="field-full">
+                <mat-label>{{ t === 'rebus' ? 'Rébus (images, émojis, syllabes)' : 'Consigne' }}</mat-label>
+                <textarea matInput formControlName="puzzlePrompt" rows="2" [placeholder]="promptPlaceholder(t)"></textarea>
+              </mat-form-field>
+              <div class="two">
+                <mat-form-field>
+                  <mat-label>{{ t === 'lock' ? 'Code (3 à 6 chiffres)' : t === 'cipher' ? 'Message en clair' : t === 'anagram' ? 'Mot à retrouver' : 'Réponse attendue' }}</mat-label>
+                  <input matInput formControlName="puzzleAnswer" [attr.inputmode]="t === 'lock' ? 'numeric' : null" />
+                  <mat-hint>Plusieurs réponses acceptées : séparez-les par « | ».</mat-hint>
+                </mat-form-field>
+                @if (t === 'cipher') {
+                  <mat-form-field>
+                    <mat-label>Décalage (1 à 25)</mat-label>
+                    <input matInput type="number" min="1" max="25" formControlName="puzzleShift" />
+                  </mat-form-field>
+                }
+              </div>
+              <mat-form-field class="field-full">
+                <mat-label>Indice (facultatif)</mat-label>
+                <mat-icon matPrefix>tips_and_updates</mat-icon>
+                <input matInput formControlName="puzzleHint" />
+              </mat-form-field>
+            }
+          </div>
           <mat-form-field class="field-full">
             <mat-label>Message à l'arrivée sur le lieu</mat-label>
             <textarea matInput formControlName="arrival" rows="2"></textarea>

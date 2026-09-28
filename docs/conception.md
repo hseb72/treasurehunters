@@ -302,7 +302,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | E17 | **Fiche d'une version** : présentation, extrait, avis, versions, « Créer ma chasse à partir de celle-ci » | `/catalog/:id` | tous |
 | E18 | Onglet **Catalogue** de l'espace organisateur : origine, publications, publier une version | `/organize/:id/catalog` | organisateur |
 | E19 | **Fiche d'organisateur** : sa note (s'il l'accepte), ses chasses au catalogue | `/organizers/:id` | tous |
-| E20 | **Boutique** : univers, outils de jeu, packs (à venir) ; prix affichés, « Obtenir » | `/store` | tous (obtenir : connecté) |
+| E20 | **Boutique** : univers, outils de jeu, packs d'énigmes ; prix affichés, « Obtenir » | `/store` | tous (obtenir : connecté) |
 
 ---
 
@@ -608,5 +608,33 @@ Un organisateur donne à ses chasses un **univers** (skin, § 15) et des **outil
 
 **API** : `GET /store` (produits et possession du joueur connecté), `POST /store/:product/acquire`, `POST /hunts/:id/compass`.
 
-À venir : les **packs d'énigmes** interactives (rébus, cadenas à code, messages chiffrés) à glisser entre les étapes, puis le **paiement** (Stripe Connect, § 13.4) et les **créateurs**. D'après les maquettes, aussi : une photo du lieu en tête d'étape et une validation par réponse saisie (« Quel symbole est gravé sur la pierre ? »).
+Les **packs d'énigmes** sont décrits au § 17. À venir : le **paiement** (Stripe Connect, § 13.4) et les **créateurs** ; d'après les maquettes, aussi une photo du lieu en tête d'étape.
+
+---
+
+## 17. Énigmes d'arrivée
+
+Une étape du parcours (pas le départ) peut porter une **épreuve à résoudre sur place** : arriver sur le lieu ne suffit plus, l'équipe valide l'étape en trouvant la réponse. C'est le « Votre réponse… / Valider » des maquettes.
+
+**Déroulement**
+
+1. L'équipe arrive sur le lieu comme d'habitude : QR scanné, « Je suis arrivé » (géolocalisation) ou photo reconnue (ou confirmée). Sans énigme, l'étape est validée ; avec une énigme, l'**arrivée** est notée (`th_arrivals`, avec sa source : QR, GEO, PHOTO) et le carnet de route montre l'épreuve à la place de l'énigme de lieu (le scan renvoie l'issue `puzzle`, le check-in aussi).
+2. `POST /hunts/:id/puzzle { answer }` : juste, l'étape est **validée avec la source de l'arrivée** et l'heure de la réponse (classement inchangé : le temps passé à chercher compte) ; fausse, le nombre d'essais augmente, sans pénalité, et la carte tremble.
+3. `POST /hunts/:id/puzzle/hint` affiche l'indice de l'épreuve, s'il y en a un (gratuit).
+4. Une équipe bloquée **abandonne l'épreuve** comme une énigme de lieu (pénalité d'abandon) ; l'arrivée en attente est effacée. L'arrivée (le trésor) ne s'abandonne pas. L'organisateur peut aussi valider l'étape à la main (onglet Direct).
+5. Les joueurs ne reçoivent jamais la réponse : la vue joueur (`PlayPuzzle`) ne porte que la consigne, le nombre de chiffres d'un cadenas, le texte chiffré ou les lettres mélangées, et l'indice une fois demandé.
+
+**Types** (`shared/puzzles.ts`) et packs de la boutique (§ 16)
+
+| Type | Jeu | Pack |
+|---|---|---|
+| Question sur place | réponse à saisir (« Quelle année est gravée au fronton ? ») | inclus |
+| Cadenas à code | molettes de 3 à 6 chiffres | Codes secrets (2,99 €) |
+| Message chiffré | texte chiffré par décalage (César, 1 à 25), roue de déchiffrement avec aperçu | Codes secrets |
+| Anagramme | tuiles de lettres à remettre dans l'ordre (3 à 16 lettres, mélange stable) | Jeux de lettres (2,99 €) |
+| Rébus | images, émojis ou syllabes, réponse à saisir | Jeux de lettres |
+
+Les réponses se comparent sans casse, accents ni ponctuation ; plusieurs réponses sont acceptées, séparées par « | » (« 1789|mille sept cent quatre-vingt-neuf »). Pour un cadenas, seuls les chiffres comptent. L'éditeur d'étapes propose les types des packs obtenus (ou le type que l'étape a déjà), et fait obtenir un pack en un geste ; le serveur contrôle la rédaction (`puzzleProblem`) et la possession (403).
+
+**Données** : `th_codes.cod_puzzle` (jsonb : type, consigne, réponse, indice, décalage), `th_arrivals` (équipe, étape, joueur, source, photo, essais, indice affiché ; unique par équipe et étape) ; migration `db/migrations/012_puzzles.sql`. Les énigmes suivent la chasse au catalogue et dans ses copies (l'empreinte des publications existantes ne change pas).
 
