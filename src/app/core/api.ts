@@ -197,7 +197,7 @@ export abstract class HuntApi {
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
   /* ---------- Version anglaise (§ 33) ---------- */
   /** Traductions du contenu visible (partie, fiches du catalogue) : texte français → traduction. */
-  abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>>;
+  abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[]; info?: number[] }): Observable<Record<string, string>>;
 
   /* ---------- Hors ligne (§ 32) ---------- */
   /** Paquet hors ligne : le parcours restant de l'équipe et sa progression. */

@@ -1,3 +1,4 @@
+import { EN_MORE, EN_MORE_PATTERNS } from './en-more';
 /**
  * Dictionnaire de la version anglaise (§ 33) : texte français affiché → texte anglais, pour
  * les écrans des joueurs (accueil, catalogue, fiche, carnet de route, résultats, souvenir,
@@ -491,6 +492,9 @@ export const EN_PATTERNS: [RegExp, string | ((...m: string[]) => string)][] = [
   [/^J'ai trouvé le trésor de « (.+) » en (.+) : sauras-tu faire mieux \?$/, 'I found the treasure of “$1” in $2: can you do better?'],
   [/^Trésor trouvé : « (.+) » en (.+)$/, 'Treasure found: “$1” in $2'],
 ];
+
+Object.assign(EN, EN_MORE);
+EN_PATTERNS.push(...EN_MORE_PATTERNS);
 
 /** Traduction d'un texte de l'interface : dictionnaire, puis modèles ; null si inconnu. */
 export function translateUi(text: string): string | null {

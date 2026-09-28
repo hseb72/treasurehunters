@@ -54,8 +54,8 @@ export class DomTranslator {
   }
 
   /** Demande au serveur la traduction du contenu visible d'une partie ou de fiches du catalogue. */
-  requestContent(req: { hunt?: number; catalog?: number[] }): void {
-    if (!this.english || (!req.hunt && !req.catalog?.length)) return;
+  requestContent(req: { hunt?: number; catalog?: number[]; info?: number[] }): void {
+    if (!this.english || (!req.hunt && !req.catalog?.length && !req.info?.length)) return;
     this.api.translate({ lang: 'en', ...req }).subscribe({
       next: (map) => {
         let added = false;
@@ -122,7 +122,9 @@ export class DomTranslator {
       if (core.length < 400 && this.missing().size < 2000) this.missing.update((s) => (s.has(core) ? s : new Set(s).add(core)));
       return raw;
     }
-    return raw.replace(core, tr);
+    // Typographie anglaise : pas d'espace avant « : » ni « ; » (le français en met une).
+    const start = raw.indexOf(core);
+    return (/^[:;]/.test(tr) ? raw.slice(0, start).replace(/[ \u00a0\u202f]+$/, '') : raw.slice(0, start)) + tr + raw.slice(start + core.length);
   }
 
   private lookup(text: string): string | null {
