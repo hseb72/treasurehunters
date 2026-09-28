@@ -784,3 +784,31 @@ Dans l'éditeur d'étapes, l'IA aide l'organisateur à écrire l'énigme qui mè
 **Décompte** (`shared/assist.ts`) : chaque proposition reçue compte une suggestion, sur **30 jours glissants** — 30 pour tous, 200 avec un forfait de chasses sur mesure en cours (§ 21) ou pour les membres fondateurs — et 40 au plus par 24 heures. La suggestion est réservée avant l'appel à l'IA et rendue s'il échoue : une demande ratée n'est pas décomptée. `GET /assist/usage` renvoie la formule, la limite, les suggestions utilisées et restantes, celles du jour, leur répartition par nature et la date à laquelle la plus ancienne redevient disponible. Ce décompte est **toujours visible** dans l'éditeur (pastille « 18 / 30 restantes », verte, orange sous 20 %, rouge à zéro, qui s'ouvre sur le détail) et dans le profil, pour que l'organisateur choisisse ce qui mérite une relecture ou une reformulation. Les limites figurent dans les conditions d'utilisation.
 
 Données : `th_assists` (organisateur, chasse, nature, date) ; migration `db/migrations/019_assist.sql`.
+
+## 26. Repères pratiques
+
+À la publication au catalogue, l'auteur coche ce qu'il a vérifié sur place : **poussette** (tout le parcours), **fauteuil roulant** (sans marches ni passages étroits), **toilettes** publiques, **café ou pause** en route, et un **âge conseillé** (dès 4 à 16 ans, ou tous âges). Ils s'affichent sur la fiche et les cartes du catalogue, et se filtrent (critère « Pratique » : les chasses qui ont tous les repères demandés, `GET /catalog?practical=stroller,toilets`). Republier le même parcours corrige ces repères sans nouvelle version. Données : `cat_practical`, `cat_minage` (migration `020_practical.sql`) ; liste dans `shared/practical.ts`.
+
+## 27. Lecture à voix haute
+
+Dans le carnet de route, « Écouter » lit l'énigme en cours puis les jokers déjà ouverts, avec la synthèse vocale du navigateur (voix française si le téléphone en a une). Rien ne part sur le réseau ; le bouton n'apparaît pas si le navigateur ne sait pas parler, et la lecture s'arrête à l'énigme suivante.
+
+## 28. Défier un ami
+
+Un joueur qui a fini une chasse du catalogue en autonomie envoie un lien « bats mon temps » (fiche de la chasse, ou son souvenir) : `/catalog/:id?defi=<partie>`. La fiche ouverte par ce lien affiche « X vous défie ! », le temps à battre (pénalités comprises) et son rang, puis le classement. `GET /catalog/:id/challenge/:huntId` ne donne que ce que montre déjà le classement public, et seulement pour une partie terminée de cette version. Partage natif du téléphone, sinon lien copié.
+
+## 29. Carnet d'explorateur
+
+Page `/carnet` (liée au profil et au souvenir) : chasses finies (temps, lieux trouvés, jokers, distance, lien vers le souvenir), villes visitées (le lieu avant la virgule, sans code postal), totaux (chasses, lieux, kilomètres à vol d'oiseau entre les lieux trouvés) et **sept badges sobres** : premier trésor, 5 et 10 chasses, trois villes, une chasse sans joker, une chasse en autonomie, 20 km parcourus. Pas de niveaux ni de points. `GET /me/journal` ; calcul commun `shared/journal.ts`.
+
+## 30. Répétition sur place
+
+Depuis l'onglet Étapes ou le menu de la chasse, l'auteur **répète** son parcours en conditions réelles : il lit chaque énigme (avec ses jokers, l'épreuve et sa réponse), se rend au lieu et touche « Je suis arrivé ». La même règle que pour les équipes (`arrivalCheck`, rayon de la chasse élargi de l'imprécision du téléphone, entrées comprises) dit si la validation aurait marché et à quelle distance ; un point mal placé se **déplace à la position de l'auteur** en un geste. Chasse à QR : « QR trouvé », et vérification de position si le lieu est placé. Le carnet de répétition garde le temps de chaque étape et le bilan face à la durée annoncée. Rien ne compte (aucune équipe, aucun classement) ; la répétition en cours reste sur le téléphone (stockage local).
+
+## 31. Import d'un parcours
+
+Dans l'onglet Étapes, « Importer des lieux » crée les étapes d'un coup (30 lieux au plus) :
+- **liste collée**, un lieu par ligne : nom, et si possible sa position (« 43.6085, 3.8797 ») ou un lien de carte qui la contient ; sans position, l'étape reste à placer sur la carte ;
+- **fichier GPX** : ses points de passage (`wpt`), sinon ceux de l'itinéraire (`rtept`) ; une trace seule (`trkpt`) ne suffit pas, l'auteur est invité à y ajouter ses lieux.
+
+Aperçu avant création ; le premier lieu peut devenir le départ, le dernier l'arrivée, les autres s'insèrent avant l'arrivée. Lecture dans `shared/route-import.ts`, sans service extérieur.
