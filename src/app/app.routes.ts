@@ -38,6 +38,7 @@ export const routes: Routes = [
           { path: 'qrcodes', title: 'QR codes', loadComponent: () => import('./pages/organize/qr-sheet').then((m) => m.QrSheetPage) },
           { path: 'live', title: 'Direct', loadComponent: () => import('./pages/organize/live-board').then((m) => m.LiveBoardPage) },
           { path: 'catalog', title: 'Catalogue', loadComponent: () => import('./pages/organize/catalog-panel').then((m) => m.CatalogPanelPage) },
+          { path: 'rehearsal', title: 'Répétition', loadComponent: () => import('./pages/organize/rehearsal').then((m) => m.RehearsalPage) },
         ],
       },
     ],

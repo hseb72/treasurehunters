@@ -18,6 +18,7 @@ import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
 import { AssistPanel } from './assist-panel';
+import { RouterLink } from '@angular/router';
 
 import { MatSelectModule } from '@angular/material/select';
 import { Puzzle, PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
@@ -25,7 +26,7 @@ import { Shop } from '../../core/shop';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [AssistPanel, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [AssistPanel, RouterLink, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',

@@ -52,7 +52,7 @@ import { sketchTrail } from '@shared/souvenir';
 import { PracticalTag } from '@shared/practical';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
-  checkinAllowance,
+  arrivalCheck,
   computeRanking,
   distanceMeters,
   evaluateScan,
@@ -549,11 +549,10 @@ export class MockHuntApi extends HuntApi {
       if (!clue) throw new ApiError('Aucune étape à trouver pour le moment.');
       const steps = this.stepsOf(huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
-      if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-      const points = [{ lat: target.latitude, lng: target.longitude }, ...target.entrances];
-      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(pos, p))));
-      const allowed = Math.round(checkinAllowance(h, pos.accuracy));
-      if (distance > allowed) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
+      const check = arrivalCheck(target, h, pos);
+      if (!check) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+      const { distance, allowed } = check;
+      if (!check.ok) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
       const final = finalOrder(steps);
       if (this.arrive(state.team.id, target, me, 'GEO') === 'puzzle') {
         return { outcome: 'puzzle', distance, allowed, step: null, state: this.playState(huntId) } satisfies CheckinResult;

@@ -50,7 +50,7 @@ import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
 import {
-  checkinAllowance,
+  arrivalCheck,
   computeRanking,
   distanceMeters,
   evaluateScan,
@@ -682,14 +682,11 @@ export class Service {
       if (!clue) throw conflict('Aucune étape à trouver pour le moment.');
       const steps = await stepsOf(db, huntId);
       const target = steps.find((s) => s.order === clue.targetOrder)!;
-      if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
-
       // Le lieu, ou l'une de ses entrées : la plus proche compte.
-      const here = { lat: pos.lat, lng: pos.lng };
-      const points = [{ lat: Number(target.latitude), lng: Number(target.longitude) }, ...target.entrances];
-      const distance = Math.round(Math.min(...points.map((p) => distanceMeters(here, p))));
-      const allowed = Math.round(checkinAllowance(hunt, pos.accuracy));
-      const outcome = distance <= allowed ? 'validated' : 'too_far';
+      const check = arrivalCheck(target, hunt, pos);
+      if (!check) throw conflict('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
+      const { distance, allowed } = check;
+      const outcome = check.ok ? 'validated' : 'too_far';
       await db.query(
         'INSERT INTO th_scanlog (scl_code_cod, scl_token, scl_hunter_htr, scl_team_tea, scl_result, scl_ip) VALUES ($1, $2, $3, $4, $5, $6)',
         [target.id, `geo:${target.id}`, me, team.id, outcome, ip ?? null],
