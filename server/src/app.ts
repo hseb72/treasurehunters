@@ -80,6 +80,7 @@ const stepFields = z
         shift: z.number().int().min(1).max(25).optional(),
       })
       .nullable(),
+    photoShow: z.enum(['arrival', 'clue']).nullable(),
   })
   .partial();
 
@@ -379,6 +380,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const { approve } = z.object({ approve: z.boolean() }).parse(req.body);
     return service.reviewPhoto(req.viewer, idParams.parse(req.params).id, approve);
   });
+  app.get('/api/steps/:id/illustration', async (req, reply) => sendImage(reply, await service.illustrationImage(req.viewer, idParams.parse(req.params).id)));
   app.get('/api/photos/:id/image', async (req, reply) => sendImage(reply, await service.photoImage(req.viewer, idParams.parse(req.params).id)));
   app.get('/api/steps/:id/reference-photo', async (req, reply) =>
     sendImage(reply, await service.referenceImage(req.viewer, idParams.parse(req.params).id)),

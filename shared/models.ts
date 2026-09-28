@@ -107,7 +107,14 @@ export interface Step {
   puzzle: Puzzle | null;
   /** L'organisateur a déposé une photo du lieu, référence pour la preuve par photo. */
   referencePhoto: boolean;
+  /**
+   * Photo du lieu montrée aux joueurs (§ 18) : jamais (null, elle ne sert que de référence),
+   * à l'arrivée avec le message, ou dès l'énigme qui mène au lieu.
+   */
+  photoShow: PhotoShow | null;
 }
+
+export type PhotoShow = 'arrival' | 'clue';
 
 export interface Member {
   hunterId: number;
@@ -173,6 +180,8 @@ export interface PlayStep {
   skipped: boolean;
   /** Étape validée par photo : contrôle de l'organisateur (une photo refusée compte comme un abandon). */
   photo: PhotoReview | null;
+  /** Photo du lieu à montrer (§ 18) : identifiant de l'étape, pour GET /api/steps/:id/illustration. */
+  illustration: number | null;
 }
 
 export interface PlayClue {
@@ -184,6 +193,8 @@ export interface PlayClue {
   hintsTotal: number;
   /** L'équipe peut abandonner cette épreuve (jamais l'arrivée). */
   canSkip: boolean;
+  /** Photo du lieu cherché, en tête de l'énigme si l'organisateur l'a voulu (§ 18). */
+  illustration: number | null;
 }
 
 export interface PlayState {
@@ -370,7 +381,7 @@ export interface ScanResult {
   outcome: ScanOutcome;
   hunt: Hunt | null;
   /** Étape scannée (titre et message d'arrivée seulement si l'accès est autorisé). */
-  step: { order: number; title: string; arrival: string | null; isFinal: boolean } | null;
+  step: { order: number; title: string; arrival: string | null; isFinal: boolean; illustration?: number | null } | null;
   /** Énigme suivante, si débloquée. */
   next: PlayClue | null;
   team: Team | null;

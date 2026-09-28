@@ -201,6 +201,9 @@ export class HttpHuntApi extends HuntApi {
   referenceImage(stepId: number): Observable<Blob> {
     return this.http.get(`${this.url}/steps/${stepId}/reference-photo`, { responseType: 'blob' });
   }
+  illustrationImage(stepId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/steps/${stepId}/illustration`, { responseType: 'blob' });
+  }
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
     const url = `${this.url}/steps/${stepId}/reference-photo`;
     return image === null ? this.http.delete<Step>(url) : this.http.put<Step>(url, { image });

@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { filter, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
-import { Step } from '@shared/models';
+import { PhotoShow, Step } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -44,7 +44,8 @@ export class StepsEditorPage {
 
   /** Preuve par photo activée sur le serveur (et chasse à QR codes) : photos de référence. */
   private readonly features = rxResource({ stream: () => this.api.getFeatures() });
-  protected readonly photos = computed(() => !!this.features.value()?.photos && !this.geo());
+  /** Photo du lieu (§ 18) : illustration pour les joueurs, et référence de l'arbitre photo des chasses à QR. */
+  protected readonly photos = computed(() => !!this.features.value()?.photos);
   /** Envoi d'une photo de référence en cours, et compteur pour recharger l'aperçu. */
   protected readonly refBusy = signal(false);
   protected readonly refVersion = signal(0);
@@ -77,6 +78,7 @@ export class StepsEditorPage {
     puzzleAnswer: [''],
     puzzleHint: [''],
     puzzleShift: [3],
+    photoShow: ['' as PhotoShow | ''],
   });
 
   /* ---------- Énigme d'arrivée (§ 17) ---------- */
@@ -142,6 +144,7 @@ export class StepsEditorPage {
       puzzleAnswer: step.puzzle?.answer ?? '',
       puzzleHint: step.puzzle?.hint ?? '',
       puzzleShift: step.puzzle?.shift ?? 3,
+      photoShow: step.photoShow ?? '',
     });
     this.point.set(step.latitude !== null && step.longitude !== null ? { lat: step.latitude, lng: step.longitude } : null);
   }
@@ -184,6 +187,7 @@ export class StepsEditorPage {
               ...(v.puzzleType === 'cipher' ? { shift: Number(v.puzzleShift) } : {}),
             }
           : null,
+        photoShow: v.photoShow || null,
       })
       .subscribe({
         next: () => {
@@ -194,7 +198,10 @@ export class StepsEditorPage {
       });
   }
 
-  /** Photo du lieu où le QR est posé : référence de l'IA quand une équipe envoie une photo à la place du QR. */
+  /**
+   * Photo du lieu : référence de l'IA quand une équipe envoie une photo à la place du QR, et
+   * illustration montrée aux joueurs si l'organisateur le choisit.
+   */
   protected async setReference(step: Step, event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -202,7 +209,7 @@ export class StepsEditorPage {
     if (!file) return;
     this.refBusy.set(true);
     try {
-      this.updateReference(step, await compressPhoto(file), 'Photo de référence enregistrée.');
+      this.updateReference(step, await compressPhoto(file), 'Photo du lieu enregistrée.');
     } catch (e) {
       this.notify.error(e);
       this.refBusy.set(false);
@@ -211,7 +218,7 @@ export class StepsEditorPage {
 
   protected removeReference(step: Step): void {
     this.refBusy.set(true);
-    this.updateReference(step, null, 'Photo de référence retirée.');
+    this.updateReference(step, null, 'Photo du lieu retirée.');
   }
 
   private updateReference(step: Step, image: string | null, done: string): void {

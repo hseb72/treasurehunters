@@ -115,6 +115,8 @@ export abstract class HuntApi {
   abstract reviewPhoto(photoId: number, approve: boolean): Observable<PhotoAttempt[]>;
   abstract photoImage(photoId: number): Observable<Blob>;
   abstract referenceImage(stepId: number): Observable<Blob>;
+  /** Photo du lieu montrée aux joueurs (§ 18). */
+  abstract illustrationImage(stepId: number): Observable<Blob>;
   /** Photo de référence d'une étape ; null la retire. */
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
 

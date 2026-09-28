@@ -29,6 +29,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoShow,
   Difficulty,
   Travel,
   StoreItem,
@@ -82,7 +83,7 @@ export type HuntAction = 'publish' | 'unpublish' | 'start' | 'close' | 'cancel';
 export type HuntInput = Partial<
   Omit<Hunt, 'id' | 'ownerId' | 'ownerNickname' | 'status' | 'started' | 'closed' | 'joinCode' | 'stepCount' | 'teamCount' | 'generated' | 'surprise'>
 >;
-export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude' | 'puzzle'>>;
+export type StepInput = Partial<Pick<Step, 'title' | 'arrival' | 'instructions' | 'hints' | 'address' | 'latitude' | 'longitude' | 'puzzle' | 'photoShow'>>;
 
 /** Champs modifiables pendant la course (les autres changeraient les règles en cours de jeu). */
 const RUNNING_EDITABLE = new Set<keyof HuntInput>(['name', 'description', 'location', 'award', 'startText', 'end', 'autoClose', 'isPublic']);
@@ -391,6 +392,7 @@ export class Service {
       if (moved) cols.push(['cod_entrances', null]);
     }
     if (data.puzzle !== undefined) cols.push(['cod_puzzle', data.puzzle ? JSON.stringify(data.puzzle) : null]);
+    if (data.photoShow !== undefined) cols.push(['cod_photoshow', data.photoShow]);
     if (data.hints !== undefined) {
       const hints = data.hints.filter((h) => h.trim());
       [1, 2, 3].forEach((n) => cols.push([`cod_hint${n}`, hints[n - 1] ?? null]));
@@ -701,13 +703,13 @@ export class Service {
       result.hunt = hunt;
 
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
+      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
 
       if (outcome === 'validated') {
         // Étape à énigme : le scan prouve l'arrivée ; l'étape se valide en résolvant l'énigme (§ 17).
         if ((await this.arrive(db, team!.id, step!, viewer!, 'QR', null, now)) === 'puzzle') {
           result.outcome = 'puzzle';
-          result.step = { ...stepInfo, arrival: null };
+          result.step = { ...stepInfo, arrival: null, illustration: null };
           return result;
         }
         result.team = await teamById(db, team!.id);
@@ -722,6 +724,7 @@ export class Service {
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
               canSkip: step!.order + 1 < final,
+              illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -760,7 +763,15 @@ export class Service {
     const validated = vals
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photoReviews.get(s.id) ?? null };
+        return {
+          order: s.order,
+          title: s.title,
+          arrival: s.arrival,
+          at: v.at,
+          skipped: v.source === 'SKIP',
+          photo: photoReviews.get(s.id) ?? null,
+          illustration: this.illustration(s, 'arrival'),
+        };
       })
       .sort((a, b) => a.order - b.order);
 
@@ -777,6 +788,7 @@ export class Service {
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]).filter((h) => h !== undefined),
         hintsTotal: current.hints.length,
         canSkip: current.order + 1 < finalOrder(steps),
+        illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
 
@@ -1087,6 +1099,36 @@ export class Service {
     const { key } = await this.ownedStepPhoto(viewer, stepId);
     const image = key ? await photos.store.get(key) : null;
     if (!image) throw notFound('Pas de photo de référence pour cette étape.');
+    return image;
+  }
+
+  /**
+   * Photo du lieu montrée aux joueurs (§ 18) : l'étape dont on peut demander l'image, ou null.
+   * « clue » : dès l'énigme qui y mène ; « arrival » : une fois le lieu trouvé (une photo
+   * montrée avec l'énigme l'est aussi à l'arrivée).
+   */
+  private illustration(step: Step | undefined, moment: PhotoShow): number | null {
+    if (!this.photos || !step?.referencePhoto || !step.photoShow) return null;
+    return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
+  }
+
+  /** Image de la photo du lieu, pour l'organisateur ou une équipe à qui elle est montrée. */
+  async illustrationImage(viewer: Viewer, stepId: number): Promise<StoredPhoto> {
+    const photos = this.requirePhotos();
+    const me = requireUser(viewer);
+    const step = await stepById(this.pool, stepId);
+    if (!step) throw notFound('Étape introuvable.');
+    const hunt = await huntById(this.pool, step.huntId);
+    let allowed = hunt?.ownerId === me;
+    if (!allowed && step.photoShow && (await teamOf(this.pool, step.huntId, me))) {
+      const state = await this.playState(this.pool, me, step.huntId);
+      allowed =
+        state.validated.some((v) => v.order === step.order && v.illustration === step.id) ||
+        state.clue?.illustration === step.id;
+    }
+    const key = allowed && step.referencePhoto ? (await one(this.pool, 'SELECT cod_refphoto FROM th_codes WHERE cod_id = $1', [stepId]))!['cod_refphoto'] : null;
+    const image = key ? await photos.store.get(key) : null;
+    if (!image) throw notFound('Pas de photo à montrer pour cette étape.');
     return image;
   }
 

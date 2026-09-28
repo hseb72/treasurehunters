@@ -136,6 +136,9 @@
               <span class="stamp stamp--success" [class]="fxClass()">Étape {{ r.photo.stepOrder }} validée</span>
               @if (photoStep(); as st) {
                 <h2>{{ st.title }}</h2>
+                @if (st.illustration; as pic) {
+                  <th-place-photo [stepId]="pic" />
+                }
                 @if (st.arrival) {
                   <p class="note">{{ st.arrival }}</p>
                 }
@@ -165,6 +168,9 @@
             <section class="surface center found" aria-live="polite">
               <span class="stamp stamp--success" [class]="fxClass()">Étape {{ c.step.order }} trouvée</span>
               <h2>{{ c.step.title }}</h2>
+              @if (pictureOf(c.state, c.step.order); as pic) {
+                <th-place-photo [stepId]="pic" />
+              }
               @if (c.step.arrival) {
                 <p class="note">{{ c.step.arrival }}</p>
               }
@@ -195,6 +201,9 @@
             <div class="clue-head">
               <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
             </div>
+            @if (clue.illustration; as pic) {
+              <th-place-photo [stepId]="pic" alt="Le lieu à trouver" />
+            }
             @if (clue.targetOrder === 1 && s.start; as start) {
               <th-start-place class="small" [start]="start" />
             }
@@ -323,6 +332,9 @@
               </div>
               @if (v.arrival && !v.skipped) {
                 <p class="small muted log-text">{{ v.arrival }}</p>
+              }
+              @if (v.illustration && !v.skipped) {
+                <th-place-photo class="compact" [stepId]="v.illustration" [alt]="v.title" />
               }
             </li>
           }

@@ -264,6 +264,7 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `POST /hunts/:id/photos` · `POST /photos/:id/insist` · `GET /photos/:id/image` | preuve par photo : envoi jugé par l'IA, insistance de l'équipe, image (§ 12) | membre (image : membre ou organisateur) |
 | `GET /hunts/:id/photos` · `POST /photos/:id/review` | photos de la chasse, contrôle (tamponner ou refuser) | organisateur |
 | `GET\|PUT\|DELETE /steps/:id/reference-photo` | photo de référence d'une étape | organisateur |
+| `GET /steps/:id/illustration` | photo du lieu montrée aux joueurs (§ 18) | organisateur, équipe à qui elle est montrée |
 | `GET /features` | fonctions activées sur le serveur (photos, génération) | public |
 | `GET /catalog?q=&sort=rating\|plays\|recent` · `GET /catalog/:id` | catalogue et fiche d'une version (§ 13) | public |
 | `GET /catalog?mine=1` · `GET /catalog?hunt=:id` | mes publications, celles d'une de mes chasses (retirées comprises) | connecté |
@@ -451,7 +452,7 @@ Un QR peut disparaître, être abîmé ou déplacé. L'équipe photographie alor
 
 ### 12.1 Photo de référence
 
-Dans l'onglet Étapes, l'organisateur peut déposer pour chaque lieu une **photo de l'endroit où il a posé le QR** (`cod_refphoto`). Elle sert de référence à l'IA. **Les joueurs ne la voient jamais** : elle dévoilerait la solution.
+Dans l'onglet Étapes, l'organisateur peut déposer pour chaque lieu une **photo de l'endroit où il a posé le QR** (`cod_refphoto`). Elle sert de référence à l'IA. Par défaut **les joueurs ne la voient pas** : elle dévoilerait la solution. L'organisateur peut choisir de la leur montrer (§ 18).
 
 ### 12.2 Avis de l'IA, insistance de l'équipe
 
@@ -637,4 +638,20 @@ Une étape du parcours (pas le départ) peut porter une **épreuve à résoudre 
 Les réponses se comparent sans casse, accents ni ponctuation ; plusieurs réponses sont acceptées, séparées par « | » (« 1789|mille sept cent quatre-vingt-neuf »). Pour un cadenas, seuls les chiffres comptent. L'éditeur d'étapes propose les types des packs obtenus (ou le type que l'étape a déjà), et fait obtenir un pack en un geste ; le serveur contrôle la rédaction (`puzzleProblem`) et la possession (403).
 
 **Données** : `th_codes.cod_puzzle` (jsonb : type, consigne, réponse, indice, décalage), `th_arrivals` (équipe, étape, joueur, source, photo, essais, indice affiché ; unique par équipe et étape) ; migration `db/migrations/012_puzzles.sql`. Les énigmes suivent la chasse au catalogue et dans ses copies (l'empreinte des publications existantes ne change pas).
+
+## 18. Photo du lieu
+
+Les maquettes montrent une photo en tête d'étape. L'organisateur choisit, pour chaque lieu (pas le départ), **une photo illustrative** : un détail, une ambiance, qui donne envie sans dévoiler la solution. C'est la même photo que la référence de l'arbitre photo (§ 12.1) ; dans une chasse en géolocalisation, elle ne sert qu'à illustrer.
+
+**Montrer aux joueurs** (`th_codes.cod_photoshow`, réglage de l'étape dans l'éditeur) :
+
+| Réglage | Ce que voient les joueurs |
+|---|---|
+| Jamais (défaut) | rien : la photo reste la référence privée de l'arbitre |
+| À l'arrivée | la photo accompagne le message d'arrivée (carnet de route, page du scan, check-in, épreuve résolue) et reste dans le journal de bord |
+| Dès l'énigme | la photo s'affiche en tête de l'énigme qui mène au lieu, puis à l'arrivée comme ci-dessus |
+
+**Accès** : le carnet de route (`PlayClue.illustration`, `PlayStep.illustration`) et le scan (`ScanResult.step.illustration`) donnent l'identifiant de l'étape dont la photo peut être montrée ; l'image se charge par `GET /steps/:id/illustration`, que le serveur n'accorde qu'à l'organisateur, ou à une équipe de la chasse pour qui l'étape est l'énigme en cours (réglage « dès l'énigme ») ou déjà validée. Un joueur d'une autre équipe qui n'y est pas encore, ou hors de la chasse, reçoit 404. Une épreuve d'arrivée en attente (§ 17) ne montre pas encore la photo d'arrivée. Sans stockage de photos configuré, rien n'est montré.
+
+La photo ne suit pas la chasse au catalogue (§ 13) : elle reste celle de l'organisateur. Migration `db/migrations/013_step_photo.sql`.
 

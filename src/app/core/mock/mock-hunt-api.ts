@@ -17,6 +17,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoShow,
   PlayClue,
   PlayState,
   RankingRow,
@@ -75,6 +76,43 @@ export class MockHuntApi extends HuntApi {
   constructor() {
     super();
     this.seedCatalog();
+    this.seedPlacePhotos();
+  }
+
+  /**
+   * Photos du lieu de la démo (§ 18) : un détail du boulodrome en tête de l'énigme qui y
+   * mène, les rayonnages de la médiathèque à l'arrivée. Des dessins, faute de vraies photos.
+   */
+  private seedPlacePhotos(): void {
+    const svg = (body: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${body}</svg>`)}`;
+    const boule = (x: number, y: number, r: number) =>
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#m)"/><path d="M${x - r * 0.8} ${y - r * 0.2} q${r * 0.8} ${r * 0.5} ${r * 1.6} 0" stroke="#5b636b" stroke-width="2" fill="none"/>`;
+    const gravel = Array.from({ length: 140 }, (_, i) => `<circle cx="${(i * 97) % 400}" cy="${120 + ((i * 53) % 180)}" r="${1 + (i % 3)}" fill="#b89d6e"/>`).join('');
+    const boulodrome = svg(
+      `<defs><radialGradient id="m" cx="35%" cy="30%"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".5" stop-color="#9aa3ab"/><stop offset="1" stop-color="#3f464d"/></radialGradient>` +
+        `<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fae5a"/><stop offset="1" stop-color="#4f7d38"/></linearGradient></defs>` +
+        `<rect width="400" height="130" fill="url(#s)"/><rect y="110" width="400" height="190" fill="#d9c49a"/>${gravel}` +
+        `<ellipse cx="200" cy="262" rx="140" ry="14" fill="#000" opacity=".12"/>${boule(130, 225, 34)}${boule(215, 238, 30)}${boule(290, 214, 27)}` +
+        `<circle cx="250" cy="180" r="9" fill="#c0392b"/><circle cx="247" cy="177" r="3" fill="#e8806f"/>`,
+    );
+    const colors = ['#8e3b2e', '#2f5d7c', '#c49a3a', '#4b7a47', '#6d4c7d', '#b5602f', '#2e6f6a', '#9c2f4f'];
+    const shelf = (y: number, seed: number) =>
+      `<rect x="20" y="${y + 70}" width="360" height="10" fill="#7a5230"/>` +
+      Array.from({ length: 16 }, (_, i) => {
+        const h = 50 + ((i * 7 + seed) % 20);
+        return `<rect x="${26 + i * 22}" y="${y + 70 - h}" width="19" height="${h}" rx="2" fill="${colors[(i + seed) % colors.length]}"/><rect x="${30 + i * 22}" y="${y + 80 - h}" width="11" height="3" fill="#f3e6c8" opacity=".7"/>`;
+      }).join('');
+    const mediatheque = svg(`<rect width="400" height="300" fill="#efe4cf"/>${shelf(0, 1)}${shelf(95, 4)}${shelf(190, 6)}`);
+    for (const [order, image, show] of [
+      [3, boulodrome, 'clue'],
+      [2, mediatheque, 'arrival'],
+    ] as const) {
+      const step = this.db.steps.find((s) => s.huntId === 1 && s.order === order);
+      if (!step) continue;
+      this.refPhotos.set(step.id, image);
+      step.referencePhoto = true;
+      step.photoShow = show;
+    }
   }
 
   logout(): Observable<void> {
@@ -451,11 +489,11 @@ export class MockHuntApi extends HuntApi {
       if (outcome === 'unknown') return result;
       result.hunt = this.huntView(rawHunt!);
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final };
+      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
 
       if (outcome === 'validated' && this.arrive(team!.id, step!, me!, 'QR') === 'puzzle') {
         result.outcome = 'puzzle';
-        result.step = { ...stepInfo, arrival: null };
+        result.step = { ...stepInfo, arrival: null, illustration: null };
         return result;
       }
       if (outcome === 'organizer') {
@@ -468,6 +506,7 @@ export class MockHuntApi extends HuntApi {
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
               canSkip: step!.order + 1 < final,
+              illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -1077,6 +1116,27 @@ export class MockHuntApi extends HuntApi {
     return this.blob(() => this.refPhotos.get(stepId) ?? null);
   }
 
+  /** Photo du lieu montrée aux joueurs (§ 18), comme le serveur. */
+  private illustration(step: Step | undefined, moment: PhotoShow): number | null {
+    if (!step?.referencePhoto || !step.photoShow) return null;
+    return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
+  }
+
+  illustrationImage(stepId: number): Observable<Blob> {
+    return this.blob(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) return null;
+      const hunt = this.db.hunts.find((h) => h.id === step.huntId);
+      const me = this.viewer();
+      let allowed = hunt?.ownerId === me;
+      if (!allowed && step.photoShow && me !== null && this.teamOf(step.huntId, me)) {
+        const state = this.playState(step.huntId);
+        allowed = state.validated.some((v) => v.illustration === step.id) || state.clue?.illustration === step.id;
+      }
+      return allowed ? (this.refPhotos.get(stepId) ?? null) : null;
+    });
+  }
+
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
     return this.reply(() => {
       const step = this.db.steps.find((s) => s.id === stepId);
@@ -1290,7 +1350,15 @@ export class MockHuntApi extends HuntApi {
       .map((v) => {
         const s = steps.find((x) => x.id === v.stepId)!;
         const photo = this.photos.find((p) => p.teamId === team.id && p.stepId === s.id && p.counted);
-        return { order: s.order, title: s.title, arrival: s.arrival, at: v.at, skipped: v.source === 'SKIP', photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null };
+        return {
+          order: s.order,
+          title: s.title,
+          arrival: s.arrival,
+          at: v.at,
+          skipped: v.source === 'SKIP',
+          photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null,
+          illustration: this.illustration(s, 'arrival'),
+        };
       })
       .sort((a, b) => a.order - b.order);
     const hints = this.db.hintUses.filter((u) => u.teamId === team.id);
@@ -1307,6 +1375,7 @@ export class MockHuntApi extends HuntApi {
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]),
         hintsTotal: current.hints.length,
         canSkip: current.order + 1 < finalOrder(steps),
+        illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
     let puzzle: PlayState['puzzle'] = null;
@@ -1400,6 +1469,7 @@ export class MockHuntApi extends HuntApi {
       longitude: null,
       address: null,
       referencePhoto: false,
+      photoShow: null,
       entrances: [],
       puzzle: null,
     };

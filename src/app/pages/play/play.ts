@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
-import { CheckinResult, CompassReading, PhotoResult } from '@shared/models';
+import { CheckinResult, CompassReading, PhotoResult, PlayState } from '@shared/models';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -20,6 +20,7 @@ import { StartPlace } from '../../shared/start-place';
 import { Trail } from '../../shared/trail';
 import { TrailMap } from '../../shared/trail-map';
 import { PuzzleCard } from '../../shared/puzzle-card';
+import { PlacePhoto } from '../../shared/place-photo';
 import { LatLng } from '../../shared/location-map';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
@@ -29,7 +30,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, StartPlace, Trail, TrailMap],
+  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],
@@ -362,6 +363,11 @@ export class PlayPage {
           this.busy.set(false);
         },
       });
+  }
+
+  /** Photo du lieu d'une étape que l'équipe vient de valider, si l'organisateur la montre. */
+  protected pictureOf(state: PlayState, order: number): number | null {
+    return state.validated.find((v) => v.order === order)?.illustration ?? null;
   }
 
   /** Étape validée par la dernière photo (titre et message d'arrivée). */

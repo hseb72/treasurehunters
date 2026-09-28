@@ -23,4 +23,22 @@ describe('MockHuntApi', () => {
     expect(play.validated.length).toBe(3);
     expect(play.position?.total).toBe(6);
   });
+
+  it('montre la photo du lieu aux joueurs seulement si l’organisateur le veut (§ 18)', async () => {
+    session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
+    const target = (await firstValueFrom(api.getPlay(1))).clue!.targetOrder;
+    session.set(await firstValueFrom(api.login('camille@example.com', 'demo')));
+    const step = (await firstValueFrom(api.getSteps(1))).find((s) => s.order === target)!;
+    await firstValueFrom(api.setReferencePhoto(step.id, 'data:image/png;base64,iVBORw0KGgo='));
+    await firstValueFrom(api.saveStep({ id: step.id, huntId: 1, photoShow: null }));
+
+    session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
+    expect((await firstValueFrom(api.getPlay(1))).clue!.illustration).toBeNull();
+    await expect(firstValueFrom(api.illustrationImage(step.id))).rejects.toThrow();
+
+    session.set(await firstValueFrom(api.login('camille@example.com', 'demo')));
+    await firstValueFrom(api.saveStep({ id: step.id, huntId: 1, photoShow: 'clue' }));
+    session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
+    expect((await firstValueFrom(api.getPlay(1))).clue!.illustration).toBe(step.id);
+  });
 });

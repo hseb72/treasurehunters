@@ -30,7 +30,8 @@ import { HuntApi } from '../core/api';
 export class AuthImage {
   private readonly api = inject(HuntApi);
 
-  readonly kind = input.required<'photo' | 'reference'>();
+  /** Photo d'équipe, référence de l'organisateur, ou photo du lieu montrée aux joueurs. */
+  readonly kind = input.required<'photo' | 'reference' | 'illustration'>();
   readonly id = input.required<number>();
   /** Change pour recharger l'image (nouvelle photo de référence, par exemple). */
   readonly version = input<unknown>(null);
@@ -41,7 +42,12 @@ export class AuthImage {
   protected readonly url = rxResource({
     params: () => ({ kind: this.kind(), id: this.id(), version: this.version() }),
     stream: ({ params }) =>
-      (params.kind === 'photo' ? this.api.photoImage(params.id) : this.api.referenceImage(params.id)).pipe(
+      (params.kind === 'photo'
+        ? this.api.photoImage(params.id)
+        : params.kind === 'illustration'
+          ? this.api.illustrationImage(params.id)
+          : this.api.referenceImage(params.id)
+      ).pipe(
         map((blob) => {
           if (this.current) URL.revokeObjectURL(this.current);
           return (this.current = URL.createObjectURL(blob));
