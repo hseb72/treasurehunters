@@ -15,6 +15,7 @@ export const routes: Routes = [
   { path: 'generate', title: 'Chasse sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
   { path: 'creator', title: 'Atelier créateur', loadComponent: () => import('./pages/creator/creator-studio').then((m) => m.CreatorStudioPage) },
   { path: 'creators/:id', title: 'Créateur', loadComponent: () => import('./pages/creator/creator-page').then((m) => m.CreatorPage) },
+  { path: 'conditions', title: 'Conditions d’utilisation', loadComponent: () => import('./pages/terms/terms').then((m) => m.TermsPage) },
   { path: 'store', title: 'Boutique', loadComponent: () => import('./pages/store/store').then((m) => m.StorePage) },
   { path: 'scan', title: 'Scanner', loadComponent: () => import('./pages/scanner/scanner').then((m) => m.ScannerPage) },
   { path: 'q/:token', title: 'Indice', loadComponent: () => import('./pages/scan-result/scan-result').then((m) => m.ScanResultPage) },

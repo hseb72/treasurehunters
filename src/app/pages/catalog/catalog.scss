@@ -72,3 +72,7 @@
   mat-icon { color: var(--th-primary); }
   &.mode--on { border-color: var(--th-primary-light); box-shadow: 0 0 0 3px color-mix(in srgb, var(--th-primary-light) 20%, transparent); }
 }
+
+.custom { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.custom p { margin: 0; }
+.custom > mat-icon { color: var(--th-primary); }

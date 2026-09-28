@@ -1,39 +1,8 @@
-import { createHmac } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
-import { CheckoutRequest, formEncode, PaymentProvider, StripeEvent, verifyStripeSignature } from '../src/payments/stripe.js';
+import { formEncode, verifyStripeSignature } from '../src/payments/stripe.js';
+import { FakeStripe, SECRET, signed } from './fake-stripe.js';
 import { Ctx, loginAs, setup, teardown } from './helpers.js';
-
-const SECRET = 'whsec_test';
-
-/** Stripe simulé : garde les demandes de paiement, signe et vérifie comme le vrai. */
-class FakeStripe implements PaymentProvider {
-  checkouts: CheckoutRequest[] = [];
-  ready = new Set<string>();
-  accounts = 0;
-  async createCheckout(req: CheckoutRequest) {
-    this.checkouts.push(req);
-    return { id: `cs_test_${this.checkouts.length}`, url: `https://checkout.stripe.test/${this.checkouts.length}` };
-  }
-  async createAccount() {
-    return `acct_${++this.accounts}`;
-  }
-  async onboardingLink(account: string, returnUrl: string) {
-    return `https://connect.stripe.test/${account}?return=${encodeURIComponent(returnUrl)}`;
-  }
-  async accountReady(account: string) {
-    return this.ready.has(account);
-  }
-  verifyEvent(payload: string, signature: string | undefined): StripeEvent | null {
-    return verifyStripeSignature(payload, signature, SECRET) ? JSON.parse(payload) : null;
-  }
-}
-
-function signed(event: object, secret = SECRET) {
-  const payload = JSON.stringify(event);
-  const t = Math.floor(Date.now() / 1000);
-  return { payload, signature: `t=${t},v1=${createHmac('sha256', secret).update(`${t}.${payload}`).digest('hex')}` };
-}
 
 let ctx: Ctx;
 let app: Awaited<ReturnType<typeof buildApp>>;

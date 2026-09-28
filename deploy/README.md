@@ -143,6 +143,14 @@ offertes et les chasses du catalogue gratuites.
 
 Essayez d'abord avec les clés de test (`sk_test_…`) et la carte 4242 4242 4242 4242.
 
+Paiement activé, la **chasse sur mesure** devient payante (conception § 21) : crédit à
+l'unité ou forfait. Les membres fondateurs en sont dispensés ; on les désigne en base :
+
+```bash
+kubectl -n database exec -it deploy/postgres -- psql -U treasurehunters treasurehunters \
+  -c "UPDATE th_hunters SET htr_founder = true WHERE htr_email = 'vous@example.com';"
+```
+
 Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
 copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des
 autres applications. Elle permet de recréer le Secret si le namespace est perdu.

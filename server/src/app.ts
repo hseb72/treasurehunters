@@ -210,9 +210,10 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   /* ----- Paiement (§ 20) */
   const returnPath = z.object({ returnPath: z.string().max(300).regex(/^\/(?!\/)[^\s]*$/).default('/store') });
   app.post('/api/store/:product/checkout', async (req) => {
-    const { product } = z.object({ product: z.string().regex(/^((skin|tool|pack):[a-z0-9]{1,40}|hunt:c\d{1,9})$/) }).parse(req.params);
+    const { product } = z.object({ product: z.string().regex(/^((skin|tool|pack|gen):[a-z0-9]{1,40}|hunt:c\d{1,9})$/) }).parse(req.params);
     return payments.checkout(req.viewer, product, returnPath.parse(req.body ?? {}).returnPath);
   });
+  app.get('/api/generation/access', async (req) => service.generationAccess(req.viewer));
   app.get('/api/payments/account', async (req) => payments.account(req.viewer));
   app.post('/api/payments/account', async (req) => payments.onboard(req.viewer, returnPath.parse(req.body ?? {}).returnPath));
   // Webhook Stripe : la signature porte sur le corps brut, lu tel quel dans ce seul contexte.

@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
 import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
+import { GenerationAccess } from '@shared/generation-access';
 import {
   AuthResult,
   AutonomyLeaderboard,
@@ -107,6 +108,9 @@ export abstract class HuntApi {
   abstract getStore(): Observable<StoreItem[]>;
   /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
   abstract acquire(productId: string): Observable<StoreItem[]>;
+
+  /** Accès à la chasse sur mesure : formules, crédits, limites (§ 21). */
+  abstract generationAccess(): Observable<GenerationAccess>;
 
   /* ---------- Paiement (§ 20) ---------- */
   /** Ouvre le paiement d'un produit (« skin:medieval », « hunt:c12 ») ; url null s'il n'y avait rien à payer. */

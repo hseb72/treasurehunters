@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +21,7 @@ const DURATION_MAX = 360;
 /** Catalogue public des chasses (§ 13) : chercher, comparer, puis ouvrir une fiche. */
 @Component({
   selector: 'th-catalog',
-  imports: [CatalogCard, FormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSliderModule],
+  imports: [CatalogCard, FormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSliderModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
