@@ -41,13 +41,13 @@ export interface ExplorerJournal {
 }
 
 const BADGES: { id: BadgeId; label: string; icon: string; hint: string; test: (hunts: JournalHunt[], cities: string[]) => boolean }[] = [
-  { id: 'first', label: 'Premier trésor', icon: 'emoji_events', hint: 'Finir une chasse.', test: (h) => h.length >= 1 },
-  { id: 'five', label: 'Chercheur aguerri', icon: 'explore', hint: 'Finir cinq chasses.', test: (h) => h.length >= 5 },
-  { id: 'ten', label: 'Grand explorateur', icon: 'workspace_premium', hint: 'Finir dix chasses.', test: (h) => h.length >= 10 },
+  { id: 'first', label: 'Premier trésor', icon: 'emoji_events', hint: 'Finir une Secret Track.', test: (h) => h.length >= 1 },
+  { id: 'five', label: 'Chercheur aguerri', icon: 'explore', hint: 'Finir cinq Secret Tracks.', test: (h) => h.length >= 5 },
+  { id: 'ten', label: 'Grand explorateur', icon: 'workspace_premium', hint: 'Finir dix Secret Tracks.', test: (h) => h.length >= 10 },
   { id: 'cities', label: 'Globe-trotteur', icon: 'travel_explore', hint: 'Jouer dans trois villes.', test: (_, c) => c.length >= 3 },
-  { id: 'clean', label: 'Sans joker', icon: 'key_off', hint: 'Finir une chasse sans prendre de joker.', test: (h) => h.some((x) => x.hints === 0) },
-  { id: 'solo', label: 'En autonomie', icon: 'hiking', hint: 'Finir une chasse du catalogue sans organisateur.', test: (h) => h.some((x) => x.autonomous) },
-  { id: 'marathon', label: 'Marcheur', icon: 'directions_walk', hint: 'Parcourir 20 km de chasses au total.', test: (h) => h.reduce((a, x) => a + x.km, 0) >= 20 },
+  { id: 'clean', label: 'Sans joker', icon: 'key_off', hint: 'Finir une Secret Track sans prendre de joker.', test: (h) => h.some((x) => x.hints === 0) },
+  { id: 'solo', label: 'En autonomie', icon: 'hiking', hint: 'Finir une Secret Track du catalogue sans organisateur.', test: (h) => h.some((x) => x.autonomous) },
+  { id: 'marathon', label: 'Marcheur', icon: 'directions_walk', hint: 'Parcourir 20 km de Secret Tracks au total.', test: (h) => h.reduce((a, x) => a + x.km, 0) >= 20 },
 ];
 
 /** Ville d'une chasse : ce qui précède la première virgule de son lieu (« Montpellier, l'Écusson »), sans code postal. */

@@ -137,7 +137,7 @@ describe('preuve par photo', () => {
     const image = await player.get(`/api/steps/${step.id}/illustration`);
     expect(image.status).toBe(200);
     expect(image.body.toString()).toContain('fontaine');
-    expect((await outsider.get(`/api/steps/${step.id}/illustration`)).status).toBe(404); // hors de la chasse
+    expect((await outsider.get(`/api/steps/${step.id}/illustration`)).status).toBe(404); // hors de la Secret Track
 
     // À l'arrivée : cachée tant que le lieu n'est pas trouvé.
     await camille.put(`/api/steps/${next.id}/reference-photo`, { image: jpeg('kiosque') });

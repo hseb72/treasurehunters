@@ -1,4 +1,4 @@
-# Treasure Hunters
+# SecretTracks
 
 Application de chasses au trésor et de jeux de piste de type « rallye ». L'organisateur trace un parcours d'étapes et dépose un QR code à chaque lieu. Les équipes progressent d'énigme en énigme jusqu'au trésor. Deux modes de départ sont possibles : groupé ou échelonné. Le classement se fait toujours au temps de parcours.
 

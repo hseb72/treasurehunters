@@ -20,29 +20,29 @@ import { Notify } from '../core/notify';
     @let a = access();
     <div class="status">
       @if (!a.paid) {
-        <p class="line"><mat-icon>redeem</mat-icon> Offerte pendant le lancement, dans la limite de {{ a.usage.daily }} chasses par jour.</p>
+        <p class="line"><mat-icon>redeem</mat-icon> Offerte pendant le lancement, dans la limite de {{ a.usage.daily }} Secret Tracks par jour.</p>
       } @else {
         @if (a.founder) {
-          <p class="line"><mat-icon>star</mat-icon> <strong>Membre fondateur</strong> : chasses sur mesure incluses.</p>
+          <p class="line"><mat-icon>star</mat-icon> <strong>Membre fondateur</strong> : Secret Tracks sur mesure incluses.</p>
         }
         @if (a.passUntil && passActive()) {
           <p class="line">
             <mat-icon>workspace_premium</mat-icon> Forfait jusqu'au <strong>{{ a.passUntil | date: 'd MMMM y' }}</strong>
-            <span class="small muted">· {{ a.usage.passPeriod }} / {{ a.usage.passMonthly }} chasses sur 30 jours</span>
+            <span class="small muted">· {{ a.usage.passPeriod }} / {{ a.usage.passMonthly }} Secret Tracks sur 30 jours</span>
           </p>
         }
         @if (a.credits.available || a.credits.bonus) {
           <p class="line">
             <mat-icon>toll</mat-icon> <strong>{{ a.credits.available }}</strong> crédit{{ a.credits.available > 1 ? 's' : '' }}
             @if (a.credits.bonus) {
-              <span class="small muted">· dont {{ a.credits.bonus }} gagné{{ a.credits.bonus > 1 ? 's' : '' }} grâce à vos chasses partagées</span>
+              <span class="small muted">· dont {{ a.credits.bonus }} gagné{{ a.credits.bonus > 1 ? 's' : '' }} grâce à vos Secret Tracks partagées</span>
             }
           </p>
         }
       }
       <p class="small muted">
-        Aujourd'hui : {{ a.usage.today }} / {{ a.usage.daily }} chasses.
-        <a routerLink="/conditions" fragment="chasse-sur-mesure">Limites d'usage</a>
+        Aujourd'hui : {{ a.usage.today }} / {{ a.usage.daily }} Secret Tracks.
+        <a routerLink="/conditions" fragment="Secret Track-sur-mesure">Limites d'usage</a>
       </p>
       @if (a.blocked) {
         <p class="line blocked"><mat-icon>hourglass_top</mat-icon> {{ a.blocked }}</p>
@@ -62,7 +62,7 @@ import { Notify } from '../core/notify';
         }
       </div>
       <p class="small muted">
-        Forfaits sans reconduction automatique. Partagez vos chasses au catalogue : chacune jouée par d'autres vous rapporte
+        Forfaits sans reconduction automatique. Partagez vos Secret Tracks au catalogue : chacune jouée par d'autres vous rapporte
         {{ limits.creatorBonusPerHunt }} crédits (jusqu'à {{ limits.creatorBonusMax }}).
       </p>
     }

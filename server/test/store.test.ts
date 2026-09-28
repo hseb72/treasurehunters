@@ -20,8 +20,8 @@ describe('boutique', () => {
     expect((await client(ctx.app).post('/api/store/skin:medieval/acquire')).status).toBe(401);
   });
 
-  it('n’installe sur une chasse que les extensions obtenues, offertes pour l’instant', async () => {
-    const seb = await loginAs(ctx.app, 'seb@example.com'); // organisateur de la chasse 4 (brouillon)
+  it('n’installe sur une Secret Track que les extensions obtenues, offertes pour l’instant', async () => {
+    const seb = await loginAs(ctx.app, 'seb@example.com'); // organisateur de la Secret Track 4 (brouillon)
     const refused = await seb.patch('/api/hunts/4', { skin: 'medieval' });
     expect(refused.status).toBe(403);
     expect(refused.body.message).toMatch(/Médiéval.*boutique/);

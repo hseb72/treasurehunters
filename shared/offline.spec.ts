@@ -18,7 +18,7 @@ const step = (order: number, extra: Partial<OfflinePack['steps'][number]> = {}) 
 
 const pack: OfflinePack = {
   huntId: 1,
-  huntName: 'Chasse',
+  huntName: 'Secret Track',
   skin: 'aventure',
   teamName: 'Zoé',
   validation: 'geo',

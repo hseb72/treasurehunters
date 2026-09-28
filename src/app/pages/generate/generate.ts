@@ -143,7 +143,7 @@ export class GeneratePage {
       if (paid === undefined) return;
       untracked(() => {
         this.router.navigate([], { queryParams: {}, replaceUrl: true });
-        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! Inventez votre chasse.' : 'Paiement annulé : rien n’a été débité.');
+        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! Inventez votre Secret Track.' : 'Paiement annulé : rien n’a été débité.');
         // La confirmation de Stripe peut suivre de quelques secondes.
         if (paid === '1') timer(0, 2000).pipe(take(6), takeWhile(() => !this.canGenerate())).subscribe(() => this.access.reload());
       });

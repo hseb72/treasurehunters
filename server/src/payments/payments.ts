@@ -48,7 +48,7 @@ export class Payments {
     const hunt = /^hunt:c(\d{1,9})$/.exec(productId);
     if (hunt) {
       const r = await one(this.pool, 'SELECT cat_title, cat_price, cat_author_htr, cat_withdrawn FROM th_catalog WHERE cat_id = $1', [Number(hunt[1])]);
-      return r && !r['cat_withdrawn'] ? { id: productId, name: `Chasse « ${r['cat_title']} »`, price: r['cat_price'], sellerId: r['cat_author_htr'] } : null;
+      return r && !r['cat_withdrawn'] ? { id: productId, name: `Secret Track « ${r['cat_title']} »`, price: r['cat_price'], sellerId: r['cat_author_htr'] } : null;
     }
     const offer = generationOffer(productId);
     if (offer) return { id: productId, name: offer.name, price: offer.price, sellerId: null };

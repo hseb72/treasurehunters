@@ -17,7 +17,7 @@ sans pouvoir toucher au reste de l'application.
   id: 'spatial',                 // identifiant stable, en minuscules
   name: 'Mission spatiale',
   description: 'Nuit étoilée, écrans de bord et néons…',
-  author: 'Treasure Hunters',
+  author: 'SecretTracks',
   price: 0,                      // centimes d'euro ; 0 = offert
   scheme: 'dark',                // 'light' ou 'dark'
   cover: 'data:image/svg+xml,…', // couverture des cartes (16:9 conseillé)

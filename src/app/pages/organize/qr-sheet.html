@@ -10,7 +10,7 @@
   @for (s of printable(); track s.id) {
     <article class="qr-page">
       <div class="qr-frame">
-        <div class="brand">Treasure Hunters</div>
+        <div class="brand">SecretTracks</div>
         <div class="title">{{ s.order === finalOrder() ? 'Arrivée' : 'Étape ' + s.order }}</div>
         <qrcode [qrdata]="url(s)" [width]="220" [margin]="1" errorCorrectionLevel="Q" colorDark="#2b1d12ff" colorLight="#ffffffff" />
         <div class="scan-me">Scannez-moi pour valider l'étape</div>

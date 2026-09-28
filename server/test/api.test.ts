@@ -55,7 +55,7 @@ describe('scan de QR code (§ 4.2)', () => {
     expect(log.rows.map((r) => r.scl_result)).toEqual(['login_required', 'unknown', 'skipped', 'already_validated', 'validated']);
   });
 
-  it('annonce une chasse pas encore commencée ou terminée (avec podium)', async () => {
+  it('annonce une Secret Track pas encore commencée ou terminée (avec podium)', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');
     expect((await seb.post(`/api/scan/${DEMO_TOKENS.lez[1]}`)).body.outcome).toBe('not_started');
     const closed = await seb.post(`/api/scan/${DEMO_TOKENS.palavas[2]}`);
@@ -152,14 +152,14 @@ describe('validation par géolocalisation (« Je suis arrivé »)', () => {
     }
   });
 
-  it('refuse le check-in sur une chasse à QR codes et le départ libre hors chasse surprise', async () => {
+  it('refuse le check-in sur une Secret Track à QR codes et le départ libre hors Secret Track surprise', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');
     expect((await seb.post('/api/hunts/1/checkin', { lat: 43.6, lng: 3.88, accuracy: 5 })).status).toBe(409);
     expect((await seb.post('/api/hunts/1/self-start')).status).toBe(403);
     expect((await seb.get('/api/hunts/1/play')).body.selfStart).toBe(false);
   });
 
-  it('exige des coordonnées sur chaque étape pour ouvrir les inscriptions d’une chasse géolocalisée', async () => {
+  it('exige des coordonnées sur chaque étape pour ouvrir les inscriptions d’une Secret Track géolocalisée', async () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
     const hunt = (
       await camille.post('/api/hunts', {
@@ -197,7 +197,7 @@ describe('résultats', () => {
   });
 });
 
-describe('organisation d’une chasse, de la création au podium', () => {
+describe('organisation d’une Secret Track, de la création au podium', () => {
   it('déroule tout le cycle de vie', async () => {
     const orga = await loginAs(ctx.app, 'camille@example.com');
     const begin = new Date(Date.now() + 3_600_000).toISOString();
@@ -205,7 +205,7 @@ describe('organisation d’une chasse, de la création au podium', () => {
 
     const created = await orga.post('/api/hunts', {
       name: 'Test du temple',
-      description: 'Chasse de test',
+      description: 'Secret Track de test',
       location: 'Lattes',
       begin,
       end,
@@ -281,7 +281,7 @@ describe('organisation d’une chasse, de la création au podium', () => {
 });
 
 describe('départs et clôtures automatiques', () => {
-  it('démarre une chasse publiée à l’heure prévue', async () => {
+  it('démarre une Secret Track publiée à l’heure prévue', async () => {
     await ctx.pool.query(`UPDATE th_hunts SET hun_autostart = true, hun_begin = now() - interval '1 minute' WHERE hun_id = 2`);
     const { Service } = await import('../src/service.js');
     expect(await new Service(ctx.pool).runSchedule()).toBeGreaterThanOrEqual(1);

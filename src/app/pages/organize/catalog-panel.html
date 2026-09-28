@@ -4,7 +4,7 @@
       <section class="surface origin">
         <mat-icon>call_split</mat-icon>
         <p>
-          Cette chasse est une copie de <a [routerLink]="['/catalog', o.id]">« {{ o.title }} »</a> par {{ o.authorNickname }}. Si vous
+          Cette Secret Track est une copie de <a [routerLink]="['/catalog', o.id]">« {{ o.title }} »</a> par {{ o.authorNickname }}. Si vous
           changez le parcours, vous pourrez partager votre version, rattachée à l'originale.
         </p>
       </section>
@@ -26,11 +26,11 @@
       }
     }
 
-    <th-payouts-panel what="chasses" />
+    <th-payouts-panel what="Secret Tracks" />
     <form class="surface stack publish" [formGroup]="form" (ngSubmit)="publish()">
       <h2 class="section-title">{{ isVersion() ? 'Partager une nouvelle version au catalogue' : 'Partager au catalogue' }}</h2>
       <p class="small muted">
-        Le catalogue reçoit un instantané de la chasse : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,
+        Le catalogue reçoit un instantané de la Secret Track : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,
         ce qui est partagé ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
         une fois copié. Dates, équipes et QR codes restent les vôtres.
         @if (published.value().length) {

@@ -26,7 +26,7 @@ interface ReportData {
   template: `
     <h2 mat-dialog-title>Signaler un problème</h2>
     <mat-dialog-content>
-      <p class="small muted">Sur {{ data.label }}. L'organisateur (ou l'auteur de la chasse) sera prévenu, et les prochains joueurs aussi.</p>
+      <p class="small muted">Sur {{ data.label }}. L'organisateur (ou l'auteur de la Secret Track) sera prévenu, et les prochains joueurs aussi.</p>
       <div class="categories" role="radiogroup" aria-label="Nature du problème">
         @for (c of categories; track c.id) {
           <button type="button" role="radio" class="category" [class.on]="category() === c.id" [attr.aria-checked]="category() === c.id" (click)="category.set(c.id)">

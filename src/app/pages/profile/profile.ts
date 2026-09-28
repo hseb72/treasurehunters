@@ -33,8 +33,8 @@ import { Session } from '../../core/session';
         </mat-form-field>
         <mat-slide-toggle formControlName="rateable">Être noté en tant qu'organisateur</mat-slide-toggle>
         <p class="small muted hint">
-          Les joueurs de vos chasses pourront noter votre organisation. La moyenne s'affiche sur votre fiche publique d'organisateur, à côté de
-          vos chasses au catalogue.
+          Les joueurs de vos Secret Tracks pourront noter votre organisation. La moyenne s'affiche sur votre fiche publique d'organisateur, à côté de
+          vos Secret Tracks au catalogue.
           @if (session.user(); as u) {
             <a [routerLink]="['/organizers', u.id]">Voir ma fiche</a>
           }
@@ -47,7 +47,7 @@ import { Session } from '../../core/session';
 
       <a class="surface card journal" routerLink="/carnet">
         <mat-icon>menu_book</mat-icon>
-        <span><strong>Carnet d'explorateur</strong><br /><span class="small muted">Vos chasses finies, vos villes, vos badges.</span></span>
+        <span><strong>Carnet d'explorateur</strong><br /><span class="small muted">Vos Secret Tracks finies, vos villes, vos badges.</span></span>
         <mat-icon>chevron_right</mat-icon>
       </a>
 
@@ -61,9 +61,9 @@ import { Session } from '../../core/session';
 
       @if (access.value(); as a) {
         <section class="surface stack card" id="portefeuille">
-          <h2><mat-icon>toll</mat-icon> Chasses sur mesure</h2>
+          <h2><mat-icon>toll</mat-icon> Secret Tracks sur mesure</h2>
           <th-generation-access [access]="a" [showOffers]="true" returnPath="/me" (changed)="access.reload()" />
-          <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer une chasse</a>
+          <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer une Secret Track</a>
         </section>
       }
     </div>

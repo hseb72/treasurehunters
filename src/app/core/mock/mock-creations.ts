@@ -87,7 +87,7 @@ export class MockCreations {
       ],
     };
     this.rows = [
-      { id: 1, kind: 'skin', authorId: 2, name: 'Néon', description: 'Une ville la nuit : enseignes roses, reflets cyan, pour les chasses nocturnes.', price: 199, status: 'published', note: null, content: neon, published: t, lastUpdate: t },
+      { id: 1, kind: 'skin', authorId: 2, name: 'Néon', description: 'Une ville la nuit : enseignes roses, reflets cyan, pour les Secret Tracks nocturnes.', price: 199, status: 'published', note: null, content: neon, published: t, lastUpdate: t },
       { id: 2, kind: 'pack', authorId: 2, name: 'Mers du Sud', description: 'Quatre énigmes de marins, prêtes à poser sur vos étapes.', price: 299, status: 'published', note: null, content: mers, published: t, lastUpdate: t },
       { id: 3, kind: 'skin', authorId: 9, name: 'Aquarelle', description: 'Des taches de couleur douces, comme un carnet de voyage peint.', price: 0, status: 'review', note: null, content: aquarelle, published: null, lastUpdate: t },
     ];

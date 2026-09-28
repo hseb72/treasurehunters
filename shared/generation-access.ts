@@ -20,9 +20,9 @@ export interface GenerationOffer {
 }
 
 export const GENERATION_OFFERS: GenerationOffer[] = [
-  { id: 'gen:single', name: 'Une chasse sur mesure', description: 'Une chasse inventée pour vous, où vous voulez.', price: 299, credits: 1, icon: 'auto_awesome' },
-  { id: 'gen:month', name: 'Forfait mensuel', description: 'Des chasses sur mesure pendant 30 jours, dans les limites d’usage.', price: 1000, days: 30, icon: 'calendar_month' },
-  { id: 'gen:year', name: 'Forfait annuel', description: 'Des chasses sur mesure pendant un an, dans les limites d’usage.', price: 10000, days: 365, icon: 'workspace_premium' },
+  { id: 'gen:single', name: 'Une Secret Track sur mesure', description: 'Une Secret Track inventée pour vous, où vous voulez.', price: 299, credits: 1, icon: 'auto_awesome' },
+  { id: 'gen:month', name: 'Forfait mensuel', description: 'Des Secret Tracks sur mesure pendant 30 jours, dans les limites d’usage.', price: 1000, days: 30, icon: 'calendar_month' },
+  { id: 'gen:year', name: 'Forfait annuel', description: 'Des Secret Tracks sur mesure pendant un an, dans les limites d’usage.', price: 10000, days: 365, icon: 'workspace_premium' },
 ];
 
 export function generationOffer(id: string): GenerationOffer | undefined {
@@ -80,12 +80,12 @@ export function creatorBonus(sharedPlayed: number): number {
  * gratuite sans paiement ; sinon fondateur, forfait (dans sa limite mensuelle), crédit.
  */
 export function pickRight(a: Omit<GenerationAccess, 'right' | 'blocked'>): { right: GenerationRight | null; blocked: string | null } {
-  if (a.usage.today >= a.usage.daily) return { right: null, blocked: `Vous avez déjà inventé ${a.usage.daily} chasses aujourd’hui : revenez demain !` };
+  if (a.usage.today >= a.usage.daily) return { right: null, blocked: `Vous avez déjà inventé ${a.usage.daily} Secret Tracks aujourd’hui : revenez demain !` };
   if (!a.paid) return { right: 'free', blocked: null };
   if (a.founder) return { right: 'founder', blocked: null };
   const passActive = !!a.passUntil && Date.parse(a.passUntil) > Date.now();
   if (passActive && a.usage.passPeriod < a.usage.passMonthly) return { right: 'pass', blocked: null };
   if (a.credits.available > 0) return { right: 'credit', blocked: null };
-  if (passActive) return { right: null, blocked: `Votre forfait compte déjà ${a.usage.passMonthly} chasses sur 30 jours : un crédit à l’unité permet d’en inventer une de plus.` };
+  if (passActive) return { right: null, blocked: `Votre forfait compte déjà ${a.usage.passMonthly} Secret Tracks sur 30 jours : un crédit à l’unité permet d’en inventer une de plus.` };
   return { right: null, blocked: null };
 }

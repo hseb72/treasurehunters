@@ -22,7 +22,7 @@ import { Shop } from '../core/shop';
         <div class="text">
           @if (a.ready) {
             <strong>Vos ventes vous sont versées</strong>
-            <span class="small muted">Stripe vous reverse chaque vente, moins la commission de {{ a.commissionPercent }} % de Treasure Hunters.</span>
+            <span class="small muted">Stripe vous reverse chaque vente, moins la commission de {{ a.commissionPercent }} % de SecretTracks.</span>
           } @else {
             <strong>Recevez le fruit de vos ventes</strong>
             <span class="small muted">

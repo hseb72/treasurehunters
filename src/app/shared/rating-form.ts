@@ -23,8 +23,8 @@ import { StarInput } from './stars';
     @if (state.value(); as s) {
       @if (s.canRate) {
         <form class="surface stack rating" (ngSubmit)="save()">
-          <h2 class="section-title">{{ s.mine ? 'Votre avis' : 'Votre avis sur cette chasse' }}</h2>
-          <p class="small muted">Il aide les autres organisateurs à choisir leurs chasses dans le catalogue.</p>
+          <h2 class="section-title">{{ s.mine ? 'Votre avis' : 'Votre avis sur cette Secret Track' }}</h2>
+          <p class="small muted">Il aide les autres organisateurs à choisir leurs Secret Tracks dans le catalogue.</p>
           <th-star-input label="Note globale" [(value)]="stars" />
           <th-star-input label="Les énigmes" [(value)]="riddles" />
           <th-star-input label="Le parcours" [(value)]="route" />

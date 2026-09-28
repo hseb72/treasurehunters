@@ -4,7 +4,7 @@
       <p class="muted small">Bonjour {{ user.nickname }} 👋</p>
       <h1>Prêt pour l'aventure ?</h1>
     } @else {
-      <p class="muted small">Chasses au trésor &amp; jeux de piste</p>
+      <p class="muted small">Secret Tracks &amp; jeux de piste</p>
       <h1>Chaque indice mène au trésor</h1>
       <p class="muted">Rejoignez une expédition, suivez les énigmes de lieu en lieu… et soyez les premiers à l'arrivée.</p>
     }
@@ -12,7 +12,7 @@
 
   <div class="search">
     <mat-icon>search</mat-icon>
-    <input name="q" type="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Rechercher une chasse…" autocomplete="off" aria-label="Rechercher une chasse" />
+    <input name="q" type="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Rechercher une Secret Track…" autocomplete="off" aria-label="Rechercher une Secret Track" />
     <a mat-icon-button routerLink="/catalog" aria-label="Plus de critères, dans le catalogue"><mat-icon>tune</mat-icon></a>
   </div>
 
@@ -21,7 +21,7 @@
     <a class="action" routerLink="/catalog" [queryParams]="{ jouer: 1 }"><mat-icon>hiking</mat-icon>Jouer en autonomie</a>
     <a class="action" routerLink="/store"><mat-icon>storefront</mat-icon>Boutique</a>
     @if (session.loggedIn()) {
-      <a class="action" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Chasse sur mesure</a>
+      <a class="action" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Secret Track sur mesure</a>
     } @else {
       <a class="action" routerLink="/login"><mat-icon>login</mat-icon>Connexion</a>
     }
@@ -47,7 +47,7 @@
 
   @for (hunt of surprises(); track hunt.id) {
     <section>
-      <h2 class="section-title">{{ hunt.catalogId ? 'À jouer en autonomie' : 'Chasse surprise' }}</h2>
+      <h2 class="section-title">{{ hunt.catalogId ? 'À jouer en autonomie' : 'Secret Track surprise' }}</h2>
       <th-hunt-card [hunt]="hunt" [link]="['/play', hunt.id]">
         <div class="resume row">
           <span class="stamp stamp--accent">{{ hunt.catalogId ? 'Prête, à lancer sur place' : 'Prête' }}</span>

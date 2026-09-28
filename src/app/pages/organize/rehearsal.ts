@@ -45,7 +45,7 @@ interface Run {
         <section class="surface intro">
           <h2 class="section-title"><mat-icon>directions_walk</mat-icon> Répétition sur place</h2>
           <p class="small muted">
-            Parcourez votre chasse comme une équipe : lisez l'énigme, rendez-vous au lieu, puis touchez « Je suis arrivé ».
+            Parcourez votre Secret Track comme une équipe : lisez l'énigme, rendez-vous au lieu, puis touchez « Je suis arrivé ».
             Rien ne compte : aucune équipe, aucun classement. Vous saurez si la validation aurait marché, et combien de temps prend chaque étape.
           </p>
         </section>

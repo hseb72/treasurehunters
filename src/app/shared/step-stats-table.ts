@@ -17,7 +17,7 @@ import { HuntStats, StepStats } from '@shared/models';
       <p class="muted small">Pas encore de partie jouée : les chiffres apparaîtront avec les premières équipes.</p>
     } @else {
       <p class="small muted">
-        {{ s.teams }} équipe{{ s.teams > 1 ? 's' : '' }} partie{{ s.teams > 1 ? 's' : '' }}, {{ s.finished }} arrivée{{ s.finished > 1 ? 's' : '' }}{{ s.plays > 1 ? ' (' + s.plays + ' chasses jouées)' : '' }}.
+        {{ s.teams }} équipe{{ s.teams > 1 ? 's' : '' }} partie{{ s.teams > 1 ? 's' : '' }}, {{ s.finished }} arrivée{{ s.finished > 1 ? 's' : '' }}{{ s.plays > 1 ? ' (' + s.plays + ' Secret Tracks jouées)' : '' }}.
       </p>
       <ol class="steps">
         @for (st of s.steps; track st.order) {

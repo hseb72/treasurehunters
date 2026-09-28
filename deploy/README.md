@@ -1,6 +1,6 @@
-# Déploiement — Treasure Hunters sur la plateforme mutualisée
+# Déploiement — SecretTracks sur la plateforme mutualisée
 
-Treasure Hunters suit le **pattern `shared`** de
+SecretTracks suit le **pattern `shared`** de
 [platform-patterns](https://github.com/hseb72/platform-patterns). Il se pose sur le
 socle décrit dans [homelab-platform](https://github.com/hseb72/homelab-platform) :
 ingress-nginx, Kong, cert-manager, PostgreSQL mutualisé et SealedSecrets. Ce dépôt

@@ -29,14 +29,14 @@ async function generate(api: Awaited<ReturnType<typeof loginAs>>, mode: Generati
   return (await api.get(`/api/generations/${started.body.id}`)).body;
 }
 
-describe('chasse surprise (mode « je joue »)', () => {
-  it('invente une chasse cachée que le joueur lance et termine seul', async () => {
+describe('Secret Track surprise (mode « je joue »)', () => {
+  it('invente une Secret Track cachée que le joueur lance et termine seul', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');
     const job = await generate(seb, 'play');
     expect(job.status).toBe('done');
 
     const hunt = (await seb.get(`/api/hunts/${job.huntId}`)).body;
-    expect(hunt).toMatchObject({ ownerNickname: 'Treasure Hunters', status: 'published', surprise: true, generated: true, validation: 'geo', isPublic: false });
+    expect(hunt).toMatchObject({ ownerNickname: 'SecretTracks', status: 'published', surprise: true, generated: true, validation: 'geo', isPublic: false });
     expect(hunt.stepCount).toBe(4); // 45 min / 12 min par étape
     expect((await seb.get(`/api/hunts/${job.huntId}/steps`)).status).toBe(403); // le parcours reste secret
 
@@ -53,7 +53,7 @@ describe('chasse surprise (mode « je joue »)', () => {
       expect(last.outcome).toBe('validated');
     }
     expect(last.step.isFinal).toBe(true);
-    expect(last.state.hunt.status).toBe('closed'); // seul joueur arrivé : la chasse se clôt
+    expect(last.state.hunt.status).toBe('closed'); // seul joueur arrivé : la Secret Track se clôt
     expect((await seb.get(`/api/hunts/${job.huntId}/results`)).body[0]).toMatchObject({ rank: 1, teamName: 'seb' });
   });
 
@@ -128,13 +128,13 @@ describe('chasse surprise (mode « je joue »)', () => {
   });
 });
 
-describe('chasse générée à organiser', () => {
+describe('Secret Track générée à organiser', () => {
   it('crée un brouillon géolocalisé dont le joueur devient l’organisateur', async () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
     const job = await generate(camille, 'organize');
     const hunt = (await camille.get(`/api/hunts/${job.huntId}`)).body;
     expect(hunt).toMatchObject({ ownerId: expect.any(Number), status: 'draft', surprise: false, generated: true, validation: 'geo', teamGame: true });
-    expect(hunt.ownerNickname).not.toBe('Treasure Hunters');
+    expect(hunt.ownerNickname).not.toBe('SecretTracks');
     const steps = (await camille.get(`/api/hunts/${job.huntId}/steps`)).body;
     expect(steps[0]).toMatchObject({ order: 0, title: 'Départ', token: null });
     expect(steps.every((s: { latitude: number | null }) => s.latitude !== null)).toBe(true);
@@ -175,7 +175,7 @@ describe('limites de la génération', () => {
     await ctx.app.service.settle();
     const res = await lea.post('/api/hunts/generate', request('play'));
     expect(res.status).toBe(429);
-    expect(res.body.message).toMatch(/5 chasses/);
+    expect(res.body.message).toMatch(/5 Secret Tracks/);
   });
 
   it('plafonne aussi les essais qui échouent', async () => {

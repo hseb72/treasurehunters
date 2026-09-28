@@ -20,7 +20,7 @@ import { HuntCard } from '../../shared/hunt-card';
         <div class="head-actions">
           <a mat-stroked-button routerLink="/catalog"><mat-icon>menu_book</mat-icon>Partir du catalogue</a>
           <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer avec l'IA</a>
-          <a mat-flat-button class="th-cta new" routerLink="/organize/new"><mat-icon>add_location_alt</mat-icon>Nouvelle chasse</a>
+          <a mat-flat-button class="th-cta new" routerLink="/organize/new"><mat-icon>add_location_alt</mat-icon>Nouvelle Secret Track</a>
         </div>
       </header>
       <div class="grid">
@@ -30,7 +30,7 @@ import { HuntCard } from '../../shared/hunt-card';
           @if (!hunts.isLoading()) {
             <div class="surface center empty">
               <p>Vous n'avez encore organisé aucune expédition.</p>
-              <a mat-stroked-button routerLink="/organize/new">Créer ma première chasse</a>
+              <a mat-stroked-button routerLink="/organize/new">Créer ma première Secret Track</a>
             </div>
           }
         }

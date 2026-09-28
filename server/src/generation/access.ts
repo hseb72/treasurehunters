@@ -17,7 +17,7 @@ export async function generationAccess(db: Db, me: number, paid: boolean): Promi
             (SELECT count(*)::int FROM th_generations WHERE gen_hunter_htr = h.htr_id AND gen_status <> 'error' AND gen_creation > now() - interval '1 day') AS today,
             (SELECT count(*)::int FROM th_generations WHERE gen_hunter_htr = h.htr_id AND gen_status <> 'error' AND gen_right = 'pass'
                                                           AND gen_creation > now() - interval '30 days') AS pass_period,
-            -- Chasses partagées par le joueur et jouées jusqu'au bout par d'autres (copie organisée ou partie en autonomie).
+            -- Secret Tracks partagées par le joueur et jouées jusqu'au bout par d'autres (copie organisée ou partie en autonomie).
             (SELECT count(DISTINCT c.cat_id)::int FROM th_catalog c JOIN th_hunts x ON x.hun_catalog_cat = c.cat_id
               WHERE c.cat_author_htr = h.htr_id AND x.hun_status_hst IN ($2, $3)
                 AND x.hun_owner_htr <> h.htr_id AND x.hun_host_htr IS DISTINCT FROM h.htr_id) AS shared_played

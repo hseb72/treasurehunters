@@ -54,11 +54,11 @@ import { ASSIST_ACTIONS, ASSIST_LIMITS, AssistUsage } from '@shared/assist';
               Membre fondateur : {{ limits.passMonthly }} suggestions par 30 jours.
             }
             @case ('pass') {
-              Avec votre forfait de chasses sur mesure : {{ limits.passMonthly }} suggestions par 30 jours.
+              Avec votre forfait de Secret Tracks sur mesure : {{ limits.passMonthly }} suggestions par 30 jours.
             }
             @default {
               {{ limits.monthly }} suggestions offertes par 30 jours ; {{ limits.passMonthly }} avec un
-              <a routerLink="/me" fragment="portefeuille">forfait de chasses sur mesure</a>.
+              <a routerLink="/me" fragment="portefeuille">forfait de Secret Tracks sur mesure</a>.
             }
           }
           Une demande qui échoue n'est pas décomptée. <a routerLink="/conditions" fragment="assistant">Limites d'usage</a>

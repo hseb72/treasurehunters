@@ -130,7 +130,7 @@ function isUniqueViolation(e: unknown, constraint?: string): boolean {
   return err.code === '23505' && (!constraint || err.constraint === constraint);
 }
 
-/** Compte « Treasure Hunters », organisateur des chasses surprises (créé à la demande, sans mot de passe). */
+/** Compte « SecretTracks », organisateur des chasses surprises (créé à la demande, sans mot de passe). */
 const SYSTEM_EMAIL = 'generateur@treasurehunters.invalid';
 /** Une génération plus ancienne toujours en attente a été interrompue (redémarrage du serveur). */
 const GENERATION_STALE_MINUTES = 10;
@@ -290,7 +290,7 @@ export class Service {
     if (hunt) return hunt;
     const team = await one(this.pool, 'SELECT tea_hunt_hun FROM th_teams WHERE upper(tea_joincode) = $1', [c]);
     if (team) return this.visibleHunt(this.pool, viewer, team['tea_hunt_hun']);
-    throw notFound('Aucune chasse ni équipe ne correspond à ce code.');
+    throw notFound('Aucune Secret Track ni équipe ne correspond à ce code.');
   }
 
   async createHunt(viewer: Viewer, data: HuntInput): Promise<Hunt> {
@@ -340,7 +340,7 @@ export class Service {
     return tx(this.pool, async (db) => {
       const hunt = await this.ownedHunt(db, viewer, id, true);
       const expect = (...statuses: HuntStatus[]) => {
-        if (!statuses.includes(hunt.status)) throw conflict('Action impossible dans l’état actuel de la chasse.');
+        if (!statuses.includes(hunt.status)) throw conflict('Action impossible dans l’état actuel de la Secret Track.');
       };
       switch (action) {
         case 'publish':
@@ -533,7 +533,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const hunt = await this.joinableHunt(db, huntId, me);
-      if (!hunt.teamGame) throw conflict('Cette chasse se joue en solo.');
+      if (!hunt.teamGame) throw conflict('Cette Secret Track se joue en solo.');
       try {
         return await this.addTeam(db, hunt, name.trim(), me, false);
       } catch (e) {
@@ -550,7 +550,7 @@ export class Service {
       if (!r) throw notFound('Code d’équipe inconnu.');
       const team = (await teamById(db, r['tea_id'], true))!;
       const hunt = await this.joinableHunt(db, team.huntId, me);
-      if (team.solo) throw conflict('Cette chasse se joue en solo.');
+      if (team.solo) throw conflict('Cette Secret Track se joue en solo.');
       if (team.members.length >= hunt.teamMax) throw conflict('Cette équipe est complète.');
       if (team.finished) throw conflict('Cette équipe a déjà terminé l’expédition.');
       await db.query('INSERT INTO th_teamhunters (thr_team_tea, thr_hunt_hun, thr_hunter_htr) VALUES ($1, $2, $3)', [team.id, hunt.id, me]);
@@ -562,7 +562,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const hunt = await this.joinableHunt(db, huntId, me);
-      if (hunt.teamGame) throw conflict('Cette chasse se joue en équipe.');
+      if (hunt.teamGame) throw conflict('Cette Secret Track se joue en équipe.');
       const nickname = (await hunterById(db, me))!.nickname;
       return this.addTeam(db, hunt, nickname, me, true);
     });
@@ -576,7 +576,7 @@ export class Service {
       const hunt = (await huntById(db, huntId, true))!;
       if (hunt.surprise && hunt.hostId === me) throw conflict('Vous avez créé cette expédition : vous ne pouvez pas la quitter.');
       // Chasse surprise « chacun son chrono » : on peut partir tant que son équipe n'a pas donné son départ.
-      if (hunt.status !== 'published' && !(openToLateTeams(hunt) && !team.started)) throw conflict('La chasse a déjà commencé.');
+      if (hunt.status !== 'published' && !(openToLateTeams(hunt) && !team.started)) throw conflict('La Secret Track a déjà commencé.');
       await db.query('DELETE FROM th_teamhunters WHERE thr_team_tea = $1 AND thr_hunter_htr = $2', [team.id, me]);
       const rest = team.members.filter((m) => m.hunterId !== me);
       if (rest.length === 0) await db.query('DELETE FROM th_teams WHERE tea_id = $1', [team.id]);
@@ -605,7 +605,7 @@ export class Service {
       const team = await teamById(db, teamId, true);
       if (!team) throw notFound('Équipe introuvable.');
       const hunt = await this.ownedHunt(db, viewer, team.huntId);
-      if (hunt.status !== 'running' || !team.started) throw conflict('La chasse n’est pas en cours.');
+      if (hunt.status !== 'running' || !team.started) throw conflict('La Secret Track n’est pas en cours.');
       if (team.finished) throw conflict('Cette équipe est déjà arrivée.');
       // Jamais avant le déclenchement de la chasse.
       await db.query(
@@ -627,7 +627,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const team = await teamOf(db, huntId, me);
-      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
       await teamById(db, team.id, true); // un seul joker à la fois par équipe
       const state = await this.playState(db, me, huntId);
       const clue = state.clue;
@@ -652,7 +652,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const team = await teamOf(db, huntId, me);
-      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
       await teamById(db, team.id, true); // sérialisé avec les scans de l'équipe
       const state = await this.playState(db, me, huntId);
       const clue = state.clue;
@@ -677,10 +677,10 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const team = await teamOf(db, huntId, me);
-      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
       await teamById(db, team.id, true); // sérialisé avec les scans et abandons de l'équipe
       const hunt = (await huntById(db, huntId))!;
-      if (hunt.validation !== 'geo') throw conflict('Cette chasse se joue avec les QR codes posés sur place.');
+      if (hunt.validation !== 'geo') throw conflict('Cette Secret Track se joue avec les QR codes posés sur place.');
       const state = await this.playState(db, me, huntId);
       const clue = state.clue;
       if (!clue) throw conflict('Aucune étape à trouver pour le moment.');
@@ -784,7 +784,7 @@ export class Service {
     const me = requireUser(viewer);
     const hunt = await this.visibleHunt(this.pool, me, huntId);
     const team = await teamOf(this.pool, huntId, me);
-    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
     if (hunt.status !== 'published' && hunt.status !== 'running') throw conflict('Cette expédition n’est pas en cours.');
     if (!team.started && !(hunt.surprise && hunt.selfPaced)) throw conflict('Préparez le hors ligne une fois le départ donné.');
     const steps = await stepsOf(this.pool, huntId);
@@ -839,7 +839,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const mine = await teamOf(db, huntId, me);
-      if (!mine) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      if (!mine) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
       await teamById(db, mine.id, true); // sérialisé avec les scans de l'équipe
       const now = ((await one(db, 'SELECT now() AS now'))!['now'] as Date).getTime();
       let applied = 0;
@@ -920,7 +920,7 @@ export class Service {
         if (!target || target.id !== e.stepId || state.puzzle) return 'Cette arrivée ne correspond pas au lieu cherché.';
         let ok: boolean;
         if (e.kind === 'arrive') {
-          if (hunt.validation !== 'geo') return 'Cette chasse se valide avec les QR codes.';
+          if (hunt.validation !== 'geo') return 'Cette Secret Track se valide avec les QR codes.';
           const check = arrivalCheck(target, hunt, e);
           ok = !!check?.ok;
           if (!ok) {
@@ -968,7 +968,7 @@ export class Service {
     return tx(this.pool, async (db) => {
       const hunt = await huntById(db, huntId, true);
       const mine = hunt ? await teamOf(db, huntId, me) : null;
-      if (!hunt || !mine) throw notFound('Chasse introuvable.');
+      if (!hunt || !mine) throw notFound('Secret Track introuvable.');
       if (!hunt.surprise) throw forbidden('Le départ est donné par l’organisateur.');
       if (hunt.selfPaced) {
         const team = (await teamById(db, mine.id, true))!;
@@ -997,7 +997,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const hunt = await huntById(db, huntId, true);
-      if (!hunt || !hunt.surprise) throw notFound('Chasse introuvable.');
+      if (!hunt || !hunt.surprise) throw notFound('Secret Track introuvable.');
       if (hunt.hostId !== me) throw forbidden('Seul le créateur de l’expédition choisit le mode de départ.');
       if (hunt.status !== 'published') throw conflict('L’expédition est déjà partie.');
       await db.query('UPDATE th_hunts SET hun_selfpaced = $2, hun_lastupdate = now() WHERE hun_id = $1', [huntId, selfPaced]);
@@ -1067,7 +1067,7 @@ export class Service {
   private async playState(db: Db, me: number, huntId: number): Promise<PlayState> {
     const hunt = await this.visibleHunt(db, me, huntId);
     const team = await teamOf(db, huntId, me);
-    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
     const steps = await stepsOf(db, huntId);
     const allValidations = await validationsOfHunt(db, huntId);
     const allHints = await hintUsesOfHunt(db, huntId);
@@ -1213,7 +1213,7 @@ export class Service {
     const me = requireUser(viewer);
     const hunt = await this.visibleHunt(this.pool, me, huntId);
     const team = await teamOf(this.pool, huntId, me);
-    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
     if (!team.finished || !team.started) throw conflict('Le souvenir sera prêt à l’arrivée de votre équipe.');
     const steps = await stepsOf(this.pool, huntId);
     const ranking = await this.ranking(this.pool, hunt);
@@ -1319,7 +1319,7 @@ export class Service {
   async compass(viewer: Viewer, huntId: number, pos: { lat: number; lng: number }): Promise<CompassReading> {
     const me = requireUser(viewer);
     const state = await this.playState(this.pool, me, huntId);
-    if (!state.hunt.tools.includes('compass')) throw forbidden('Cette chasse n’a pas de boussole.');
+    if (!state.hunt.tools.includes('compass')) throw forbidden('Cette Secret Track n’a pas de boussole.');
     if (!state.clue) throw conflict('Aucune étape à trouver pour le moment.');
     const target = (await stepsOf(this.pool, huntId)).find((s) => s.order === state.clue!.targetOrder)!;
     if (target.latitude === null || target.longitude === null) throw conflict('Ce lieu n’est pas placé sur la carte : la boussole ne peut pas le trouver.');
@@ -1332,7 +1332,7 @@ export class Service {
   async getResults(viewer: Viewer, huntId: number): Promise<RankingRow[]> {
     const hunt = await this.visibleHunt(this.pool, viewer, huntId);
     const ended = hunt.status === 'closed' || hunt.status === 'archived';
-    if (!ended && hunt.ownerId !== viewer) throw forbidden('Les résultats seront publiés à la clôture de la chasse.');
+    if (!ended && hunt.ownerId !== viewer) throw forbidden('Les résultats seront publiés à la clôture de la Secret Track.');
     return this.ranking(this.pool, hunt);
   }
 
@@ -1347,7 +1347,7 @@ export class Service {
       const team = await teamById(db, teamId, true);
       if (!team) throw notFound('Équipe introuvable.');
       const hunt = await this.ownedHunt(db, me, team.huntId);
-      if (hunt.status !== 'running') throw conflict('La chasse n’est pas en cours.');
+      if (hunt.status !== 'running') throw conflict('La Secret Track n’est pas en cours.');
       const steps = await stepsOf(db, hunt.id);
       const step = steps.find((s) => s.id === stepId);
       if (!step) throw notFound('Étape introuvable.');
@@ -1427,7 +1427,7 @@ export class Service {
         verdict = v.match ? 'match' : 'nomatch';
         reason = v.reason;
       } catch (e) {
-        this.log(e, `Arbitre photo indisponible (chasse ${huntId}) — ${describeError(e)}`);
+        this.log(e, `Arbitre photo indisponible (Secret Track ${huntId}) — ${describeError(e)}`);
       }
     }
 
@@ -1489,7 +1489,7 @@ export class Service {
       const val = await one(db, 'SELECT * FROM th_validations WHERE val_photo_pho = $1', [photoId]);
       if (!val) throw conflict('Cette photo n’a pas validé d’étape : rien à contrôler.');
       if (p['pho_review']) throw conflict('Cette photo a déjà été contrôlée.');
-      if (!['running', 'closed'].includes(hunt.status)) throw conflict('La chasse n’est ni en cours ni close.');
+      if (!['running', 'closed'].includes(hunt.status)) throw conflict('La Secret Track n’est ni en cours ni close.');
       await db.query('UPDATE th_photos SET pho_review = $2, pho_reviewed_by_htr = $3, pho_lastupdate = now() WHERE pho_id = $1', [
         photoId,
         approve ? 'approved' : 'rejected',
@@ -1609,7 +1609,7 @@ export class Service {
 
   /** Étape cherchée par l'équipe, à laquelle une photo peut se substituer au QR. */
   private async photoTarget(db: Db, state: PlayState) {
-    if (state.hunt.validation !== 'qr') throw conflict('Cette chasse se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
+    if (state.hunt.validation !== 'qr') throw conflict('Cette Secret Track se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
     if (!state.clue) throw conflict('Aucune étape à trouver pour le moment.');
     const r = await one(db, 'SELECT * FROM th_codes WHERE cod_hunt_hun = $1 AND cod_order = $2', [state.hunt.id, state.clue.targetOrder]);
     return { step: toStep(r!), refKey: r!['cod_refphoto'] as string | null, riddle: state.clue.instructions || null };
@@ -1656,7 +1656,7 @@ export class Service {
     const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
       const team = await teamOf(db, huntId, me);
-      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
       await teamById(db, team.id, true); // sérialisé avec les scans de l'équipe
       const state = await this.playState(db, me, huntId);
       if (!state.puzzle) throw conflict('Aucune énigme à résoudre : rendez-vous d’abord sur le lieu.');
@@ -1761,10 +1761,10 @@ export class Service {
     const me = requireUser(viewer);
     const id = await tx(this.pool, async (db) => {
       const hunt = await this.ownedHunt(db, me, huntId, true);
-      if (hunt.status === 'cancelled') throw conflict('Une chasse annulée ne se partage pas au catalogue.');
+      if (hunt.status === 'cancelled') throw conflict('Une Secret Track annulée ne se partage pas au catalogue.');
       const steps = await stepsOf(db, huntId);
       const final = finalOrder(steps);
-      if (final < 2) throw badRequest('Il faut au moins une étape entre le départ et l’arrivée pour partager la chasse au catalogue.');
+      if (final < 2) throw badRequest('Il faut au moins une étape entre le départ et l’arrivée pour partager la Secret Track au catalogue.');
       const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
       if (missing) throw badRequest(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
       const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
@@ -1901,7 +1901,7 @@ export class Service {
   async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
     const [entry] = await catalogEntries(this.pool, 'c.cat_id = $1', [id]);
     const r = await one(this.pool, 'SELECT cat_sample_order, cat_sample, cat_hunt_hun FROM th_catalog WHERE cat_id = $1', [id]);
-    if (!entry || !r || (entry.withdrawn && entry.authorId !== viewer)) throw notFound('Cette chasse n’est pas au catalogue.');
+    if (!entry || !r || (entry.withdrawn && entry.authorId !== viewer)) throw notFound('Cette Secret Track n’est pas au catalogue.');
     const reviews = await rows(
       this.pool,
       `${ENTRY_HUNTS} SELECT u.htr_nickname, r.rat_stars, r.rat_comment, r.rat_creation
@@ -2060,8 +2060,8 @@ export class Service {
   private async authoredEntry(viewer: Viewer, catalogId: number): Promise<Row> {
     const me = requireUser(viewer);
     const r = await one(this.pool, 'SELECT * FROM th_catalog WHERE cat_id = $1', [catalogId]);
-    if (!r) throw notFound('Cette chasse n’est pas au catalogue.');
-    if (r['cat_author_htr'] !== me) throw forbidden('Réservé à l’auteur de la chasse.');
+    if (!r) throw notFound('Cette Secret Track n’est pas au catalogue.');
+    if (r['cat_author_htr'] !== me) throw forbidden('Réservé à l’auteur de la Secret Track.');
     return r;
   }
 
@@ -2151,12 +2151,12 @@ export class Service {
    */
   private async instantiate(db: Db, me: number, id: number, play: boolean): Promise<number> {
     const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr, cat_validation FROM th_catalog WHERE cat_id = $1', [id]);
-    if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
-    if (play && r['cat_validation'] !== 'geo') throw conflict('Cette chasse se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
+    if (!r || r['cat_withdrawn']) throw notFound('Cette Secret Track n’est pas au catalogue.');
+    if (play && r['cat_validation'] !== 'geo') throw conflict('Cette Secret Track se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
     // Chasse payante (§ 20) : achetée une fois, copiée ou jouée autant qu'on veut ; gratuite sans paiement activé.
     if (this.payments?.enabled && r['cat_price'] > 0 && r['cat_author_htr'] !== me) {
       const bought = await one(db, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [me, catalogProductId(id)]);
-      if (!bought) throw new HttpError(402, `Cette chasse est payante : achetez-la pour la ${play ? 'jouer' : 'copier'}.`);
+      if (!bought) throw new HttpError(402, `Cette Secret Track est payante : achetez-la pour la ${play ? 'jouer' : 'copier'}.`);
     }
     const content = r['cat_content'] as CatalogContent;
     const begin = play ? new Date() : new Date(Date.now() + 7 * 86_400_000);
@@ -2210,8 +2210,8 @@ export class Service {
   async withdrawFromCatalog(viewer: Viewer, id: number): Promise<CatalogDetail> {
     const me = requireUser(viewer);
     const r = await one(this.pool, 'SELECT cat_author_htr FROM th_catalog WHERE cat_id = $1', [id]);
-    if (!r) throw notFound('Cette chasse n’est pas au catalogue.');
-    if (r['cat_author_htr'] !== me) throw forbidden('Seul l’auteur retire sa chasse du catalogue.');
+    if (!r) throw notFound('Cette Secret Track n’est pas au catalogue.');
+    if (r['cat_author_htr'] !== me) throw forbidden('Seul l’auteur retire sa Secret Track du catalogue.');
     await this.pool.query('UPDATE th_catalog SET cat_withdrawn = coalesce(cat_withdrawn, now()), cat_lastupdate = now() WHERE cat_id = $1', [id]);
     return this.catalogEntry(me, id);
   }
@@ -2235,7 +2235,7 @@ export class Service {
   async rateHunt(viewer: Viewer, huntId: number, rating: Rating): Promise<RatingState> {
     const me = requireUser(viewer);
     const state = await this.ratingState(me, huntId);
-    if (!state.canRate) throw forbidden('Seuls les joueurs de cette chasse la notent, une fois close.');
+    if (!state.canRate) throw forbidden('Seuls les joueurs de cette Secret Track la notent, une fois close.');
     await this.pool.query(
       `INSERT INTO th_ratings (rat_hunt_hun, rat_hunter_htr, rat_stars, rat_riddles, rat_route, rat_mood, rat_comment, rat_organizer)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -2278,7 +2278,7 @@ export class Service {
   /** Lance l'invention d'une chasse en tâche de fond ; le front suit la génération. */
   async generate(viewer: Viewer, req: GenerationRequest): Promise<GenerationJob> {
     const me = requireUser(viewer);
-    if (!this.generator) throw new HttpError(503, 'La génération de chasses n’est pas activée sur ce serveur.');
+    if (!this.generator) throw new HttpError(503, 'La génération de Secret Tracks n’est pas activée sur ce serveur.');
     const job = await tx(this.pool, async (db) => {
       // Sérialise les demandes d'un même joueur pour que le quota tienne.
       await db.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 FOR UPDATE', [me]);
@@ -2293,7 +2293,7 @@ export class Service {
       // Seules les générations réussies ou en cours comptent : un échec ne coûte rien au joueur.
       const access = await generationAccess(db, me, !!this.payments?.enabled);
       if (!access.right) {
-        throw new HttpError(access.blocked ? 429 : 402, access.blocked ?? 'La chasse sur mesure est payante : choisissez une chasse à l’unité ou un forfait.');
+        throw new HttpError(access.blocked ? 429 : 402, access.blocked ?? 'La Secret Track sur mesure est payante : choisissez une Secret Track à l’unité ou un forfait.');
       }
       // Les essais, échecs compris, restent plafonnés pour ménager OpenStreetMap et l'API.
       const recent = await one(db, `SELECT count(*)::int AS attempts FROM th_generations WHERE gen_hunter_htr = $1 AND gen_creation > now() - interval '1 day'`, [me]);
@@ -2429,7 +2429,7 @@ export class Service {
 
   private async systemAccount(db: Db): Promise<number> {
     await db.query(
-      `INSERT INTO th_hunters (htr_nickname, htr_email) VALUES ('Treasure Hunters', $1)
+      `INSERT INTO th_hunters (htr_nickname, htr_email) VALUES ('SecretTracks', $1)
        ON CONFLICT DO NOTHING`,
       [SYSTEM_EMAIL],
     );
@@ -2439,7 +2439,7 @@ export class Service {
       `SELECT htr_id FROM th_hunters h WHERE lower(htr_email) = $1 AND NOT EXISTS (SELECT 1 FROM th_secrets WHERE sec_hunter_htr = h.htr_id)`,
       [SYSTEM_EMAIL],
     );
-    if (!r) throw new Error('Compte « Treasure Hunters » indisponible (pseudo déjà pris ?).');
+    if (!r) throw new Error('Compte « SecretTracks » indisponible (pseudo déjà pris ?).');
     return r['htr_id'];
   }
 
@@ -2447,24 +2447,24 @@ export class Service {
 
   private async visibleHunt(db: Db, viewer: Viewer, id: number): Promise<Hunt> {
     const hunt = await huntById(db, id);
-    if (!hunt || (hunt.status === 'draft' && hunt.ownerId !== viewer)) throw notFound('Chasse introuvable.');
+    if (!hunt || (hunt.status === 'draft' && hunt.ownerId !== viewer)) throw notFound('Secret Track introuvable.');
     return hunt;
   }
 
   private async ownedHunt(db: Db, viewer: Viewer, id: number, lock = false): Promise<Hunt> {
     const me = requireUser(viewer);
     const hunt = await huntById(db, id, lock);
-    if (!hunt || (hunt.status === 'draft' && hunt.ownerId !== me)) throw notFound('Chasse introuvable.');
-    if (hunt.ownerId !== me) throw forbidden('Réservé à l’organisateur de la chasse.');
+    if (!hunt || (hunt.status === 'draft' && hunt.ownerId !== me)) throw notFound('Secret Track introuvable.');
+    if (hunt.ownerId !== me) throw forbidden('Réservé à l’organisateur de la Secret Track.');
     return hunt;
   }
 
   private async joinableHunt(db: Db, huntId: number, me: number): Promise<Hunt> {
     const hunt = await huntById(db, huntId, true);
-    if (!hunt || hunt.status === 'draft') throw notFound('Chasse introuvable.');
+    if (!hunt || hunt.status === 'draft') throw notFound('Secret Track introuvable.');
     if (hunt.status !== 'published' && !openToLateTeams(hunt)) throw conflict('Les inscriptions sont fermées.');
-    if (hunt.ownerId === me) throw conflict('Vous organisez cette chasse.');
-    if (await teamOf(db, huntId, me)) throw conflict('Vous êtes déjà inscrit à cette chasse.');
+    if (hunt.ownerId === me) throw conflict('Vous organisez cette Secret Track.');
+    if (await teamOf(db, huntId, me)) throw conflict('Vous êtes déjà inscrit à cette Secret Track.');
     return hunt;
   }
 

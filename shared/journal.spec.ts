@@ -2,7 +2,7 @@ import { cityOf, explorerJournal, JournalHunt } from './journal.js';
 
 const hunt = (over: Partial<JournalHunt>): JournalHunt => ({
   huntId: 1,
-  name: 'Chasse',
+  name: 'Secret Track',
   location: 'Montpellier, l’Écusson',
   skin: 'aventure',
   date: '2026-09-01T10:00:00Z',
@@ -16,7 +16,7 @@ const hunt = (over: Partial<JournalHunt>): JournalHunt => ({
 });
 
 describe('explorerJournal', () => {
-  it('range les chasses, compte villes, étapes et kilomètres, et accorde les badges', () => {
+  it('range les Secret Tracks, compte villes, étapes et kilomètres, et accorde les badges', () => {
     const j = explorerJournal([
       hunt({ huntId: 1 }),
       hunt({ huntId: 2, location: 'Sète', date: '2026-09-10T10:00:00Z', hints: 0, autonomous: true }),

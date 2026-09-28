@@ -145,13 +145,13 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   // Une clé qui n'est pas de l'ASCII imprimable (un modèle de commande copié tel quel : « sk-ant-… »)
   // ne peut pas partir dans un en-tête HTTP : chaque génération échouerait. On le dit une fois.
   const keyUsable = !!key && /^[\x21-\x7e]+$/.test(key);
-  if (key && !keyUsable) app.log.error('ANTHROPIC_API_KEY invalide (caractères non ASCII ou espaces) : génération de chasses désactivée.');
+  if (key && !keyUsable) app.log.error('ANTHROPIC_API_KEY invalide (caractères non ASCII ou espaces) : génération de Secret Tracks désactivée.');
   const generator = opts.generator !== undefined ? opts.generator : keyUsable ? new OsmClaudeGenerator(key!) : null;
   // Une clé refusée ou un modèle inconnu se voit dès le démarrage, pas à la première chasse.
   if (generator instanceof OsmClaudeGenerator) {
     generator.check().then(
-      () => app.log.info(`Générateur de chasses prêt (modèle ${config.generatorModel}).`),
-      (e) => app.log.error(e, `Générateur de chasses : ${e instanceof HttpError ? e.message : 'vérification impossible'} — ${describeError(e instanceof HttpError && e.cause ? e.cause : e)}`),
+      () => app.log.info(`Générateur de Secret Tracks prêt (modèle ${config.generatorModel}).`),
+      (e) => app.log.error(e, `Générateur de Secret Tracks : ${e instanceof HttpError ? e.message : 'vérification impossible'} — ${describeError(e instanceof HttpError && e.cause ? e.cause : e)}`),
     );
   }
   const s3 = config.photoStore;

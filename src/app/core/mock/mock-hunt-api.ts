@@ -70,7 +70,7 @@ import { buildFixtures, MockDb } from '@shared/fixtures';
 const LATENCY_MS = 150;
 /** Durée simulée d'une génération de chasse. */
 const GENERATION_MS = 4000;
-/** Compte « Treasure Hunters », organisateur des chasses surprises. */
+/** Compte « SecretTracks », organisateur des chasses surprises. */
 const SYSTEM_ID = 999;
 /** Lieu par défaut quand le lieu est donné par son nom (pas de géocodage en maquette). */
 const MONTPELLIER = { lat: 43.6085, lng: 3.8795 };
@@ -190,7 +190,7 @@ export class MockHuntApi extends HuntApi {
       if (h) return this.huntView(h);
       const team = this.db.teams.find((t) => t.joinCode.toUpperCase() === code.trim().toUpperCase());
       if (team) return this.huntView(this.visibleHunt(team.huntId));
-      throw new ApiError('Aucune chasse ni équipe ne correspond à ce code.');
+      throw new ApiError('Aucune Secret Track ni équipe ne correspond à ce code.');
     });
   }
 
@@ -207,7 +207,7 @@ export class MockHuntApi extends HuntApi {
       this.checkExtensions(me, data, null);
       const id = this.nextId(this.db.hunts);
       const h: MockDb['hunts'][number] = {
-        name: 'Nouvelle chasse',
+        name: 'Nouvelle Secret Track',
         description: '',
         location: '',
         begin: new Date(Date.now() + 7 * 86_400_000).toISOString(),
@@ -258,7 +258,7 @@ export class MockHuntApi extends HuntApi {
       const h = this.ownedHunt(id);
       const now = new Date().toISOString();
       const expect = (...statuses: Hunt['status'][]) => {
-        if (!statuses.includes(h.status)) throw new ApiError('Action impossible dans l’état actuel de la chasse.');
+        if (!statuses.includes(h.status)) throw new ApiError('Action impossible dans l’état actuel de la Secret Track.');
       };
       switch (action) {
         case 'publish':
@@ -389,7 +389,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const h = this.joinableHunt(huntId, me);
-      if (!h.teamGame) throw new ApiError('Cette chasse se joue en solo.');
+      if (!h.teamGame) throw new ApiError('Cette Secret Track se joue en solo.');
       if (this.db.teams.some((t) => t.huntId === huntId && t.name.toLowerCase() === name.trim().toLowerCase())) {
         throw new ApiError('Une équipe porte déjà ce nom.');
       }
@@ -414,7 +414,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const h = this.joinableHunt(huntId, me);
-      if (h.teamGame) throw new ApiError('Cette chasse se joue en équipe.');
+      if (h.teamGame) throw new ApiError('Cette Secret Track se joue en équipe.');
       return this.addTeam(h, this.nick(me), me, true);
     });
   }
@@ -426,7 +426,7 @@ export class MockHuntApi extends HuntApi {
       if (!team) return;
       const h = this.db.hunts.find((x) => x.id === huntId)!;
       if (h.surprise && h.hostId === me) throw new ApiError('Vous avez créé cette expédition : vous ne pouvez pas la quitter.');
-      if (h.status !== 'published' && !(openToLateTeams(h) && !team.started)) throw new ApiError('La chasse a déjà commencé.');
+      if (h.status !== 'published' && !(openToLateTeams(h) && !team.started)) throw new ApiError('La Secret Track a déjà commencé.');
       team.members = team.members.filter((m) => m.hunterId !== me);
       if (team.members.length === 0) this.db.teams = this.db.teams.filter((t) => t.id !== team.id);
       else if (team.ownerId === me) team.ownerId = team.members[0].hunterId;
@@ -451,7 +451,7 @@ export class MockHuntApi extends HuntApi {
       const t = this.db.teams.find((x) => x.id === teamId);
       if (!t) throw new ApiError('Équipe introuvable.');
       const h = this.ownedHunt(t.huntId);
-      if (h.status !== 'running' || !t.started) throw new ApiError('La chasse n’est pas en cours.');
+      if (h.status !== 'running' || !t.started) throw new ApiError('La Secret Track n’est pas en cours.');
       const shifted = Date.parse(t.started) + minutes * 60_000;
       t.started = new Date(Math.max(shifted, Date.parse(h.started!))).toISOString();
       return t;
@@ -544,7 +544,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
-      if (h.validation !== 'geo') throw new ApiError('Cette chasse se joue avec les QR codes posés sur place.');
+      if (h.validation !== 'geo') throw new ApiError('Cette Secret Track se joue avec les QR codes posés sur place.');
       const state = this.playState(huntId);
       const clue = state.clue;
       if (!clue) throw new ApiError('Aucune étape à trouver pour le moment.');
@@ -573,7 +573,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
       const team = this.teamOf(huntId, me);
-      if (!team) throw new ApiError('Chasse introuvable.');
+      if (!team) throw new ApiError('Secret Track introuvable.');
       if (!h.surprise) throw new ApiError('Le départ est donné par l’organisateur.');
       if (h.selfPaced) {
         if (team.started) throw new ApiError('Votre équipe est déjà partie.');
@@ -597,7 +597,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
-      if (!h.surprise) throw new ApiError('Chasse introuvable.');
+      if (!h.surprise) throw new ApiError('Secret Track introuvable.');
       if (h.hostId !== me) throw new ApiError('Seul le créateur de l’expédition choisit le mode de départ.');
       if (h.status !== 'published') throw new ApiError('L’expédition est déjà partie.');
       h.selfPaced = selfPaced;
@@ -613,7 +613,7 @@ export class MockHuntApi extends HuntApi {
       if (request.skin) this.checkExtensions(me, { skin: request.skin }, null);
       // Qui règle la chasse (§ 21), comme le serveur.
       const access = this.access(me);
-      if (!access.right) throw new ApiError(access.blocked ?? 'La chasse sur mesure est payante : choisissez une chasse à l’unité ou un forfait.');
+      if (!access.right) throw new ApiError(access.blocked ?? 'La Secret Track sur mesure est payante : choisissez une Secret Track à l’unité ou un forfait.');
       this.genUses.push({ hunterId: me, at: Date.now(), right: access.right });
       // Épreuves proposées par l'IA : seulement les types des packs du joueur.
       const missing = (request.puzzles ?? []).map((t) => puzzleType(t)).find((t) => !owns(this.purchases.get(me) ?? new Set(), t.pack));
@@ -624,7 +624,7 @@ export class MockHuntApi extends HuntApi {
       const plan = demoPlan(center, plannedStepCount(request), placeName, request.puzzles ?? []);
       const play = request.mode === 'play';
       if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
-        this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
+        this.db.hunters.push({ id: SYSTEM_ID, nickname: 'SecretTracks', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
       }
       const id = this.nextId(this.db.hunts);
       const begin = Date.now();
@@ -705,7 +705,7 @@ export class MockHuntApi extends HuntApi {
       const h = this.visibleHunt(huntId);
       const me = this.viewer();
       const ended = h.status === 'closed' || h.status === 'archived';
-      if (!ended && h.ownerId !== me) throw new ApiError('Les résultats seront publiés à la clôture de la chasse.');
+      if (!ended && h.ownerId !== me) throw new ApiError('Les résultats seront publiés à la clôture de la Secret Track.');
       return this.ranking(huntId);
     });
   }
@@ -785,7 +785,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const e = this.catalogEntryFor(id, me, 'jouer');
-      if (e.validation !== 'geo') throw new ApiError('Cette chasse se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
+      if (e.validation !== 'geo') throw new ApiError('Cette Secret Track se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
       const waiting = this.db.hunts.find(
         (h) => h.catalogId === id && h.surprise && h.hostId === me && h.status === 'published' && this.db.teams.some((t) => t.huntId === h.id && t.ownerId === me && !t.started),
       );
@@ -855,7 +855,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
       const team = this.teamOf(huntId, me);
-      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette Secret Track.');
       if (!team.finished || !team.started) throw new ApiError('Le souvenir sera prêt à l’arrivée de votre équipe.');
       const steps = this.stepsOf(huntId);
       const ranking = this.ranking(huntId);
@@ -924,15 +924,15 @@ export class MockHuntApi extends HuntApi {
 
   private catalogEntryFor(id: number, me: number, verb: string): MockEntry {
     const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
-    if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
-    if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError(`Cette chasse est payante : achetez-la pour la ${verb}.`);
+    if (!e) throw new ApiError('Cette Secret Track n’est pas au catalogue.');
+    if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError(`Cette Secret Track est payante : achetez-la pour la ${verb}.`);
     return e;
   }
 
   /** Chasse tirée d'une version : brouillon à organiser, ou partie en autonomie (compte système, hôte = joueur). */
   private instantiate(e: MockEntry, me: number, play: boolean): MockDb['hunts'][number] {
     if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
-      this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
+      this.db.hunters.push({ id: SYSTEM_ID, nickname: 'SecretTracks', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
     }
     const begin = play ? Date.now() : Date.now() + 7 * 86_400_000;
     const h: MockDb['hunts'][number] = {
@@ -968,8 +968,8 @@ export class MockHuntApi extends HuntApi {
   withdrawFromCatalog(id: number): Observable<CatalogDetail> {
     return this.reply(() => {
       const e = this.catalog.find((x) => x.id === id);
-      if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
-      if (e.authorId !== this.requireUser()) throw new ApiError('Seul l’auteur retire sa chasse du catalogue.');
+      if (!e) throw new ApiError('Cette Secret Track n’est pas au catalogue.');
+      if (e.authorId !== this.requireUser()) throw new ApiError('Seul l’auteur retire sa Secret Track du catalogue.');
       e.withdrawn = true;
       return this.entryDetail(id);
     });
@@ -989,7 +989,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const state = this.ratingState(huntId);
-      if (!state.canRate) throw new ApiError('Seuls les joueurs de cette chasse la notent, une fois close.');
+      if (!state.canRate) throw new ApiError('Seuls les joueurs de cette Secret Track la notent, une fois close.');
       const value = { ...rating, comment: rating.comment?.trim() || null, organizer: state.organizerRateable ? rating.organizer : null };
       const existing = this.ratings.find((r) => r.huntId === huntId && r.hunterId === me);
       if (existing) existing.rating = value;
@@ -1029,7 +1029,7 @@ export class MockHuntApi extends HuntApi {
   private publish(h: MockDb['hunts'][number], pub: CatalogPublication, authorId = h.ownerId): MockEntry {
     const steps = this.stepsOf(h.id);
     const final = finalOrder(steps);
-    if (final < 2) throw new ApiError('Il faut au moins une étape entre le départ et l’arrivée pour partager la chasse au catalogue.');
+    if (final < 2) throw new ApiError('Il faut au moins une étape entre le départ et l’arrivée pour partager la Secret Track au catalogue.');
     const missing = steps.find((s) => s.order < final && !s.instructions?.trim());
     if (missing) throw new ApiError(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
     const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
@@ -1144,7 +1144,7 @@ export class MockHuntApi extends HuntApi {
   private entryDetail(id: number): CatalogDetail {
     const me = this.viewer();
     const e = this.catalog.find((x) => x.id === id);
-    if (!e || (e.withdrawn && e.authorId !== me)) throw new ApiError('Cette chasse n’est pas au catalogue.');
+    if (!e || (e.withdrawn && e.authorId !== me)) throw new ApiError('Cette Secret Track n’est pas au catalogue.');
     const hunts = new Set(this.entryHunts(e));
     return {
       ...this.entryView(e),
@@ -1366,8 +1366,8 @@ export class MockHuntApi extends HuntApi {
 
   private authoredEntry(catalogId: number): MockEntry {
     const e = this.catalog.find((x) => x.id === catalogId);
-    if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
-    if (e.authorId !== this.requireUser()) throw new ApiError('Réservé à l’auteur de la chasse.');
+    if (!e) throw new ApiError('Cette Secret Track n’est pas au catalogue.');
+    if (e.authorId !== this.requireUser()) throw new ApiError('Réservé à l’auteur de la Secret Track.');
     return e;
   }
 
@@ -1532,7 +1532,7 @@ export class MockHuntApi extends HuntApi {
   compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
     return this.reply(() => {
       const state = this.playState(huntId);
-      if (!state.hunt.tools.includes('compass')) throw new ApiError('Cette chasse n’a pas de boussole.');
+      if (!state.hunt.tools.includes('compass')) throw new ApiError('Cette Secret Track n’a pas de boussole.');
       if (!state.clue) throw new ApiError('Aucune étape à trouver pour le moment.');
       const target = this.stepsOf(huntId).find((s) => s.order === state.clue!.targetOrder)!;
       if (target.latitude === null || target.longitude === null) throw new ApiError('Ce lieu n’est pas placé sur la carte : la boussole ne peut pas le trouver.');
@@ -1633,7 +1633,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const state = this.playState(huntId);
-      if (state.hunt.validation !== 'qr') throw new ApiError('Cette chasse se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
+      if (state.hunt.validation !== 'qr') throw new ApiError('Cette Secret Track se valide par géolocalisation : appuyez sur « Je suis arrivé ».');
       if (!state.clue) throw new ApiError('Aucune étape à trouver pour le moment.');
       const step = this.stepsOf(huntId).find((s) => s.order === state.clue!.targetOrder)!;
       const tried = this.photos.some((p) => p.teamId === state.team.id && p.stepId === step.id);
@@ -1783,7 +1783,7 @@ export class MockHuntApi extends HuntApi {
       const me = this.requireUser();
       const h = this.visibleHunt(huntId);
       const team = this.teamOf(huntId, me);
-      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette Secret Track.');
       if (h.status !== 'published' && h.status !== 'running') throw new ApiError('Cette expédition n’est pas en cours.');
       if (!team.started && !(h.surprise && h.selfPaced)) throw new ApiError('Préparez le hors ligne une fois le départ donné.');
       const steps = this.stepsOf(huntId);
@@ -1831,7 +1831,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const team = this.teamOf(huntId, me);
-      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+      if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette Secret Track.');
       let applied = 0;
       let previous = 0;
       let rejected: OfflineSyncResult['rejected'] = null;
@@ -2036,21 +2036,21 @@ export class MockHuntApi extends HuntApi {
 
   private visibleHunt(id: number) {
     const h = this.db.hunts.find((x) => x.id === id);
-    if (!h || (h.status === 'draft' && h.ownerId !== this.viewer())) throw new ApiError('Chasse introuvable.');
+    if (!h || (h.status === 'draft' && h.ownerId !== this.viewer())) throw new ApiError('Secret Track introuvable.');
     return h;
   }
 
   private ownedHunt(id: number) {
     const h = this.visibleHunt(id);
-    if (h.ownerId !== this.requireUser()) throw new ApiError('Réservé à l’organisateur de la chasse.');
+    if (h.ownerId !== this.requireUser()) throw new ApiError('Réservé à l’organisateur de la Secret Track.');
     return h;
   }
 
   private joinableHunt(huntId: number, me: number) {
     const h = this.visibleHunt(huntId);
     if (h.status !== 'published' && !openToLateTeams(h)) throw new ApiError('Les inscriptions sont fermées.');
-    if (h.ownerId === me) throw new ApiError('Vous organisez cette chasse.');
-    if (this.teamOf(huntId, me)) throw new ApiError('Vous êtes déjà inscrit à cette chasse.');
+    if (h.ownerId === me) throw new ApiError('Vous organisez cette Secret Track.');
+    if (this.teamOf(huntId, me)) throw new ApiError('Vous êtes déjà inscrit à cette Secret Track.');
     return h;
   }
 
@@ -2094,7 +2094,7 @@ export class MockHuntApi extends HuntApi {
     const me = this.requireUser();
     const hunt = this.huntView(this.visibleHunt(huntId));
     const team = this.teamOf(huntId, me);
-    if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette chasse.');
+    if (!team) throw new ApiError('Vous n’êtes pas inscrit à cette Secret Track.');
     const steps = this.stepsOf(huntId);
     const vals = this.db.validations.filter((v) => v.teamId === team.id);
     const validated = vals

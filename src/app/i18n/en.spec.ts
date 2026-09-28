@@ -2,7 +2,7 @@ import { EN, translateUi } from './en';
 
 describe('version anglaise (§ 33)', () => {
   it('traduit les textes fixes, et ceux qui portent des nombres ou des noms', () => {
-    expect(translateUi('Jouer cette chasse')).toBe('Play this hunt');
+    expect(translateUi('Jouer cette Secret Track')).toBe('Play this Secret Track');
     expect(translateUi('1 étape')).toBe('1 step');
     expect(translateUi('4 étapes')).toBe('4 steps');
     expect(translateUi('Bonjour Zoé 👋')).toBe('Hello Zoé 👋');
@@ -11,7 +11,7 @@ describe('version anglaise (§ 33)', () => {
     expect(translateUi(': travaux, lieu transformé')).toBe(': roadworks, place changed');
     expect(translateUi('+2 min pour le joker 1, +5 min pour le 2, +10 min pour le 3')).toBe('+2 min for hint 1, +5 min for hint 2, +10 min for hint 3');
     expect(translateUi(', pénalités comprises (3ᵉ place sur 3). Jouez-la à votre tour, sur place, quand vous voulez.')).toContain('3rd place out of 3');
-    expect(translateUi('Sans joker, à obtenir : Finir une chasse sans prendre de joker.')).toBe('No hints, to earn: Finish a hunt without taking a hint.');
+    expect(translateUi('Sans joker, à obtenir : Finir une Secret Track sans prendre de joker.')).toBe('No hints, to earn: Finish a Secret Track without taking a hint.');
   });
 
   it('couvre l’inscription et les règles d’une expédition', () => {

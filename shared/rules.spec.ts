@@ -51,10 +51,10 @@ describe('evaluateScan', () => {
   it('accepte l’arrivée après toutes les étapes', () =>
     expect(evaluateScan(base({ step: steps[3], validations: validated(1, 2) }))).toBe('validated'));
   it('signale un jeton inconnu', () => expect(evaluateScan(base({ step: null }))).toBe('unknown'));
-  it('masque une chasse en brouillon', () => expect(evaluateScan(base({ hunt: hunt({ status: 'draft' }) }))).toBe('unknown'));
-  it('annonce une chasse pas encore commencée', () =>
+  it('masque une Secret Track en brouillon', () => expect(evaluateScan(base({ hunt: hunt({ status: 'draft' }) }))).toBe('unknown'));
+  it('annonce une Secret Track pas encore commencée', () =>
     expect(evaluateScan(base({ hunt: hunt({ status: 'published', started: null }) }))).toBe('not_started'));
-  it('annonce une chasse close, même non connecté', () =>
+  it('annonce une Secret Track close, même non connecté', () =>
     expect(evaluateScan(base({ hunt: hunt({ status: 'closed' }), viewerId: null }))).toBe('closed'));
   it('demande la connexion', () => expect(evaluateScan(base({ viewerId: null, team: null }))).toBe('login_required'));
   it('passe en mode organisateur', () => expect(evaluateScan(base({ viewerId: 99, team: null }))).toBe('organizer'));

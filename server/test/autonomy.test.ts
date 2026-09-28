@@ -35,7 +35,7 @@ async function playThrough(api: Awaited<ReturnType<typeof loginAs>>, huntId: num
 }
 
 describe('jouer en autonomie', () => {
-  it('trouve au catalogue les chasses sans organisateur, et les joue seul au moment choisi', async () => {
+  it('trouve au catalogue les Secret Tracks sans organisateur, et les joue seul au moment choisi', async () => {
     const id = await geoEntry();
     const anyone = client(ctx.app);
     const autonomous = (await anyone.get('/api/catalog?autonomous=1')).body as { id: number; validation: string }[];
@@ -69,7 +69,7 @@ describe('jouer en autonomie', () => {
     expect((await zoe.post(`/api/catalog/${id}/play`)).body.id).not.toBe(hunt.id);
   });
 
-  it('compare les joueurs qui ont fini la même chasse', async () => {
+  it('compare les joueurs qui ont fini la même Secret Track', async () => {
     const id = (await client(ctx.app).get('/api/catalog?autonomous=1')).body[0].id;
     const emma = await loginAs(ctx.app, 'emma@example.com');
     const hunt = (await emma.post(`/api/catalog/${id}/play`)).body;

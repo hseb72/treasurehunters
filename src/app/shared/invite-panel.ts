@@ -57,7 +57,7 @@ export class InvitePanel {
         url,
         subject: `Rejoins mon équipe : « ${h.name} »`,
         text:
-          `Je pars à la chasse au trésor « ${h.name} »${where}. Rejoins mon équipe « ${team.name} » sur Treasure Hunters : ${url}\n` +
+          `Je pars à la Secret Track « ${h.name} »${where}. Rejoins mon équipe « ${team.name} » sur SecretTracks : ${url}\n` +
           `Ou saisis le code d'équipe ${team.joinCode} dans l'application.`,
       };
     }
@@ -73,7 +73,7 @@ export class InvitePanel {
       url,
       subject: `Défi : « ${h.name} »`,
       text:
-        `Je te défie sur la chasse au trésor « ${h.name} »${where}.${start} Inscris ton équipe sur Treasure Hunters : ${url}\n` +
+        `Je te défie sur la Secret Track « ${h.name} »${where}.${start} Inscris ton équipe sur SecretTracks : ${url}\n` +
         `Ou saisis le code d'expédition ${h.joinCode} dans l'application.`,
     };
   });

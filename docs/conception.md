@@ -1,4 +1,4 @@
-# Treasure Hunters — Document de conception
+# SecretTracks — Document de conception
 
 > Statut : **validé** · Version 0.2 · 24/09/2026 — décisions intégrées, base PostgreSQL
 
@@ -423,7 +423,7 @@ L'organisateur peut aussi choisir ce mode pour une chasse écrite à la main.
 
 ### 11.4 Chasse surprise (mode « je joue »)
 
-- La chasse appartient au **compte système « Treasure Hunters »**, créé à la demande, sans mot de passe (le domaine `.invalid` est refusé à l'inscription). Le joueur **ne peut donc pas voir le parcours** : l'onglet Étapes est réservé à l'organisateur. Le joueur qui l'a générée en est l'**hôte** (`hun_host_htr`).
+- La chasse appartient au **compte système « SecretTracks »**, créé à la demande, sans mot de passe (le domaine `.invalid` est refusé à l'inscription). Le joueur **ne peut donc pas voir le parcours** : l'onglet Étapes est réservé à l'organisateur. Le joueur qui l'a générée en est l'**hôte** (`hun_host_htr`).
 - Elle est privée (`hun_surprise`, `hun_generated`), publiée, **en équipes de 1 à 6**, avec l'équipe de l'hôte déjà inscrite. Elle reste jouable 7 jours.
 - **Invitations** (panneau « Inviter d'autres aventuriers », carnet de route et fiche de l'expédition) :
   - un **coéquipier** reçoit le **code de l'équipe** (`tea_joincode`) et la rejoint ;
@@ -835,3 +835,7 @@ Pour les touristes, l'application parle anglais : d'office si le téléphone n'e
 **Interface.** Plutôt que de réécrire chaque écran, les textes affichés sont traduits à la volée (`src/app/core/dom-translator.ts`) : un dictionnaire des écrans des joueurs (`src/app/i18n/en.ts` — accueil, catalogue, fiche, carnet de route et carnet hors ligne, scan, résultats, souvenir, carnet d'explorateur, profil), avec des modèles pour les textes à nombres, dates ou noms. Les saisies, les icônes et ce qui est marqué `translate="no"` ne sont jamais touchés ; un texte inconnu reste en français. Les écrans d'organisation et de création restent en français pour l'instant. Le souvenir, le partage et la lecture à voix haute (voix anglaise) passent par la même traduction.
 
 **Contenu des chasses.** Énigmes, jokers, messages d'arrivée, noms de lieux trouvés, présentations et extraits du catalogue sont traduits par l'IA (`POST /translate { lang, hunt?, catalog? }`, `server/src/translate/translator.ts`) : **seulement ce que le joueur voit déjà** (fiches du catalogue ; dans sa partie, l'énigme en cours, ses jokers ouverts, les lieux trouvés, l'épreuve en cours), jamais les énigmes ni les lieux à venir. Chaque texte n'est traduit qu'une fois (cache `th_translations`, migration `022_translations.sql`), ce qui borne le coût ; 20 demandes par minute au plus. Sans clé d'IA, seul le cache répond et le contenu reste en français. La maquette marque le contenu « [EN] » pour montrer ce qui serait traduit. Le carnet hors ligne affiche le contenu dans sa langue d'origine.
+
+## 34. Nom et vocabulaire
+
+L'application s'appelle **SecretTracks** (le nom précédent était trop répandu). Dans l'interface, on ne crée plus des « chasses » mais des **Secret Tracks** (au féminin : « une Secret Track », « des Secret Tracks partagées ») ; en anglais, « a Secret Track ». Les organisations en présentiel gardent le nom d'« expédition ». Ce document garde le mot « chasse » pour désigner le jeu, et le code, la base, le dépôt et le déploiement leurs noms techniques (`hunt`, `th_*`, `treasurehunters`). Le compte système qui organise les parties en autonomie s'appelle désormais « SecretTracks » (migration `023_secrettracks.sql`).

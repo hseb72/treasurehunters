@@ -42,7 +42,7 @@ describe('MockHuntApi', () => {
     expect((await firstValueFrom(api.getPlay(1))).clue!.illustration).toBe(step.id);
   });
 
-  it('fait jouer une chasse du catalogue en autonomie et classe les joueurs (§ 13.5)', async () => {
+  it('fait jouer une Secret Track du catalogue en autonomie et classe les joueurs (§ 13.5)', async () => {
     session.set(await firstValueFrom(api.login('zoe@example.com', 'demo')));
     const [entry] = await firstValueFrom(api.listCatalog({ autonomous: true }));
     expect(entry.validation).toBe('geo');
@@ -55,7 +55,7 @@ describe('MockHuntApi', () => {
     expect(board.rows[0].time).toBeLessThan(board.rows[2].time);
   });
 
-  it('fait payer la chasse sur mesure, sauf aux fondateurs (§ 21)', async () => {
+  it('fait payer la Secret Track sur mesure, sauf aux fondateurs (§ 21)', async () => {
     const request = { location: { query: 'Nîmes' }, durationMinutes: 45, travel: 'walk', difficulty: 'easy', theme: null, steps: 3, mode: 'play' } as const;
     session.set(await firstValueFrom(api.login('zoe@example.com', 'demo')));
     expect((await firstValueFrom(api.generationAccess())).right).toBeNull();

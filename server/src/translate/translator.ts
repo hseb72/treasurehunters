@@ -14,7 +14,7 @@ export interface Translator {
 
 const OutputSchema = z.object({ translations: z.array(z.string()).describe('Les traductions, dans l’ordre des textes reçus') });
 
-const SYSTEM = `You translate content of Treasure Hunters, a treasure hunt app, from French into natural English for tourists.
+const SYSTEM = `You translate content of SecretTracks, a treasure hunt app, from French into natural English for tourists.
 Texts are riddles, hints, arrival messages, place names and hunt descriptions.
 Rules:
 - Keep the playful tone and the meaning needed to solve the riddle; when a French pun cannot be translated, rephrase so the clue still leads to the same place.
