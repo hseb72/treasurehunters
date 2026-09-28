@@ -50,6 +50,7 @@ import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@s
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { PracticalTag } from '@shared/practical';
+import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
 import {
   checkinAllowance,
   computeRanking,
@@ -797,6 +798,42 @@ export class MockHuntApi extends HuntApi {
 
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.reply(() => this.autonomyBoard(id));
+  }
+
+  /** Carnet d'explorateur (§ 29), comme le serveur. */
+  getJournal(): Observable<ExplorerJournal> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const hunts: JournalHunt[] = [];
+      for (const t of this.db.teams.filter((x) => x.finished && x.started && x.members.some((m) => m.hunterId === me))) {
+        const h = this.db.hunts.find((x) => x.id === t.huntId);
+        const row = h && this.ranking(h.id).find((r) => r.teamId === t.id);
+        if (!h || !row?.time || !row.started) continue;
+        const steps = this.stepsOf(h.id);
+        const found = this.db.validations
+          .filter((v) => v.teamId === t.id && v.source !== 'SKIP')
+          .map((v) => steps.find((s) => s.id === v.stepId)!)
+          .sort((a, b) => a.order - b.order);
+        const places = [steps.find((s) => s.order === 0), ...found]
+          .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+          .map((s) => ({ lat: s.latitude!, lng: s.longitude! }));
+        const meters = places.slice(1).reduce((a, p, i) => a + distanceMeters(places[i]!, p), 0);
+        hunts.push({
+          huntId: h.id,
+          name: h.name,
+          location: h.location,
+          skin: h.skin,
+          date: row.started,
+          time: row.time,
+          found: found.length,
+          hints: row.hints,
+          autonomous: h.surprise && h.hostId !== null && h.catalogId !== null,
+          catalogId: h.catalogId,
+          km: Math.round(meters / 100) / 10,
+        });
+      }
+      return explorerJournal(hunts);
+    });
   }
 
   /** Défi « bats mon temps » (§ 28), comme le serveur. */

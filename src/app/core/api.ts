@@ -5,6 +5,7 @@ import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import { PracticalTag } from '@shared/practical';
+import { ExplorerJournal } from '@shared/journal';
 import {
   AuthResult,
   HuntStats,
@@ -193,6 +194,8 @@ export abstract class HuntApi {
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
+  /** Carnet d'explorateur du joueur (§ 29). */
+  abstract getJournal(): Observable<ExplorerJournal>;
   /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */
   abstract getSouvenir(huntId: number): Observable<Souvenir>;
   abstract publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail>;

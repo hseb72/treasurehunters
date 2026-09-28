@@ -45,6 +45,12 @@ import { Session } from '../../core/session';
         </div>
       </form>
 
+      <a class="surface card journal" routerLink="/carnet">
+        <mat-icon>menu_book</mat-icon>
+        <span><strong>Carnet d'explorateur</strong><br /><span class="small muted">Vos chasses finies, vos villes, vos badges.</span></span>
+        <mat-icon>chevron_right</mat-icon>
+      </a>
+
       @if (meter.usage(); as u) {
         <section class="surface stack card" id="assistant">
           <h2><mat-icon>edit_note</mat-icon> Assistant de rédaction</h2>
@@ -67,6 +73,9 @@ import { Session } from '../../core/session';
     h1, h2 { display: flex; align-items: center; gap: 8px; }
     h2 { margin: 0; }
     .hint { margin: 0 0 8px; }
+    .journal { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+    .journal > span { flex: 1; }
+    .journal > mat-icon:first-child { color: var(--th-primary); }
   `,
 })
 export class ProfilePage {

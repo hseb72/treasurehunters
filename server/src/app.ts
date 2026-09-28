@@ -278,6 +278,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return reply.status(204).send();
   });
   app.get('/api/me', async (req) => service.me(req.viewer));
+  app.get('/api/me/journal', async (req) => service.journal(req.viewer));
   app.patch('/api/me', async (req) => {
     const b = z.object({ nickname: text(50).min(1), email: z.email(), rateable: z.boolean() }).partial().parse(req.body);
     return service.updateMe(req.viewer, b);

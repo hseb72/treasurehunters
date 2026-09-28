@@ -47,6 +47,7 @@
 
       <div class="links">
         <a mat-button [routerLink]="['/hunts', s.huntId, 'results']"><mat-icon>emoji_events</mat-icon>Résultats</a>
+        <a mat-button routerLink="/carnet"><mat-icon>menu_book</mat-icon>Mon carnet d'explorateur</a>
         @if (s.catalogId !== null) {
           <a mat-button [routerLink]="['/catalog', s.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Classement de la chasse</a>
         }

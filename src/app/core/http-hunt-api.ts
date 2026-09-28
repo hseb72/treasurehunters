@@ -40,6 +40,7 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
+import { ExplorerJournal } from '@shared/journal';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -174,6 +175,9 @@ export class HttpHuntApi extends HuntApi {
   }
   playFromCatalog(id: number): Observable<Hunt> {
     return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
+  }
+  getJournal(): Observable<ExplorerJournal> {
+    return this.http.get<ExplorerJournal>(`${this.url}/me/journal`);
   }
   getSouvenir(huntId: number): Observable<Souvenir> {
     return this.http.get<Souvenir>(`${this.url}/hunts/${huntId}/souvenir`);

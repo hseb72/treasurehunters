@@ -54,6 +54,14 @@ describe('souvenir de fin de partie (§ 24)', () => {
     expect(res.body.trail).toHaveLength(4); // départ + 3 lieux
     for (const [x, y] of res.body.trail) expect(Math.max(x, y)).toBeLessThanOrEqual(1);
 
+    // Carnet d'explorateur (§ 29) : la partie finie, sa ville, ses badges.
+    const journal = (await emma.api.get('/api/me/journal')).body;
+    expect(journal.hunts[0]).toMatchObject({ huntId: emma.huntId, found: 3, hints: 1, autonomous: true, catalogId: id });
+    expect(journal.hunts[0].km).toBeGreaterThan(0);
+    expect(journal.cities).toContain('Montpellier');
+    expect(journal.badges.filter((b: { earned: boolean }) => b.earned).map((b: { id: string }) => b.id)).toEqual(expect.arrayContaining(['first', 'solo']));
+    expect((await client(ctx.app).get('/api/me/journal')).status).toBe(401);
+
     // Réservé à l'équipe.
     expect((await client(ctx.app).get(`/api/hunts/${emma.huntId}/souvenir`)).status).toBe(401);
     const louis = await loginAs(ctx.app, 'louis@example.com');

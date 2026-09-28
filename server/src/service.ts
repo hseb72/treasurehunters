@@ -45,6 +45,7 @@ import {
 } from '../../shared/models.js';
 import { sketchTrail } from '../../shared/souvenir.js';
 import { PracticalTag } from '../../shared/practical.js';
+import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
@@ -913,6 +914,47 @@ export class Service {
             .map((x) => ({ order: x.order, title: x.title, lat: Number(x.latitude), lng: Number(x.longitude) }))
         : null,
     };
+  }
+
+  /** Carnet d'explorateur (§ 29) : les chasses finies du joueur, ses villes, ses kilomètres et ses badges. */
+  async journal(viewer: Viewer): Promise<ExplorerJournal> {
+    const me = requireUser(viewer);
+    const finished = await rows(
+      this.pool,
+      `SELECT t.tea_id, t.tea_hunt_hun FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
+       WHERE m.thr_hunter_htr = $1 AND t.tea_finished IS NOT NULL AND t.tea_started IS NOT NULL
+       ORDER BY t.tea_finished DESC LIMIT 200`,
+      [me],
+    );
+    const hunts: JournalHunt[] = [];
+    for (const f of finished) {
+      const hunt = await huntById(this.pool, f['tea_hunt_hun']);
+      if (!hunt) continue;
+      const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [hunt.id]);
+      const vals = await validationsOfHunt(this.pool, hunt.id);
+      const row = computeRanking(hunt, teams, vals, await hintUsesOfHunt(this.pool, hunt.id)).find((r) => r.teamId === f['tea_id']);
+      if (!row?.time || !row.started) continue;
+      const steps = await stepsOf(this.pool, hunt.id);
+      const found = vals.filter((v) => v.teamId === f['tea_id'] && v.source !== 'SKIP').map((v) => steps.find((s) => s.id === v.stepId)!);
+      const places = [steps.find((s) => s.order === 0), ...found.sort((a, b) => a.order - b.order)]
+        .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+        .map((s) => ({ lat: Number(s.latitude), lng: Number(s.longitude) }));
+      const meters = places.slice(1).reduce((a, p, i) => a + distanceMeters(places[i]!, p), 0);
+      hunts.push({
+        huntId: hunt.id,
+        name: hunt.name,
+        location: hunt.location,
+        skin: hunt.skin,
+        date: row.started,
+        time: row.time,
+        found: found.length,
+        hints: row.hints,
+        autonomous: hunt.surprise && hunt.hostId !== null && hunt.catalogId !== null,
+        catalogId: hunt.catalogId,
+        km: Math.round(meters / 100) / 10,
+      });
+    }
+    return explorerJournal(hunts);
   }
 
   /**

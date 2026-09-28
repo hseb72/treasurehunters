@@ -8,6 +8,7 @@ export const routes: Routes = [
   { path: 'me', title: 'Mon profil', canActivate: [authGuard], loadComponent: () => import('./pages/profile/profile').then((m) => m.ProfilePage) },
   { path: 'hunts/:id', title: 'Expédition', loadComponent: () => import('./pages/hunt-detail/hunt-detail').then((m) => m.HuntDetailPage) },
   { path: 'hunts/:id/results', title: 'Résultats', loadComponent: () => import('./pages/results/results').then((m) => m.ResultsPage) },
+  { path: 'carnet', title: 'Carnet d’explorateur', canActivate: [authGuard], loadComponent: () => import('./pages/journal/journal').then((m) => m.JournalPage) },
   { path: 'hunts/:id/souvenir', title: 'Souvenir', canActivate: [authGuard], loadComponent: () => import('./pages/souvenir/souvenir').then((m) => m.SouvenirPage) },
   { path: 'play/:id', title: 'Carnet de route', canActivate: [authGuard], loadComponent: () => import('./pages/play/play').then((m) => m.PlayPage) },
   { path: 'catalog', title: 'Catalogue des chasses', loadComponent: () => import('./pages/catalog/catalog').then((m) => m.CatalogPage) },
