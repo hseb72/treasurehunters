@@ -420,6 +420,19 @@ a.surface {
   --mat-sys-on-surface-variant: var(--th-ink-soft);
   --mat-sys-outline: var(--th-border);
   --mat-sys-outline-variant: var(--th-border);
+  // Texte des cartes : par défaut, celui de la page.
+  --th-surface-ink: var(--th-ink);
+  --th-surface-ink-soft: var(--th-ink-soft);
+  --th-surface-heading: var(--th-heading-ink);
+
+  .surface {
+    --th-ink: var(--th-surface-ink);
+    --th-ink-soft: var(--th-surface-ink-soft);
+    --th-heading-ink: var(--th-surface-heading);
+    --mat-sys-on-surface: var(--th-surface-ink);
+    --mat-sys-on-surface-variant: var(--th-surface-ink-soft);
+    color: var(--th-ink);
+  }
 }
 
 // Animations de validation (SkinEffects).

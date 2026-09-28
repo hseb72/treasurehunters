@@ -34,7 +34,8 @@ Un jeton absent garde la valeur de base de l'application (thème clair et sobre)
 
 | Famille | Jetons |
 |---|---|
-| Couleurs | `page-bg` (fond de page : couleur, dégradés), `ink`, `ink-soft`, `primary`, `primary-light`, `on-primary`, `secondary` (liens), `accent`, `accent-light`, `success`, `danger`, `neutral`, `border`, `surface`, `surface-raised`, `surface-sunken` |
+| Couleurs | `page-bg` (fond de page : couleur, dégradés), `ink`, `ink-soft` (texte posé sur la page), `primary`, `primary-light`, `on-primary`, `secondary` (liens), `accent`, `accent-light`, `success`, `danger`, `neutral`, `border`, `surface`, `surface-raised`, `surface-sunken` |
+| Texte des cartes | `surface-ink`, `surface-ink-soft`, `surface-heading` : quand les cartes n'ont pas le même fond que la page (parchemin clair sur fond sombre, comme Médiéval ou Pirates). Par défaut, ceux de la page |
 | Bouton principal | `cta`, `on-cta` |
 | Polices | `font-body`, `font-title`, `font-display` (grands titres), `font-note` (énigmes, chiffres) |
 | Formes et matières | `radius`, `shadow`, `texture` (image posée sur les fonds, ex. grain de papier), `surface-bg`, `surface-border`, `surface-shadow` (cartes), `banner-bg`, `banner-ink`, `banner-title`, `banner-outline` (bandeaux d'en-tête) |
