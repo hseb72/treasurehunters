@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { priceLabel } from '@shared/store';
+import { formatDuration } from '@shared/rules';
 import { Shop } from '../../core/shop';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
 import { HuntApi } from '../../core/api';
@@ -43,6 +44,47 @@ export class CatalogEntryPage {
   protected readonly minutes = minutesLabel;
   protected readonly isAuthor = computed(() => this.entry.value()?.authorId === this.session.user()?.id);
 
+  /* ---------- Jouer en autonomie (§ 13.5) ---------- */
+  /** Jouable sans organisateur : validée par géolocalisation, pas de QR à poser. */
+  protected readonly autonomous = computed(() => {
+    const e = this.entry.value();
+    return !!e && !e.withdrawn && e.validation === 'geo';
+  });
+  protected readonly waitingPlay = computed(() => this.entry.value()?.myPlays.find((p) => !p.started && Date.parse(p.until) > Date.now()) ?? null);
+  protected readonly runningPlay = computed(() => this.entry.value()?.myPlays.find((p) => p.started && !p.finished) ?? null);
+  protected readonly finishedPlays = computed(() => this.entry.value()?.myPlays.filter((p) => p.finished) ?? []);
+  protected readonly board = rxResource({
+    params: () => (this.autonomous() ? { id: this.id(), user: this.session.user()?.id } : undefined),
+    stream: ({ params }) => this.api.autonomyLeaderboard(params.id),
+  });
+  /** Les dix premiers, et la meilleure place du lecteur s'il est plus loin. */
+  protected readonly shownRows = computed(() => {
+    const rows = this.board.value()?.rows ?? [];
+    const top = rows.slice(0, 10);
+    const mine = rows.find((r) => r.mine);
+    return mine && !top.includes(mine) ? [...top, mine] : top;
+  });
+  protected readonly clock = (seconds: number) => formatDuration(seconds);
+
+  /** La partie du joueur : créée (ou retrouvée), puis son carnet de route, où il lancera le départ sur place. */
+  protected play(): void {
+    if (!this.session.loggedIn()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+    this.busy.set(true);
+    this.api.playFromCatalog(this.id()).subscribe({
+      next: (hunt) => {
+        this.notify.info('Votre partie est prête : lancez le départ une fois au point de rendez-vous, aujourd’hui ou plus tard.', 6000);
+        this.router.navigate(['/play', hunt.id]);
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.notify.error(e);
+      },
+    });
+  }
+
   /* ---------- Chasse payante (§ 20) ---------- */
   private readonly shop = inject(Shop);
   protected readonly mustBuy = computed(() => {
@@ -59,7 +101,7 @@ export class CatalogEntryPage {
       if (paid === undefined) return;
       untracked(() => {
         this.router.navigate([], { queryParams: {}, replaceUrl: true });
-        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! Vous pouvez créer votre chasse.' : 'Paiement annulé : rien n’a été débité.');
+        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! La chasse est à vous : jouez-la ou organisez-la.' : 'Paiement annulé : rien n’a été débité.');
         // La confirmation de Stripe peut suivre de quelques secondes.
         if (paid === '1') timer(0, 2000).pipe(take(6), takeWhile(() => !this.entry.value()?.owned)).subscribe(() => this.entry.reload());
       });

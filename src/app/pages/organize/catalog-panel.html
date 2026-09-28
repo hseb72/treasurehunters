@@ -5,14 +5,14 @@
         <mat-icon>call_split</mat-icon>
         <p>
           Cette chasse est une copie de <a [routerLink]="['/catalog', o.id]">« {{ o.title }} »</a> par {{ o.authorNickname }}. Si vous
-          changez le parcours, vous pourrez publier votre version, rattachée à l'originale.
+          changez le parcours, vous pourrez partager votre version, rattachée à l'originale.
         </p>
       </section>
     }
 
     @if (published.value().length) {
       <section>
-        <h2 class="section-title">Publiée au catalogue</h2>
+        <h2 class="section-title">Partagée au catalogue</h2>
         <div class="grid">
           @for (e of published.value(); track e.id) {
             <th-catalog-card [entry]="e" />
@@ -23,13 +23,13 @@
 
     <th-payouts-panel what="chasses" />
     <form class="surface stack publish" [formGroup]="form" (ngSubmit)="publish()">
-      <h2 class="section-title">{{ isVersion() ? 'Publier une nouvelle version' : 'Publier au catalogue' }}</h2>
+      <h2 class="section-title">{{ isVersion() ? 'Partager une nouvelle version au catalogue' : 'Partager au catalogue' }}</h2>
       <p class="small muted">
         Le catalogue reçoit un instantané de la chasse : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,
-        ce qui est publié ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
+        ce qui est partagé ne change pas. Les autres organisateurs voient la présentation, l'extrait et les avis ; le parcours complet, seulement
         une fois copié. Dates, équipes et QR codes restent les vôtres.
         @if (published.value().length) {
-          Si le parcours n'a pas changé, publier met simplement à jour la fiche (présentation, déplacement, énigmes, durée, extrait).
+          Si le parcours n'a pas changé, partager met simplement à jour la fiche (présentation, déplacement, énigmes, durée, extrait).
         }
       </p>
       <mat-form-field>
@@ -88,7 +88,7 @@
       <div class="row">
         <span class="small muted">{{ h.name }} · {{ steps.value().length ? steps.value().length - 1 : 0 }} étapes</span>
         <span class="spacer"></span>
-        <button mat-flat-button class="th-cta" type="submit" [disabled]="form.invalid || busy()"><mat-icon>public</mat-icon>Publier</button>
+        <button mat-flat-button class="th-cta" type="submit" [disabled]="form.invalid || busy()"><mat-icon>public</mat-icon>Partager au catalogue</button>
       </div>
     </form>
   </div>

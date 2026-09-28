@@ -28,7 +28,7 @@
             <a mat-menu-item [routerLink]="['/hunts', h.id, 'results']"><mat-icon>leaderboard</mat-icon>Classement</a>
           }
           @if (h.status === 'published') {
-            <button mat-menu-item type="button" (click)="run('unpublish')"><mat-icon>undo</mat-icon>Repasser en brouillon</button>
+            <button mat-menu-item type="button" (click)="run('unpublish')"><mat-icon>undo</mat-icon>Fermer les inscriptions (brouillon)</button>
           }
           @if (h.status === 'draft' || h.status === 'published' || h.status === 'running') {
             <button mat-menu-item type="button" (click)="run('cancel')"><mat-icon>block</mat-icon>Annuler l'expédition</button>

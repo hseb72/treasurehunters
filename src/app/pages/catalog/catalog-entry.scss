@@ -95,3 +95,13 @@
 
 .price-line { margin: 0; }
 .have { color: var(--th-success); font-weight: 600; margin: 0; }
+
+.play-block, .action { .section-title { display: inline-flex; align-items: center; gap: 6px; margin: 0; } }
+.board {
+  list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px;
+  li { display: grid; grid-template-columns: 2.2em 1fr auto auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--th-surface-sunken); }
+  li.mine { outline: 2px solid var(--th-primary-light); background: color-mix(in srgb, var(--th-primary-light) 12%, var(--th-surface-sunken)); }
+  .rank { font-weight: 800; color: var(--th-primary); text-align: center; }
+  .time { font-variant-numeric: tabular-nums; }
+  .you { color: var(--th-primary); font-weight: 600; }
+}

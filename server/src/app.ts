@@ -390,13 +390,16 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         difficulty: list(['easy', 'medium', 'hard']),
         minDuration: duration,
         maxDuration: duration,
+        autonomous: z.enum(['1', 'true']),
       })
       .partial()
       .parse(req.query);
     // mine / hunt : les publications du joueur (d'une de ses chasses), retirées comprises.
-    return service.listCatalog(req.viewer, { ...q, mine: !!q.mine });
+    return service.listCatalog(req.viewer, { ...q, mine: !!q.mine, autonomous: !!q.autonomous });
   });
   app.get('/api/catalog/:id', async (req) => service.catalogEntry(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/catalog/:id/play', async (req, reply) => reply.status(201).send(await service.playFromCatalog(req.viewer, idParams.parse(req.params).id)));
+  app.get('/api/catalog/:id/leaderboard', async (req) => service.autonomyLeaderboard(req.viewer, idParams.parse(req.params).id));
   app.post('/api/catalog/:id/copy', async (req, reply) => reply.status(201).send(await service.copyFromCatalog(req.viewer, idParams.parse(req.params).id)));
   app.delete('/api/catalog/:id', async (req) => service.withdrawFromCatalog(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/catalog', async (req, reply) => {

@@ -112,7 +112,7 @@ export class CatalogPanelPage {
       })
       .subscribe({
         next: () => {
-          this.notify.info('Publiée au catalogue : les autres organisateurs peuvent la découvrir.');
+          this.notify.info('Partagée au catalogue : les autres organisateurs peuvent la découvrir et la copier.');
           this.published.reload();
           this.form.controls.changes.reset('');
           this.busy.set(false);
