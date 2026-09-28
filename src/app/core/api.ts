@@ -5,6 +5,9 @@ import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import {
   AuthResult,
+  HuntStats,
+  ReportCategory,
+  StepReport,
   AutonomyLeaderboard,
   CheckoutResult,
   PayoutAccount,
@@ -108,6 +111,14 @@ export abstract class HuntApi {
   abstract getStore(): Observable<StoreItem[]>;
   /** Obtenir une extension (offerte pour l'instant) ; rend la boutique à jour. */
   abstract acquire(productId: string): Observable<StoreItem[]>;
+
+  /* ---------- Signalements et statistiques d'étape (§ 22) ---------- */
+  abstract reportStep(huntId: number, data: { stepOrder: number; category: ReportCategory; message: string | null }): Observable<StepReport>;
+  abstract huntReports(huntId: number): Observable<StepReport[]>;
+  abstract catalogReports(catalogId: number): Observable<StepReport[]>;
+  abstract resolveReport(reportId: number, resolved: boolean): Observable<StepReport>;
+  abstract huntStats(huntId: number): Observable<HuntStats>;
+  abstract catalogStats(catalogId: number): Observable<HuntStats>;
 
   /** Accès à la chasse sur mesure : formules, crédits, limites (§ 21). */
   abstract generationAccess(): Observable<GenerationAccess>;

@@ -12,13 +12,15 @@ import { LiveRow } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { formatClock } from '../../shared/format';
 import { PhotoReviewPanel } from './photo-review';
+import { ReportsList } from '../../shared/reports-list';
+import { StepStatsTable } from '../../shared/step-stats-table';
 import { WorkspaceState } from './workspace-state';
 
 const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'th-live-board',
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, PhotoReviewPanel, RouterLink],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, PhotoReviewPanel, RouterLink, ReportsList, StepStatsTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './live-board.html',
   styleUrl: './live-board.scss',
@@ -43,6 +45,20 @@ export class LiveBoardPage {
         : of([]),
     defaultValue: [],
   });
+
+  /* ---------- Signalements et statistiques d'étape (§ 22) ---------- */
+  protected readonly reports = rxResource({
+    params: () => this.workspace.huntId() || undefined,
+    stream: ({ params }) => this.api.huntReports(params),
+  });
+  protected readonly stepStats = rxResource({
+    params: () => ({ id: this.workspace.huntId(), lastOrders: this.rows.value().map((r) => r.lastOrder).join() }),
+    stream: ({ params }) => this.api.huntStats(params.id),
+  });
+
+  protected resolve(id: number, resolved: boolean): void {
+    this.api.resolveReport(id, resolved).subscribe({ next: () => this.reports.reload(), error: (e) => this.notify.error(e) });
+  }
 
   protected readonly total = computed(() => Math.max(this.steps.value().length - 1, 1));
   protected readonly segments = computed(() => Array.from({ length: this.total() }, (_, i) => i + 1));

@@ -19,6 +19,11 @@
           }
         </div>
       </section>
+      @for (e of published.value(); track e.id) {
+        @if (!e.withdrawn) {
+          <th-entry-follow-up [entry]="e" />
+        }
+      }
     }
 
     <th-payouts-panel what="chasses" />

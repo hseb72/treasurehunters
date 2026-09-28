@@ -3,9 +3,13 @@ import { defer, delay, Observable, of, throwError } from 'rxjs';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from '../api';
 import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } from '@shared/creations';
 import { MockCreations } from './mock-creations';
+import { PlayData, stepStats } from '@shared/step-stats';
 import { creatorBonus, GENERATION_LIMITS, GenerationAccess, generationOffer, GenerationRight, pickRight } from '@shared/generation-access';
 import {
   AuthResult,
+  HuntStats,
+  ReportCategory,
+  StepReport,
   AutonomyLeaderboard,
   AutonomyRow,
   CheckoutResult,
@@ -1019,6 +1023,11 @@ export class MockHuntApi extends HuntApi {
     return {
       ...this.entryView(e),
       owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
+      openReports: this.reports
+        .filter((r) => r.status === 'open' && hunts.has(r.huntId))
+        .reverse()
+        .slice(0, 10)
+        .map((r) => ({ stepOrder: this.db.steps.find((s) => s.id === r.stepId)!.order, category: r.category, at: r.at })),
       myPlays: this.db.hunts
         .filter((h) => h.catalogId === id && h.surprise && h.hostId !== null)
         .flatMap((h) => this.db.teams.filter((t) => t.huntId === h.id && t.members.some((m) => m.hunterId === me)).map((t) => ({ huntId: h.id, started: t.started, finished: t.finished, until: h.end })))
@@ -1131,6 +1140,11 @@ export class MockHuntApi extends HuntApi {
       team.finished = new Date(start + minutes * 60_000).toISOString();
       if (hints) this.db.hintUses.push({ teamId: team.id, stepId: this.stepsOf(play.id)[1].id, level: 1, hunterId, at: new Date(start + 20 * 60_000).toISOString() });
       Object.assign(play, { status: 'closed', started: team.started, closed: team.finished });
+      // Hugo signale des travaux à la deuxième étape (§ 22).
+      if (hunterId === 4) {
+        const step = this.stepsOf(play.id).find((s) => s.order === 2)!;
+        this.reports.push({ id: this.reports.length + 1, huntId: play.id, stepId: step.id, hunterId, category: 'works', message: 'Palissade de chantier devant la statue : on la devine à peine.', status: 'open', at: new Date(start + 50 * 60_000).toISOString(), resolvedAt: null });
+      }
     }
   }
 
@@ -1143,6 +1157,92 @@ export class MockHuntApi extends HuntApi {
   private storeFor(me: number | null): StoreItem[] {
     const owned = (me !== null && this.purchases.get(me)) || new Set<string>();
     return [...PRODUCTS.map((p) => ({ ...p, owned: owns(owned, p.id) })), ...this.creations.products(me)];
+  }
+
+  /* ---------- Signalements et statistiques d'étape (§ 22) ---------- */
+
+  private readonly reports: { id: number; huntId: number; stepId: number; hunterId: number; category: ReportCategory; message: string | null; status: 'open' | 'resolved'; at: string; resolvedAt: string | null }[] = [];
+
+  private reportView(r: MockHuntApi['reports'][number]): StepReport {
+    const step = this.db.steps.find((s) => s.id === r.stepId)!;
+    return { id: r.id, huntId: r.huntId, stepOrder: step.order, stepTitle: step.title, category: r.category, message: r.message, nickname: this.nick(r.hunterId), status: r.status, at: r.at, resolvedAt: r.resolvedAt };
+  }
+
+  private sortedReports(list: MockHuntApi['reports']): StepReport[] {
+    return [...list].sort((a, b) => Number(b.status === 'open') - Number(a.status === 'open') || b.id - a.id).map((r) => this.reportView(r));
+  }
+
+  reportStep(huntId: number, data: { stepOrder: number; category: ReportCategory; message: string | null }): Observable<StepReport> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.playState(huntId);
+      const reachable = state.clue ? state.clue.targetOrder : state.team.finished ? state.totalSteps : 0;
+      if (data.stepOrder < 1 || data.stepOrder > reachable) throw new ApiError('Signalez une étape que vous avez atteinte ou que vous cherchez.');
+      const step = this.stepsOf(huntId).find((s) => s.order === data.stepOrder)!;
+      const r = { id: this.reports.length + 1, huntId, stepId: step.id, hunterId: me, category: data.category, message: data.message?.trim() || null, status: 'open' as const, at: new Date().toISOString(), resolvedAt: null };
+      this.reports.push(r);
+      return this.reportView(r);
+    });
+  }
+
+  huntReports(huntId: number): Observable<StepReport[]> {
+    return this.reply(() => {
+      this.ownedHunt(huntId);
+      return this.sortedReports(this.reports.filter((r) => r.huntId === huntId));
+    });
+  }
+
+  catalogReports(catalogId: number): Observable<StepReport[]> {
+    return this.reply(() => {
+      const hunts = new Set(this.entryHunts(this.authoredEntry(catalogId)));
+      return this.sortedReports(this.reports.filter((r) => hunts.has(r.huntId)));
+    });
+  }
+
+  resolveReport(reportId: number, resolved: boolean): Observable<StepReport> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const r = this.reports.find((x) => x.id === reportId);
+      const hunt = r && this.db.hunts.find((h) => h.id === r.huntId);
+      const author = !!r && this.catalog.some((e) => e.authorId === me && this.entryHunts(e).includes(r.huntId));
+      if (!r || !hunt || (hunt.ownerId !== me && !author)) throw new ApiError('Signalement introuvable.');
+      Object.assign(r, { status: resolved ? 'resolved' : 'open', resolvedAt: resolved ? new Date().toISOString() : null });
+      return this.reportView(r);
+    });
+  }
+
+  huntStats(huntId: number): Observable<HuntStats> {
+    return this.reply(() => {
+      this.ownedHunt(huntId);
+      return stepStats([this.playData(huntId)], new Map(this.stepsOf(huntId).map((s) => [s.order, s.title])));
+    });
+  }
+
+  catalogStats(catalogId: number): Observable<HuntStats> {
+    return this.reply(() => {
+      const e = this.authoredEntry(catalogId);
+      return stepStats(this.entryHunts(e).map((id) => this.playData(id)), new Map(e.content.steps.map((s) => [s.order, s.title])));
+    });
+  }
+
+  private playData(huntId: number): PlayData {
+    const h = this.db.hunts.find((x) => x.id === huntId)!;
+    const teams = this.db.teams.filter((t) => t.huntId === huntId);
+    const ids = new Set(teams.map((t) => t.id));
+    return {
+      over: h.status === 'closed' || h.status === 'archived',
+      orderOf: new Map(this.stepsOf(huntId).map((s) => [s.id, s.order])),
+      teams,
+      validations: this.db.validations.filter((v) => ids.has(v.teamId)),
+      hints: this.db.hintUses.filter((u) => ids.has(u.teamId)),
+    };
+  }
+
+  private authoredEntry(catalogId: number): MockEntry {
+    const e = this.catalog.find((x) => x.id === catalogId);
+    if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+    if (e.authorId !== this.requireUser()) throw new ApiError('Réservé à l’auteur de la chasse.');
+    return e;
   }
 
   /* ---------- Chasse sur mesure payante (§ 21) ---------- */

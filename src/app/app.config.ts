@@ -15,9 +15,8 @@ import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from 
 import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { HuntApi } from './core/api';
-import { apiInterceptor, HttpHuntApi } from './core/http-hunt-api';
-import { MockHuntApi } from './core/mock/mock-hunt-api';
-import { environment } from '../environments/environment';
+import { apiInterceptor } from './core/http-hunt-api';
+import { HUNT_API_CLASS } from './core/api-provider';
 
 registerLocaleData(localeFr);
 
@@ -35,7 +34,7 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'fr-FR' },
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
     provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
-    // Vrai back-end, ou données simulées pour les maquettes (npm run start:mock).
-    { provide: HuntApi, useClass: environment.api === 'mock' ? MockHuntApi : HttpHuntApi },
+    // Vrai back-end, ou données simulées pour les maquettes : fichier remplacé par la configuration « mock ».
+    { provide: HuntApi, useClass: HUNT_API_CLASS },
   ],
 };

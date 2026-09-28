@@ -744,3 +744,15 @@ Sans droit, la génération répond 402 et la page propose les formules. Les cr�
 
 Données : `th_genrights` (joueur, crédits ou forfait, période, source achat ou don, paiement), `th_hunters.htr_founder`, `th_generations.gen_right` ; migration `db/migrations/016_generation_access.sql`.
 
+## 22. Signalements et statistiques d'étape
+
+Avec les chasses jouées en autonomie (§ 13.5), plus personne n'est sur place pour voir qu'un lieu a changé. Les joueurs le signalent ; l'organisateur ou l'auteur le traite, et voit où ses joueurs bloquent.
+
+**Signaler** (`POST /hunts/:id/reports { stepOrder, category, message }`) : un joueur de la chasse signale un problème sur une étape qu'il a atteinte ou qu'il cherche (bouton « Signaler un problème » sous l'énigme, drapeau dans le journal de bord). Catégories : lieu fermé ou inaccessible, travaux, QR code absent ou abîmé, énigme ou indice erroné, passage dangereux, autre ; un détail facultatif (500 caractères). Dix signalements par jour et par chasse au plus.
+
+**Traiter** : l'organisateur voit les signalements de sa chasse dans l'onglet Direct (`GET /hunts/:id/reports`) ; l'auteur d'une version du catalogue voit ceux de **toutes ses parties** (la sienne, les copies non republiées, les parties en autonomie) dans l'onglet Catalogue de sa chasse (`GET /catalog/:id/reports`). Chacun les marque « traité » ou les rouvre (`POST /reports/:id/resolve`). La fiche publique de la version affiche les signalements encore ouverts (étape, nature, date, sans le message) pour prévenir les prochains joueurs (`CatalogDetail.openReports`).
+
+**Statistiques par étape** (`shared/step-stats.ts`, `GET /hunts/:id/stats` pour l'organisateur, `GET /catalog/:id/stats` pour l'auteur) : pour chaque étape, les équipes qui ont reçu l'énigme qui y mène, celles qui l'ont trouvée ou abandonnée, les jokers pris sur cette énigme, le temps moyen pour la trouver, et les équipes restées bloquées (partie close sans l'avoir trouvée). Une étape est marquée « difficile » quand au moins un tiers des équipes l'abandonne ou y bloque, ou qu'elle coûte en moyenne plus d'un joker.
+
+Données : `th_reports` (chasse, étape, joueur, catégorie, message, statut, traitement) ; migration `db/migrations/017_reports.sql`. Les statistiques se calculent à la demande à partir des validations et des jokers.
+

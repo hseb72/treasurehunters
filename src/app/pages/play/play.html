@@ -258,6 +258,11 @@
                 </button>
               </div>
             }
+            <div class="give-up">
+              <button mat-button type="button" class="give-up-btn" (click)="report.open(s.hunt.id, clue.targetOrder, 'le lieu que vous cherchez')">
+                <mat-icon>flag</mat-icon>Signaler un problème (lieu fermé, travaux…)
+              </button>
+            </div>
           </section>
           <p class="center muted small">
             @if (s.hunt.validation === 'geo') {
@@ -319,6 +324,9 @@
               <div class="row">
                 <span class="log-order">{{ v.order }}</span>
                 <strong>{{ v.title }}</strong>
+                <button mat-icon-button type="button" class="log-report" (click)="report.open(s.hunt.id, v.order, 'l’étape ' + v.order + ' — ' + v.title)" [attr.aria-label]="'Signaler un problème à l’étape ' + v.order">
+                  <mat-icon>outlined_flag</mat-icon>
+                </button>
                 @if (v.skipped) {
                   <span class="badge badge--cancelled">abandonnée</span>
                 }

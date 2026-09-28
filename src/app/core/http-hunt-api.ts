@@ -2,6 +2,9 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import {
   AuthResult,
+  HuntStats,
+  ReportCategory,
+  StepReport,
   AutonomyLeaderboard,
   CheckoutResult,
   PayoutAccount,
@@ -188,6 +191,24 @@ export class HttpHuntApi extends HuntApi {
     return this.http.post<StoreItem[]>(`${this.url}/store/${encodeURIComponent(productId)}/acquire`, {});
   }
 
+  reportStep(huntId: number, data: { stepOrder: number; category: ReportCategory; message: string | null }): Observable<StepReport> {
+    return this.http.post<StepReport>(`${this.url}/hunts/${huntId}/reports`, data);
+  }
+  huntReports(huntId: number): Observable<StepReport[]> {
+    return this.http.get<StepReport[]>(`${this.url}/hunts/${huntId}/reports`);
+  }
+  catalogReports(catalogId: number): Observable<StepReport[]> {
+    return this.http.get<StepReport[]>(`${this.url}/catalog/${catalogId}/reports`);
+  }
+  resolveReport(reportId: number, resolved: boolean): Observable<StepReport> {
+    return this.http.post<StepReport>(`${this.url}/reports/${reportId}/resolve`, { resolved });
+  }
+  huntStats(huntId: number): Observable<HuntStats> {
+    return this.http.get<HuntStats>(`${this.url}/hunts/${huntId}/stats`);
+  }
+  catalogStats(catalogId: number): Observable<HuntStats> {
+    return this.http.get<HuntStats>(`${this.url}/catalog/${catalogId}/stats`);
+  }
   generationAccess(): Observable<GenerationAccess> {
     return this.http.get<GenerationAccess>(`${this.url}/generation/access`);
   }

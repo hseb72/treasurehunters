@@ -68,5 +68,19 @@ describe('MockHuntApi', () => {
     session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
     expect((await firstValueFrom(api.generationAccess())).right).toBe('founder');
   });
+
+  it('fait remonter les signalements à l’auteur et compte les étapes (§ 22)', async () => {
+    session.set(await firstValueFrom(api.login('zoe@example.com', 'demo')));
+    const [entry] = await firstValueFrom(api.listCatalog({ autonomous: true }));
+    expect((await firstValueFrom(api.getCatalogEntry(entry.id))).openReports).toHaveLength(1);
+    session.set(await firstValueFrom(api.login('camille@example.com', 'demo')));
+    const [report] = await firstValueFrom(api.catalogReports(entry.id));
+    expect(report).toMatchObject({ stepOrder: 2, category: 'works', status: 'open' });
+    await firstValueFrom(api.resolveReport(report.id, true));
+    expect((await firstValueFrom(api.getCatalogEntry(entry.id))).openReports).toHaveLength(0);
+    const stats = await firstValueFrom(api.catalogStats(entry.id));
+    expect(stats.finished).toBe(3);
+    expect(stats.steps[1].hints).toBe(1);
+  });
 });
 

@@ -86,4 +86,19 @@
 
     <th-photo-review [hunt]="h" [finalOrder]="total()" (reviewed)="rows.reload()" />
   }
+
+  @if (reports.value(); as list) {
+    @if (list.length || h.status !== 'draft') {
+      <section class="surface follow">
+        <h2 class="section-title"><mat-icon>flag</mat-icon> Problèmes signalés</h2>
+        <th-reports-list [reports]="list" (resolve)="resolve($event.report.id, $event.resolved)" />
+      </section>
+    }
+  }
+  @if ((h.status === 'running' || h.status === 'closed' || h.status === 'archived') && stepStats.value(); as st) {
+    <section class="surface follow">
+      <h2 class="section-title"><mat-icon>insights</mat-icon> Étape par étape</h2>
+      <th-step-stats [stats]="st" />
+    </section>
+  }
 }
