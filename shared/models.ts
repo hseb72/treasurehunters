@@ -488,6 +488,39 @@ export interface CatalogDetail extends CatalogEntry {
   huntId: number | null;
   /** Le lecteur a acheté cette chasse (§ 20). */
   owned: boolean;
+  /** Parties en autonomie du lecteur (§ 13.5), la plus récente d'abord. */
+  myPlays: AutonomyPlay[];
+}
+
+/** Une partie en autonomie d'une chasse du catalogue : à lancer avant `until`, en cours, ou finie. */
+export interface AutonomyPlay {
+  huntId: number;
+  started: string | null;
+  finished: string | null;
+  until: string;
+}
+
+/** Classement des parties en autonomie d'une version du catalogue (§ 13.5). */
+export interface AutonomyLeaderboard {
+  /** Équipes arrivées (classées). */
+  finishers: number;
+  /** Équipes parties, arrivées ou non. */
+  players: number;
+  rows: AutonomyRow[];
+}
+
+export interface AutonomyRow {
+  rank: number;
+  teamName: string;
+  members: number;
+  /** Temps de parcours en secondes, pénalités comprises. */
+  time: number;
+  penalty: number;
+  hints: number;
+  skips: number;
+  finished: string;
+  /** L'équipe du lecteur. */
+  mine: boolean;
 }
 
 export interface CatalogPublication {

@@ -5,6 +5,8 @@ import { Creation, CreationInput, creationProductId, creationRef, CreatorPage } 
 import { MockCreations } from './mock-creations';
 import {
   AuthResult,
+  AutonomyLeaderboard,
+  AutonomyRow,
   CheckoutResult,
   PayoutAccount,
   CatalogDetail,
@@ -80,6 +82,7 @@ export class MockHuntApi extends HuntApi {
   constructor() {
     super();
     this.seedCatalog();
+    this.seedAutonomy();
     this.seedPlacePhotos();
   }
 
@@ -734,6 +737,7 @@ export class MockHuntApi extends HuntApi {
       if (opts.difficulty?.length) list = list.filter((e) => opts.difficulty!.includes(e.difficulty));
       if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
+      if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
       const views = list.map((e) => this.entryView(e));
       const sort = opts.sort ?? 'rating';
       return views.sort((a, b) =>
@@ -753,38 +757,88 @@ export class MockHuntApi extends HuntApi {
   copyFromCatalog(id: number): Observable<Hunt> {
     return this.reply(() => {
       const me = this.requireUser();
-      const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
-      if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
-      if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError('Cette chasse est payante : achetez-la pour la copier.');
-      const begin = Date.now() + 7 * 86_400_000;
-      const h: MockDb['hunts'][number] = {
-        ...structuredClone(e.content.hunt),
-        skin: e.content.hunt.skin ?? DEFAULT_SKIN,
-        tools: [...(e.content.hunt.tools ?? DEFAULT_TOOLS)],
-        id: this.nextId(this.db.hunts),
-        ownerId: me,
-        begin: new Date(begin).toISOString(),
-        end: new Date(begin + 3 * 3_600_000).toISOString(),
-        started: null,
-        closed: null,
-        autoStart: false,
-        autoClose: false,
-        generated: false,
-        surprise: false,
-        hostId: null,
-        selfPaced: true,
-        catalogId: id,
-        travel: e.travel,
-        difficulty: e.difficulty,
-        durationMinutes: e.durationMinutes,
-        isPublic: false,
-        joinCode: randomToken(6).toUpperCase(),
-        status: 'draft',
-      };
-      this.db.hunts.push(h);
-      for (const s of e.content.steps) this.db.steps.push({ ...this.blankStep(h.id, s.order, s.title), ...structuredClone(s) });
+      return this.huntView(this.instantiate(this.catalogEntryFor(id, me, 'copier'), me, false));
+    });
+  }
+
+  /** Jouer en autonomie (§ 13.5), comme le serveur : partie privée, lancée sur place dans l'année. */
+  playFromCatalog(id: number): Observable<Hunt> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const e = this.catalogEntryFor(id, me, 'jouer');
+      if (e.validation !== 'geo') throw new ApiError('Cette chasse se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
+      const waiting = this.db.hunts.find(
+        (h) => h.catalogId === id && h.surprise && h.hostId === me && h.status === 'published' && this.db.teams.some((t) => t.huntId === h.id && t.ownerId === me && !t.started),
+      );
+      if (waiting) return this.huntView(waiting);
+      const h = this.instantiate(e, me, true);
+      this.addTeam(h, this.nick(me), me, false);
       return this.huntView(h);
     });
+  }
+
+  autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
+    return this.reply(() => {
+      const me = this.viewer();
+      const hunts = this.db.hunts.filter((h) => h.catalogId === id && h.surprise && h.hostId !== null);
+      let players = 0;
+      const rows: (AutonomyRow & { at: number })[] = [];
+      for (const h of hunts) {
+        const teams = this.db.teams.filter((t) => t.huntId === h.id);
+        players += teams.filter((t) => t.started).length;
+        for (const r of this.ranking(h.id)) {
+          if (r.time === null || !r.finished) continue;
+          const team = teams.find((t) => t.id === r.teamId)!;
+          rows.push({ rank: 0, teamName: r.teamName, members: r.members.length, time: r.time, penalty: r.penalty, hints: r.hints, skips: r.skips, finished: r.finished, mine: team.members.some((m) => m.hunterId === me), at: Date.parse(r.finished) });
+        }
+      }
+      rows.sort((a, b) => a.time - b.time || a.at - b.at);
+      rows.forEach((r, i) => (r.rank = i + 1));
+      return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
+    });
+  }
+
+  private catalogEntryFor(id: number, me: number, verb: string): MockEntry {
+    const e = this.catalog.find((x) => x.id === id && !x.withdrawn);
+    if (!e) throw new ApiError('Cette chasse n’est pas au catalogue.');
+    if (e.price > 0 && e.authorId !== me && !this.purchases.get(me)?.has(`hunt:c${id}`)) throw new ApiError(`Cette chasse est payante : achetez-la pour la ${verb}.`);
+    return e;
+  }
+
+  /** Chasse tirée d'une version : brouillon à organiser, ou partie en autonomie (compte système, hôte = joueur). */
+  private instantiate(e: MockEntry, me: number, play: boolean): MockDb['hunts'][number] {
+    if (play && !this.db.hunters.some((x) => x.id === SYSTEM_ID)) {
+      this.db.hunters.push({ id: SYSTEM_ID, nickname: 'Treasure Hunters', email: 'generateur@treasurehunters.invalid', password: '', rateable: false });
+    }
+    const begin = play ? Date.now() : Date.now() + 7 * 86_400_000;
+    const h: MockDb['hunts'][number] = {
+      ...structuredClone(e.content.hunt),
+      skin: e.content.hunt.skin ?? DEFAULT_SKIN,
+      tools: [...(e.content.hunt.tools ?? DEFAULT_TOOLS)],
+      id: this.nextId(this.db.hunts),
+      ownerId: play ? SYSTEM_ID : me,
+      begin: new Date(begin).toISOString(),
+      end: new Date(begin + (play ? 365 * 86_400_000 : 3 * 3_600_000)).toISOString(),
+      started: null,
+      closed: null,
+      autoStart: false,
+      autoClose: play,
+      generated: false,
+      surprise: play,
+      hostId: play ? me : null,
+      selfPaced: true,
+      catalogId: e.id,
+      travel: e.travel,
+      difficulty: e.difficulty,
+      durationMinutes: e.durationMinutes,
+      isPublic: false,
+      joinCode: randomToken(6).toUpperCase(),
+      status: play ? 'published' : 'draft',
+      ...(play ? { teamGame: true, teamMin: 1, teamMax: 6, startMode: 'mass' as const, interval: null } : {}),
+    };
+    this.db.hunts.push(h);
+    for (const s of e.content.steps) this.db.steps.push({ ...this.blankStep(h.id, s.order, s.title), ...structuredClone(s) });
+    return h;
   }
 
   withdrawFromCatalog(id: number): Observable<CatalogDetail> {
@@ -960,6 +1014,10 @@ export class MockHuntApi extends HuntApi {
     return {
       ...this.entryView(e),
       owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
+      myPlays: this.db.hunts
+        .filter((h) => h.catalogId === id && h.surprise && h.hostId !== null)
+        .flatMap((h) => this.db.teams.filter((t) => t.huntId === h.id && t.members.some((m) => m.hunterId === me)).map((t) => ({ huntId: h.id, started: t.started, finished: t.finished, until: h.end })))
+        .reverse(),
       sample: { order: e.sampleOrder, text: e.sample },
       reviews: this.ratings
         .filter((r) => hunts.has(r.huntId) && r.rating.comment)
@@ -992,6 +1050,83 @@ export class MockHuntApi extends HuntApi {
         at: new Date(Date.now() - (i + 1) * 3_600_000).toISOString(),
       }),
     );
+  }
+
+  /**
+   * Jouer en autonomie (§ 13.5) : une chasse géolocalisée de Camille au catalogue, déjà jouée
+   * en autonomie par trois joueurs (le classement de la fiche).
+   */
+  private seedAutonomy(): void {
+    const plan = demoPlan({ lat: 43.6108, lng: 3.8767 }, 4, 'l’Écusson');
+    const day = 86_400_000;
+    const begin = Date.now() - 40 * day;
+    const h: MockDb['hunts'][number] = {
+      id: this.nextId(this.db.hunts),
+      ownerId: 2,
+      name: 'Les secrets de l’Écusson',
+      description: 'Deux heures dans les ruelles du vieux Montpellier : fontaines, statues et cadrans solaires, à votre rythme.',
+      location: 'Montpellier, l’Écusson',
+      begin: new Date(begin).toISOString(),
+      end: new Date(begin + 3 * 3_600_000).toISOString(),
+      started: new Date(begin).toISOString(),
+      closed: new Date(begin + 3 * 3_600_000).toISOString(),
+      autoStart: false,
+      autoClose: true,
+      award: 'Une glace place de la Comédie',
+      startMode: 'mass',
+      interval: null,
+      hintPenalties: [2, 5, 10],
+      skipPenalty: 15,
+      validation: 'geo',
+      geoRadius: 40,
+      generated: false,
+      surprise: false,
+      travel: 'walk',
+      skin: 'aventure',
+      tools: [...DEFAULT_TOOLS],
+      difficulty: 'easy',
+      durationMinutes: 90,
+      hostId: null,
+      catalogId: null,
+      selfPaced: true,
+      teamGame: true,
+      teamMin: 1,
+      teamMax: 6,
+      isPublic: false,
+      joinCode: randomToken(6).toUpperCase(),
+      contribution: 0,
+      startText: plan.startText,
+      status: 'closed',
+    };
+    this.db.hunts.push(h);
+    plan.steps.forEach((p, order) =>
+      this.db.steps.push({ ...this.blankStep(h.id, order, p.title), arrival: p.arrival, instructions: p.instructions, hints: p.hints, latitude: p.latitude, longitude: p.longitude, address: p.address }),
+    );
+    let entry: MockEntry;
+    try {
+      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0 });
+    } catch {
+      return;
+    }
+    // Trois parties en autonomie déjà jouées : Léa, Hugo (un joker), Jade en famille.
+    for (const [hunterId, minutes, hints, daysAgo, family] of [
+      [3, 84, 0, 12, 0],
+      [4, 97, 1, 6, 0],
+      [7, 71, 0, 3, 2],
+    ] as const) {
+      const play = this.instantiate(entry, hunterId, true);
+      const team = this.addTeam(play, this.nick(hunterId), hunterId, false);
+      for (let i = 0; i < family; i++) team.members.push({ hunterId: 11 + i, nickname: this.nick(11 + i) });
+      const start = Date.now() - daysAgo * day;
+      const steps = this.stepsOf(play.id).filter((s) => s.order > 0);
+      team.started = new Date(start).toISOString();
+      steps.forEach((s, i) =>
+        this.db.validations.push({ teamId: team.id, stepId: s.id, hunterId, source: 'GEO', at: new Date(start + ((i + 1) * minutes * 60_000) / steps.length).toISOString() }),
+      );
+      team.finished = new Date(start + minutes * 60_000).toISOString();
+      if (hints) this.db.hintUses.push({ teamId: team.id, stepId: this.stepsOf(play.id)[1].id, level: 1, hunterId, at: new Date(start + 20 * 60_000).toISOString() });
+      Object.assign(play, { status: 'closed', started: team.started, closed: team.finished });
+    }
   }
 
   /* ---------- Preuve par photo (§ 12) ---------- */

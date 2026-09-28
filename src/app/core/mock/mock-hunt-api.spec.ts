@@ -41,4 +41,18 @@ describe('MockHuntApi', () => {
     session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
     expect((await firstValueFrom(api.getPlay(1))).clue!.illustration).toBe(step.id);
   });
+
+  it('fait jouer une chasse du catalogue en autonomie et classe les joueurs (§ 13.5)', async () => {
+    session.set(await firstValueFrom(api.login('zoe@example.com', 'demo')));
+    const [entry] = await firstValueFrom(api.listCatalog({ autonomous: true }));
+    expect(entry.validation).toBe('geo');
+    const hunt = await firstValueFrom(api.playFromCatalog(entry.id));
+    expect(hunt).toMatchObject({ surprise: true, status: 'published', catalogId: entry.id });
+    expect((await firstValueFrom(api.playFromCatalog(entry.id))).id).toBe(hunt.id);
+    expect((await firstValueFrom(api.getCatalogEntry(entry.id))).myPlays).toHaveLength(1);
+    const board = await firstValueFrom(api.autonomyLeaderboard(entry.id));
+    expect(board.rows.map((r) => r.rank)).toEqual([1, 2, 3]);
+    expect(board.rows[0].time).toBeLessThan(board.rows[2].time);
+  });
 });
+

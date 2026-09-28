@@ -21,7 +21,34 @@
       <th-stars [value]="e.rating.stars" [count]="e.rating.count" />
     </header>
 
+    @if (autonomous()) {
+      <section class="surface action play-block">
+        <h2 class="section-title"><mat-icon>hiking</mat-icon> Jouer en autonomie</h2>
+        <p class="small muted">
+          Seul ou en famille, sans organisateur ni autres équipes. Préparez-la de chez vous : une fois au point de départ, vous lancez le
+          chrono quand vous voulez, dans l'année.
+        </p>
+        @if (waitingPlay(); as w) {
+          <p class="small have"><mat-icon inline>event_available</mat-icon> Votre partie vous attend, à lancer d'ici le {{ w.until | date: 'd MMMM y' }}.</p>
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', w.huntId]"><mat-icon>flag</mat-icon>Ouvrir ma partie</a>
+        } @else if (runningPlay(); as r) {
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.huntId]"><mat-icon>explore</mat-icon>Reprendre ma partie</a>
+        } @else if (mustBuy()) {
+          <p class="price-line"><strong>{{ price(e.price) }}</strong>&nbsp;<span class="small muted">— achetée une fois, jouée autant que vous voulez.</span></p>
+          <button mat-flat-button class="th-cta" type="button" (click)="buy()" [disabled]="busy()"><mat-icon>shopping_bag</mat-icon>Acheter cette chasse</button>
+        } @else {
+          <button mat-flat-button class="th-cta" type="button" (click)="play()" [disabled]="busy()"><mat-icon>hiking</mat-icon>Jouer cette chasse</button>
+        }
+        @if (finishedPlays().length) {
+          <p class="small muted">Vous l'avez déjà terminée {{ finishedPlays().length > 1 ? finishedPlays().length + ' fois' : 'une fois' }} : votre temps est dans le classement ci-dessous.</p>
+        }
+      </section>
+    }
+
     <section class="surface action">
+      @if (autonomous()) {
+        <h2 class="section-title"><mat-icon>edit_note</mat-icon> Organiser pour d'autres joueurs</h2>
+      }
       @if (isAuthor()) {
         <p class="small muted">Vous êtes l'auteur de cette version.</p>
         <div class="row actions">
@@ -73,6 +100,30 @@
         <li><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }} jouée{{ e.plays > 1 ? 's' : '' }}</li>
       </ul>
     </section>
+
+    @if (autonomous() && board.value(); as b) {
+      <section class="surface" id="classement">
+        <h2 class="section-title">Classement des joueurs en autonomie</h2>
+        @if (b.rows.length) {
+          <p class="small muted">{{ b.finishers }} équipe{{ b.finishers > 1 ? 's' : '' }} arrivée{{ b.finishers > 1 ? 's' : '' }} sur {{ b.players }} partie{{ b.players > 1 ? 's' : '' }}, temps pénalités comprises.</p>
+          <ol class="board">
+            @for (r of shownRows(); track $index) {
+              <li [class.mine]="r.mine">
+                <span class="rank">{{ r.rank }}</span>
+                <span class="who">{{ r.teamName }}@if (r.members > 1) {<span class="small muted"> · {{ r.members }} joueurs</span>}@if (r.mine) {<span class="small you"> · vous</span>}</span>
+                <span class="small muted extra">
+                  @if (r.hints) { {{ r.hints }} joker{{ r.hints > 1 ? 's' : '' }} }
+                  @if (r.skips) { · {{ r.skips }} abandon{{ r.skips > 1 ? 's' : '' }} }
+                </span>
+                <strong class="time">{{ clock(r.time) }}</strong>
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="muted">Personne n'a encore terminé cette chasse en autonomie : à vous d'ouvrir le classement !</p>
+        }
+      </section>
+    }
 
     <section class="surface">
       <h2 class="section-title">Extrait</h2>

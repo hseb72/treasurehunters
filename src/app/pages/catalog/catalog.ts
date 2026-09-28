@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,9 @@ const DURATION_MAX = 360;
 export class CatalogPage {
   private readonly api = inject(HuntApi);
 
+  /** « ?jouer=1 » : ouvrir sur les chasses jouables en autonomie (§ 13.5). */
+  readonly jouer = input<string | undefined>();
+  protected readonly autonomous = linkedSignal(() => this.jouer() === '1');
   protected readonly query = signal('');
   protected readonly sort = signal<NonNullable<CatalogQuery['sort']>>('rating');
   protected readonly travel = signal<Travel[]>([]);
@@ -56,6 +59,7 @@ export class CatalogPage {
       return {
         q: this.debounced(),
         sort: this.sort(),
+        autonomous: this.autonomous() || undefined,
         travel: this.travel(),
         difficulty: this.difficulty(),
         minDuration: min > DURATION_MIN ? min : undefined,

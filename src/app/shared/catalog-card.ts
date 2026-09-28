@@ -27,6 +27,9 @@ import { Stars } from './stars';
         <strong>{{ minutes(e.durationMinutes) }}</strong>
       </div>
       <h3>{{ e.title }}</h3>
+      @if (e.validation === 'geo') {
+        <span class="autonomy small" title="Seul ou en famille, sans organisateur : départ sur place quand vous voulez"><mat-icon inline>hiking</mat-icon> Jouable en autonomie</span>
+      }
       <div class="row small muted meta">
         <span class="row"><mat-icon>location_on</mat-icon>{{ e.location }}</span>
         <span class="row"><mat-icon>person_pin</mat-icon>{{ e.authorNickname }}</span>
@@ -57,6 +60,7 @@ import { Stars } from './stars';
     .cover { display: block; width: calc(100% + 32px); margin: -16px -16px 0; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
     h3 { margin: 0; }
     .price { color: var(--th-primary); font-weight: 700; }
+    .autonomy { align-self: flex-start; padding: 2px 8px; border-radius: 999px; font-weight: 600; color: var(--th-success); background: color-mix(in srgb, var(--th-success) 12%, transparent); }
     .meta { flex-wrap: wrap; gap: 4px 14px; }
     .meta mat-icon { width: 18px; height: 18px; font-size: 18px; }
     .badge { align-self: flex-start; }

@@ -2,10 +2,23 @@
   <header class="banner head">
     <h1 class="display">Le catalogue des chasses</h1>
     <p class="small">
-      Des parcours rédigés et testés par d'autres organisateurs. Choisissez-en un, adaptez-le à votre façon (étapes, énigmes, jokers,
-      pénalités, trésor), puis organisez-le avec vos joueurs.
+      Des parcours rédigés et testés par des organisateurs. Jouez-en un vous-même, seul ou en famille, quand vous voulez ; ou adaptez-le
+      à votre façon et organisez-le pour vos joueurs.
     </p>
   </header>
+
+  <div class="modes" role="radiogroup" aria-label="Ce que vous cherchez">
+    <button type="button" role="radio" class="surface mode" [class.mode--on]="autonomous()" [attr.aria-checked]="autonomous()" (click)="autonomous.set(true)">
+      <mat-icon>hiking</mat-icon>
+      <strong>Jouer en autonomie</strong>
+      <span class="small muted">Seul ou en famille, sans organisateur ni autres équipes : vous lancez le départ sur place, quand vous voulez.</span>
+    </button>
+    <button type="button" role="radio" class="surface mode" [class.mode--on]="!autonomous()" [attr.aria-checked]="!autonomous()" (click)="autonomous.set(false)">
+      <mat-icon>edit_note</mat-icon>
+      <strong>Organiser pour d'autres</strong>
+      <span class="small muted">Toutes les chasses : copiez-en une, adaptez-la, posez vos QR codes et invitez vos joueurs.</span>
+    </button>
+  </div>
 
   <section class="surface filters">
     <div class="line">

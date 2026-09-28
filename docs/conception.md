@@ -528,16 +528,26 @@ Recherche :
 
 **Parties qui comptent pour une version** : celles de la chasse qui l'a publiée, et celles des copies de la version qui n'ont rien publié elles-mêmes. Une copie modifiée et republiée compte pour sa propre version, pas pour l'originale.
 
-### 13.4 Vente (à venir)
+### 13.4 Vente
 
-Décidé, pas encore réalisé :
+Réalisée au § 20 (paiement Stripe, désactivé sans clés). Principes retenus :
 
 - un organisateur pourra fixer un **prix** à sa publication ; l'acheteur d'une chasse payante ne pourra pas la republier gratuitement ;
 - la plateforme prélèvera une **commission** sur chaque vente ;
 - paiements par **Stripe Connect** : Stripe encaisse, vérifie l'identité des vendeurs, prélève la commission, reverse leurs gains et fournit les données fiscales. Le « portefeuille » affiché dans l'application reflétera ces soldes. Un portefeuille de crédits retirables en argent, tenu par la plateforme elle-même, relèverait de la monnaie électronique (agrément de l'ACPR) : c'est ce que le prestataire évite ;
 - obligations à cadrer avec un conseil : facturation de la commission, déclaration des revenus des vendeurs à l'administration fiscale (directive DAC7), information des vendeurs sur leurs obligations fiscales, conditions générales de vente.
 
-### 13.5 Données
+### 13.5 Jouer en autonomie
+
+Un joueur peut aussi **jouer lui-même** une chasse du catalogue, seul ou en famille, sans organisateur ni autres équipes : « je suis au centre-ville, j'ai deux heures devant moi ». Il peut la choisir et l'acheter de chez lui, puis la lancer sur place des jours plus tard.
+
+- **Chasses concernées** : celles validées par **géolocalisation** (`cat_validation = 'geo'`). Une chasse à QR codes exige que quelqu'un les pose : elle ne se joue pas en autonomie (409). Le catalogue les signale (« Jouable en autonomie ») et les filtre (`GET /catalog?autonomous=1`, choix « Jouer en autonomie » en tête du catalogue, raccourci de l'accueil).
+- **Jouer** : `POST /catalog/:id/play` (après achat si elle est payante, § 20 ; même produit `hunt:c<id>` que pour l'organiser). Le serveur crée une **partie privée** : une copie de la version organisée par le compte système, dont le joueur est l'hôte (`hun_surprise`, `hun_host_htr`, « chacun son chrono »), son équipe inscrite, **valable un an**. Le parcours reste caché ; pas de personnalisation. Une partie obtenue mais pas lancée est reprise plutôt que dupliquée ; une fois finie, on peut en créer une nouvelle.
+- **Sur place** : le carnet de route affiche le point de départ ; le joueur invite ses coéquipiers s'il le veut et donne le départ (« C'est parti ! ») quand il y est. Le chrono part de là. La partie se clôt quand l'équipe arrive (§ 11.4). L'accueil la présente « À jouer en autonomie ».
+- **Classement** : `GET /catalog/:id/leaderboard` compare les équipes arrivées de toutes les parties en autonomie de la version, au **temps pénalités comprises** (jokers, abandons), avec le nombre de joueurs de chaque équipe ; la fiche montre les dix premiers et la place du lecteur, la fin de partie y renvoie (« Comparer mon temps »). Ces parties comptent dans les parties jouées et les avis de la version.
+- La fiche d'une version indique au lecteur ses parties (`CatalogDetail.myPlays` : à lancer avant telle date, en cours, finies).
+
+### 13.6 Données
 
 - `th_catalog` : auteur, chasse d'origine, version précédente, présentation, lieu, déplacement, difficulté, durée, nombre d'étapes, mode de validation, extrait, ce qui change, instantané, empreinte, retrait.
 - `th_hunts.hun_catalog_cat` : version dont la chasse est une copie ; `hun_travel`, `hun_difficulty`, `hun_duration` : réglages repris à la publication.

@@ -54,8 +54,11 @@
       @case ('before') {
         @if (s.hunt.surprise) {
           <section class="surface taped center surprise">
-            <span class="stamp stamp--accent">Chasse surprise</span>
+            <span class="stamp stamp--accent">{{ s.hunt.catalogId ? 'En autonomie' : 'Chasse surprise' }}</span>
             <h2>Votre expédition est prête</h2>
+            @if (s.hunt.catalogId) {
+              <p class="small">Rendez-vous au point de départ quand vous voulez (jusqu'au {{ s.hunt.end | date: 'd MMMM y' }}), puis lancez le chrono : il ne tourne qu'à partir de là. Seul ou en famille : invitez vos coéquipiers avant de partir.</p>
+            }
             <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}.</p>
             @if (s.start; as start) {
               <th-start-place [start]="start" />
@@ -65,7 +68,7 @@
             }
             <p class="small muted">Pas de QR code : une fois sur place, appuyez sur « Je suis arrivé » (la localisation doit être autorisée).</p>
 
-            @if (isHost() && s.hunt.status === 'published') {
+            @if (isHost() && s.hunt.status === 'published' && !s.hunt.catalogId) {
               <div class="start-modes" role="radiogroup" aria-label="Mode de départ">
                 <button type="button" role="radio" class="start-mode" [class.start-mode--on]="s.hunt.selfPaced" [attr.aria-checked]="s.hunt.selfPaced" (click)="setSelfPaced(true)" [disabled]="busy()">
                   <mat-icon>timer</mat-icon>
@@ -289,6 +292,9 @@
             <p>Le podium sera dévoilé à la clôture de l'expédition.</p>
           } @else {
             <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir le podium</a>
+          }
+          @if (s.hunt.surprise && s.hunt.catalogId) {
+            <a mat-stroked-button [routerLink]="['/catalog', s.hunt.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Comparer mon temps aux autres joueurs</a>
           }
         </section>
       }

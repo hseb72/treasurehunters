@@ -19,6 +19,8 @@ import {
   ScanResult,
   Step,
   Team,
+  AutonomyLeaderboard,
+  AutonomyRow,
   CatalogDetail,
   CatalogEntry,
   CatalogPublication,
@@ -1458,6 +1460,8 @@ export class Service {
       params.push(opts.maxDuration);
       where.push(`c.cat_duration <= $${params.length}`);
     }
+    // Jouables en autonomie : validées par géolocalisation, sans QR à poser (§ 13.5).
+    if (opts.autonomous) where.push(`c.cat_validation = 'geo'`);
     const order = {
       rating: 'ra.stars DESC NULLS LAST, coalesce(ra.n, 0) DESC, c.cat_id DESC',
       recent: 'c.cat_id DESC',
@@ -1484,9 +1488,23 @@ export class Service {
       [id, viewer],
     );
     const owned = viewer !== null && !!(await one(this.pool, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [viewer, catalogProductId(id)]));
+    // Parties en autonomie du lecteur sur cette version : à lancer, en cours, terminées.
+    const plays = viewer === null ? [] : await rows(
+      this.pool,
+      `SELECT h.hun_id, h.hun_end, t.tea_started, t.tea_finished FROM th_hunts h JOIN th_teams t ON t.tea_hunt_hun = h.hun_id
+       JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
+       WHERE h.hun_catalog_cat = $1 AND h.hun_surprise AND h.hun_host_htr IS NOT NULL AND m.thr_hunter_htr = $2 ORDER BY h.hun_id DESC`,
+      [id, viewer],
+    );
     return {
       ...entry,
       owned,
+      myPlays: plays.map((p) => ({
+        huntId: p['hun_id'],
+        started: p['tea_started'] ? (p['tea_started'] as Date).toISOString() : null,
+        finished: p['tea_finished'] ? (p['tea_finished'] as Date).toISOString() : null,
+        until: (p['hun_end'] as Date).toISOString(),
+      })),
       sample: { order: r['cat_sample_order'], text: r['cat_sample'] },
       reviews: reviews.map((x) => ({ nickname: x['htr_nickname'], stars: x['rat_stars'], comment: x['rat_comment'], at: (x['rat_creation'] as Date).toISOString() })),
       versions: versions.map((x) => ({
@@ -1503,55 +1521,124 @@ export class Service {
   /** Crée un brouillon à partir d'une version du catalogue : l'organisateur l'adapte ensuite librement. */
   async copyFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
     const me = requireUser(viewer);
+    return tx(this.pool, async (db) => (await huntById(db, await this.instantiate(db, me, id, false)))!);
+  }
+
+  /**
+   * Jouer en autonomie (§ 13.5) : une copie privée de la chasse, organisée par le compte
+   * système, dont le joueur est l'hôte ; son équipe y est inscrite et donne elle-même le
+   * départ, sur place, quand elle veut dans l'année. Le parcours reste caché. Une partie
+   * achetée mais pas encore lancée est reprise plutôt que dupliquée.
+   */
+  async playFromCatalog(viewer: Viewer, id: number): Promise<Hunt> {
+    const me = requireUser(viewer);
     return tx(this.pool, async (db) => {
-      const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr FROM th_catalog WHERE cat_id = $1', [id]);
-      if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
-      // Chasse payante (§ 20) : achetée une fois, copiée autant qu'on veut ; gratuite sans paiement activé.
-      if (this.payments?.enabled && r['cat_price'] > 0 && r['cat_author_htr'] !== me) {
-        const bought = await one(db, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [me, catalogProductId(id)]);
-        if (!bought) throw new HttpError(402, 'Cette chasse est payante : achetez-la pour la copier.');
-      }
-      const content = r['cat_content'] as CatalogContent;
-      const begin = new Date(Date.now() + 7 * 86_400_000);
-      const data: Partial<Hunt> = {
-        ...content.hunt,
-        begin: begin.toISOString(),
-        end: new Date(begin.getTime() + 3 * 3_600_000).toISOString(),
-        isPublic: false,
-        travel: r['cat_travel'],
-        difficulty: r['cat_difficulty'],
-        durationMinutes: r['cat_duration'],
-      };
-      const assignments = huntAssignments(data);
-      const cols = ['hun_owner_htr', 'hun_joincode', 'hun_catalog_cat', ...assignments.map(([c]) => c)];
-      const values = [me, joinCode(), id, ...assignments.map(([, v]) => v)];
-      const h = await one(db, `INSERT INTO th_hunts (${cols.join(', ')}) VALUES (${cols.map((_, i) => `$${i + 1}`).join(', ')}) RETURNING hun_id`, values);
-      const huntId = h!['hun_id'] as number;
-      for (const s of content.steps) {
-        await db.query(
-          `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                                 cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
-          [
-            huntId,
-            s.order,
-            s.order === 0 ? null : randomToken(), // de nouveaux QR : ceux de l'auteur restent les siens
-            s.title,
-            s.arrival,
-            s.instructions,
-            s.hints[0] ?? null,
-            s.hints[1] ?? null,
-            s.hints[2] ?? null,
-            s.latitude,
-            s.longitude,
-            s.address,
-            s.entrances?.length ? JSON.stringify(s.entrances) : null,
-            s.puzzle ? JSON.stringify(s.puzzle) : null,
-          ],
-        );
-      }
+      const waiting = await one(
+        db,
+        `SELECT h.hun_id FROM th_hunts h JOIN th_teams t ON t.tea_hunt_hun = h.hun_id
+         WHERE h.hun_catalog_cat = $1 AND h.hun_surprise AND h.hun_host_htr = $2 AND t.tea_owner_htr = $2
+           AND t.tea_started IS NULL AND h.hun_status_hst = $3 AND h.hun_end > now()
+         ORDER BY h.hun_id DESC LIMIT 1`,
+        [id, me, STATUS_IDS.published],
+      );
+      if (waiting) return (await huntById(db, waiting['hun_id']))!;
+      const huntId = await this.instantiate(db, me, id, true);
+      const nickname = (await hunterById(db, me))!.nickname;
+      await this.addTeam(db, (await huntById(db, huntId))!, nickname, me, false);
       return (await huntById(db, huntId))!;
     });
+  }
+
+  /** Classement des parties en autonomie d'une version : les équipes arrivées, au temps pénalités comprises. */
+  async autonomyLeaderboard(viewer: Viewer, id: number): Promise<AutonomyLeaderboard> {
+    const hunts = await huntsWhere(this.pool, 'h.hun_catalog_cat = $1 AND h.hun_surprise AND h.hun_host_htr IS NOT NULL', [id]);
+    const rows: (AutonomyRow & { at: number })[] = [];
+    let players = 0;
+    for (const hunt of hunts.slice(-500)) {
+      const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [hunt.id]);
+      players += teams.filter((t) => t.started).length;
+      const ranking = computeRanking(hunt, teams, await validationsOfHunt(this.pool, hunt.id), await hintUsesOfHunt(this.pool, hunt.id));
+      for (const r of ranking) {
+        if (r.time === null || !r.finished) continue;
+        const team = teams.find((t) => t.id === r.teamId)!;
+        rows.push({
+          rank: 0,
+          teamName: r.teamName,
+          members: r.members.length,
+          time: r.time,
+          penalty: r.penalty,
+          hints: r.hints,
+          skips: r.skips,
+          finished: r.finished,
+          mine: viewer !== null && team.members.some((m) => m.hunterId === viewer),
+          at: Date.parse(r.finished),
+        });
+      }
+    }
+    rows.sort((a, b) => a.time - b.time || a.at - b.at);
+    rows.forEach((r, i) => (r.rank = i + 1));
+    return { finishers: rows.length, players, rows: rows.map(({ at, ...r }) => r) };
+  }
+
+  /**
+   * Crée une chasse à partir d'une version du catalogue. Pour l'organiser : un brouillon du
+   * joueur, dans une semaine. Pour la jouer en autonomie : une chasse surprise ouverte un an.
+   */
+  private async instantiate(db: Db, me: number, id: number, play: boolean): Promise<number> {
+    const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr, cat_validation FROM th_catalog WHERE cat_id = $1', [id]);
+    if (!r || r['cat_withdrawn']) throw notFound('Cette chasse n’est pas au catalogue.');
+    if (play && r['cat_validation'] !== 'geo') throw conflict('Cette chasse se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
+    // Chasse payante (§ 20) : achetée une fois, copiée ou jouée autant qu'on veut ; gratuite sans paiement activé.
+    if (this.payments?.enabled && r['cat_price'] > 0 && r['cat_author_htr'] !== me) {
+      const bought = await one(db, 'SELECT 1 FROM th_purchases WHERE pur_hunter_htr = $1 AND pur_product = $2', [me, catalogProductId(id)]);
+      if (!bought) throw new HttpError(402, `Cette chasse est payante : achetez-la pour la ${play ? 'jouer' : 'copier'}.`);
+    }
+    const content = r['cat_content'] as CatalogContent;
+    const begin = play ? new Date() : new Date(Date.now() + 7 * 86_400_000);
+    const data: Partial<Hunt> = {
+      ...content.hunt,
+      begin: begin.toISOString(),
+      end: new Date(begin.getTime() + (play ? AUTONOMY_DAYS * 86_400_000 : 3 * 3_600_000)).toISOString(),
+      isPublic: false,
+      travel: r['cat_travel'],
+      difficulty: r['cat_difficulty'],
+      durationMinutes: r['cat_duration'],
+      ...(play ? { teamGame: true, teamMin: 1, teamMax: SURPRISE_TEAM_MAX, autoStart: false, autoClose: true, startMode: 'mass' as const, interval: null } : {}),
+    };
+    const assignments = huntAssignments(data);
+    const owner = play ? await this.systemAccount(db) : me;
+    const cols = ['hun_owner_htr', 'hun_joincode', 'hun_catalog_cat', ...assignments.map(([c]) => c)];
+    const values = [owner, joinCode(), id, ...assignments.map(([, v]) => v)];
+    if (play) {
+      cols.push('hun_surprise', 'hun_host_htr', 'hun_selfpaced', 'hun_status_hst');
+      values.push(true, me, true, STATUS_IDS.published);
+    }
+    const h = await one(db, `INSERT INTO th_hunts (${cols.join(', ')}) VALUES (${cols.map((_, i) => `$${i + 1}`).join(', ')}) RETURNING hun_id`, values);
+    const huntId = h!['hun_id'] as number;
+    for (const s of content.steps) {
+      await db.query(
+        `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+        [
+          huntId,
+          s.order,
+          s.order === 0 ? null : randomToken(), // de nouveaux QR : ceux de l'auteur restent les siens
+          s.title,
+          s.arrival,
+          s.instructions,
+          s.hints[0] ?? null,
+          s.hints[1] ?? null,
+          s.hints[2] ?? null,
+          s.latitude,
+          s.longitude,
+          s.address,
+          s.entrances?.length ? JSON.stringify(s.entrances) : null,
+          s.puzzle ? JSON.stringify(s.puzzle) : null,
+        ],
+      );
+    }
+    return huntId;
   }
 
   /** L'auteur retire une version : elle disparaît du catalogue, les copies déjà faites restent. */
@@ -1863,6 +1950,8 @@ function toJob(r: Row): GenerationJob {
 
 /** Taille maximale d'une équipe dans une chasse surprise. */
 const SURPRISE_TEAM_MAX = 6;
+/** Une partie en autonomie se lance quand on veut, dans l'année qui suit son obtention. */
+const AUTONOMY_DAYS = 365;
 
 /** Chasse surprise « chacun son chrono » en cours : on peut encore s'y inscrire et partir. */
 function openToLateTeams(hunt: Hunt): boolean {
@@ -1906,6 +1995,8 @@ export interface CatalogQuery {
   /** Durée annoncée, en minutes. */
   minDuration?: number;
   maxDuration?: number;
+  /** Seulement les chasses jouables en autonomie (§ 13.5). */
+  autonomous?: boolean;
 }
 
 /**

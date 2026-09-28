@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import {
   AuthResult,
+  AutonomyLeaderboard,
   CheckoutResult,
   PayoutAccount,
   CatalogDetail,
@@ -156,6 +157,12 @@ export class HttpHuntApi extends HuntApi {
   }
   withdrawFromCatalog(id: number): Observable<CatalogDetail> {
     return this.http.delete<CatalogDetail>(`${this.url}/catalog/${id}`);
+  }
+  playFromCatalog(id: number): Observable<Hunt> {
+    return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
+  }
+  autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
+    return this.http.get<AutonomyLeaderboard>(`${this.url}/catalog/${id}/leaderboard`);
   }
   publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail> {
     return this.http.post<CatalogDetail>(`${this.url}/hunts/${huntId}/catalog`, pub);

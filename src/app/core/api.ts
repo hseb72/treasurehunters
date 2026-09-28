@@ -4,6 +4,7 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import {
   AuthResult,
+  AutonomyLeaderboard,
   CheckoutResult,
   PayoutAccount,
   CatalogDetail,
@@ -48,6 +49,8 @@ export interface CatalogQuery {
   /** Durée annoncée, en minutes. */
   minDuration?: number;
   maxDuration?: number;
+  /** Seulement les chasses jouables en autonomie (§ 13.5). */
+  autonomous?: boolean;
 }
 
 /**
@@ -154,6 +157,9 @@ export abstract class HuntApi {
   /** Crée un brouillon à partir d'une version du catalogue. */
   abstract copyFromCatalog(id: number): Observable<Hunt>;
   abstract withdrawFromCatalog(id: number): Observable<CatalogDetail>;
+  /** Jouer une chasse du catalogue en autonomie : la partie du joueur, à lancer sur place. */
+  abstract playFromCatalog(id: number): Observable<Hunt>;
+  abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   abstract publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail>;
 
   /* Notations (§ 14) */
