@@ -18,8 +18,8 @@ export interface PlayData {
 
 export function stepStats(plays: PlayData[], titles: Map<number, string>): HuntStats {
   const final = Math.max(0, ...titles.keys());
-  const acc = new Map<number, { teams: number; found: number; skipped: number; hints: number; minutes: number[]; stuck: number }>();
-  for (let k = 1; k <= final; k++) acc.set(k, { teams: 0, found: 0, skipped: 0, hints: 0, minutes: [], stuck: 0 });
+  const acc = new Map<number, { teams: number; found: number; skipped: number; hints: number; hintTeams: number; minutes: number[]; stuck: number }>();
+  for (let k = 1; k <= final; k++) acc.set(k, { teams: 0, found: 0, skipped: 0, hints: 0, hintTeams: 0, minutes: [], stuck: 0 });
   let teams = 0;
   let finished = 0;
   for (const p of plays) {
@@ -33,7 +33,9 @@ export function stepStats(plays: PlayData[], titles: Map<number, string>): HuntS
         if (k > 1 && !mine.has(k - 1)) break;
         const a = acc.get(k)!;
         a.teams++;
-        a.hints += p.hints.filter((h) => h.teamId === team.id && p.orderOf.get(h.stepId) === k - 1).length;
+        const taken = p.hints.filter((h) => h.teamId === team.id && p.orderOf.get(h.stepId) === k - 1).length;
+        a.hints += taken;
+        if (taken) a.hintTeams++;
         const v = mine.get(k);
         if (!v) {
           if (p.over) a.stuck++;
@@ -59,6 +61,7 @@ export function stepStats(plays: PlayData[], titles: Map<number, string>): HuntS
       found: a.found,
       skipped: a.skipped,
       hints: a.hints,
+      hintTeams: a.hintTeams,
       avgMinutes: a.minutes.length ? Math.round(a.minutes.reduce((x, y) => x + y, 0) / a.minutes.length) : null,
       stuck: a.stuck,
     })),

@@ -48,6 +48,9 @@ import {
 import { sketchTrail } from '../../shared/souvenir.js';
 import { AudienceTag, PracticalTag, Setting } from '../../shared/practical.js';
 import { Lists } from './lists.js';
+import { StepReliability, stepReliability } from '../../shared/gps.js';
+import { diagnoseSteps } from '../../shared/diagnosis.js';
+import { TeamRole } from '../../shared/roles.js';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '../../shared/surprise.js';
 import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
@@ -192,6 +195,8 @@ export class Service {
     if (!target) throw badRequest('L’arrivée n’a pas d’énigme : il n’y a plus de lieu à trouver.');
     const instructions = req.instructions.trim();
     if (!instructions && req.action !== 'rephrase') throw badRequest('Écrivez d’abord une première version de l’énigme.');
+    // Analyse (§ 43) : ce que montrent les parties (la chasse, et les parties en autonomie de ses versions).
+    const evidence = req.action === 'diagnose' ? await this.stepEvidence(hunt, target.order) : undefined;
     const reserved = await tx(this.pool, async (db) => {
       await db.query('SELECT pg_advisory_xact_lock(7325, $1)', [me]);
       const usage = await assistUsageOf(db, me);
@@ -206,6 +211,7 @@ export class Service {
         target: { title: target.title, address: target.address, arrival: target.arrival },
         instructions,
         hints: req.hints.map((h) => h.trim()).filter(Boolean),
+        evidence,
       });
       return { suggestion, usage: await assistUsageOf(this.pool, me) };
     } catch (e) {
@@ -575,6 +581,24 @@ export class Service {
     });
   }
 
+  /**
+   * Rôles dans l'équipe (§ 41) : chacun choisit le sien, le créateur de l'équipe peut les répartir.
+   * Un seul capitaine : le nommer retire ce rôle à l'ancien.
+   */
+  async setRole(viewer: Viewer, teamId: number, role: TeamRole | null, hunterId?: number): Promise<Team> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const team = await teamById(db, teamId, true);
+      if (!team || !team.members.some((m) => m.hunterId === me)) throw notFound('Équipe introuvable.');
+      const target = hunterId ?? me;
+      if (target !== me && team.ownerId !== me) throw forbidden('Seul le créateur de l’équipe répartit les rôles des autres.');
+      if (!team.members.some((m) => m.hunterId === target)) throw badRequest('Ce joueur n’est pas dans l’équipe.');
+      if (role === 'captain') await db.query(`UPDATE th_teamhunters SET thr_role = NULL WHERE thr_team_tea = $1 AND thr_role = 'captain'`, [teamId]);
+      await db.query('UPDATE th_teamhunters SET thr_role = $3 WHERE thr_team_tea = $1 AND thr_hunter_htr = $2', [teamId, target, role]);
+      return (await teamById(db, teamId))!;
+    });
+  }
+
   async leaveHunt(viewer: Viewer, huntId: number): Promise<void> {
     const me = requireUser(viewer);
     await tx(this.pool, async (db) => {
@@ -702,6 +726,11 @@ export class Service {
         'INSERT INTO th_scanlog (scl_code_cod, scl_token, scl_hunter_htr, scl_team_tea, scl_result, scl_ip) VALUES ($1, $2, $3, $4, $5, $6)',
         [target.id, `geo:${target.id}`, me, team.id, outcome, ip ?? null],
       );
+      // Fiabilité GPS de l'étape (§ 42).
+      await db.query(
+        `INSERT INTO th_geochecks (gck_code_cod, gck_hunter_htr, gck_source, gck_distance, gck_allowed, gck_accuracy, gck_ok) VALUES ($1, $2, 'play', $3, $4, $5, $6)`,
+        [target.id, me, distance, allowed, pos.accuracy, check.ok],
+      );
       if (outcome === 'too_far') return { outcome, distance, allowed, step: null, state };
 
       const final = finalOrder(steps);
@@ -717,6 +746,48 @@ export class Service {
         state: await this.playState(db, me, huntId),
       };
     });
+  }
+
+  /* ================================================================ Mode test (§ 42) */
+
+  /** Vérification de l'auteur en répétition : la règle des équipes, notée pour la fiabilité GPS de l'étape. */
+  async testStep(viewer: Viewer, stepId: number, pos: { lat: number; lng: number; accuracy: number }): Promise<{ distance: number; allowed: number; ok: boolean }> {
+    const me = requireUser(viewer);
+    const step = await stepById(this.pool, stepId);
+    if (!step) throw notFound('Étape introuvable.');
+    const hunt = await this.ownedHunt(this.pool, me, step.huntId);
+    const check = arrivalCheck(step, hunt, pos);
+    if (!check) throw conflict('Ce lieu n’est pas placé sur la carte.');
+    await this.pool.query(
+      `INSERT INTO th_geochecks (gck_code_cod, gck_hunter_htr, gck_source, gck_distance, gck_allowed, gck_accuracy, gck_ok) VALUES ($1, $2, 'test', $3, $4, $5, $6)`,
+      [stepId, me, check.distance, check.allowed, pos.accuracy, check.ok],
+    );
+    return { distance: check.distance, allowed: check.allowed, ok: check.ok };
+  }
+
+  /** Fiabilité GPS de chaque étape placée : tests de l'auteur et « Je suis arrivé » des joueurs. */
+  async gpsReliability(viewer: Viewer, huntId: number): Promise<StepReliability[]> {
+    await this.ownedHunt(this.pool, viewer, huntId);
+    const steps = (await stepsOf(this.pool, huntId)).filter((s) => s.order > 0 && s.latitude !== null);
+    // Les parties en autonomie de ses versions du catalogue suivent le même parcours : leurs
+    // arrivées comptent aussi, étape par étape (même numéro).
+    const checks = await rows(
+      this.pool,
+      `SELECT c.cod_order, g.gck_ok, g.gck_distance, g.gck_accuracy, g.gck_source FROM th_geochecks g JOIN th_codes c ON c.cod_id = g.gck_code_cod
+       JOIN th_hunts h ON h.hun_id = c.cod_hunt_hun
+       WHERE h.hun_id = $1
+          OR (h.hun_surprise AND h.hun_host_htr IS NOT NULL AND h.hun_catalog_cat IN (SELECT cat_id FROM th_catalog WHERE cat_hunt_hun = $1))
+       ORDER BY g.gck_id DESC LIMIT 5000`,
+      [huntId],
+    );
+    return steps.map((s) =>
+      stepReliability(
+        s,
+        checks
+          .filter((c) => c['cod_order'] === s.order)
+          .map((c) => ({ ok: c['gck_ok'], distance: c['gck_distance'], accuracy: c['gck_accuracy'], source: c['gck_source'] })),
+      ),
+    );
   }
 
   /* ================================================================ Version anglaise (§ 33) */
@@ -2197,6 +2268,31 @@ export class Service {
   }
 
   /** Statistiques par étape d'une chasse, pour son organisateur. */
+  /** Signaux d'une étape (§ 43) pour l'analyse de l'IA : statistiques, signalements et fiabilité GPS. */
+  private async stepEvidence(hunt: Hunt, order: number): Promise<string[]> {
+    const related = await rows(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT DISTINCT hun_id FROM eh WHERE cat_id IN (SELECT cat_id FROM th_catalog WHERE cat_hunt_hun = $1)`,
+      [hunt.id],
+    );
+    const ids = [...new Set([hunt.id, ...related.map((r) => r['hun_id'] as number)])];
+    const steps = await stepsOf(this.pool, hunt.id);
+    const stats = await this.statsFor(ids, new Map(steps.map((s) => [s.order, s.title])));
+    const reports = await rows(
+      this.pool,
+      `SELECT r.rep_category, r.rep_message FROM th_reports r JOIN th_codes c ON c.cod_id = r.rep_code_cod
+       WHERE r.rep_hunt_hun = ANY($1) AND c.cod_order = $2 AND r.rep_status = 'open' ORDER BY r.rep_id DESC LIMIT 10`,
+      [ids, order],
+    );
+    const gps = await this.gpsReliability(hunt.ownerId, hunt.id);
+    const diagnosis = diagnoseSteps(stats, { durationMinutes: hunt.durationMinutes, reports: new Map([[order, reports.length]]), gps }).find((d) => d.order === order);
+    const st = stats.steps.find((x) => x.order === order);
+    const evidence = [...(diagnosis?.signals ?? [])];
+    if (st?.teams) evidence.push(`${st.teams} équipes ont cherché ce lieu : ${st.found} l’ont trouvé, ${st.skipped} ont abandonné, ${st.hints} jokers pris`);
+    for (const r of reports) evidence.push(`Signalement « ${r['rep_category']} »${r['rep_message'] ? ` : ${r['rep_message']}` : ''}`);
+    return evidence;
+  }
+
   async huntStats(viewer: Viewer, huntId: number): Promise<HuntStats> {
     await this.ownedHunt(this.pool, viewer, huntId);
     const steps = await stepsOf(this.pool, huntId);

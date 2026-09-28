@@ -1,3 +1,4 @@
+import { TeamRoles } from '../../shared/team-roles';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, linkedSignal, numberAttribute, signal, untracked } from '@angular/core';
 import { DomTranslator } from '../../core/dom-translator';
@@ -22,7 +23,7 @@ import { SkinDirective } from '../../shared/skin';
 
 @Component({
   selector: 'th-hunt-detail',
-  imports: [SkinDirective, CurrencyPipe, DatePipe, FormsModule, InvitePanel, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
+  imports: [SkinDirective, CurrencyPipe, DatePipe, FormsModule, InvitePanel, TeamRoles, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hunt-detail.html',
   styleUrl: './hunt-detail.scss',

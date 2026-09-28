@@ -421,11 +421,7 @@
             </div>
           }
           @case ('team') {
-            <ul class="members">
-              @for (m of s.team.members; track m.hunterId) {
-                <li><mat-icon inline>person</mat-icon> {{ m.nickname }}</li>
-              }
-            </ul>
+            <th-team-roles [team]="s.team" (changed)="state.reload()" />
             <th-invite-panel [hunt]="s.hunt" [team]="s.team" />
           }
         }

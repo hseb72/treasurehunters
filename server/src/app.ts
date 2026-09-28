@@ -17,6 +17,7 @@ import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
 import { LIST_ICONS } from '../../shared/lists.js';
+import { TEAM_ROLE_IDS } from '../../shared/roles.js';
 import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
 
@@ -339,7 +340,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.post('/api/steps/:id/assist', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
     const body = z
       .object({
-        action: z.enum(['rephrase', 'easier', 'harder', 'hints', 'review']),
+        action: z.enum(['rephrase', 'easier', 'harder', 'hints', 'review', 'diagnose']),
         instructions: z.string().max(5000),
         hints: z.array(z.string().max(1000)).max(3).default([]),
       })
@@ -349,6 +350,14 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
 
   /* ----- Équipes */
   app.get('/api/hunts/:id/teams', async (req) => service.getTeams(req.viewer, idParams.parse(req.params).id));
+  /* ----- Mode test (§ 42) */
+  const position = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(10_000) });
+  app.post('/api/steps/:id/test', async (req) => service.testStep(req.viewer, idParams.parse(req.params).id, position.parse(req.body)));
+  app.get('/api/hunts/:id/gps', async (req) => service.gpsReliability(req.viewer, idParams.parse(req.params).id));
+  app.put('/api/teams/:id/role', async (req) => {
+    const body = z.object({ role: z.enum(TEAM_ROLE_IDS).nullable(), hunterId: id.optional() }).parse(req.body);
+    return service.setRole(req.viewer, idParams.parse(req.params).id, body.role, body.hunterId);
+  });
   app.post('/api/hunts/:id/teams', async (req, reply) => {
     const { name } = z.object({ name: text(255).min(1) }).parse(req.body);
     return reply.status(201).send(await service.createTeam(req.viewer, idParams.parse(req.params).id, name));

@@ -80,7 +80,7 @@ describe('MockHuntApi', () => {
     expect((await firstValueFrom(api.getCatalogEntry(entry.id))).openReports).toHaveLength(0);
     const stats = await firstValueFrom(api.catalogStats(entry.id));
     expect(stats.finished).toBe(3);
-    expect(stats.steps[1].hints).toBe(1);
+    expect(stats.steps[1]).toMatchObject({ hints: 2, hintTeams: 2 });
   });
   it('décompte les suggestions de l’assistant de rédaction, et le souvenir attend l’arrivée (§ 24, § 25)', async () => {
     session.set(await firstValueFrom(api.login('camille@example.com', 'demo')));

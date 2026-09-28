@@ -1,3 +1,4 @@
+import { TeamRoles } from '../../shared/team-roles';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -36,7 +37,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [OfflinePlay, ReadAloud, SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
+  imports: [OfflinePlay, ReadAloud, SkinDirective, DatePipe, InvitePanel, TeamRoles, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],

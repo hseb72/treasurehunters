@@ -18,6 +18,8 @@ export interface AssistCase {
   target: { title: string; address: string | null; arrival: string | null };
   instructions: string;
   hints: string[];
+  /** Analyse (§ 43) : ce que montrent les données des joueurs et leurs signalements. */
+  evidence?: string[];
 }
 
 export interface RiddleWriter {
@@ -27,7 +29,7 @@ export interface RiddleWriter {
 const SuggestionSchema = z.object({
   instructions: z.string().nullable().describe('Énigme proposée, prête à coller ; null pour « hints », et pour « review » si l’énigme est déjà bonne'),
   hints: z.array(z.string()).nullable().describe('Pour « hints » : exactement trois jokers, du plus discret au plus direct ; null sinon'),
-  review: z.string().nullable().describe('Pour « review » : remarques courtes en puces « - » ; null sinon'),
+  review: z.string().nullable().describe('Pour « review » et « diagnose » : remarques courtes en puces « - » ; null sinon'),
 });
 
 const TASKS: Record<AssistAction, string> = {
@@ -35,6 +37,8 @@ const TASKS: Record<AssistAction, string> = {
   easier: 'Rends l’énigme nettement plus facile (enfants, débutants) : indices plus concrets, vocabulaire simple, sans donner la réponse mot pour mot.',
   harder: 'Rends l’énigme nettement plus difficile (joueurs aguerris) : plus allusive, jeux de mots ou références, mais toujours résoluble sur place et sans ambiguïté.',
   hints: 'Rédige exactement trois jokers progressifs pour cette énigme : le premier oriente discrètement, le deuxième précise, le troisième désigne presque le lieu sans le nommer.',
+  diagnose:
+    'Les joueurs butent sur cette énigme : les données ci-dessus le montrent. Explique dans review, en deux à quatre puces courtes, la cause la plus probable (terme ambigu, indice invérifiable, lieu difficile à repérer, énigme trop longue, trop de lieux possibles…), en citant le passage en cause. Puis propose dans instructions une énigme corrigée, même solution, même esprit.',
   review:
     'Relis l’énigme comme un joueur qui ne connaît pas la solution. Signale en quelques puces ce qui pose problème : ambiguïté (plusieurs lieux possibles), indice faux ou invérifiable sur place, lieu trop vague, fautes. Si tu corriges, propose l’énigme corrigée dans instructions ; sinon instructions = null et dis que l’énigme est claire.',
 };
@@ -68,6 +72,7 @@ export class ClaudeRiddleWriter implements RiddleWriter {
       c.target.arrival ? `Message que les joueurs liront en y arrivant : ${c.target.arrival}` : null,
       `Énigme actuelle :\n${c.instructions || '(pas encore écrite)'}`,
       c.hints.length ? `Jokers actuels :\n${c.hints.map((h, i) => `${i + 1}. ${h}`).join('\n')}` : null,
+      c.evidence?.length ? `Ce que montrent les joueurs :\n${c.evidence.map((e) => `- ${e}`).join('\n')}` : null,
       `Demande : ${c.action === 'rephrase' && !c.instructions ? DRAFT : TASKS[c.action]}`,
     ]
       .filter(Boolean)
@@ -90,7 +95,7 @@ export class ClaudeRiddleWriter implements RiddleWriter {
       action: c.action,
       instructions: c.action === 'hints' ? null : out.instructions?.trim().slice(0, 2000) || null,
       hints: c.action === 'hints' ? (out.hints ?? []).map((h) => h.trim().slice(0, 300)).filter(Boolean).slice(0, 3) : null,
-      review: c.action === 'review' ? out.review?.trim().slice(0, 2000) || null : null,
+      review: c.action === 'review' || c.action === 'diagnose' ? out.review?.trim().slice(0, 2000) || null : null,
     };
   }
 }

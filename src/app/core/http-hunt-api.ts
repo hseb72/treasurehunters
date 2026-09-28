@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
+import { TeamRole } from '@shared/roles';
+import { StepReliability } from '@shared/gps';
 import {
   AuthResult,
   HuntStats,
@@ -172,6 +174,15 @@ export class HttpHuntApi extends HuntApi {
       if (opts.radius) params['radius'] = String(opts.radius);
     }
     return this.http.get<CatalogEntry[]>(`${this.url}/catalog`, { params });
+  }
+  testStep(stepId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<{ distance: number; allowed: number; ok: boolean }> {
+    return this.http.post<{ distance: number; allowed: number; ok: boolean }>(`${this.url}/steps/${stepId}/test`, pos);
+  }
+  gpsReliability(huntId: number): Observable<StepReliability[]> {
+    return this.http.get<StepReliability[]>(`${this.url}/hunts/${huntId}/gps`);
+  }
+  setRole(teamId: number, role: TeamRole | null, hunterId?: number): Observable<Team> {
+    return this.http.put<Team>(`${this.url}/teams/${teamId}/role`, hunterId ? { role, hunterId } : { role });
   }
   myLists(): Observable<TrackList[]> {
     return this.http.get<TrackList[]>(`${this.url}/me/lists`);

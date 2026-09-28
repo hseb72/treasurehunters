@@ -98,6 +98,7 @@
   @if ((h.status === 'running' || h.status === 'closed' || h.status === 'archived') && stepStats.value(); as st) {
     <section class="surface follow">
       <h2 class="section-title"><mat-icon>insights</mat-icon> Étape par étape</h2>
+      <th-step-diagnosis [stats]="st" [reports]="reports.value() ?? []" [durationMinutes]="h.durationMinutes" [huntId]="h.id" />
       <th-step-stats [stats]="st" />
     </section>
   }

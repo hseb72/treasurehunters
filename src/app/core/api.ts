@@ -7,6 +7,8 @@ import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
+import { TeamRole } from '@shared/roles';
+import { StepReliability } from '@shared/gps';
 import { ExplorerJournal } from '@shared/journal';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
@@ -109,6 +111,12 @@ export abstract class HuntApi {
   abstract leaveHunt(huntId: number): Observable<void>;
   abstract setStartOrder(huntId: number, teamIds: number[]): Observable<Team[]>;
   abstract delayTeam(teamId: number, minutes: number): Observable<Team>;
+  /* ---------- Mode test (§ 42) ---------- */
+  /** Vérification de l'auteur en répétition, notée pour la fiabilité GPS de l'étape. */
+  abstract testStep(stepId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<{ distance: number; allowed: number; ok: boolean }>;
+  abstract gpsReliability(huntId: number): Observable<StepReliability[]>;
+  /** Rôle dans l'équipe (§ 41) : le sien, ou celui d'un équipier pour le créateur de l'équipe. */
+  abstract setRole(teamId: number, role: TeamRole | null, hunterId?: number): Observable<Team>;
 
   abstract getPlay(huntId: number): Observable<PlayState>;
   abstract revealHint(huntId: number): Observable<PlayState>;

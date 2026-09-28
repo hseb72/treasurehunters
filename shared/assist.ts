@@ -5,7 +5,7 @@
  * voit à tout moment ce qu'il a consommé et ce qu'il lui reste.
  */
 
-export type AssistAction = 'rephrase' | 'easier' | 'harder' | 'hints' | 'review';
+export type AssistAction = 'rephrase' | 'easier' | 'harder' | 'hints' | 'review' | 'diagnose';
 
 export const ASSIST_ACTIONS: { id: AssistAction; label: string; short: [string, string]; icon: string; description: string }[] = [
   { id: 'rephrase', label: 'Reformuler', short: ['reformulation', 'reformulations'], icon: 'edit_note', description: 'Même difficulté, en plus clair et plus vivant.' },
@@ -13,7 +13,17 @@ export const ASSIST_ACTIONS: { id: AssistAction; label: string; short: [string, 
   { id: 'harder', label: 'Plus difficile', short: ['durcissement', 'durcissements'], icon: 'trending_up', description: 'Pour des joueurs aguerris.' },
   { id: 'hints', label: 'Proposer 3 jokers', short: ['jeu de jokers', 'jeux de jokers'], icon: 'key', description: 'Du plus discret au plus direct.' },
   { id: 'review', label: 'Relire', short: ['relecture', 'relectures'], icon: 'spellcheck', description: 'Repère une énigme ambiguë, trop vague ou qui mène ailleurs.' },
+  {
+    id: 'diagnose',
+    label: 'Analyser les difficultés',
+    short: ['analyse', 'analyses'],
+    icon: 'troubleshoot',
+    description: 'D’après les données des joueurs, explique pourquoi ils bloquent et propose une énigme corrigée.',
+  },
 ];
+
+/** Actions proposées dans l'éditeur ; l'analyse part des statistiques (§ 43). */
+export const EDITOR_ACTIONS = ASSIST_ACTIONS.filter((a) => a.id !== 'diagnose');
 
 export function assistAction(id: AssistAction) {
   return ASSIST_ACTIONS.find((a) => a.id === id)!;

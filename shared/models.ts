@@ -3,6 +3,7 @@
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
 import type { AudienceTag, PracticalTag, Setting } from './practical.js';
+import type { TeamRole } from './roles.js';
 import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
 import type { SkinManifest } from './skins.js';
 
@@ -123,6 +124,8 @@ export type PhotoShow = 'arrival' | 'clue';
 export interface Member {
   hunterId: number;
   nickname: string;
+  /** Rôle choisi dans l'équipe (§ 41) ; absent ou null : aucun. */
+  role?: TeamRole | null;
 }
 
 export interface Team {
@@ -727,6 +730,8 @@ export interface StepStats {
   skipped: number;
   /** Jokers pris sur l'énigme qui mène à cette étape. */
   hints: number;
+  /** Équipes qui ont pris au moins un joker sur cette énigme (§ 43). */
+  hintTeams?: number;
   /** Temps moyen pour la trouver, en minutes (null sans donnée). */
   avgMinutes: number | null;
   /** Équipes restées bloquées sur cette énigme (parties terminées, équipe non arrivée). */

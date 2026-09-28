@@ -53,6 +53,8 @@ import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzz
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
+import { TeamRole } from '@shared/roles';
+import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
 import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
 import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '@shared/offline';
@@ -100,6 +102,8 @@ export class MockHuntApi extends HuntApi {
   /** Défis étendus (§ 39) : mot du lanceur par partie source, et partie source de chaque partie qui relève un défi. */
   private readonly challengeNotes = new Map<number, { authorId: number; message: string | null }>();
   private readonly challengeOf = new Map<number, number>();
+  /** Fiabilité GPS (§ 42) : arrivées des joueurs et tests de l'auteur. */
+  private readonly geoChecks: (GeoCheck & { stepId: number; huntId: number; order: number })[] = [];
   private readonly ratings: { huntId: number; hunterId: number; rating: Rating; at: string }[] = [];
 
   constructor() {
@@ -424,6 +428,50 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /* ---------- Mode test (§ 42), comme le serveur ---------- */
+
+  testStep(stepId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<{ distance: number; allowed: number; ok: boolean }> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const step = this.db.steps.find((x) => x.id === stepId);
+      const h = step && this.db.hunts.find((x) => x.id === step.huntId && x.ownerId === me);
+      if (!step || !h) throw new ApiError('Réservé à l’organisateur de la Secret Track.');
+      const check = arrivalCheck(step, h, pos);
+      if (!check) throw new ApiError('Ce lieu n’est pas placé sur la carte.');
+      this.geoChecks.push({ stepId, huntId: h.id, order: step.order, ok: check.ok, distance: check.distance, accuracy: pos.accuracy, source: 'test' });
+      return { distance: check.distance, allowed: check.allowed, ok: check.ok };
+    });
+  }
+
+  gpsReliability(huntId: number): Observable<StepReliability[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      if (!this.db.hunts.some((x) => x.id === huntId && x.ownerId === me)) throw new ApiError('Réservé à l’organisateur de la Secret Track.');
+      // Parties en autonomie de ses versions : même parcours, mêmes numéros d'étape.
+      const versions = new Set(this.catalog.filter((e) => e.huntId === huntId).map((e) => e.id));
+      const related = new Set([huntId, ...this.db.hunts.filter((x) => x.surprise && x.hostId !== null && x.catalogId !== null && versions.has(x.catalogId)).map((x) => x.id)]);
+      return this.stepsOf(huntId)
+        .filter((st) => st.order > 0 && st.latitude !== null)
+        .map((st) => stepReliability(st, this.geoChecks.filter((c) => related.has(c.huntId) && c.order === st.order)));
+    });
+  }
+
+  /** Rôles dans l'équipe (§ 41), comme le serveur. */
+  setRole(teamId: number, role: TeamRole | null, hunterId?: number): Observable<Team> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const team = this.db.teams.find((t) => t.id === teamId && t.members.some((m) => m.hunterId === me));
+      if (!team) throw new ApiError('Équipe introuvable.');
+      const target = hunterId ?? me;
+      if (target !== me && team.ownerId !== me) throw new ApiError('Seul le créateur de l’équipe répartit les rôles des autres.');
+      const member = team.members.find((m) => m.hunterId === target);
+      if (!member) throw new ApiError('Ce joueur n’est pas dans l’équipe.');
+      if (role === 'captain') for (const m of team.members) if (m.role === 'captain') m.role = null;
+      member.role = role;
+      return team;
+    });
+  }
+
   joinSolo(huntId: number): Observable<Team> {
     return this.reply(() => {
       const me = this.requireUser();
@@ -567,6 +615,7 @@ export class MockHuntApi extends HuntApi {
       const check = arrivalCheck(target, h, pos);
       if (!check) throw new ApiError('Ce lieu n’est pas placé sur la carte : prévenez l’organisateur.');
       const { distance, allowed } = check;
+      this.geoChecks.push({ stepId: target.id, huntId, order: target.order, ok: check.ok, distance, accuracy: pos.accuracy, source: 'play' });
       if (!check.ok) return { outcome: 'too_far', distance, allowed, step: null, state } satisfies CheckinResult;
       const final = finalOrder(steps);
       if (this.arrive(state.team.id, target, me, 'GEO') === 'puzzle') {
@@ -1528,11 +1577,12 @@ export class MockHuntApi extends HuntApi {
     } catch {
       return;
     }
-    // Trois parties en autonomie déjà jouées : Léa, Hugo (un joker), Jade en famille.
+    // Trois parties en autonomie déjà jouées : Léa, Hugo et Jade en famille ; Hugo et Jade prennent
+    // un joker sur la même énigme, que l'analyse des étapes (§ 43) fait ressortir.
     for (const [hunterId, minutes, hints, daysAgo, family] of [
       [3, 84, 0, 12, 0],
       [4, 97, 1, 6, 0],
-      [7, 71, 0, 3, 2],
+      [7, 71, 1, 3, 2],
     ] as const) {
       const play = this.instantiate(entry, hunterId, true);
       const team = this.addTeam(play, this.nick(hunterId), hunterId, false);
@@ -1899,6 +1949,11 @@ export class MockHuntApi extends HuntApi {
         case 'review':
           suggestion.review = '- « La grande porte » peut désigner deux lieux du quartier : précisez lequel.\n- L’énigme se lit bien sinon.';
           suggestion.instructions = `${text} (Celle qui fait face au jardin.)`;
+          break;
+        case 'diagnose':
+          suggestion.review =
+            '- Les équipes prennent un joker ici bien plus qu’ailleurs : l’énigme évoque « la fontaine », or il y en a deux sur la place.\n- Le temps passé (trois fois le prévu) montre qu’elles cherchent au mauvais endroit, pas qu’elles marchent loin.';
+          suggestion.instructions = `${first.replace(/[.!?]$/, '')} : pas celle du marché, mais celle qui chante sous les platanes.`;
           break;
       }
       const list = this.assists.get(me) ?? [];

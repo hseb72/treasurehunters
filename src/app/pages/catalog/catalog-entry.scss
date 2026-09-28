@@ -163,7 +163,7 @@
   border-radius: 12px;
   text-decoration: none;
   color: var(--th-ink);
-  .when { text-transform: capitalize; }
+  .when::first-letter { text-transform: uppercase; }
   .name, .small { grid-column: 1; }
   .go, .stamp { grid-column: 2; grid-row: 1 / span 3; align-self: center; font-weight: 600; color: var(--th-primary-light); }
   &:hover { border-color: var(--th-primary-light); }
