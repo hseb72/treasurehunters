@@ -203,6 +203,7 @@
           <section class="surface taped clue">
             <div class="clue-head">
               <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
+              <th-read-aloud [text]="spoken(clue)" />
             </div>
             @if (clue.illustration; as pic) {
               <th-place-photo [stepId]="pic" alt="Le lieu à trouver" />

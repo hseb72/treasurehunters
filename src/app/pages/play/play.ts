@@ -5,7 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
-import { CheckinResult, CompassReading, PhotoResult, PlayState } from '@shared/models';
+import { CheckinResult, CompassReading, PlayClue, PhotoResult, PlayState } from '@shared/models';
+import { ReadAloud } from '../../shared/read-aloud';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -31,7 +32,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
+  imports: [ReadAloud, SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],
@@ -52,6 +53,11 @@ export class PlayPage {
   /** Skin de la chasse, dès qu'elle est connue. */
   protected readonly skin = computed(() => this.state.value()?.hunt.skin);
   protected readonly fx = inject(SkinEffects);
+
+  /** Ce que lit « Écouter » (§ 27) : l'énigme, puis les jokers déjà ouverts. */
+  protected spoken(clue: PlayClue): string {
+    return [clue.instructions, ...clue.hintsRevealed.map((h, i) => `Joker ${i + 1} : ${h}`)].join('\n\n');
+  }
   protected readonly fxClass = computed(() => this.fx.validateClass(this.skin()));
 
   /* ---------- Énigme d'arrivée (§ 17) ---------- */
