@@ -301,6 +301,7 @@
           @if (s.hunt.surprise && s.hunt.catalogId) {
             <a mat-stroked-button [routerLink]="['/catalog', s.hunt.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Comparer mon temps aux autres joueurs</a>
           }
+          <a mat-stroked-button [routerLink]="['/hunts', s.hunt.id, 'souvenir']"><mat-icon>photo_album</mat-icon>Mon souvenir à partager</a>
         </section>
       }
       @case ('over') {

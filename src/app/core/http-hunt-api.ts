@@ -31,12 +31,14 @@ import {
   StoreItem,
   CompassReading,
   PuzzleResult,
+  Souvenir,
 } from '@shared/models';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { Creation, CreationInput, CreatorPage } from '@shared/creations';
 import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
+import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import { environment } from '../../environments/environment';
 import { ApiError, CatalogQuery, HuntAction, HuntApi, HuntScope } from './api';
 import { Session } from './session';
@@ -171,6 +173,9 @@ export class HttpHuntApi extends HuntApi {
   playFromCatalog(id: number): Observable<Hunt> {
     return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
   }
+  getSouvenir(huntId: number): Observable<Souvenir> {
+    return this.http.get<Souvenir>(`${this.url}/hunts/${huntId}/souvenir`);
+  }
   autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard> {
     return this.http.get<AutonomyLeaderboard>(`${this.url}/catalog/${id}/leaderboard`);
   }
@@ -217,6 +222,12 @@ export class HttpHuntApi extends HuntApi {
   }
   generationAccess(): Observable<GenerationAccess> {
     return this.http.get<GenerationAccess>(`${this.url}/generation/access`);
+  }
+  assistUsage(): Observable<AssistUsage> {
+    return this.http.get<AssistUsage>(`${this.url}/assist/usage`);
+  }
+  assist(stepId: number, req: AssistRequest): Observable<AssistReply> {
+    return this.http.post<AssistReply>(`${this.url}/steps/${stepId}/assist`, req);
   }
   checkout(productId: string, returnPath: string): Observable<CheckoutResult> {
     return this.http.post<CheckoutResult>(`${this.url}/store/${encodeURIComponent(productId)}/checkout`, { returnPath });

@@ -40,7 +40,9 @@ import {
   StoreItem,
   CompassReading,
   PuzzleResult,
+  Souvenir,
 } from '../../shared/models.js';
+import { sketchTrail } from '../../shared/souvenir.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
@@ -87,6 +89,9 @@ import { GENERATION_LIMITS, GenerationAccess } from '../../shared/generation-acc
 import { PhotoJudge } from './photos/judge.js';
 import { imageType, PhotoStore, StoredPhoto } from './photos/store.js';
 import { HuntPlan } from '../../shared/generation.js';
+import { AssistReply, AssistRequest, AssistUsage } from '../../shared/assist.js';
+import { RiddleWriter } from './assist/writer.js';
+import { assistUsageOf } from './assist/usage.js';
 
 export type Viewer = number | null;
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -132,6 +137,8 @@ export class Service {
   readonly creations: Creations;
   /** Paiement (§ 20) : posé par l'application ; inactif sans Stripe. */
   payments: Payments | null = null;
+  /** Assistant de rédaction (§ 25) ; null sans clé d'API. */
+  writer: RiddleWriter | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -145,7 +152,53 @@ export class Service {
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
-    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled };
+    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled, assist: !!this.writer };
+  }
+
+  /* ================================================================ Assistant de rédaction (§ 25) */
+
+  async assistUsage(viewer: Viewer): Promise<AssistUsage> {
+    return assistUsageOf(this.pool, requireUser(viewer));
+  }
+
+  /**
+   * Suggestion de l'IA pour l'énigme d'une étape, d'après le texte en cours d'écriture (pas
+   * forcément enregistré). La suggestion est réservée avant l'appel, et rendue s'il échoue :
+   * seules les propositions reçues comptent.
+   */
+  async assist(viewer: Viewer, stepId: number, req: AssistRequest): Promise<AssistReply> {
+    const me = requireUser(viewer);
+    const writer = this.writer;
+    if (!writer) throw new HttpError(503, 'L’assistant de rédaction n’est pas disponible sur ce serveur.');
+    const step = await stepById(this.pool, stepId);
+    if (!step) throw notFound('Étape introuvable.');
+    const hunt = await this.ownedHunt(this.pool, viewer, step.huntId);
+    const steps = await stepsOf(this.pool, hunt.id);
+    const target = steps.find((s) => s.order === step.order + 1);
+    if (!target) throw badRequest('L’arrivée n’a pas d’énigme : il n’y a plus de lieu à trouver.');
+    const instructions = req.instructions.trim();
+    if (!instructions && req.action !== 'rephrase') throw badRequest('Écrivez d’abord une première version de l’énigme.');
+    const reserved = await tx(this.pool, async (db) => {
+      await db.query('SELECT pg_advisory_xact_lock(7325, $1)', [me]);
+      const usage = await assistUsageOf(db, me);
+      if (usage.blocked) throw new HttpError(429, usage.blocked);
+      return (await one(db, 'INSERT INTO th_assists (ass_hunter_htr, ass_hunt_hun, ass_action) VALUES ($1, $2, $3) RETURNING ass_id', [me, hunt.id, req.action]))!['ass_id'] as number;
+    });
+    try {
+      const suggestion = await writer.assist({
+        action: req.action,
+        hunt: { name: hunt.name, location: hunt.location, difficulty: hunt.difficulty, travel: hunt.travel },
+        from: step.order === 0 ? null : { title: step.title, address: step.address },
+        target: { title: target.title, address: target.address, arrival: target.arrival },
+        instructions,
+        hints: req.hints.map((h) => h.trim()).filter(Boolean),
+      });
+      return { suggestion, usage: await assistUsageOf(this.pool, me) };
+    } catch (e) {
+      await this.pool.query('DELETE FROM th_assists WHERE ass_id = $1', [reserved]);
+      this.log(e, `Assistant de rédaction (étape ${stepId})`);
+      throw new HttpError(502, 'L’assistant n’a pas pu répondre : réessayez dans un instant. Cette demande n’est pas décomptée.');
+    }
   }
 
   /* ================================================================ Comptes */
@@ -857,6 +910,60 @@ export class Service {
             .filter((x) => x.latitude !== null && x.longitude !== null)
             .map((x) => ({ order: x.order, title: x.title, lat: Number(x.latitude), lng: Number(x.longitude) }))
         : null,
+    };
+  }
+
+  /**
+   * Souvenir de fin de partie (§ 24) : ce qu'il faut pour dessiner la carte d'une équipe
+   * arrivée. Le rang est celui de la chasse, ou celui de tous les joueurs de la version du
+   * catalogue pour une partie en autonomie ; pendant la course, seulement avec l'outil Direct.
+   */
+  async souvenir(viewer: Viewer, huntId: number): Promise<Souvenir> {
+    const me = requireUser(viewer);
+    const hunt = await this.visibleHunt(this.pool, me, huntId);
+    const team = await teamOf(this.pool, huntId, me);
+    if (!team) throw forbidden('Vous n’êtes pas inscrit à cette chasse.');
+    if (!team.finished || !team.started) throw conflict('Le souvenir sera prêt à l’arrivée de votre équipe.');
+    const steps = await stepsOf(this.pool, huntId);
+    const ranking = await this.ranking(this.pool, hunt);
+    const row = ranking.find((r) => r.teamId === team.id)!;
+    let rank: number | null = null;
+    let ranked = 0;
+    let scope: Souvenir['scope'] = 'hunt';
+    if (hunt.surprise && hunt.hostId !== null && hunt.catalogId !== null) {
+      const board = await this.autonomyLeaderboard(me, hunt.catalogId);
+      scope = 'catalog';
+      ranked = board.finishers;
+      rank = board.rows.find((r) => r.mine && r.finished === team.finished)?.rank ?? null;
+    } else if (hunt.status !== 'running' || hunt.tools.includes('live')) {
+      ranked = ranking.filter((r) => r.rank !== null).length;
+      rank = row.rank;
+    }
+    const vals = (await validationsOfHunt(this.pool, huntId)).filter((v) => v.teamId === team.id);
+    const found = vals.filter((v) => v.source !== 'SKIP').map((v) => steps.find((s) => s.id === v.stepId)!);
+    const places = [steps.find((s) => s.order === 0), ...found.sort((a, b) => a.order - b.order)]
+      .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
+      .map((s) => ({ lat: Number(s.latitude), lng: Number(s.longitude) }));
+    return {
+      huntId,
+      huntName: hunt.name,
+      skin: hunt.skin,
+      location: hunt.location,
+      date: team.started,
+      teamName: team.name,
+      members: team.members.map((m) => m.nickname),
+      time: row.time ?? 0,
+      penalty: row.penalty / 60,
+      rank: ranked > 1 ? rank : null,
+      ranked,
+      scope,
+      provisional: scope === 'hunt' && hunt.status === 'running',
+      found: found.length,
+      skipped: row.skips,
+      totalSteps: finalOrder(steps),
+      hints: row.hints,
+      trail: sketchTrail(places),
+      catalogId: hunt.catalogId,
     };
   }
 

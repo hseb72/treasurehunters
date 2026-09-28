@@ -43,7 +43,7 @@ async function runner() {
 describe('preuve par photo', () => {
   it('annonce la fonction, et la refuse sans stockage', async () => {
     const player = await runner();
-    expect((await player.get('/api/features')).body).toEqual({ photos: true, generation: false, payments: false });
+    expect((await player.get('/api/features')).body).toEqual({ photos: true, generation: false, payments: false, assist: false });
     expect((await player.get('/api/hunts/1/play')).body.photoProof).toBe(true);
     const bare = await buildApp(ctx.pool, { photoStore: null });
     const res = await (await loginAs(bare, 'seb@example.com')).post('/api/hunts/1/photos', { image: jpeg('x') });

@@ -20,6 +20,13 @@
 
 .podium-card {
   padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.souvenir {
+  align-self: center;
+  margin-top: 12px;
 }
 
 .table {

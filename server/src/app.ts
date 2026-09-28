@@ -8,6 +8,7 @@ import { config } from './config.js';
 import { describeError, HttpError } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
+import { ClaudeRiddleWriter, RiddleWriter } from './assist/writer.js';
 import { PhotoStore, S3PhotoStore, StoredPhoto } from './photos/store.js';
 import { Payments } from './payments/payments.js';
 import { PaymentProvider, StripeProvider } from './payments/stripe.js';
@@ -130,6 +131,8 @@ export interface AppOptions {
   photoJudge?: PhotoJudge | null;
   /** Paiement (§ 20) ; par défaut Stripe si STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET sont définis. */
   payments?: PaymentProvider | null;
+  /** Assistant de rédaction (§ 25) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
+  writer?: RiddleWriter | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -167,6 +170,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   if (stripe.secretKey && !stripe.webhookSecret) app.log.error('STRIPE_WEBHOOK_SECRET manquant : paiement désactivé (les achats ne seraient jamais confirmés).');
   const payments = new Payments(pool, provider, (viewer) => service.store(viewer), (err, msg) => app.log.error(err, msg));
   service.payments = payments;
+  service.writer = opts.writer !== undefined ? opts.writer : keyUsable ? new ClaudeRiddleWriter(key!) : null;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -322,6 +326,19 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   });
   app.post('/api/steps/:id/regenerate', async (req) => service.regenerateToken(req.viewer, idParams.parse(req.params).id));
 
+  /* ----- Assistant de rédaction (§ 25) */
+  app.get('/api/assist/usage', async (req) => service.assistUsage(req.viewer));
+  app.post('/api/steps/:id/assist', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
+    const body = z
+      .object({
+        action: z.enum(['rephrase', 'easier', 'harder', 'hints', 'review']),
+        instructions: z.string().max(5000),
+        hints: z.array(z.string().max(1000)).max(3).default([]),
+      })
+      .parse(req.body);
+    return service.assist(req.viewer, idParams.parse(req.params).id, body);
+  });
+
   /* ----- Équipes */
   app.get('/api/hunts/:id/teams', async (req) => service.getTeams(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/teams', async (req, reply) => {
@@ -412,6 +429,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return reply.status(201).send(await service.reportStep(req.viewer, idParams.parse(req.params).id, data));
   });
   app.get('/api/hunts/:id/reports', async (req) => service.huntReports(req.viewer, idParams.parse(req.params).id));
+  app.get('/api/hunts/:id/souvenir', async (req) => service.souvenir(req.viewer, idParams.parse(req.params).id));
   app.get('/api/hunts/:id/stats', async (req) => service.huntStats(req.viewer, idParams.parse(req.params).id));
   app.get('/api/catalog/:id/reports', async (req) => service.catalogReports(req.viewer, idParams.parse(req.params).id));
   app.get('/api/catalog/:id/stats', async (req) => service.catalogStats(req.viewer, idParams.parse(req.params).id));

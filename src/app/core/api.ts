@@ -3,6 +3,7 @@ import { Creation, CreationInput, CreatorPage } from '@shared/creations';
 import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
+import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
 import {
   AuthResult,
   HuntStats,
@@ -36,6 +37,7 @@ import {
   StoreItem,
   CompassReading,
   PuzzleResult,
+  Souvenir,
 } from '@shared/models';
 
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -127,6 +129,12 @@ export abstract class HuntApi {
   /** Accès à la chasse sur mesure : formules, crédits, limites (§ 21). */
   abstract generationAccess(): Observable<GenerationAccess>;
 
+  /* ---------- Assistant de rédaction (§ 25) ---------- */
+  /** Décompte des suggestions : utilisées, restantes, et quand elles reviennent. */
+  abstract assistUsage(): Observable<AssistUsage>;
+  /** Suggestion de l'IA pour l'énigme d'une étape, d'après le texte en cours (rien n'est enregistré). */
+  abstract assist(stepId: number, req: AssistRequest): Observable<AssistReply>;
+
   /* ---------- Paiement (§ 20) ---------- */
   /** Ouvre le paiement d'un produit (« skin:medieval », « hunt:c12 ») ; url null s'il n'y avait rien à payer. */
   abstract checkout(productId: string, returnPath: string): Observable<CheckoutResult>;
@@ -179,6 +187,8 @@ export abstract class HuntApi {
   /** Jouer une chasse du catalogue en autonomie : la partie du joueur, à lancer sur place. */
   abstract playFromCatalog(id: number): Observable<Hunt>;
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
+  /** Souvenir de fin de partie de l'équipe du joueur (§ 24). */
+  abstract getSouvenir(huntId: number): Observable<Souvenir>;
   abstract publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail>;
 
   /* Notations (§ 14) */

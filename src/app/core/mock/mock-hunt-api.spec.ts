@@ -82,5 +82,18 @@ describe('MockHuntApi', () => {
     expect(stats.finished).toBe(3);
     expect(stats.steps[1].hints).toBe(1);
   });
+  it('décompte les suggestions de l’assistant de rédaction, et le souvenir attend l’arrivée (§ 24, § 25)', async () => {
+    session.set(await firstValueFrom(api.login('camille@example.com', 'demo')));
+    const before = await firstValueFrom(api.assistUsage());
+    expect(before).toMatchObject({ plan: 'base', limit: 30, used: 12, remaining: 18 });
+    const step = (await firstValueFrom(api.getSteps(2))).find((s) => s.order === 1)!;
+    const reply = await firstValueFrom(api.assist(step.id, { action: 'hints', instructions: 'Cherchez la fontaine.', hints: [] }));
+    expect(reply.suggestion.hints).toHaveLength(3);
+    expect(reply.usage).toMatchObject({ used: 13, remaining: 17, today: 1 });
+    await expect(firstValueFrom(api.assist(step.id, { action: 'harder', instructions: '', hints: [] }))).rejects.toThrow(/première version/);
+
+    session.set(await firstValueFrom(api.login('seb@example.com', 'demo')));
+    await expect(firstValueFrom(api.getSouvenir(1))).rejects.toThrow(/arrivée/);
+  });
 });
 
