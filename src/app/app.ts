@@ -2,8 +2,6 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { HuntApi } from './core/api';
@@ -12,7 +10,7 @@ import { CompassLogo } from './shared/compass-logo';
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, MatSidenavModule, MatListModule, RouterLink, RouterLinkActive, RouterOutlet, CompassLogo],
+  imports: [MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive, RouterOutlet, CompassLogo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -20,6 +18,13 @@ import { CompassLogo } from './shared/compass-logo';
 export class App {
   protected readonly session = inject(Session);
   protected readonly demo = environment.demo;
+  /** Onglets principaux (barre du bas sur téléphone, liens de la barre du haut sinon). */
+  protected readonly tabs = [
+    { path: '/', icon: 'home', label: 'Accueil' },
+    { path: '/catalog', icon: 'travel_explore', label: 'Explorer' },
+    { path: '/organize', icon: 'add_circle', label: 'Créer' },
+    { path: '/scan', icon: 'qr_code_scanner', label: 'Scanner' },
+  ];
   private readonly router = inject(Router);
   private readonly api = inject(HuntApi);
 

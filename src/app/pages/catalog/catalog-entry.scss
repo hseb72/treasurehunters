@@ -41,7 +41,7 @@
 }
 
 .danger {
-  --mat-button-text-label-text-color: var(--th-brick);
+  --mat-button-text-label-text-color: var(--th-danger);
 }
 
 .facts-list {
@@ -61,8 +61,8 @@
 
 .sample {
   padding: 12px;
-  border-left: 3px solid var(--th-gold);
-  background: var(--th-parchment-light);
+  border-left: 3px solid var(--th-accent);
+  background: var(--th-surface-raised);
 }
 
 .criteria {
@@ -81,7 +81,7 @@
 .review {
   margin: 0 0 12px;
   padding: 8px 12px;
-  border-left: 3px solid var(--th-edge);
+  border-left: 3px solid var(--th-border);
 
   p {
     margin: 4px 0;

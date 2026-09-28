@@ -1,6 +1,6 @@
 @if (state.hunt.error()) {
   <div class="page">
-    <div class="parchment center">
+    <div class="surface center">
       <p>Expédition introuvable ou réservée à son organisateur.</p>
       <a mat-stroked-button routerLink="/organize">Mes expéditions</a>
     </div>
@@ -9,7 +9,7 @@
 
 @if (state.hunt.value(); as h) {
   <div class="page page--wide">
-    <header class="leather head no-print">
+    <header class="banner head no-print">
       <div class="title-row">
         <a mat-icon-button routerLink="/organize" aria-label="Mes expéditions"><mat-icon>arrow_back</mat-icon></a>
         <div class="title">

@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
 import { CatalogEntry } from '@shared/models';
+import { skinById } from '@shared/skins';
 import { Stars } from './stars';
 
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
@@ -12,7 +13,8 @@ import { Stars } from './stars';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let e = entry();
-    <a class="parchment card" [routerLink]="['/catalog', e.id]">
+    <a class="surface card" [routerLink]="['/catalog', e.id]">
+      <img class="cover" [src]="cover()" alt="" loading="lazy" />
       <div class="travel travel--{{ e.travel }}" [attr.aria-label]="'Déplacement : ' + means[e.travel]">
         <mat-icon>{{ icons[e.travel] }}</mat-icon>
         <strong>{{ means[e.travel] }}</strong>
@@ -45,7 +47,8 @@ import { Stars } from './stars';
     </a>
   `,
   styles: `
-    .card { display: flex; flex-direction: column; gap: 6px; height: 100%; }
+    .card { display: flex; flex-direction: column; gap: 6px; height: 100%; overflow: hidden; }
+    .cover { display: block; width: calc(100% + 32px); margin: -16px -16px 0; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
     h3 { margin: 0; }
     .meta { flex-wrap: wrap; gap: 4px 14px; }
     .meta mat-icon { width: 18px; height: 18px; font-size: 18px; }
@@ -54,22 +57,24 @@ import { Stars } from './stars';
       display: flex;
       align-items: center;
       gap: 6px;
-      margin: -4px -4px 2px;
+      margin: -18px -4px 2px;
+      position: relative;
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 0.9rem;
-      color: var(--th-parchment-light);
-      background: var(--th-jungle);
+      color: var(--th-surface-raised);
+      background: var(--th-success);
       mat-icon { width: 20px; height: 20px; font-size: 20px; }
       span { opacity: 0.85; }
       .spacer { flex: 1; }
     }
-    .travel--active { background: var(--th-saddle); }
-    .travel--motor { background: var(--th-brick); }
+    .travel--active { background: var(--th-secondary); }
+    .travel--motor { background: var(--th-danger); }
   `,
 })
 export class CatalogCard {
   readonly entry = input.required<CatalogEntry>();
+  protected readonly cover = computed(() => skinById(this.entry().skin).cover);
   protected readonly difficulty = DIFFICULTY_LABELS;
   protected readonly icons = TRAVEL_ICONS;
   protected readonly means = TRAVEL_MEANS;

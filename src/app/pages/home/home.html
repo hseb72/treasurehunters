@@ -1,38 +1,41 @@
 <div class="page stack">
-  <section class="hero leather">
-    <div class="hero-text">
-      @if (session.user(); as user) {
-        <p class="muted small kicker">Carnet de bord de {{ user.nickname }}</p>
-        <h1 class="display">Prêt pour l'aventure ?</h1>
-      } @else {
-        <p class="muted small kicker">Chasses au trésor &amp; jeux de piste</p>
-        <h1 class="display">Chaque indice mène au trésor</h1>
-        <p class="muted">Rejoignez une expédition, suivez les énigmes de lieu en lieu, scannez les QR cachés… et soyez les premiers à l'arrivée.</p>
-      }
-    </div>
-    <a mat-flat-button class="th-cta scan-btn" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner un indice</a>
-    <form class="code-form" (ngSubmit)="joinWithCode()">
-      <mat-form-field subscriptSizing="dynamic" class="code-field">
-        <mat-label>Code d'invitation</mat-label>
-        <input matInput name="code" [ngModel]="code()" (ngModelChange)="code.set($event)" autocomplete="off" placeholder="ex. LEZ2026" />
-      </mat-form-field>
-      <button mat-stroked-button type="submit" class="code-btn">Rejoindre</button>
-    </form>
-    @if (session.loggedIn()) {
-      <a mat-stroked-button class="invent-btn" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventez-moi une chasse</a>
+  <header class="welcome">
+    @if (session.user(); as user) {
+      <p class="muted small">Bonjour {{ user.nickname }} 👋</p>
+      <h1>Prêt pour l'aventure ?</h1>
     } @else {
-      <div class="row">
-        <a mat-button routerLink="/login" class="login-link"><mat-icon>login</mat-icon>Connexion / inscription</a>
-      </div>
+      <p class="muted small">Chasses au trésor &amp; jeux de piste</p>
+      <h1>Chaque indice mène au trésor</h1>
+      <p class="muted">Rejoignez une expédition, suivez les énigmes de lieu en lieu… et soyez les premiers à l'arrivée.</p>
     }
-  </section>
+  </header>
+
+  <div class="search">
+    <mat-icon>search</mat-icon>
+    <input name="q" type="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Rechercher une chasse…" autocomplete="off" aria-label="Rechercher une chasse" />
+    <a mat-icon-button routerLink="/catalog" aria-label="Plus de critères, dans le catalogue"><mat-icon>tune</mat-icon></a>
+  </div>
+
+  <div class="quick">
+    <a class="action" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
+    @if (session.loggedIn()) {
+      <a class="action" routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Chasse sur mesure</a>
+    } @else {
+      <a class="action" routerLink="/login"><mat-icon>login</mat-icon>Connexion</a>
+    }
+    <form class="action code" (ngSubmit)="joinWithCode()">
+      <mat-icon>key</mat-icon>
+      <input name="code" [ngModel]="code()" (ngModelChange)="code.set($event)" autocomplete="off" placeholder="Code d'invitation" aria-label="Code d'invitation" />
+      <button type="submit" aria-label="Rejoindre"><mat-icon>arrow_forward</mat-icon></button>
+    </form>
+  </div>
 
   @for (hunt of running(); track hunt.id) {
     <section>
       <h2 class="section-title">Expédition en cours</h2>
       <th-hunt-card [hunt]="hunt" [link]="['/play', hunt.id]">
         <div class="resume row">
-          <span class="stamp stamp--jungle">En piste</span>
+          <span class="stamp stamp--success">En piste</span>
           <span class="spacer"></span>
           <span class="mat-mdc-button resume-btn">Reprendre <mat-icon>arrow_forward</mat-icon></span>
         </div>
@@ -45,7 +48,7 @@
       <h2 class="section-title">Chasse surprise</h2>
       <th-hunt-card [hunt]="hunt" [link]="['/play', hunt.id]">
         <div class="resume row">
-          <span class="stamp stamp--gold">Prête</span>
+          <span class="stamp stamp--accent">Prête</span>
           <span class="spacer"></span>
           <span class="mat-mdc-button resume-btn">Donner le départ <mat-icon>arrow_forward</mat-icon></span>
         </div>
@@ -71,11 +74,16 @@
 
   <section>
     <h2 class="section-title">Expéditions ouvertes</h2>
+    <div class="chips" role="radiogroup" aria-label="Trier les expéditions">
+      @for (c of chips; track c.value) {
+        <button type="button" role="radio" [attr.aria-checked]="chip() === c.value" [class.on]="chip() === c.value" (click)="chip.set(c.value)">{{ c.label }}</button>
+      }
+    </div>
     <div class="grid">
       @for (hunt of discover(); track hunt.id) {
         <th-hunt-card [hunt]="hunt" />
       } @empty {
-        <p class="muted center">Aucune expédition publique pour le moment.</p>
+        <p class="muted center">{{ query() ? 'Aucune expédition ne correspond à « ' + query() + ' ».' : 'Aucune expédition publique pour le moment.' }}</p>
       }
     </div>
   </section>
@@ -85,7 +93,7 @@
       <h2 class="section-title">Archives</h2>
       <div class="stack">
         @for (hunt of archives(); track hunt.id) {
-          <a class="parchment archive row" [routerLink]="['/hunts', hunt.id, 'results']">
+          <a class="surface archive row" [routerLink]="['/hunts', hunt.id, 'results']">
             <mat-icon>history_edu</mat-icon>
             <span class="archive-name">{{ hunt.name }}</span>
             <span class="spacer"></span>

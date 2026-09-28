@@ -144,7 +144,8 @@ describe('chasse générée à organiser', () => {
 
   it('adapte le nombre d’étapes au déplacement et rend compte du thème', async () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
-    const body = { ...request('organize'), durationMinutes: 120, travel: 'motor', theme: '  Parcs et coulées vertes ' };
+    const body = { ...request('organize'), durationMinutes: 120, travel: 'motor', theme: '  Parcs et coulées vertes ', skin: 'spatial' };
+    expect((await camille.post('/api/hunts/generate', { ...body, skin: 'inconnu' })).status).toBe(400);
     expect((await camille.post('/api/hunts/generate', { ...body, travel: 'plane' })).status).toBe(400);
     const started = await camille.post('/api/hunts/generate', body);
     expect(started.status).toBe(202);
@@ -152,7 +153,7 @@ describe('chasse générée à organiser', () => {
     const job = (await camille.get(`/api/generations/${started.body.id}`)).body;
     expect(job.status).toBe('done');
     expect(job.note).toMatch(/Parcs et coulées vertes/);
-    expect((await camille.get(`/api/hunts/${job.huntId}`)).body.stepCount).toBe(6); // 120 min / 20 min par étape en véhicule
+    expect((await camille.get(`/api/hunts/${job.huntId}`)).body).toMatchObject({ stepCount: 6, skin: 'spatial' }); // 120 min / 20 min par étape en véhicule
   });
 });
 

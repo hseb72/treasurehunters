@@ -50,11 +50,11 @@ h3 {
   grid-template-columns: 1fr 1fr;
   width: 100%;
   margin-bottom: 12px;
-  border-color: var(--th-edge);
+  border-color: var(--th-border);
 
   .mat-button-toggle {
-    --mat-button-toggle-selected-state-background-color: rgba(200, 150, 46, 0.25);
-    --mat-button-toggle-background-color: var(--th-parchment-light);
+    --mat-button-toggle-selected-state-background-color: color-mix(in srgb, var(--th-accent) 25%, transparent);
+    --mat-button-toggle-background-color: var(--th-surface-raised);
     white-space: normal;
     line-height: 1.3;
   }
@@ -91,7 +91,7 @@ h3 {
   padding: 2px 8px;
   font-family: var(--th-font-note);
   letter-spacing: 0.15em;
-  border: 1px dashed var(--th-saddle);
+  border: 1px dashed var(--th-secondary);
 }
 
 .actions {

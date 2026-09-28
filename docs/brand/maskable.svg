@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c3b6b"/><stop offset="1" stop-color="#0f2344"/></linearGradient></defs><rect width="512" height="512" fill="url(#bg)"/><g transform="translate(256 256) scale(0.78) translate(-256 -256)">  <g transform="translate(256 256)">
+    <circle r="178" fill="none" stroke="#f2c14e" stroke-width="18"/>
+    <!-- branches secondaires -->
+    <path d="M0 -120 L26 0 L0 120 L-26 0 Z" fill="#9fb3d1" transform="rotate(45)"/>
+    <path d="M0 -120 L26 0 L0 120 L-26 0 Z" fill="#9fb3d1" transform="rotate(-45)"/>
+    <!-- est-ouest -->
+    <path d="M-150 0 L0 -30 L150 0 L0 30 Z" fill="#ffffff"/>
+    <path d="M-150 0 L0 30 L150 0 Z" fill="#d7e0ee"/>
+    <!-- nord (rouge) et sud -->
+    <path d="M0 -165 L34 0 L-34 0 Z" fill="#e4572e"/>
+    <path d="M0 -165 L34 0 L0 0 Z" fill="#b8401f"/>
+    <path d="M0 165 L34 0 L-34 0 Z" fill="#ffffff"/>
+    <path d="M0 165 L34 0 L0 0 Z" fill="#d7e0ee"/>
+    <circle r="22" fill="#13294b" stroke="#f2c14e" stroke-width="10"/>
+  </g>
+</g></svg>

@@ -1,7 +1,7 @@
 @if (hunt(); as h) {
   <div class="stack">
     @if (origin.value(); as o) {
-      <section class="parchment origin">
+      <section class="surface origin">
         <mat-icon>call_split</mat-icon>
         <p>
           Cette chasse est une copie de <a [routerLink]="['/catalog', o.id]">« {{ o.title }} »</a> par {{ o.authorNickname }}. Si vous
@@ -21,7 +21,7 @@
       </section>
     }
 
-    <form class="parchment stack publish" [formGroup]="form" (ngSubmit)="publish()">
+    <form class="surface stack publish" [formGroup]="form" (ngSubmit)="publish()">
       <h2 class="section-title">{{ isVersion() ? 'Publier une nouvelle version' : 'Publier au catalogue' }}</h2>
       <p class="small muted">
         Le catalogue reçoit un instantané de la chasse : réglages, étapes, énigmes, jokers et positions. Vous pouvez continuer à la modifier,

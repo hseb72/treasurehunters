@@ -20,8 +20,8 @@
   font-weight: 700;
   font-size: 0.85rem;
   color: var(--th-ink-soft);
-  border: 2px dashed var(--th-edge);
-  background: var(--th-parchment-light);
+  border: 2px dashed var(--th-border);
+  background: var(--th-surface-raised);
 
   // Pointillés entre deux bornes.
   &:not(:last-child)::after {
@@ -30,7 +30,7 @@
     left: 100%;
     top: 50%;
     width: 22px;
-    border-top: 2px dotted var(--th-saddle);
+    border-top: 2px dotted var(--th-secondary);
   }
 
   .mat-icon {
@@ -41,20 +41,20 @@
 }
 
 .marker--done {
-  color: var(--th-leather);
-  border: 2px solid var(--th-gold);
-  background: radial-gradient(circle at 35% 30%, var(--th-gold-light), var(--th-gold));
+  color: var(--th-primary);
+  border: 2px solid var(--th-accent);
+  background: radial-gradient(circle at 35% 30%, var(--th-accent-light), var(--th-accent));
 }
 
 .marker--current {
-  color: #fff8e6;
-  border: 2px solid var(--th-brick);
-  background: var(--th-brick);
+  color: var(--th-on-primary);
+  border: 2px solid var(--th-danger);
+  background: var(--th-danger);
   animation: pulse 1.8s ease-in-out infinite;
 }
 
 .marker:last-child .mat-icon {
-  color: var(--th-brick);
+  color: var(--th-danger);
   font-weight: 700;
 }
 
@@ -65,7 +65,7 @@
 
 @keyframes pulse {
   50% {
-    box-shadow: 0 0 0 6px rgba(158, 43, 31, 0.2);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--th-danger) 20%, transparent);
   }
 }
 
@@ -76,7 +76,7 @@
 }
 
 .marker--skipped {
-  color: #fff3d6;
-  border: 2px solid #8a7a62;
-  background: #8a7a62;
+  color: var(--th-on-primary);
+  border: 2px solid var(--th-neutral);
+  background: var(--th-neutral);
 }

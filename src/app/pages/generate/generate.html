@@ -1,6 +1,6 @@
 @if (status(); as job) {
   <div class="page">
-    <section class="parchment center waiting">
+    <section class="surface center waiting">
       @if (job.status === 'error') {
         <mat-icon class="big-icon">explore_off</mat-icon>
         <h1>L'expédition n'a pas pu être tracée</h1>
@@ -16,13 +16,13 @@
   </div>
 } @else {
   <form class="page stack" (ngSubmit)="submit()">
-    <header class="leather head">
+    <header class="banner head">
       <p class="muted small kicker">Chasse sur mesure</p>
       <h1 class="display">Inventez-moi une chasse</h1>
       <p class="muted">Donnez un lieu et une durée : le maître du jeu repère de vrais lieux sur la carte et écrit les énigmes. Pas de QR code : on valide chaque étape en s'y rendant.</p>
     </header>
 
-    <section class="parchment stack">
+    <section class="surface stack">
       <h2 class="step-title"><span class="num">1</span> Où ?</h2>
       <mat-button-toggle-group name="where" [value]="where()" (change)="$event.value === 'me' ? locate() : where.set($event.value)" class="choice" hideSingleSelectionIndicator>
         <mat-button-toggle value="city"><mat-icon>location_city</mat-icon> Une ville</mat-button-toggle>
@@ -46,7 +46,7 @@
       }
     </section>
 
-    <section class="parchment stack">
+    <section class="surface stack">
       <h2 class="step-title"><span class="num">2</span> Comment et combien de temps ?</h2>
       <mat-button-toggle-group name="travel" [value]="travel()" (change)="travel.set($event.value)" class="choice" hideSingleSelectionIndicator aria-label="Déplacement">
         @for (t of travels; track t[0]) {
@@ -63,7 +63,7 @@
       <p class="muted small">Les lieux seront choisis à moins de {{ radius() >= 1000 ? (radius() / 1000).toFixed(1) + ' km' : radius() + ' m' }} du départ environ.</p>
     </section>
 
-    <section class="parchment stack">
+    <section class="surface stack">
       <h2 class="step-title"><span class="num">3</span> Quel défi ?</h2>
       <span class="small label">Énigmes</span>
       <mat-button-toggle-group name="difficulty" [value]="difficulty()" (change)="difficulty.set($event.value)" class="choice" hideSingleSelectionIndicator aria-label="Difficulté des énigmes">
@@ -89,7 +89,7 @@
       </div>
     </section>
 
-    <section class="parchment stack">
+    <section class="surface stack">
       <h2 class="step-title"><span class="num">4</span> Un thème ? <span class="muted small optional">(facultatif)</span></h2>
       <mat-form-field subscriptSizing="dynamic">
         <mat-label>Thème libre</mat-label>
@@ -107,15 +107,20 @@
       <p class="muted small">Le maître du jeu cherche des lieux qui s'y rattachent. S'il n'en trouve pas assez près du départ, il complète avec d'autres lieux remarquables et vous le dit.</p>
     </section>
 
+    <section class="surface stack">
+      <h2 class="step-title"><span class="num">5</span> Quelle ambiance ?</h2>
+      <th-skin-picker [(value)]="skin" />
+    </section>
+
     <section class="stack">
-      <h2 class="step-title on-paper"><span class="num">5</span> Et ensuite ?</h2>
+      <h2 class="step-title on-paper"><span class="num">6</span> Et ensuite ?</h2>
       <div class="modes">
-        <button type="button" class="parchment mode" [class.mode--on]="mode() === 'play'" (click)="mode.set('play')" [attr.aria-pressed]="mode() === 'play'">
+        <button type="button" class="surface mode" [class.mode--on]="mode() === 'play'" (click)="mode.set('play')" [attr.aria-pressed]="mode() === 'play'">
           <mat-icon>visibility_off</mat-icon>
           <strong>Je joue — surprise !</strong>
           <span class="small muted">Je ne vois rien du parcours : la première énigme s'affiche quand je donne le départ.</span>
         </button>
-        <button type="button" class="parchment mode" [class.mode--on]="mode() === 'organize'" (click)="mode.set('organize')" [attr.aria-pressed]="mode() === 'organize'">
+        <button type="button" class="surface mode" [class.mode--on]="mode() === 'organize'" (click)="mode.set('organize')" [attr.aria-pressed]="mode() === 'organize'">
           <mat-icon>edit_note</mat-icon>
           <strong>J'organise</strong>
           <span class="small muted">Je relis et ajuste les étapes, puis je propose la chasse à des joueurs.</span>

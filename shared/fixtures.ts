@@ -61,6 +61,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     selfPaced: true,
     catalogId: null,
     travel: 'walk',
+    skin: 'aventure',
     difficulty: null,
     durationMinutes: null,
     teamGame: true,
@@ -99,6 +100,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     {
       ...baseHunt,
       id: 2,
+      skin: 'spatial',
       ownerId: 2,
       name: 'Rallye du Lez',
       description: "Remontez le Lez à la recherche des indices laissés par un meunier du XVIIIᵉ siècle. Départ groupé, premier arrivé, premier servi !",
@@ -145,6 +147,7 @@ export function buildFixtures(now = Date.now()): MockDb {
     {
       ...baseHunt,
       id: 5,
+      skin: 'epure',
       ownerId: 2,
       name: 'Balade des Étangs',
       description: 'Une chasse en solo, à pied ou à vélo, autour des étangs de Méjean et du Méjean.',

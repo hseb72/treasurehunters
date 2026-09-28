@@ -34,7 +34,7 @@ h1 {
   gap: 8px;
   padding: 24px;
   text-align: center;
-  color: #f6e7c4;
+  color: var(--th-on-primary);
 }
 
 .corners {
@@ -42,24 +42,24 @@ h1 {
   inset: 18%;
   pointer-events: none;
   background:
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top left / 28px 3px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top left / 3px 28px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top right / 28px 3px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) top right / 3px 28px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom left / 28px 3px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom left / 3px 28px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom right / 28px 3px,
-    linear-gradient(var(--th-gold-light), var(--th-gold-light)) bottom right / 3px 28px;
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) top left / 28px 3px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) top left / 3px 28px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) top right / 28px 3px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) top right / 3px 28px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) bottom left / 28px 3px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) bottom left / 3px 28px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) bottom right / 28px 3px,
+    linear-gradient(var(--th-accent-light), var(--th-accent-light)) bottom right / 3px 28px;
   background-repeat: no-repeat;
 }
 
 .cam-btn {
-  --mat-button-filled-container-color: var(--th-gold);
-  --mat-button-filled-label-text-color: var(--th-leather);
+  --mat-button-filled-container-color: var(--th-accent);
+  --mat-button-filled-label-text-color: var(--th-primary);
 }
 
 .light {
-  --mat-button-outlined-label-text-color: var(--th-gold-light);
+  --mat-button-outlined-label-text-color: var(--th-accent-light);
 }
 
 .manual {

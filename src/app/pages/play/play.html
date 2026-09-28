@@ -1,6 +1,8 @@
+<!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
+<div [thSkin]="skin()">
 @if (state.error(); as err) {
   <div class="page">
-    <div class="parchment center">
+    <div class="surface center">
       <p>{{ $any(err).message }}</p>
       <a mat-stroked-button routerLink="/">Retour au carnet de bord</a>
     </div>
@@ -9,10 +11,15 @@
 
 @if (state.value(); as s) {
   <div class="page stack" [class.with-fab]="phase() === 'playing'">
-    <header class="board leather">
+    <header class="board banner">
       <div class="board-head">
         <div>
-          <div class="muted small">{{ s.hunt.name }}</div>
+          <div class="muted small">
+            {{ s.hunt.name }}
+            <button type="button" class="sound" (click)="fx.toggleSound()" [attr.aria-pressed]="!fx.muted()" [attr.aria-label]="fx.muted() ? 'Activer le son' : 'Couper le son'">
+              <mat-icon inline>{{ fx.muted() ? 'volume_off' : 'volume_up' }}</mat-icon>
+            </button>
+          </div>
           <h1>{{ s.team.name }}</h1>
         </div>
         @if (chrono()) {
@@ -46,8 +53,8 @@
     @switch (phase()) {
       @case ('before') {
         @if (s.hunt.surprise) {
-          <section class="parchment taped center surprise">
-            <span class="stamp stamp--gold">Chasse surprise</span>
+          <section class="surface taped center surprise">
+            <span class="stamp stamp--accent">Chasse surprise</span>
             <h2>Votre expédition est prête</h2>
             <p class="muted">{{ s.totalSteps }} étapes vous attendent autour de {{ s.hunt.location }}.</p>
             @if (s.start; as start) {
@@ -87,7 +94,7 @@
             }
           </section>
         } @else {
-        <section class="parchment center">
+        <section class="surface center">
           <mat-icon class="big-icon">hourglass_top</mat-icon>
           <h2>L'expédition n'a pas commencé</h2>
           <p class="big-number">{{ countdown(s.hunt.begin) }}</p>
@@ -102,7 +109,7 @@
         }
       }
       @case ('waiting') {
-        <section class="parchment center">
+        <section class="surface center">
           <mat-icon class="big-icon">flag</mat-icon>
           <h2>Sur la ligne de départ</h2>
           <p>Votre équipe part en <strong>position {{ s.team.startOrder }}</strong>, à {{ s.team.started | date: 'HH:mm' }}.</p>
@@ -117,12 +124,12 @@
       }
       @case ('playing') {
         @if (photo(); as r) {
-          <section class="parchment center photo-result" [class.found]="r.photo.review" aria-live="polite">
+          <section class="surface center photo-result" [class.found]="r.photo.review" aria-live="polite">
             @if (photoPreview(); as src) {
               <img class="photo-thumb" [src]="src" alt="Votre photo" />
             }
             @if (r.photo.review) {
-              <span class="stamp stamp--jungle">Étape {{ r.photo.stepOrder }} validée</span>
+              <span class="stamp stamp--success" [class]="fxClass()">Étape {{ r.photo.stepOrder }} validée</span>
               @if (photoStep(); as st) {
                 <h2>{{ st.title }}</h2>
                 @if (st.arrival) {
@@ -151,8 +158,8 @@
         }
         @if (checkin(); as c) {
           @if (c.outcome === 'validated' && c.step) {
-            <section class="parchment center found" aria-live="polite">
-              <span class="stamp stamp--jungle">Étape {{ c.step.order }} trouvée</span>
+            <section class="surface center found" aria-live="polite">
+              <span class="stamp stamp--success" [class]="fxClass()">Étape {{ c.step.order }} trouvée</span>
               <h2>{{ c.step.title }}</h2>
               @if (c.step.arrival) {
                 <p class="note">{{ c.step.arrival }}</p>
@@ -160,7 +167,7 @@
               <button mat-button type="button" (click)="checkin.set(null)">Voir l'énigme suivante</button>
             </section>
           } @else if (c.outcome === 'too_far') {
-            <section class="parchment center far" aria-live="polite">
+            <section class="surface center far" aria-live="polite">
               <mat-icon>explore</mat-icon>
               <p>
                 Pas encore… Vous êtes à <strong>{{ c.distance >= 1000 ? (c.distance / 1000).toFixed(1) + ' km' : c.distance + ' m' }}</strong> du lieu.
@@ -171,7 +178,7 @@
           }
         }
         @if (s.clue; as clue) {
-          <section class="parchment taped clue">
+          <section class="surface taped clue">
             <div class="clue-head">
               <span class="stamp">{{ clue.targetOrder === s.totalSteps ? 'Vers le trésor' : 'Énigme n° ' + clue.targetOrder }}</span>
             </div>
@@ -245,8 +252,8 @@
         }
       }
       @case ('finished') {
-        <section class="parchment center finish">
-          <span class="stamp stamp--gold big-stamp">Trésor trouvé !</span>
+        <section class="surface center finish">
+          <span class="stamp stamp--accent big-stamp">Trésor trouvé !</span>
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
           <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités incluses (+' + s.penalty + ' min)' : '' }}</p>
@@ -264,7 +271,7 @@
         </section>
       }
       @case ('over') {
-        <section class="parchment center">
+        <section class="surface center">
           <h2>L'expédition est terminée</h2>
           <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
         </section>
@@ -280,7 +287,7 @@
         <h2 class="section-title">Journal de bord</h2>
         <ol class="log">
           @for (v of s.validated.slice().reverse(); track v.order) {
-            <li class="parchment">
+            <li class="surface">
               <div class="row">
                 <span class="log-order">{{ v.order }}</span>
                 <strong>{{ v.title }}</strong>
@@ -292,7 +299,7 @@
                     <span class="badge badge--published" title="Validée par photo : l'organisateur doit encore la contrôler"><mat-icon>photo_camera</mat-icon>à contrôler</span>
                   }
                   @case ('approved') {
-                    <span class="badge badge--gold" title="Photo tamponnée par l'organisateur"><mat-icon>verified</mat-icon>photo tamponnée</span>
+                    <span class="badge badge--accent" title="Photo tamponnée par l'organisateur"><mat-icon>verified</mat-icon>photo tamponnée</span>
                   }
                   @case ('rejected') {
                     <span class="badge badge--cancelled" title="Photo refusée par l'organisateur"><mat-icon>no_photography</mat-icon>photo refusée</span>
@@ -324,3 +331,4 @@
 
 <!-- Appareil photo du téléphone (capture), ou galerie sur ordinateur. -->
 <input #camera type="file" accept="image/*" capture="environment" hidden (change)="sendPhoto($event)" />
+</div>

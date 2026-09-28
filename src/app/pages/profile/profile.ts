@@ -16,7 +16,7 @@ import { Session } from '../../core/session';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
-      <form class="parchment stack card" [formGroup]="form" (ngSubmit)="save()">
+      <form class="surface stack card" [formGroup]="form" (ngSubmit)="save()">
         <h1><mat-icon>badge</mat-icon> Mon profil</h1>
         <mat-form-field>
           <mat-label>Pseudo</mat-label>

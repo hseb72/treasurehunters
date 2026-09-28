@@ -28,9 +28,12 @@ function nextSaturday(hour: number): string {
 }
 
 /** Création (/organize/new) et modification (onglet « Infos ») d'une chasse. */
+import { DEFAULT_SKIN } from '@shared/skins';
+import { SkinPicker } from '../../shared/skin-picker';
+
 @Component({
   selector: 'th-hunt-form',
-  imports: [ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule],
+  imports: [SkinPicker, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hunt-form.html',
   styleUrl: './hunt-form.scss',
@@ -64,11 +67,12 @@ export class HuntFormPage {
     geoRadius: [40, [Validators.min(10), Validators.max(500)]],
     isPublic: [true],
     contribution: [0, [Validators.min(0)]],
+    skin: [DEFAULT_SKIN],
   });
 
   protected readonly hunt = computed(() => this.workspace?.hunt.value() ?? null);
   protected readonly isNew = !this.workspace;
-  private readonly values = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
+  protected readonly values = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   protected readonly teamGame = computed(() => this.values().teamGame);
   protected readonly staggered = computed(() => this.values().startMode === 'staggered');
   protected readonly geo = computed(() => this.values().validation === 'geo');

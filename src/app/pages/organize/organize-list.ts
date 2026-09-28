@@ -12,7 +12,7 @@ import { HuntCard } from '../../shared/hunt-card';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page page--wide stack">
-      <header class="leather head">
+      <header class="banner head">
         <div>
           <h1 class="display">Mes expéditions</h1>
           <p class="muted">Tracez le parcours, cachez les indices, lâchez les aventuriers.</p>
@@ -28,7 +28,7 @@ import { HuntCard } from '../../shared/hunt-card';
           <th-hunt-card [hunt]="hunt" [link]="['/organize', hunt.id]" />
         } @empty {
           @if (!hunts.isLoading()) {
-            <div class="parchment center empty">
+            <div class="surface center empty">
               <p>Vous n'avez encore organisé aucune expédition.</p>
               <a mat-stroked-button routerLink="/organize/new">Créer ma première chasse</a>
             </div>
@@ -41,9 +41,9 @@ import { HuntCard } from '../../shared/hunt-card';
     .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 20px; }
     .head h1 { margin: 0; }
     .head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .head-actions .mat-mdc-outlined-button { --mat-button-outlined-label-text-color: var(--th-gold-light); --mat-button-outlined-outline-color: var(--th-gold); }
+    .head-actions .mat-mdc-outlined-button { --mat-button-outlined-label-text-color: var(--th-accent-light); --mat-button-outlined-outline-color: var(--th-accent); }
     .head p { margin: 4px 0 0; }
-    .new { --mat-button-filled-container-color: var(--th-gold); --mat-button-filled-label-text-color: var(--th-leather); }
+    .new { --mat-button-filled-container-color: var(--th-accent); --mat-button-filled-label-text-color: var(--th-primary); }
     .empty { grid-column: 1 / -1; }
   `,
 })

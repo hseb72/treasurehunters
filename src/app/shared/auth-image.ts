@@ -22,7 +22,7 @@ import { HuntApi } from '../core/api';
     }
   `,
   styles: `
-    :host { display: block; overflow: hidden; border-radius: 4px; background: var(--th-parchment-dark); }
+    :host { display: block; overflow: hidden; border-radius: 4px; background: var(--th-surface-sunken); }
     img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .placeholder { display: grid; place-items: center; width: 100%; height: 100%; min-height: 80px; color: var(--th-ink-soft); }
   `,

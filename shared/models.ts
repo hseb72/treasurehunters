@@ -62,6 +62,8 @@ export interface Hunt {
   catalogId: number | null;
   /** Déplacement prévu : à pied, à vélo ou trottinette, en véhicule. */
   travel: Travel;
+  /** Skin : l'habillage que voient les joueurs (shared/skins.ts). */
+  skin: string;
   /** Difficulté des énigmes et durée prévue (minutes), reprises à la publication au catalogue. */
   difficulty: Difficulty | null;
   durationMinutes: number | null;
@@ -274,6 +276,8 @@ export interface GenerationRequest {
   steps: number | null;
   /** 'play' : chasse surprise pour soi ; 'organize' : l'utilisateur en devient l'organisateur. */
   mode: 'play' | 'organize';
+  /** Skin de la chasse (shared/skins.ts) ; absent = skin par défaut. */
+  skin?: string;
 }
 
 export interface GenerationJob {
@@ -343,6 +347,8 @@ export interface RatingSummary {
 /** Une version publiée au catalogue, telle que la liste la présente. */
 export interface CatalogEntry {
   id: number;
+  /** Skin de la chasse publiée (couverture de sa carte). */
+  skin: string;
   authorId: number;
   authorNickname: string;
   title: string;

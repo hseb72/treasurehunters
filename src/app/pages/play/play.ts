@@ -22,9 +22,11 @@ import { Trail } from '../../shared/trail';
 /** Rafraîchissement pour voir les scans des équipiers. */
 const REFRESH_MS = 15_000;
 
+import { SkinDirective, SkinEffects } from '../../shared/skin';
+
 @Component({
   selector: 'th-play',
-  imports: [DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail],
+  imports: [SkinDirective, DatePipe, InvitePanel, MatButtonModule, MatIconModule, RouterLink, StartPlace, Trail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrl: './play.scss',
@@ -42,6 +44,16 @@ export class PlayPage {
     params: () => this.id(),
     stream: ({ params }) => timer(0, REFRESH_MS).pipe(switchMap(() => this.api.getPlay(params))),
   });
+  /** Skin de la chasse, dès qu'elle est connue. */
+  protected readonly skin = computed(() => this.state.value()?.hunt.skin);
+  protected readonly fx = inject(SkinEffects);
+  protected readonly fxClass = computed(() => this.fx.validateClass(this.skin()));
+
+  /** Son et animation d'une étape validée ; fanfare et confettis pour le trésor. */
+  private celebrate(isFinal: boolean): void {
+    if (isFinal) this.fx.treasure(this.skin());
+    else this.fx.validated(this.skin());
+  }
 
   /** Premier appui sur un joker = demande de confirmation. */
   protected readonly confirmHint = signal(false);
@@ -178,6 +190,7 @@ export class PlayPage {
         next: (r) => {
           this.checkin.set(r);
           this.state.set(r.state);
+          if (r.outcome === 'validated') this.celebrate(!!r.step?.isFinal);
           this.confirmHint.set(false);
           this.locating.set(false);
         },
@@ -208,6 +221,7 @@ export class PlayPage {
         next: (r) => {
           this.photo.set(r);
           this.state.set(r.state);
+          if (r.photo.review) this.celebrate(r.photo.stepOrder === r.state.totalSteps);
           this.confirmHint.set(false);
           this.sending.set(false);
         },
@@ -249,6 +263,7 @@ export class PlayPage {
         next: (res) => {
           this.photo.set(res);
           this.state.set(res.state);
+          this.celebrate(res.photo.stepOrder === res.state.totalSteps);
           this.busy.set(false);
         },
         error: (e) => {
@@ -278,6 +293,7 @@ export class PlayPage {
     this.api.revealHint(this.id()).subscribe({
       next: (s) => {
         this.state.set(s);
+        this.fx.hint(this.skin());
         this.confirmHint.set(false);
         this.busy.set(false);
       },

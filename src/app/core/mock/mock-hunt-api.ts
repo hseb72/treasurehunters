@@ -26,6 +26,7 @@ import {
   Step,
   Team,
 } from '@shared/models';
+import { DEFAULT_SKIN } from '@shared/skins';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import {
   checkinAllowance,
@@ -163,6 +164,7 @@ export class MockHuntApi extends HuntApi {
         contribution: 0,
         startText: null,
         travel: 'walk',
+        skin: DEFAULT_SKIN,
         difficulty: null,
         durationMinutes: null,
         ...data,
@@ -565,6 +567,7 @@ export class MockHuntApi extends HuntApi {
         generated: true,
         surprise: play,
         travel: request.travel,
+        skin: request.skin ?? DEFAULT_SKIN,
         difficulty: request.difficulty,
         durationMinutes: request.durationMinutes,
         hostId: play ? me : null,
@@ -686,6 +689,7 @@ export class MockHuntApi extends HuntApi {
       const begin = Date.now() + 7 * 86_400_000;
       const h: MockDb['hunts'][number] = {
         ...structuredClone(e.content.hunt),
+        skin: e.content.hunt.skin ?? DEFAULT_SKIN,
         id: this.nextId(this.db.hunts),
         ownerId: me,
         begin: new Date(begin).toISOString(),
@@ -781,9 +785,9 @@ export class MockHuntApi extends HuntApi {
     if (missing) throw new ApiError(`L’énigme ${missing.order === 0 ? 'de départ' : `de l’étape ${missing.order}`} n’est pas rédigée.`);
     const sample = steps.find((s) => s.order === pub.sampleOrder && s.order < final);
     if (!sample) throw new ApiError('Choisissez comme extrait une énigme du parcours.');
-    const { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution } = h;
+    const { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin } = h;
     const content: MockEntry['content'] = {
-      hunt: { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution },
+      hunt: { name, description, location, award, startText, startMode, interval, hintPenalties, skipPenalty, teamGame, teamMin, teamMax, validation, geoRadius, contribution, skin },
       steps: steps.map(({ order, title, arrival, instructions, hints, latitude, longitude, address }) => ({ order, title, arrival, instructions, hints, latitude, longitude, address })),
     };
     const fingerprint = JSON.stringify({ rules: [hintPenalties, skipPenalty, validation, geoRadius], steps: content.steps });
@@ -846,6 +850,7 @@ export class MockHuntApi extends HuntApi {
     const parent = this.catalog.find((x) => x.id === e.parentId);
     return {
       id: e.id,
+      skin: e.content.hunt.skin ?? DEFAULT_SKIN,
       authorId: e.authorId,
       authorNickname: this.nick(e.authorId),
       title: e.title,
@@ -1325,7 +1330,8 @@ interface MockEntry {
       | 'validation'
       | 'geoRadius'
       | 'contribution'
-    >;
+    > &
+      Partial<Pick<Hunt, 'skin'>>;
     steps: Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'>[];
   };
   fingerprint: string;

@@ -32,6 +32,7 @@ import {
   Difficulty,
   Travel,
 } from '../../shared/models.js';
+import { DEFAULT_SKIN } from '../../shared/skins.js';
 import {
   checkinAllowance,
   computeRanking,
@@ -1454,8 +1455,10 @@ export class Service {
       `INSERT INTO th_hunts (hun_owner_htr, hun_joincode, hun_name, hun_description, hun_location, hun_begin, hun_end,
                              hun_autostart, hun_autoclose, hun_award, hun_starttext, hun_startmode, hun_penalty1, hun_penalty2,
                              hun_penalty3, hun_skippenalty, hun_teamgame, hun_teammin, hun_teammax, hun_public, hun_status_hst,
-                             hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr, hun_travel, hun_difficulty, hun_duration)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13, $14, $15, $16)
+                             hun_validation, hun_georadius, hun_generated, hun_surprise, hun_host_htr, hun_travel, hun_difficulty, hun_duration,
+                             hun_skin)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, 1, 2, 5, 10, 15, true, 1, $10, false, $11, 'geo', 40, true, $12, $13, $14, $15, $16,
+               $17)
        RETURNING hun_id`,
       [
         owner,
@@ -1476,6 +1479,7 @@ export class Service {
         req.travel,
         req.difficulty,
         req.durationMinutes,
+        req.skin ?? DEFAULT_SKIN,
       ],
     );
     const huntId = r!['hun_id'] as number;
@@ -1665,7 +1669,8 @@ interface CatalogContent {
     | 'validation'
     | 'geoRadius'
     | 'contribution'
-  >;
+  > &
+    Partial<Pick<Hunt, 'skin'>>;
   steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances'>>)[];
 }
 
@@ -1687,6 +1692,7 @@ function catalogContent(h: Hunt, steps: Step[]): CatalogContent {
       validation: h.validation,
       geoRadius: h.geoRadius,
       contribution: Number(h.contribution),
+      skin: h.skin,
     },
     steps: steps.map((s) => ({
       order: s.order,
@@ -1739,7 +1745,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
+            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
             coalesce(pl.plays, 0)::int AS plays, pl.measured, coalesce(ra.n, 0)::int AS rating_count, ra.stars, ra.riddles, ra.route, ra.mood
@@ -1757,6 +1763,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
   const avg = (v: unknown) => (v === null || v === undefined ? null : Math.round(Number(v) * 10) / 10);
   return list.map((r) => ({
     id: r['cat_id'],
+    skin: r['skin'],
     authorId: r['cat_author_htr'],
     authorNickname: r['author_nickname'],
     title: r['cat_title'],

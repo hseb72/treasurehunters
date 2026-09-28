@@ -1,5 +1,5 @@
 <div class="page page--wide stack">
-  <header class="leather head">
+  <header class="banner head">
     <h1 class="display">Guide des maquettes</h1>
     <p class="muted">
       Les écrans fonctionnent avec des données fictives, recalculées à chaque chargement : la chasse « Le Trésor des Nèfles » est
@@ -13,7 +13,7 @@
       <h2 class="section-title"><mat-icon>{{ g.icon }}</mat-icon>{{ g.title }}</h2>
       <div class="grid">
         @for (s of g.scenarios; track s.title) {
-          <button type="button" class="parchment scenario" (click)="go(s)">
+          <button type="button" class="surface scenario" (click)="go(s)">
             <span class="who badge badge--{{ s.persona === 'camille' ? 'running' : s.persona === 'seb' ? 'published' : 'draft' }}">
               {{ personas[s.persona] }}
             </span>

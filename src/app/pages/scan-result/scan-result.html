@@ -1,3 +1,5 @@
+<!-- Habillage de la chasse (skin) : toute la page, pas la barre de l'application. -->
+<div [thSkin]="skin()">
 <div class="page">
   @if (result.isLoading() && !result.value()) {
     <div class="center loading">
@@ -10,13 +12,13 @@
     <div class="stack reveal">
       @switch (r.outcome) {
         @case ('validated') {
-          <section class="parchment center hero-card">
+          <section class="surface center hero-card">
             @if (r.step?.isFinal) {
               <mat-icon class="hero-icon gold">diamond</mat-icon>
-              <span class="stamp stamp--gold drop">Trésor trouvé !</span>
+              <span class="stamp stamp--accent drop">Trésor trouvé !</span>
             } @else {
               <mat-icon class="hero-icon">where_to_vote</mat-icon>
-              <span class="stamp stamp--jungle drop">Étape {{ r.step?.order }} validée</span>
+              <span class="stamp stamp--success drop">Étape {{ r.step?.order }} validée</span>
             }
             <h1>{{ r.step?.title }}</h1>
             @if (r.step?.arrival) {
@@ -24,7 +26,7 @@
             }
           </section>
           @if (r.next; as next) {
-            <section class="parchment taped clue">
+            <section class="surface taped clue">
               <span class="stamp">{{ next.targetOrder === r.hunt?.stepCount ? 'Vers le trésor' : 'Énigme n° ' + next.targetOrder }}</span>
               <p class="note clue-text">{{ next.instructions }}</p>
             </section>
@@ -33,13 +35,13 @@
         }
 
         @case ('already_validated') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon">replay</mat-icon>
             <h1>Déjà dans votre carnet</h1>
             <p>Votre équipe a déjà validé l'étape {{ r.step?.order }} — {{ r.step?.title }}.</p>
           </section>
           @if (r.next; as next) {
-            <section class="parchment taped clue">
+            <section class="surface taped clue">
               <span class="stamp">Énigme en cours</span>
               <p class="note clue-text">{{ next.instructions }}</p>
             </section>
@@ -48,8 +50,8 @@
         }
 
         @case ('skipped') {
-          <section class="parchment center warn">
-            <mat-icon class="hero-icon brick">wrong_location</mat-icon>
+          <section class="surface center warn">
+            <mat-icon class="hero-icon danger">wrong_location</mat-icon>
             <h1>Fausse piste !</h1>
             <p>Ce n'est pas l'étape que vous cherchez : il vous en manque au moins une avant celle-ci.</p>
             <p class="muted small">Pas de raccourci pour les aventuriers : retournez à votre énigme en cours.</p>
@@ -58,7 +60,7 @@
         }
 
         @case ('team_finished') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon gold">diamond</mat-icon>
             <h1>Vous avez déjà trouvé le trésor</h1>
             <p>Profitez-en pour admirer le paysage !</p>
@@ -67,7 +69,7 @@
         }
 
         @case ('team_not_started') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon">front_hand</mat-icon>
             <h1>Pas si vite !</h1>
             <p>Votre équipe n'est pas encore partie. Départ à {{ r.team?.started | date: 'HH:mm' }}.</p>
@@ -76,7 +78,7 @@
         }
 
         @case ('not_started') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon">hourglass_top</mat-icon>
             <span class="stamp">Pas encore commencée</span>
             <h1>{{ r.hunt?.name }}</h1>
@@ -87,7 +89,7 @@
         }
 
         @case ('closed') {
-          <section class="parchment center">
+          <section class="surface center">
             <span class="stamp">Expédition terminée</span>
             <h1>{{ r.hunt?.name }}</h1>
             <p class="muted">Close le {{ r.hunt?.closed | date: 'd MMMM y à HH:mm' }}. Voici les vainqueurs :</p>
@@ -97,7 +99,7 @@
         }
 
         @case ('login_required') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon">travel_explore</mat-icon>
             <h1>Vous avez trouvé un indice !</h1>
             <p>Il appartient à l'expédition <strong>{{ r.hunt?.name }}</strong>. Identifiez-vous pour le valider.</p>
@@ -106,7 +108,7 @@
         }
 
         @case ('not_registered') {
-          <section class="parchment center">
+          <section class="surface center">
             <mat-icon class="hero-icon">explore_off</mat-icon>
             <h1>{{ r.hunt?.name }}</h1>
             <p>Vous ne participez pas à cette expédition. Merci de laisser cet indice en place pour les autres aventuriers !</p>
@@ -115,8 +117,8 @@
         }
 
         @case ('organizer') {
-          <section class="parchment">
-            <div class="row"><span class="stamp stamp--jungle">QR opérationnel</span></div>
+          <section class="surface">
+            <div class="row"><span class="stamp stamp--success">QR opérationnel</span></div>
             <h1>Étape {{ r.step?.order }} — {{ r.step?.title }}</h1>
             <p class="muted small">Mode organisateur : ce scan n'est pas enregistré. Voici ce que verront les joueurs.</p>
             @if (r.step?.arrival) {
@@ -133,16 +135,16 @@
         }
 
         @case ('cancelled') {
-          <section class="parchment center">
-            <mat-icon class="hero-icon brick">block</mat-icon>
+          <section class="surface center">
+            <mat-icon class="hero-icon danger">block</mat-icon>
             <h1>Expédition annulée</h1>
             <p>{{ r.hunt?.name }} n'aura pas lieu.</p>
           </section>
         }
 
         @default {
-          <section class="parchment center">
-            <mat-icon class="hero-icon brick">help</mat-icon>
+          <section class="surface center">
+            <mat-icon class="hero-icon danger">help</mat-icon>
             <h1>Parchemin illisible</h1>
             <p>Ce QR code ne correspond à aucune expédition.</p>
           </section>
@@ -151,4 +153,5 @@
       }
     </div>
   }
+</div>
 </div>

@@ -25,20 +25,20 @@
   padding: 18px 12px;
   text-align: center;
   background: #fff;
-  border: 3px double var(--th-leather);
+  border: 3px double var(--th-primary);
   border-radius: 4px;
 }
 
 .brand {
   font-family: var(--th-font-display);
-  color: var(--th-saddle);
+  color: var(--th-secondary);
 }
 
 .title {
   font-family: var(--th-font-title);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--th-leather);
+  color: var(--th-primary);
 }
 
 .scan-me {

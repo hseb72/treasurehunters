@@ -45,7 +45,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1px dashed var(--th-edge);
+  border: 1px dashed var(--th-border);
   border-radius: 4px;
 }
 
@@ -64,5 +64,5 @@
 }
 
 .danger {
-  --mat-button-text-label-text-color: var(--th-brick);
+  --mat-button-text-label-text-color: var(--th-danger);
 }

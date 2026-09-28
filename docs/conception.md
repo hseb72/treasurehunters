@@ -279,11 +279,11 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 
 ## 8. Écrans
 
-Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs comme pour les organisateurs. Ils s'élargissent ensuite sur tablette et ordinateur.
+Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs comme pour les organisateurs. Ils s'élargissent ensuite sur tablette et ordinateur. Navigation : barre d'onglets en bas sur téléphone (Accueil, Explorer, Créer, Scanner, Profil), liens dans la barre du haut sur ordinateur. L'application est sobre et claire ; les écrans des joueurs d'une chasse (E3 à E6) portent le **skin** de la chasse (§ 15).
 
 | # | Écran | Route | Qui |
 |---|---|---|---|
-| E1 | Carnet de bord : expédition en cours, prochaines expéditions, expéditions ouvertes, archives, code d'invitation | `/` | tous |
+| E1 | Accueil : recherche, raccourcis (scanner, chasse sur mesure, code d'invitation), expédition en cours, prochaines expéditions, expéditions ouvertes (toutes, bientôt, populaires, nouveautés), archives | `/` | tous |
 | E2 | Connexion / inscription | `/login` | public |
 | E3 | Fiche d'expédition et inscription (fonder ou rejoindre une équipe, solo) | `/hunts/:id` | tous |
 | E4 | **Carnet de route** : chrono, piste, énigme, jokers sous scellés, position provisoire, journal | `/play/:huntId` | membre |
@@ -307,7 +307,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 
 ## 9. Choix techniques
 
-- **Front** (`src/`) : Angular 22 avec des composants autonomes (*standalone*), les *signals* et Material 3. C'est une PWA installable. Le thème « carnet d'explorateur » est défini dans `src/styles.scss`. Les polices (Cinzel, Lora, Rye, Special Elite et les icônes Material Symbols) sont **servies par l'application** depuis les paquets `@fontsource`, jamais par un CDN : un CDN bloqué ou lent faisait apparaître le nom des icônes à leur place. Le front dialogue avec l'API via `HttpHuntApi`, ou avec `MockHuntApi` pour les maquettes autonomes (`npm run start:mock`).
+- **Front** (`src/`) : Angular 22 avec des composants autonomes (*standalone*), les *signals* et Material 3. C'est une PWA installable. Le thème de base, sobre (Inter, blanc, bleu nuit), est défini dans `src/styles.scss` par des jetons (`--th-*`) que les skins de chasse redéfinissent (§ 15). Les polices (Inter, et pour les skins Cinzel, Lora, Rye, Special Elite, Orbitron ; les icônes Material Symbols) sont **servies par l'application** depuis les paquets `@fontsource`, jamais par un CDN : un CDN bloqué ou lent faisait apparaître le nom des icônes à leur place. Le front dialogue avec l'API via `HttpHuntApi`, ou avec `MockHuntApi` pour les maquettes autonomes (`npm run start:mock`).
 - **Back-end** (`server/`) :
   - Node.js avec Fastify 5 ;
   - `pg` et des requêtes SQL écrites à la main (`server/src/repo.ts`) ;
@@ -558,4 +558,19 @@ Un second fil, **indépendant et sur option** : dans son profil, un organisateur
 - `th_ratings` : chasse, joueur, note globale, critères, commentaire, note d'organisateur ; UNIQUE(chasse, joueur).
 - `th_hunters.htr_rateable`.
 - Migration : `db/migrations/006_catalog.sql`.
+
+---
+
+## 15. Skins de chasse
+
+L'application est sobre ; **chaque chasse a son style**. Le skin habille tout ce que voient ses joueurs : fiche et invitation (E3), carnet de route (E4), résultat de scan (E5), podium (E6) ; ses couleurs, polices, matières, couverture, sons et animations. La barre de l'application, les fenêtres et l'espace organisateur restent neutres.
+
+- **Un skin est une donnée**, jamais du code : un manifeste (`shared/skins.ts`) qui donne des valeurs à une liste fermée de jetons de style (`SKIN_TOKENS`), plus des polices, une couverture, des sons (fichiers ou notes synthétisées) et des effets choisis dans une liste (tampon, pulsation, confettis). Format et règles : `docs/skins.md`.
+- La directive `thSkin` pose les jetons en variables CSS (`--th-*`) sur le conteneur de la page. Toutes les valeurs passent un **contrôle** (`safeTokenValue`) : rien qui sorte de la déclaration CSS, et seulement des URL `https` ou des `data:` image, police ou son. C'est ce qui permettra d'accueillir des skins de créateurs.
+- Skins intégrés, offerts : **Aventure** (le carnet d'explorateur d'origine, skin par défaut et celui des chasses existantes), **Épuré** (aux couleurs de l'application), **Mission spatiale** (sombre, néons). Leurs couvertures sont des dessins SVG intégrés.
+- L'organisateur choisit le skin dans l'onglet Infos, avec un aperçu (et le son de validation) ; le joueur qui commande une chasse sur mesure le choisit dans l'écran E15. Le skin suit la chasse au catalogue et dans ses copies ; les cartes de chasse montrent sa couverture.
+- Sons : courts, désactivables depuis le carnet de route (réglage mémorisé sur l'appareil). Animations : rien si l'appareil demande moins de mouvement.
+- Données : `th_hunts.hun_skin` (migration `db/migrations/010_hunt_skin.sql`, `aventure` par défaut) ; `CatalogEntry.skin` est lu dans l'instantané publié.
+
+À venir (lot 2 et suivants) : une **boutique** d'extensions (skins, outils de jeu comme la carte, la boussole ou la position en direct, packs d'énigmes interactives) ; les prix y sont affichés mais l'acquisition reste gratuite tant que le paiement n'est pas branché, la possession étant déjà enregistrée. Plus tard, des **créateurs** pourront publier et vendre leurs skins et packs : le format déclaratif et le contrôle des valeurs en sont la base.
 

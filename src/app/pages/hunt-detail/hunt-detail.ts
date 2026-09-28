@@ -17,9 +17,11 @@ import { penaltyText, START_MODE_LABELS } from '../../shared/labels';
 import { InvitePanel } from '../../shared/invite-panel';
 import { StatusBadge } from '../../shared/status-badge';
 
+import { SkinDirective } from '../../shared/skin';
+
 @Component({
   selector: 'th-hunt-detail',
-  imports: [CurrencyPipe, DatePipe, FormsModule, InvitePanel, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
+  imports: [SkinDirective, CurrencyPipe, DatePipe, FormsModule, InvitePanel, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hunt-detail.html',
   styleUrl: './hunt-detail.scss',
@@ -36,6 +38,8 @@ export class HuntDetailPage {
   readonly code = input<string>();
 
   protected readonly hunt = rxResource({ params: () => this.id(), stream: ({ params }) => this.api.getHunt(params) });
+  /** Skin de la chasse, dès qu'elle est connue. */
+  protected readonly skin = computed(() => this.hunt.value()?.skin);
   protected readonly teams = rxResource({ params: () => this.id(), stream: ({ params }) => this.api.getTeams(params), defaultValue: [] });
   protected readonly myTeam = rxResource({
     params: () => ({ id: this.id(), user: this.session.user()?.id }),

@@ -3,9 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { HuntApi } from '../../core/api';
@@ -17,7 +15,7 @@ import { HuntCard } from '../../shared/hunt-card';
 
 @Component({
   selector: 'th-home',
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, HuntCard],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatIconModule, RouterLink, HuntCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.html',
   styleUrl: './home.scss',
@@ -30,6 +28,14 @@ export class HomePage {
   protected readonly clock = inject(Clock);
 
   protected readonly code = signal('');
+  protected readonly query = signal('');
+  protected readonly chips = [
+    { value: 'all', label: 'Toutes' },
+    { value: 'soon', label: 'Bientôt' },
+    { value: 'popular', label: 'Populaires' },
+    { value: 'new', label: 'Nouveautés' },
+  ] as const;
+  protected readonly chip = signal<(typeof this.chips)[number]['value']>('all');
 
   private readonly mine = rxResource({
     params: () => this.session.user()?.id,
@@ -54,7 +60,21 @@ export class HomePage {
   );
   protected readonly discover = computed(() => {
     const mineIds = new Set(this.mine.value().map((h) => h.id));
-    return this.open.value().filter((h) => !mineIds.has(h.id) && h.status !== 'closed');
+    const q = this.query().trim().toLowerCase();
+    const list = this.open
+      .value()
+      .filter((h) => !mineIds.has(h.id) && h.status !== 'closed')
+      .filter((h) => !q || [h.name, h.location, h.description].some((t) => t.toLowerCase().includes(q)));
+    switch (this.chip()) {
+      case 'soon':
+        return [...list].sort((a, b) => a.begin.localeCompare(b.begin));
+      case 'popular':
+        return [...list].sort((a, b) => b.teamCount - a.teamCount);
+      case 'new':
+        return [...list].sort((a, b) => b.id - a.id);
+      default:
+        return list;
+    }
   });
 
   protected countdown(iso: string): string {

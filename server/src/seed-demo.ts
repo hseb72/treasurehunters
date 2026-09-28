@@ -66,6 +66,7 @@ export async function seedDemo(pool: pg.Pool, opts: { reset?: boolean; now?: num
         hun_generated: h.generated,
         hun_surprise: h.surprise,
         hun_travel: h.travel,
+        hun_skin: h.skin,
         hun_difficulty: h.difficulty,
         hun_duration: h.durationMinutes,
         hun_status_hst: STATUS_IDS[h.status],
