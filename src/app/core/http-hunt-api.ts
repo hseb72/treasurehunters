@@ -154,6 +154,7 @@ export class HttpHuntApi extends HuntApi {
     if (opts.minDuration) params['minDuration'] = String(opts.minDuration);
     if (opts.maxDuration) params['maxDuration'] = String(opts.maxDuration);
     if (opts.autonomous) params['autonomous'] = '1';
+    if (opts.practical?.length) params['practical'] = opts.practical.join(',');
     if (opts.near) {
       params['lat'] = opts.near.lat.toFixed(5);
       params['lng'] = opts.near.lng.toFixed(5);

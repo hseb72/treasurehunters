@@ -2,6 +2,7 @@
  * Modèle du domaine, aligné sur docs/conception.md (§ 6).
  * Les dates sont des chaînes ISO 8601 en UTC, telles que renvoyées par l'API.
  */
+import type { PracticalTag } from './practical.js';
 import type { Puzzle, PublicPuzzle, PuzzleType } from './puzzles.js';
 import type { SkinManifest } from './skins.js';
 
@@ -509,6 +510,10 @@ export interface CatalogEntry {
   start: { lat: number; lng: number } | null;
   /** Distance à vol d'oiseau jusqu'au départ, en km, quand le joueur a donné sa position. */
   distanceKm: number | null;
+  /** Repères pratiques cochés par l'auteur (§ 26). */
+  practical: PracticalTag[];
+  /** Âge conseillé ; null : tous âges. */
+  minAge: number | null;
 }
 
 export interface CatalogReview {
@@ -574,6 +579,9 @@ export interface CatalogPublication {
   changes: string | null;
   /** Prix de la chasse, en centimes (0 à 50 €) ; absent = gratuite. */
   price?: number;
+  /** Repères pratiques (§ 26) ; absents = aucun. */
+  practical?: PracticalTag[];
+  minAge?: number | null;
 }
 
 /** Avis d'un joueur sur une chasse jouée, après sa clôture. */

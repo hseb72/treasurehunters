@@ -1,3 +1,4 @@
+import { ageLabel, PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -26,6 +27,9 @@ import { Stars } from '../../shared/stars';
   styleUrl: './catalog-entry.scss',
 })
 export class CatalogEntryPage {
+  /** Repères pratiques (§ 26). */
+  protected readonly age = ageLabel;
+  protected readonly practicalOf = (ids: PracticalTag[]) => PRACTICAL_TAGS.filter((t) => ids.includes(t.id));
   private readonly api = inject(HuntApi);
   private readonly notify = inject(Notify);
   private readonly router = inject(Router);

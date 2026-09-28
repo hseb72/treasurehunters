@@ -15,6 +15,7 @@ import { PaymentProvider, StripeProvider } from './payments/stripe.js';
 import { skinIdShape } from '../../shared/skins.js';
 import { PRODUCT_IDS, TOOL_IDS } from '../../shared/store.js';
 import { PUZZLE_TYPE_IDS } from '../../shared/puzzles.js';
+import { PRACTICAL_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
 
 declare module 'fastify' {
@@ -412,6 +413,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         lat: z.coerce.number().min(-90).max(90),
         lng: z.coerce.number().min(-180).max(180),
         radius: z.coerce.number().positive().max(500),
+        practical: list(PRACTICAL_IDS),
       })
       .partial()
       .parse(req.query);
@@ -450,6 +452,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         sampleOrder: z.number().int().min(0),
         changes: text(2000).nullable(),
         price: z.number().int().min(0).max(5000).optional(),
+        practical: z
+          .array(z.enum(PRACTICAL_IDS))
+          .max(PRACTICAL_IDS.length)
+          .transform((t) => [...new Set(t)])
+          .optional(),
+        minAge: z.number().int().min(2).max(18).nullable().optional(),
       })
       .parse(req.body);
     return reply.status(201).send(await service.publishToCatalog(req.viewer, idParams.parse(req.params).id, pub));

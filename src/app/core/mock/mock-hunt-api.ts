@@ -48,6 +48,7 @@ import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } 
 import { checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '@shared/puzzles';
 import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
+import { PracticalTag } from '@shared/practical';
 import {
   checkinAllowance,
   computeRanking,
@@ -750,6 +751,7 @@ export class MockHuntApi extends HuntApi {
       if (opts.minDuration) list = list.filter((e) => e.durationMinutes >= opts.minDuration!);
       if (opts.maxDuration) list = list.filter((e) => e.durationMinutes <= opts.maxDuration!);
       if (opts.autonomous) list = list.filter((e) => e.validation === 'geo');
+      if (opts.practical?.length) list = list.filter((e) => opts.practical!.every((t) => e.practical.includes(t)));
       let views = list.map((e) => this.entryView(e, opts.near));
       if (opts.near && opts.radius) views = views.filter((v) => v.distanceKm !== null && v.distanceKm <= opts.radius!);
       const sort = opts.sort === 'distance' && !opts.near ? 'rating' : (opts.sort ?? 'rating');
@@ -999,6 +1001,8 @@ export class MockHuntApi extends HuntApi {
         sampleOrder: sample.order,
         sample: sample.instructions!,
         price: pub.price ?? 0,
+        practical: [...new Set(pub.practical ?? [])],
+        minAge: pub.minAge ?? null,
       });
     }
     const parentId = previous?.id ?? h.catalogId;
@@ -1027,6 +1031,8 @@ export class MockHuntApi extends HuntApi {
       published: new Date().toISOString(),
       withdrawn: false,
       price: pub.price ?? 0,
+      practical: [...new Set(pub.practical ?? [])],
+      minAge: pub.minAge ?? null,
     };
     this.catalog.push(entry);
     return entry;
@@ -1079,6 +1085,8 @@ export class MockHuntApi extends HuntApi {
       price: e.price,
       start,
       distanceKm: start && near ? Math.round(distanceMeters(start, near) / 100) / 10 : null,
+      practical: [...e.practical],
+      minAge: e.minAge,
     };
   }
 
@@ -1117,7 +1125,7 @@ export class MockHuntApi extends HuntApi {
     if (!closed) return;
     try {
       // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
-      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399 });
+      this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399, practical: ['toilets'] });
     } catch {
       return; // jeu de démonstration incomplet : catalogue vide
     }
@@ -1185,7 +1193,7 @@ export class MockHuntApi extends HuntApi {
     );
     let entry: MockEntry;
     try {
-      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0 });
+      entry = this.publish(h, { summary: h.description, travel: 'walk', difficulty: 'easy', durationMinutes: 90, sampleOrder: 1, changes: null, price: 0, practical: ['stroller', 'toilets', 'cafe'], minAge: 6 });
     } catch {
       return;
     }
@@ -2056,6 +2064,9 @@ interface MockPhoto {
 
 interface MockEntry {
   id: number;
+  /** Repères pratiques (§ 26). */
+  practical: PracticalTag[];
+  minAge: number | null;
   /** Prix fixé par l'auteur (§ 20), en centimes. */
   price: number;
   authorId: number;

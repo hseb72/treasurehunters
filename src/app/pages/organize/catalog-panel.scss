@@ -27,3 +27,17 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0 12px;
 }
+
+.practical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--th-border);
+  border-radius: 12px;
+  legend { font-weight: 600; padding: 0 4px; }
+  p { margin: 0; }
+  mat-button-toggle-group { flex-wrap: wrap; align-self: flex-start; max-width: 100%; }
+  mat-form-field { max-width: 240px; }
+}

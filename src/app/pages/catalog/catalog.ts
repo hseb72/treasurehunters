@@ -11,6 +11,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { debounceTime } from 'rxjs';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_MEANS } from '@shared/generation';
 import { Difficulty, Travel } from '@shared/models';
+import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 import { CatalogQuery, HuntApi } from '../../core/api';
 import { CatalogCard } from '../../shared/catalog-card';
 import { CatalogMap } from '../../shared/catalog-map';
@@ -43,6 +44,9 @@ export class CatalogPage {
   protected readonly sort = signal<NonNullable<CatalogQuery['sort']>>('rating');
   protected readonly travel = signal<Travel[]>([]);
   protected readonly difficulty = signal<Difficulty[]>([]);
+  /** Repères pratiques exigés (§ 26). */
+  protected readonly practical = signal<PracticalTag[]>([]);
+  protected readonly practicalTags = PRACTICAL_TAGS;
   protected readonly minDuration = signal(DURATION_MIN);
   protected readonly maxDuration = signal(DURATION_MAX);
   protected readonly durationBounds = { min: DURATION_MIN, max: DURATION_MAX };
@@ -64,7 +68,7 @@ export class CatalogPage {
   );
 
   protected readonly filtered = computed(
-    () => this.travel().length > 0 || this.difficulty().length > 0 || this.minDuration() > DURATION_MIN || this.maxDuration() < DURATION_MAX,
+    () => this.travel().length > 0 || this.difficulty().length > 0 || this.practical().length > 0 || this.minDuration() > DURATION_MIN || this.maxDuration() < DURATION_MAX,
   );
 
   protected readonly entries = rxResource({
@@ -78,6 +82,7 @@ export class CatalogPage {
         radius: this.near() && this.radius() ? this.radius() : undefined,
         travel: this.travel(),
         difficulty: this.difficulty(),
+        practical: this.practical(),
         minDuration: min > DURATION_MIN ? min : undefined,
         maxDuration: max < DURATION_MAX ? max : undefined,
       };
@@ -127,6 +132,7 @@ export class CatalogPage {
   protected reset(): void {
     this.travel.set([]);
     this.difficulty.set([]);
+    this.practical.set([]);
     this.minDuration.set(DURATION_MIN);
     this.maxDuration.set(DURATION_MAX);
   }

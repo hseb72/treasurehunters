@@ -4,6 +4,7 @@ import { Puzzle } from '@shared/puzzles';
 import { SkinManifest } from '@shared/skins';
 import { GenerationAccess } from '@shared/generation-access';
 import { AssistReply, AssistRequest, AssistUsage } from '@shared/assist';
+import { PracticalTag } from '@shared/practical';
 import {
   AuthResult,
   HuntStats,
@@ -61,6 +62,8 @@ export interface CatalogQuery {
   near?: { lat: number; lng: number };
   /** Rayon autour de `near`, en km. */
   radius?: number;
+  /** Repères pratiques exigés (§ 26). */
+  practical?: PracticalTag[];
 }
 
 /**

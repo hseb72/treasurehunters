@@ -111,6 +111,10 @@
           {{ e.validation === 'geo' ? 'Validation par géolocalisation, sans QR code' : 'QR codes à poser sur les lieux' }}
         </li>
         <li><mat-icon>groups</mat-icon>{{ e.plays }} partie{{ e.plays > 1 ? 's' : '' }} jouée{{ e.plays > 1 ? 's' : '' }}</li>
+        <li><mat-icon>child_care</mat-icon>{{ age(e.minAge) }}</li>
+        @for (t of practicalOf(e.practical); track t.id) {
+          <li><mat-icon>{{ t.icon }}</mat-icon>{{ t.hint }}</li>
+        }
       </ul>
     </section>
 
