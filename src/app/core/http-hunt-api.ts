@@ -177,6 +177,9 @@ export class HttpHuntApi extends HuntApi {
   playFromCatalog(id: number): Observable<Hunt> {
     return this.http.post<Hunt>(`${this.url}/catalog/${id}/play`, {});
   }
+  translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>> {
+    return this.http.post<Record<string, string>>(`${this.url}/translate`, req);
+  }
   getOfflinePack(huntId: number): Observable<OfflinePack> {
     return this.http.get<OfflinePack>(`${this.url}/hunts/${huntId}/offline`);
   }

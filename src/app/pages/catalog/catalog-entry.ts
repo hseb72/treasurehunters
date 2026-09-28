@@ -17,6 +17,7 @@ import { Notify } from '../../core/notify';
 import { Session } from '../../core/session';
 import { Confirm } from '../../shared/confirm-dialog';
 import { ShareLink } from '../../core/share';
+import { DomTranslator } from '../../core/dom-translator';
 import { Stars } from '../../shared/stars';
 
 /** Fiche d'une version du catalogue : présentation, extrait, avis, versions, et copie. */
@@ -59,7 +60,7 @@ export class CatalogEntryPage {
     const last = this.finishedPlays()[0];
     if (!e || !last) return;
     const url = `${location.origin}/catalog/${e.id}?defi=${last.huntId}`;
-    void this.shareLink.share(e.title, `J'ai fini « ${e.title} » : sauras-tu battre mon temps ?`, url);
+    void this.shareLink.share(e.title, this.i18n.t(`J'ai fini « ${e.title} » : sauras-tu battre mon temps ?`), url);
   }
 
   protected readonly entry = rxResource({
@@ -67,6 +68,12 @@ export class CatalogEntryPage {
     stream: ({ params }) => this.api.getCatalogEntry(params.id),
   });
   protected readonly busy = signal(false);
+  /** Version anglaise (§ 33) : titre, présentation et extrait de la fiche. */
+  private readonly i18n = inject(DomTranslator);
+  private readonly translateContent = effect(() => {
+    const e = this.entry.value();
+    if (e) untracked(() => this.i18n.requestContent({ catalog: [e.id, ...e.versions.map((v) => v.id)].slice(0, 30) }));
+  });
   protected readonly difficulty = DIFFICULTY_LABELS;
   protected readonly travel = TRAVEL_LABELS;
   protected readonly travelHints = TRAVEL_HINTS;

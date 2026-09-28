@@ -96,6 +96,7 @@ import { HuntPlan } from '../../shared/generation.js';
 import { AssistReply, AssistRequest, AssistUsage } from '../../shared/assist.js';
 import { RiddleWriter } from './assist/writer.js';
 import { assistUsageOf } from './assist/usage.js';
+import { Translator } from './translate/translator.js';
 
 export type Viewer = number | null;
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -143,6 +144,8 @@ export class Service {
   payments: Payments | null = null;
   /** Assistant de rédaction (§ 25) ; null sans clé d'API. */
   writer: RiddleWriter | null = null;
+  /** Traduction des chasses (§ 33) ; null sans clé d'API (seul le cache sert). */
+  translator: Translator | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -156,7 +159,7 @@ export class Service {
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
-    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled, assist: !!this.writer };
+    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled, assist: !!this.writer, translation: !!this.translator };
   }
 
   /* ================================================================ Assistant de rédaction (§ 25) */
@@ -707,6 +710,63 @@ export class Service {
         state: await this.playState(db, me, huntId),
       };
     });
+  }
+
+  /* ================================================================ Version anglaise (§ 33) */
+
+  /**
+   * Traductions des textes qu'un joueur voit : fiches du catalogue, et dans sa partie ce que
+   * son carnet montre déjà (jamais les énigmes ni les lieux à venir). Chaque texte n'est
+   * traduit qu'une fois (cache th_translations) ; sans IA, seul le cache répond.
+   */
+  async translate(viewer: Viewer, req: { lang: 'en'; hunt?: number; catalog?: number[] }): Promise<Record<string, string>> {
+    const texts = new Set<string>();
+    const add = (t: string | null | undefined) => {
+      const v = t?.trim();
+      if (v && v.length <= 5000) texts.add(v);
+    };
+    if (req.catalog?.length) {
+      const list = await rows(
+        this.pool,
+        `SELECT cat_title, cat_summary, cat_sample, cat_location FROM th_catalog WHERE cat_id = ANY($1) AND (cat_withdrawn IS NULL OR cat_author_htr = $2)`,
+        [req.catalog.slice(0, 30), viewer],
+      );
+      for (const r of list) [r['cat_title'], r['cat_summary'], r['cat_sample'], r['cat_location']].forEach(add);
+    }
+    if (req.hunt) {
+      const state = await this.playState(this.pool, requireUser(viewer), req.hunt);
+      [state.hunt.name, state.hunt.location, state.hunt.description, state.hunt.startText, state.start?.name].forEach(add);
+      for (const v of state.validated) [v.title, v.arrival].forEach(add);
+      if (state.clue) [state.clue.instructions, ...state.clue.hintsRevealed].forEach(add);
+      if (state.puzzle) [state.puzzle.title, state.puzzle.puzzle.prompt, state.puzzle.puzzle.hint].forEach(add);
+    }
+    const all = [...texts].slice(0, 120);
+    if (!all.length) return {};
+    const hashes = all.map((t) => createHash('sha256').update(t).digest('hex'));
+    const cached = await rows(this.pool, 'SELECT tr_hash, tr_text FROM th_translations WHERE tr_lang = $1 AND tr_hash = ANY($2)', [req.lang, hashes]);
+    const known = new Map(cached.map((r) => [r['tr_hash'] as string, r['tr_text'] as string]));
+    const missing = all.filter((_, i) => !known.has(hashes[i]!));
+    if (missing.length && this.translator) {
+      try {
+        for (let i = 0; i < missing.length; i += 40) {
+          const batch = missing.slice(i, i + 40);
+          const out = await this.translator.translate(batch, req.lang);
+          for (const [j, text] of batch.entries()) {
+            const hash = createHash('sha256').update(text).digest('hex');
+            known.set(hash, out[j]!);
+            await this.pool.query('INSERT INTO th_translations (tr_lang, tr_hash, tr_text) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [req.lang, hash, out[j]]);
+          }
+        }
+      } catch (e) {
+        this.log(e, 'Traduction');
+      }
+    }
+    const result: Record<string, string> = {};
+    all.forEach((t, i) => {
+      const tr = known.get(hashes[i]!);
+      if (tr) result[t] = tr;
+    });
+    return result;
   }
 
   /* ================================================================ Hors ligne (§ 32) */

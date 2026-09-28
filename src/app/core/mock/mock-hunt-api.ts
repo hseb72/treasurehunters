@@ -1748,6 +1748,28 @@ export class MockHuntApi extends HuntApi {
     this.arrive(photo.teamId, this.db.steps.find((s) => s.id === photo.stepId)!, me, 'PHOTO');
   }
 
+  /* ---------- Version anglaise (§ 33), simulée ---------- */
+
+  /** La maquette « traduit » en marquant le texte : de quoi voir ce que le serveur traduirait. */
+  translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>> {
+    return this.reply(() => {
+      const texts = new Set<string>();
+      const add = (t: string | null | undefined) => t?.trim() && texts.add(t.trim());
+      for (const id of req.catalog ?? []) {
+        const e = this.catalog.find((x) => x.id === id);
+        if (e) [e.title, e.summary, e.sample, e.location].forEach(add);
+      }
+      if (req.hunt) {
+        const state = this.playState(req.hunt);
+        [state.hunt.name, state.hunt.location, state.hunt.description, state.start?.name].forEach(add);
+        for (const v of state.validated) [v.title, v.arrival].forEach(add);
+        if (state.clue) [state.clue.instructions, ...state.clue.hintsRevealed].forEach(add);
+        if (state.puzzle) [state.puzzle.title, state.puzzle.puzzle.prompt, state.puzzle.puzzle.hint].forEach(add);
+      }
+      return Object.fromEntries([...texts].map((t) => [t, `[EN] ${t}`]));
+    });
+  }
+
   /* ---------- Hors ligne (§ 32), comme le serveur ---------- */
 
   private readonly offlineDone = new Set<string>();

@@ -49,6 +49,9 @@ export function drawSouvenir(
   style: SouvenirStyle,
   picture: CanvasImageSource | null,
   origin: string,
+  /** Version anglaise (§ 33) : traduction des libellés, et langue des dates. */
+  tr: (fr: string) => string = (fr) => fr,
+  locale = 'fr-FR',
 ): void {
   const W = SOUVENIR_WIDTH;
   const H = SOUVENIR_HEIGHT;
@@ -94,7 +97,7 @@ export function drawSouvenir(
   ctx.font = `700 44px ${style.fontDisplay}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('Trésor trouvé !', 0, 2, 350);
+  ctx.fillText(tr('Trésor trouvé !'), 0, 2, 350);
   ctx.restore();
 
   ctx.textAlign = 'left';
@@ -108,7 +111,7 @@ export function drawSouvenir(
   }
   fill(style.inkSoft, '#5b5b5b');
   ctx.font = `400 34px ${style.fontBody}`;
-  const date = new Date(s.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = new Date(s.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
   ctx.fillText(fit(ctx, [s.location, date].filter(Boolean).join(' · '), W - 2 * pad), pad, y);
   y += 70;
 
@@ -129,11 +132,12 @@ export function drawSouvenir(
   const top = Math.min(Math.max(y + 110, 860), 960);
   const box = 330;
   const boxX = W - pad - box;
-  const stats: [string, string][] = [[souvenirTime(s.time), s.penalty ? `dont ${Math.round(s.penalty)} min de pénalités` : 'temps de parcours']];
+  const stats: [string, string][] = [[souvenirTime(s.time), tr(s.penalty ? `dont ${Math.round(s.penalty)} min de pénalités` : 'temps de parcours')]];
   if (s.rank !== null) {
-    stats.push([`${s.rank}${s.rank === 1 ? 'ʳᵉ' : 'ᵉ'} / ${s.ranked}`, s.scope === 'catalog' ? 'parmi tous les joueurs' : s.provisional ? 'place provisoire' : 'au classement']);
+    const rank = locale.startsWith('fr') ? `${s.rank}${s.rank === 1 ? 'ʳᵉ' : 'ᵉ'}` : `#${s.rank}`;
+    stats.push([`${rank} / ${s.ranked}`, tr(s.scope === 'catalog' ? 'parmi tous les joueurs' : s.provisional ? 'place provisoire' : 'au classement')]);
   }
-  stats.push([`${s.found}/${s.totalSteps}`, `lieux trouvés${s.hints ? ` · ${s.hints} joker${s.hints > 1 ? 's' : ''}` : ''}`]);
+  stats.push([`${s.found}/${s.totalSteps}`, `${tr('lieux trouvés')}${s.hints ? ` · ${tr(`${s.hints} joker${s.hints > 1 ? 's' : ''}`)}` : ''}`]);
   let sy = top;
   for (const [big, small] of stats) {
     fill(style.primary, '#13294b');

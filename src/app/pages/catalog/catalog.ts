@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, linkedSignal, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,7 @@ import { CatalogCard } from '../../shared/catalog-card';
 import { CatalogMap } from '../../shared/catalog-map';
 import { currentPosition } from '../../core/geo';
 import { Notify } from '../../core/notify';
+import { DomTranslator } from '../../core/dom-translator';
 
 /** Rayons proposés autour du joueur, en km (0 = partout, triées par distance). */
 const RADII = [2, 5, 10, 30, 0];
@@ -89,6 +90,13 @@ export class CatalogPage {
     },
     stream: ({ params }) => this.api.listCatalog(params),
     defaultValue: [],
+  });
+
+  /** Version anglaise (§ 33) : titres et présentations des chasses affichées. */
+  private readonly i18n = inject(DomTranslator);
+  private readonly translateContent = effect(() => {
+    const ids = this.entries.value().map((e) => e.id);
+    if (ids.length) untracked(() => this.i18n.requestContent({ catalog: ids.slice(0, 30) }));
   });
 
   protected durationLabel = (minutes: number): string => (minutes >= DURATION_MAX ? '6 h +' : minutesLabel(minutes));

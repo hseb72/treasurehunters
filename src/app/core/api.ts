@@ -195,6 +195,10 @@ export abstract class HuntApi {
   abstract autonomyLeaderboard(id: number): Observable<AutonomyLeaderboard>;
   /** Défi « bats mon temps » (§ 28) : le temps d'une partie en autonomie finie. */
   abstract getChallenge(id: number, huntId: number): Observable<Challenge>;
+  /* ---------- Version anglaise (§ 33) ---------- */
+  /** Traductions du contenu visible (partie, fiches du catalogue) : texte français → traduction. */
+  abstract translate(req: { lang: 'en'; hunt?: number; catalog?: number[] }): Observable<Record<string, string>>;
+
   /* ---------- Hors ligne (§ 32) ---------- */
   /** Paquet hors ligne : le parcours restant de l'équipe et sa progression. */
   abstract getOfflinePack(huntId: number): Observable<OfflinePack>;

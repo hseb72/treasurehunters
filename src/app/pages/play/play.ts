@@ -9,6 +9,7 @@ import { CheckinResult, CompassReading, PlayClue, PhotoResult, PlayState } from 
 import { ReadAloud } from '../../shared/read-aloud';
 import { OfflinePlay } from './offline-play';
 import { OfflineStore } from '../../core/offline-store';
+import { DomTranslator } from '../../core/dom-translator';
 import { HttpErrorResponse } from '@angular/common/http';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
@@ -170,6 +171,22 @@ export class PlayPage {
   protected readonly sending = signal(false);
 
   /** Phase de jeu de l'équipe. */
+  /* ---------- Version anglaise (§ 33) ---------- */
+
+  private readonly i18n = inject(DomTranslator);
+  /** Le contenu visible de la partie (énigme, jokers, lieux trouvés) est traduit à chaque changement. */
+  private readonly translateContent = effect(() => {
+    const s = this.state.value();
+    if (!s) return;
+    const key = `${s.validated.length}:${s.clue?.targetOrder}:${s.hintsUsed}:${s.puzzle?.stepId ?? ''}`;
+    untracked(() => {
+      if (key === this.translatedKey) return;
+      this.translatedKey = key;
+      this.i18n.requestContent({ hunt: this.id() });
+    });
+  });
+  private translatedKey = '';
+
   /* ---------- Hors ligne (§ 32) ---------- */
 
   protected readonly offline = inject(OfflineStore);

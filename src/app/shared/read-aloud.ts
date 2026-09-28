@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { DomTranslator } from '../core/dom-translator';
 
 /**
  * Lecture à voix haute (§ 27) : la synthèse vocale du navigateur lit l'énigme, en français.
@@ -28,6 +29,7 @@ export class ReadAloud {
   protected readonly supported = typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
   protected readonly speaking = signal(false);
   private utterance: SpeechSynthesisUtterance | null = null;
+  private readonly i18n = inject(DomTranslator);
 
   constructor() {
     // Nouvelle énigme : la lecture de la précédente s'arrête.
@@ -45,10 +47,13 @@ export class ReadAloud {
     }
     const synth = window.speechSynthesis;
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(this.text());
-    u.lang = 'fr-FR';
+    // Version anglaise (§ 33) : chaque paragraphe traduit, lu par une voix anglaise.
+    const english = this.i18n.english;
+    const text = english ? this.text().split('\n\n').map((p) => this.i18n.t(p)).join('\n\n') : this.text();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = english ? 'en-GB' : 'fr-FR';
     u.rate = 0.95;
-    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith('fr'));
+    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith(english ? 'en' : 'fr'));
     if (voice) u.voice = voice;
     u.onend = u.onerror = () => {
       if (this.utterance === u) {

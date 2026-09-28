@@ -1,5 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import localeEnGb from '@angular/common/locales/en-GB';
+import { currentLang } from './core/lang';
 import {
   ApplicationConfig,
   inject,
@@ -19,6 +21,7 @@ import { apiInterceptor } from './core/http-hunt-api';
 import { HUNT_API_CLASS } from './core/api-provider';
 
 registerLocaleData(localeFr);
+registerLocaleData(localeEnGb);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,7 +34,8 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
     }),
-    { provide: LOCALE_ID, useValue: 'fr-FR' },
+    // Version anglaise (§ 33) : dates et nombres suivent la langue de l'interface.
+    { provide: LOCALE_ID, useFactory: () => (currentLang() === 'en' ? 'en-GB' : 'fr-FR') },
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
     provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
     // Vrai back-end, ou données simulées pour les maquettes : fichier remplacé par la configuration « mock ».
