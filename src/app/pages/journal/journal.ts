@@ -20,12 +20,12 @@ import { DurationPipe } from '../../shared/format';
     <div class="page stack">
       <header class="banner head">
         <h1 class="display">Carnet d'explorateur</h1>
-        <p class="small">Vos chasses terminées, les villes où elles vous ont mené, et quelques badges en chemin.</p>
+        <p class="small">Vos Secret Tracks terminées, les villes où elles vous ont mené, et quelques badges en chemin.</p>
       </header>
 
       @if (journal.value(); as j) {
         <section class="surface totals">
-          <div><strong>{{ j.totals.hunts }}</strong><span class="small muted">chasse{{ j.totals.hunts > 1 ? 's' : '' }} finie{{ j.totals.hunts > 1 ? 's' : '' }}</span></div>
+          <div><strong>{{ j.totals.hunts }}</strong><span class="small muted">Secret Track{{ j.totals.hunts > 1 ? 's' : '' }} finie{{ j.totals.hunts > 1 ? 's' : '' }}</span></div>
           <div><strong>{{ j.totals.steps }}</strong><span class="small muted">lieux trouvés</span></div>
           <div><strong>{{ j.totals.km | number: '1.0-1' : 'fr' }}</strong><span class="small muted">km parcourus</span></div>
           <div><strong>{{ j.cities.length }}</strong><span class="small muted">ville{{ j.cities.length > 1 ? 's' : '' }}</span></div>
@@ -56,7 +56,7 @@ import { DurationPipe } from '../../shared/format';
         }
 
         <section>
-          <h2 class="section-title">Chasses finies</h2>
+          <h2 class="section-title">Mes Secret Tracks terminées</h2>
           @if (j.hunts.length) {
             <ul class="hunts">
               @for (h of j.hunts; track h.huntId) {
@@ -70,7 +70,7 @@ import { DurationPipe } from '../../shared/format';
                       · {{ h.hints ? h.hints + ' joker' + (h.hints > 1 ? 's' : '') : 'sans joker' }}
                     </span>
                   </div>
-                  <a mat-icon-button [routerLink]="['/hunts', h.huntId, 'souvenir']" aria-label="Souvenir de cette chasse" title="Souvenir"><mat-icon>photo_album</mat-icon></a>
+                  <a mat-icon-button [routerLink]="['/hunts', h.huntId, 'souvenir']" aria-label="Souvenir de cette Secret Track" title="Souvenir"><mat-icon>photo_album</mat-icon></a>
                 </li>
               }
             </ul>
@@ -78,7 +78,7 @@ import { DurationPipe } from '../../shared/format';
             <div class="surface center">
               <mat-icon>explore</mat-icon>
               <p class="muted">Votre carnet est encore vierge : trouvez votre premier trésor !</p>
-              <a mat-flat-button routerLink="/catalog" [queryParams]="{ jouer: 1 }"><mat-icon>hiking</mat-icon>Choisir une chasse</a>
+              <a mat-flat-button routerLink="/catalog" [queryParams]="{ jouer: 1 }"><mat-icon>hiking</mat-icon>Choisir une Secret Track</a>
             </div>
           }
         </section>

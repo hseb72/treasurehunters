@@ -24,7 +24,7 @@ describe('catalogue', () => {
   let original: number;
   let copyHunt: number;
 
-  it('publie une chasse, avec un extrait choisi, et la montre sans son parcours', async () => {
+  it('publie une Secret Track, avec un extrait choisi, et la montre sans son parcours', async () => {
     const camille = await loginAs(ctx.app, 'camille@example.com');
     expect((await camille.post(`/api/hunts/${PALAVAS}/catalog`, publication({ sampleOrder: 99 }))).status).toBe(400);
     const seb = await loginAs(ctx.app, 'seb@example.com');
@@ -42,7 +42,7 @@ describe('catalogue', () => {
     expect(list.map((e: { id: number }) => e.id)).toEqual([original]);
     const detail = (await anonymous.get(`/api/catalog/${original}`)).body;
     expect(detail.sample.text).toBeTruthy();
-    expect(detail.huntId).toBeNull(); // la chasse de l'auteur n'est montrée qu'à lui
+    expect(detail.huntId).toBeNull(); // la Secret Track de l'auteur n'est montrée qu'à lui
     expect(JSON.stringify(detail)).not.toContain('cat_content');
   });
 
@@ -81,7 +81,7 @@ describe('catalogue', () => {
     expect((await client(ctx.app).get(`/api/catalog/${version.body.id}`)).status).toBe(404);
     expect((await seb.get('/api/catalog?mine=1')).body.map((e: { id: number }) => e.id)).toEqual([version.body.id]);
     expect((await seb.get(`/api/catalog?hunt=${copyHunt}`)).body.map((e: { id: number }) => e.id)).toEqual([version.body.id]);
-    expect((await seb.get(`/api/catalog?hunt=${PALAVAS}`)).body).toEqual([]); // pas sa chasse
+    expect((await seb.get(`/api/catalog?hunt=${PALAVAS}`)).body).toEqual([]); // pas sa Secret Track
     expect((await client(ctx.app).get(`/api/catalog/${original}`)).body.versionCount).toBe(0);
   });
 
@@ -114,7 +114,7 @@ describe('catalogue', () => {
 describe('notations', () => {
   const rating = { stars: 4, riddles: 5, route: 3, mood: 4, comment: 'Très belle balade !', organizer: 5 };
 
-  it('laisse les joueurs noter une chasse close, et l’organisateur s’il l’accepte', async () => {
+  it('laisse les joueurs noter une Secret Track close, et l’organisateur s’il l’accepte', async () => {
     const player = await palavasPlayer();
     const state = (await player.get(`/api/hunts/${PALAVAS}/rating`)).body;
     expect(state).toMatchObject({ canRate: true, organizerRateable: true, organizerNickname: 'Camille', mine: null });
@@ -128,7 +128,7 @@ describe('notations', () => {
     const outsider = await loginAs(ctx.app, 'louis@example.com');
     const outside = (await outsider.get(`/api/hunts/${PALAVAS}/rating`)).body;
     if (!outside.canRate) expect((await outsider.put(`/api/hunts/${PALAVAS}/rating`, rating)).status).toBe(403);
-    expect((await player.put('/api/hunts/1/rating', rating)).status).toBe(403); // chasse pas encore close
+    expect((await player.put('/api/hunts/1/rating', rating)).status).toBe(403); // Secret Track pas encore close
   });
 
   it('fait remonter les avis au catalogue et à la fiche d’organisateur', async () => {

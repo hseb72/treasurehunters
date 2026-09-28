@@ -31,21 +31,21 @@ async function generate(api: Awaited<ReturnType<typeof loginAs>>) {
   return res;
 }
 
-describe('chasse sur mesure payante', () => {
+describe('Secret Track sur mesure payante', () => {
   it('reste gratuite sans paiement activé, dans la limite quotidienne', async () => {
     const lea = await loginAs(ctx.app, 'lea@example.com'); // application sans Stripe
     expect((await lea.get('/api/generation/access')).body).toMatchObject({ paid: false, right: 'free', blocked: null });
     expect((await generate(lea)).status).toBe(202);
   });
 
-  it('demande une formule, puis consomme un crédit par chasse réussie', async () => {
+  it('demande une formule, puis consomme un crédit par Secret Track réussie', async () => {
     const zoe = await loginAs(app, 'zoe@example.com');
     const access = (await zoe.get('/api/generation/access')).body;
     expect(access).toMatchObject({ paid: true, founder: false, passUntil: null, right: null, blocked: null, credits: { available: 0 } });
     expect((await generate(zoe)).status).toBe(402);
 
     await paid('gen:single', zoe);
-    expect(stripe.checkouts.at(-1)).toMatchObject({ name: 'Une chasse sur mesure', amount: 299, destination: undefined });
+    expect(stripe.checkouts.at(-1)).toMatchObject({ name: 'Une Secret Track sur mesure', amount: 299, destination: undefined });
     expect((await zoe.get('/api/generation/access')).body).toMatchObject({ right: 'credit', credits: { purchased: 1, available: 1 } });
     expect((await generate(zoe)).status).toBe(202);
     expect((await zoe.get('/api/generation/access')).body).toMatchObject({ right: null, credits: { used: 1, available: 0 } });
@@ -81,7 +81,7 @@ describe('chasse sur mesure payante', () => {
     expect((await generate(seb)).status).toBe(429);
   });
 
-  it('offre des crédits aux créateurs dont les chasses partagées sont jouées par d’autres', async () => {
+  it('offre des crédits aux créateurs dont les Secret Tracks partagées sont jouées par d’autres', async () => {
     const camille = await loginAs(app, 'camille@example.com');
     expect((await camille.get('/api/generation/access')).body).toMatchObject({ sharedPlayed: 0, credits: { bonus: 0 } });
     // Camille partage sa chasse de Palavas ; Emma la joue en autonomie jusqu'au bout.

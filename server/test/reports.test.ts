@@ -30,7 +30,7 @@ async function checkinTo(api: Awaited<ReturnType<typeof loginAs>>, huntId: numbe
 }
 
 describe('signalements et statistiques d’étape', () => {
-  it('remonte un problème à l’auteur d’une chasse jouée en autonomie, et prévient les autres joueurs', async () => {
+  it('remonte un problème à l’auteur d’une Secret Track jouée en autonomie, et prévient les autres joueurs', async () => {
     const entry = await geoEntry();
     const zoe = await loginAs(ctx.app, 'zoe@example.com');
     const hunt = (await zoe.post(`/api/catalog/${entry}/play`)).body;
@@ -56,7 +56,7 @@ describe('signalements et statistiques d’étape', () => {
     expect((await client(ctx.app).get(`/api/catalog/${entry}`)).body.openReports).toEqual([]);
   });
 
-  it('montre à l’organisateur les signalements de sa chasse', async () => {
+  it('montre à l’organisateur les signalements de sa Secret Track', async () => {
     // Un joueur d'une équipe encore en course sur la chasse 1, organisée par Camille.
     const r = await ctx.pool.query(
       `SELECT u.htr_email FROM th_teamhunters m JOIN th_teams t ON t.tea_id = m.thr_team_tea JOIN th_hunters u ON u.htr_id = m.thr_hunter_htr

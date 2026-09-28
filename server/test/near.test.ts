@@ -8,7 +8,7 @@ beforeAll(async () => {
 afterAll(() => teardown(ctx));
 
 describe('près de moi (§ 23)', () => {
-  it('donne le départ des chasses, la distance, et filtre par rayon', async () => {
+  it('donne le départ des Secret Tracks, la distance, et filtre par rayon', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');
     const job = await seb.post('/api/hunts/generate', {
       location: { query: 'Montpellier', lat: 43.6085, lng: 3.8795 },

@@ -82,7 +82,7 @@ const TRAVEL_BRIEF: Record<Travel, string> = {
     'Expédition en véhicule motorisé (moto, voiture) : étapes espacées de plusieurs kilomètres. Chaque lieu doit être accessible par la route, avec de quoi se garer à proximité ; les derniers mètres se font à pied. Les énigmes se lisent à l’arrêt, jamais en conduisant : le texte de départ le rappelle.',
 };
 
-const SYSTEM = `Tu es le maître du jeu de Treasure Hunters, une application française de chasses au trésor et de jeux de piste dans la veine des films d'aventure (carnet d'explorateur, boussole, trésor).
+const SYSTEM = `Tu es le maître du jeu de SecretTracks, une application française de chasses au trésor et de jeux de piste dans la veine des films d'aventure (carnet d'explorateur, boussole, trésor).
 Tu inventes une chasse surprise dans un vrai lieu à partir d'une liste de lieux réels issus d'OpenStreetMap.
 
 Règles :

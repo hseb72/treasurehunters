@@ -142,7 +142,7 @@ export class CatalogEntryPage {
       if (paid === undefined) return;
       untracked(() => {
         this.router.navigate([], { queryParams: {}, replaceUrl: true });
-        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! La chasse est à vous : jouez-la ou organisez-la.' : 'Paiement annulé : rien n’a été débité.');
+        this.notify.info(paid === '1' ? 'Paiement reçu, merci ! La Secret Track est à vous : jouez-la ou organisez-la.' : 'Paiement annulé : rien n’a été débité.');
         // La confirmation de Stripe peut suivre de quelques secondes.
         if (paid === '1') timer(0, 2000).pipe(take(6), takeWhile(() => !this.entry.value()?.owned)).subscribe(() => this.entry.reload());
       });
@@ -185,7 +185,7 @@ export class CatalogEntryPage {
     this.busy.set(true);
     this.api.copyFromCatalog(this.id()).subscribe({
       next: (hunt) => {
-        this.notify.info('Votre chasse est créée en brouillon : adaptez-la, fixez les dates et imprimez vos QR codes.');
+        this.notify.info('Votre Secret Track est créée en brouillon : adaptez-la, fixez les dates et imprimez vos QR codes.');
         this.router.navigate(['/organize', hunt.id, 'info']);
       },
       error: (e) => {
@@ -199,7 +199,7 @@ export class CatalogEntryPage {
     this.confirm
       .ask({
         title: 'Retirer cette version du catalogue ?',
-        message: 'Elle n’apparaîtra plus dans le catalogue. Les chasses déjà copiées à partir d’elle ne changent pas.',
+        message: 'Elle n’apparaîtra plus dans le catalogue. Les Secret Tracks déjà copiées à partir d’elle ne changent pas.',
         confirm: 'Retirer',
         danger: true,
       })

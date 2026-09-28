@@ -42,7 +42,7 @@ const TASKS: Record<AssistAction, string> = {
 /** Énigme pas encore écrite : une première proposition, contre la page blanche. */
 const DRAFT = 'Écris une première énigme qui mène au lieu à trouver, adaptée à la difficulté de la chasse.';
 
-const SYSTEM = `Tu es l'assistant de rédaction de Treasure Hunters, une application de chasses au trésor en ville et en nature.
+const SYSTEM = `Tu es l'assistant de rédaction de SecretTracks, une application de chasses au trésor en ville et en nature.
 Un organisateur écrit l'énigme qui mène ses joueurs au lieu suivant du parcours. Tu l'aides, en français, en vouvoyant les joueurs si l'énigme s'adresse à eux.
 
 Règles :

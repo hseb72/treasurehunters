@@ -16,7 +16,7 @@ import { SkinDirective, SkinEffects } from './skin';
   imports: [MatIconModule, RouterLink, SkinDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="skins" role="radiogroup" aria-label="Skin de la chasse">
+    <div class="skins" role="radiogroup" aria-label="Skin de la Secret Track">
       @for (s of skins(); track s.id) {
         @let owned = s.id === value() || shop.owns('skin:' + s.id);
         <button type="button" class="skin-card" role="radio" [attr.aria-checked]="value() === s.id" [class.on]="value() === s.id" (click)="choose(s.id)" [disabled]="busy()">

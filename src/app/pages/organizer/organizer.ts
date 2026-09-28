@@ -31,7 +31,7 @@ import { Stars } from '../../shared/stars';
             <span class="small">n'a pas choisi d'être noté en tant qu'organisateur</span>
           }
         </header>
-        <h2 class="section-title">Ses chasses au catalogue</h2>
+        <h2 class="section-title">Ses Secret Tracks au catalogue</h2>
         @if (p.entries.length) {
           <div class="grid">
             @for (e of p.entries; track e.id) {
@@ -39,7 +39,7 @@ import { Stars } from '../../shared/stars';
             }
           </div>
         } @else {
-          <p class="muted center">Aucune chasse publiée pour l'instant.</p>
+          <p class="muted center">Aucune Secret Track publiée pour l'instant.</p>
         }
       }
     </div>

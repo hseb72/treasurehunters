@@ -35,7 +35,7 @@ const VerdictSchema = z.object({
   reason: z.string().describe('Une phrase en français pour le joueur, en vouvoiement, sans jamais nommer ni décrire le lieu attendu'),
 });
 
-const SYSTEM = `Tu es l'arbitre photo de Treasure Hunters, une application de chasses au trésor.
+const SYSTEM = `Tu es l'arbitre photo de SecretTracks, une application de chasses au trésor.
 Une équipe n'a pas trouvé le QR code caché sur un lieu (arraché, abîmé ou déplacé) : elle envoie à la place une photo de ce qu'elle pense être la solution de l'énigme.
 Tu dis si sa photo montre bien le lieu ou l'objet attendu.
 

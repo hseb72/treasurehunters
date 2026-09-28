@@ -101,7 +101,7 @@ describe('paiement', () => {
     expect((await ctx.pool.query(`SELECT htr_stripe_ready FROM th_hunters WHERE htr_stripe_account = 'acct_1'`)).rows[0].htr_stripe_ready).toBe(false);
   });
 
-  it('fait acheter une chasse payante du catalogue avant de la copier', async () => {
+  it('fait acheter une Secret Track payante du catalogue avant de la copier', async () => {
     const camille = await loginAs(app, 'camille@example.com');
     const zoe = await loginAs(app, 'zoe@example.com');
     const entry = (await camille.post('/api/hunts/1/catalog', { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 90, sampleOrder: 0, changes: null, price: 500 })).body;

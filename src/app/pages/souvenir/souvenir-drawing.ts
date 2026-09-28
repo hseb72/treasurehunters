@@ -191,7 +191,7 @@ export function drawSouvenir(
   ctx.fillRect(0, H - 90, W, 90);
   fill(style.onPrimary, '#ffffff');
   ctx.font = `700 34px ${style.fontBody}`;
-  ctx.fillText('Treasure Hunters', pad, H - 34);
+  ctx.fillText('SecretTracks', pad, H - 34);
   ctx.textAlign = 'right';
   ctx.font = `400 28px ${style.fontBody}`;
   ctx.fillText(origin.replace(/^https?:\/\//, ''), W - pad, H - 36);

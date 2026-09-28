@@ -6,7 +6,7 @@
       @if (o === 'unknown') {
         <mat-icon class="hero-icon">cloud_off</mat-icon>
         <h2>Pas de réseau</h2>
-        <p>Ce QR n'est pas celui du lieu que vous cherchez, ou la chasse n'a pas été préparée pour le hors ligne sur ce téléphone.</p>
+        <p>Ce QR n'est pas celui du lieu que vous cherchez, ou la Secret Track n'a pas été préparée pour le hors ligne sur ce téléphone.</p>
       } @else {
         <mat-icon class="hero-icon">{{ o.isFinal ? 'diamond' : 'where_to_vote' }}</mat-icon>
         <span class="stamp stamp--accent">{{ o.isFinal ? 'Trésor trouvé !' : o.puzzle ? 'Une épreuve vous attend' : 'Étape trouvée : ' + o.title }}</span>

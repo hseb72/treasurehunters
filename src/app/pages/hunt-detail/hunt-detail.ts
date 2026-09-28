@@ -92,7 +92,7 @@ export class HuntDetailPage {
   }
 
   protected leave(): void {
-    this.act(this.api.leaveHunt(this.id()), 'Vous avez quitté la chasse.');
+    this.act(this.api.leaveHunt(this.id()), 'Vous avez quitté la Secret Track.');
   }
 
   protected login(): void {

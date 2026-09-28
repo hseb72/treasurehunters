@@ -1,7 +1,7 @@
 <div class="page stack">
   @if (entry.error()) {
     <section class="surface center">
-      <h2>Chasse introuvable</h2>
+      <h2>Secret Track introuvable</h2>
       <p class="muted">Elle n'est pas (ou plus) au catalogue.</p>
       <a mat-stroked-button routerLink="/catalog">Retour au catalogue</a>
     </section>
@@ -61,9 +61,9 @@
           <a mat-flat-button class="th-cta" [routerLink]="['/play', r.huntId]"><mat-icon>explore</mat-icon>Reprendre ma partie</a>
         } @else if (mustBuy()) {
           <p class="price-line"><strong>{{ price(e.price) }}</strong>&nbsp;<span class="small muted">— achetée une fois, jouée autant que vous voulez.</span></p>
-          <button mat-flat-button class="th-cta" type="button" (click)="buy()" [disabled]="busy()"><mat-icon>shopping_bag</mat-icon>Acheter cette chasse</button>
+          <button mat-flat-button class="th-cta" type="button" (click)="buy()" [disabled]="busy()"><mat-icon>shopping_bag</mat-icon>Acheter cette Secret Track</button>
         } @else {
-          <button mat-flat-button class="th-cta" type="button" (click)="play()" [disabled]="busy()"><mat-icon>hiking</mat-icon>Jouer cette chasse</button>
+          <button mat-flat-button class="th-cta" type="button" (click)="play()" [disabled]="busy()"><mat-icon>hiking</mat-icon>Jouer cette Secret Track</button>
         }
         @if (finishedPlays().length) {
           <p class="small muted">Vous l'avez déjà terminée {{ finishedPlays().length > 1 ? finishedPlays().length + ' fois' : 'une fois' }} : votre temps est dans le classement ci-dessous.</p>
@@ -81,7 +81,7 @@
         <p class="small muted">Vous êtes l'auteur de cette version.</p>
         <div class="row actions">
           @if (e.huntId) {
-            <a mat-stroked-button [routerLink]="['/organize', e.huntId, 'catalog']"><mat-icon>map</mat-icon>Ma chasse</a>
+            <a mat-stroked-button [routerLink]="['/organize', e.huntId, 'catalog']"><mat-icon>map</mat-icon>Ma Secret Track</a>
           }
           @if (!e.withdrawn) {
             <button mat-button type="button" class="danger" (click)="withdraw()"><mat-icon>unpublished</mat-icon>Retirer du catalogue</button>
@@ -91,14 +91,14 @@
         @if (mustBuy()) {
           <p class="price-line"><strong>{{ price(e.price) }}</strong>&nbsp;<span class="small muted">— achetée une fois, copiée autant que vous voulez ; {{ e.authorNickname }} en reçoit la plus grande part.</span></p>
           <button mat-flat-button class="th-cta" type="button" (click)="buy()" [disabled]="busy()">
-            <mat-icon>shopping_bag</mat-icon>Acheter cette chasse
+            <mat-icon>shopping_bag</mat-icon>Acheter cette Secret Track
           </button>
         } @else {
           @if (e.price && e.owned) {
-            <p class="small have"><mat-icon inline>check_circle</mat-icon> Chasse achetée</p>
+            <p class="small have"><mat-icon inline>check_circle</mat-icon> Secret Track achetée</p>
           }
           <button mat-flat-button class="th-cta" type="button" (click)="copy()" [disabled]="busy()">
-            <mat-icon>content_copy</mat-icon>Créer ma chasse à partir de celle-ci
+            <mat-icon>content_copy</mat-icon>Créer ma Secret Track à partir de celle-ci
           </button>
         }
         <p class="small muted">
@@ -109,7 +109,7 @@
     </section>
 
     <section class="surface">
-      <h2 class="section-title">La chasse</h2>
+      <h2 class="section-title">La Secret Track</h2>
       <p class="description">{{ e.summary }}</p>
       <ul class="facts-list">
         <li><mat-icon>{{ icons[e.travel] }}</mat-icon>{{ travel[e.travel] }} : {{ travelHints[e.travel] }}</li>
@@ -152,7 +152,7 @@
             }
           </ol>
         } @else {
-          <p class="muted">Personne n'a encore terminé cette chasse en autonomie : à vous d'ouvrir le classement !</p>
+          <p class="muted">Personne n'a encore terminé cette Secret Track en autonomie : à vous d'ouvrir le classement !</p>
         }
       </section>
     }
@@ -182,7 +182,7 @@
           </blockquote>
         }
       } @else {
-        <p class="muted">Pas encore d'avis : les joueurs notent la chasse une fois la partie close.</p>
+        <p class="muted">Pas encore d'avis : les joueurs notent la Secret Track une fois la partie close.</p>
       }
     </section>
 

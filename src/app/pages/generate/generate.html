@@ -17,10 +17,10 @@
 } @else {
   <form class="page stack" (ngSubmit)="submit()">
     <header class="banner head">
-      <p class="muted small kicker">Chasse sur mesure</p>
-      <h1 class="display">Inventez-moi une chasse</h1>
+      <p class="muted small kicker">Secret Track sur mesure</p>
+      <h1 class="display">Inventez-moi une Secret Track</h1>
       <p class="muted">Donnez un lieu et une durée : le maître du jeu repère de vrais lieux sur la carte et écrit les énigmes. Pas de QR code : on valide chaque étape en s'y rendant.</p>
-      <p class="small">Une chasse toute prête vous conviendrait peut-être : <a routerLink="/catalog" [queryParams]="{ jouer: 1 }">jouer en autonomie une chasse du catalogue</a>.</p>
+      <p class="small">Une Secret Track toute prête vous conviendrait peut-être : <a routerLink="/catalog" [queryParams]="{ jouer: 1 }">jouer en autonomie une Secret Track du catalogue</a>.</p>
     </header>
 
     @if (access.value(); as a) {
@@ -158,14 +158,14 @@
         <button type="button" class="surface mode" [class.mode--on]="mode() === 'organize'" (click)="mode.set('organize')" [attr.aria-pressed]="mode() === 'organize'">
           <mat-icon>edit_note</mat-icon>
           <strong>J'organise</strong>
-          <span class="small muted">Je relis et ajuste les étapes, puis je propose la chasse à des joueurs.</span>
+          <span class="small muted">Je relis et ajuste les étapes, puis je propose la Secret Track à des joueurs.</span>
         </button>
       </div>
     </section>
 
     <div class="actions">
       <a mat-button routerLink="/">Annuler</a>
-      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready() || !canGenerate()"><mat-icon>auto_awesome</mat-icon>Inventer ma chasse</button>
+      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready() || !canGenerate()"><mat-icon>auto_awesome</mat-icon>Inventer ma Secret Track</button>
     </div>
   </form>
 }

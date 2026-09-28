@@ -12,7 +12,7 @@ import { LatLng } from './location-map';
 @Component({
   selector: 'th-catalog-map',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div #host class="map" role="region" aria-label="Carte des chasses du catalogue"></div>`,
+  template: `<div #host class="map" role="region" aria-label="Carte des Secret Tracks du catalogue"></div>`,
   styles: `
     :host { display: block; }
     .map { height: min(65vh, 520px); border-radius: var(--th-radius); border: 1px solid var(--th-border); z-index: 0; }

@@ -11,10 +11,10 @@ export const routes: Routes = [
   { path: 'carnet', title: 'Carnet d’explorateur', canActivate: [authGuard], loadComponent: () => import('./pages/journal/journal').then((m) => m.JournalPage) },
   { path: 'hunts/:id/souvenir', title: 'Souvenir', canActivate: [authGuard], loadComponent: () => import('./pages/souvenir/souvenir').then((m) => m.SouvenirPage) },
   { path: 'play/:id', title: 'Carnet de route', canActivate: [authGuard], loadComponent: () => import('./pages/play/play').then((m) => m.PlayPage) },
-  { path: 'catalog', title: 'Catalogue des chasses', loadComponent: () => import('./pages/catalog/catalog').then((m) => m.CatalogPage) },
-  { path: 'catalog/:id', title: 'Chasse du catalogue', loadComponent: () => import('./pages/catalog/catalog-entry').then((m) => m.CatalogEntryPage) },
+  { path: 'catalog', title: 'Catalogue des Secret Tracks', loadComponent: () => import('./pages/catalog/catalog').then((m) => m.CatalogPage) },
+  { path: 'catalog/:id', title: 'Secret Track du catalogue', loadComponent: () => import('./pages/catalog/catalog-entry').then((m) => m.CatalogEntryPage) },
   { path: 'organizers/:id', title: 'Organisateur', loadComponent: () => import('./pages/organizer/organizer').then((m) => m.OrganizerPage) },
-  { path: 'generate', title: 'Chasse sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
+  { path: 'generate', title: 'Secret Track sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
   { path: 'creator', title: 'Atelier créateur', loadComponent: () => import('./pages/creator/creator-studio').then((m) => m.CreatorStudioPage) },
   { path: 'creators/:id', title: 'Créateur', loadComponent: () => import('./pages/creator/creator-page').then((m) => m.CreatorPage) },
   { path: 'conditions', title: 'Conditions d’utilisation', loadComponent: () => import('./pages/terms/terms').then((m) => m.TermsPage) },
@@ -26,7 +26,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', title: 'Mes expéditions', loadComponent: () => import('./pages/organize/organize-list').then((m) => m.OrganizeListPage) },
-      { path: 'new', title: 'Nouvelle chasse', loadComponent: () => import('./pages/organize/hunt-form').then((m) => m.HuntFormPage) },
+      { path: 'new', title: 'Nouvelle Secret Track', loadComponent: () => import('./pages/organize/hunt-form').then((m) => m.HuntFormPage) },
       {
         path: ':id',
         loadComponent: () => import('./pages/organize/workspace').then((m) => m.WorkspacePage),

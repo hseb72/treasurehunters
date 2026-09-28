@@ -97,7 +97,7 @@ export class SouvenirPage {
       .replace(/[^a-zA-Z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .toLowerCase();
-    return `souvenir-${slug || 'chasse'}.png`;
+    return `souvenir-${slug || 'Secret Track'}.png`;
   }
 
   private shareText(s: Souvenir): string {
