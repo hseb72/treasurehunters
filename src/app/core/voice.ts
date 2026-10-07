@@ -16,8 +16,13 @@ interface Recognition {
 
 type RecognitionCtor = new () => Recognition;
 
-/** Attente de la fin de phrase après le bouton d'arrêt. */
-const STOP_GRACE_MS = 800;
+/**
+ * Attente de la transcription après le bouton d'arrêt : courte si du texte est déjà arrivé
+ * (la fin de phrase suit), plus longue sinon. Chrome Android ne rend souvent le texte qu'une
+ * fois l'écoute arrêtée, après l'aller-retour vers les serveurs de Google.
+ */
+const STOP_GRACE_MS = 1500;
+const STOP_WAIT_MS = 6000;
 
 const ERRORS: Record<string, string> = {
   'not-allowed': 'Autorisez le micro pour ce site dans les réglages du navigateur.',
@@ -40,6 +45,8 @@ export class Voice {
   readonly canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 
   readonly listening = signal(false);
+  /** Écoute arrêtée, transcription attendue. */
+  readonly transcribing = signal(false);
   /** Transcription en cours, mise à jour pendant que le joueur parle. */
   readonly transcript = signal('');
   private recognition: Recognition | null = null;
@@ -67,6 +74,7 @@ export class Voice {
       let failed: string | null = null;
       let done = false;
       let byUser = false;
+      let graceTimer: ReturnType<typeof setTimeout> | null = null;
       // Une seule fin, qu'elle vienne du navigateur (onend) ou du délai après le bouton d'arrêt.
       const finish = () => {
         if (done) return;
@@ -75,6 +83,8 @@ export class Voice {
         if (this.recognition === r) this.recognition = null;
         if (this.finishNow === finish) this.finishNow = this.stopRequest = null;
         this.listening.set(false);
+        this.transcribing.set(false);
+        if (graceTimer) clearTimeout(graceTimer);
         const heard = (final || this.transcript()).trim();
         if (failed && !heard && !byUser) reject(new Error(failed));
         else resolve(heard);
@@ -82,18 +92,27 @@ export class Voice {
       this.finishNow = finish;
       this.stopRequest = () => {
         byUser = true;
-        // Le bouton répond tout de suite ; la fin de phrase arrive souvent juste après l'arrêt.
+        // Le bouton répond tout de suite ; le texte, lui, peut arriver après l'arrêt.
         this.listening.set(false);
-        setTimeout(finish, STOP_GRACE_MS);
+        this.transcribing.set(true);
+        graceTimer = setTimeout(finish, this.transcript() ? STOP_GRACE_MS : STOP_WAIT_MS);
       };
       r.onresult = (e) => {
+        // Liste complète à chaque fois : Chrome Android renvoie tous les résultats, pas seulement les nouveaux.
+        let done = '';
         let interim = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
+        for (let i = 0; i < e.results.length; i++) {
           const text = e.results[i][0].transcript;
-          if (e.results[i].isFinal) final += text;
+          if (e.results[i].isFinal) done += text;
           else interim += text;
         }
-        this.transcript.set((final + interim).trim());
+        final = done;
+        this.transcript.set((done + interim).trim());
+        // Arrêt demandé et texte arrivé : plus besoin d'attendre longtemps.
+        if (byUser && graceTimer && done.trim()) {
+          clearTimeout(graceTimer);
+          graceTimer = setTimeout(finish, 300);
+        }
       };
       r.onerror = (e) => {
         if (e.error !== 'aborted') failed = ERRORS[e.error] ?? 'Je n’ai pas pu vous écouter. Écrivez votre demande à la place.';
@@ -129,7 +148,7 @@ export class Voice {
       } catch {
         // Déjà arrêtée.
       }
-    }, STOP_GRACE_MS + 700);
+    }, STOP_WAIT_MS + 1000);
   }
 
   /** Abandon de l'écoute (nouvelle écoute, page quittée), sans attendre. */

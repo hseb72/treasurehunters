@@ -93,7 +93,9 @@ export class GuidePage {
     try {
       const heard = await this.voice.listen();
       if (!heard) {
+        // Ne pas revenir en silence : le joueur doit savoir que rien n'a été transcrit.
         this.step.set(asking ? 'asking' : 'idle');
+        this.say('Je n’ai rien entendu. Touchez le micro et parlez près du téléphone, ou écrivez votre demande.');
         return;
       }
       // Réponse à une question : elle complète la demande.
