@@ -7,7 +7,7 @@ import { GenerationRequest, Travel } from '../../../shared/models.js';
 import { distanceMeters } from '../../../shared/rules.js';
 import { HttpError } from '../errors.js';
 import { ClaudePlanner } from './claude.js';
-import { Access, accessOf, geocode, placesAround, Place, Poi, reverseGeocode, ThemeFilter } from './osm.js';
+import { Access, accessOf, countPlacesAround, geocode, placesAround, Place, Poi, radiusForDensity, reverseGeocode, ThemeFilter } from './osm.js';
 
 export interface GeneratedHunt {
   plan: HuntPlan;
@@ -34,6 +34,39 @@ const SEARCH_AREA: Record<Travel, { factor: number; max: number }> = {
   active: { factor: 1.5, max: 8000 },
   motor: { factor: 1.2, max: 30000 },
 };
+
+/**
+ * Mesure de densité (§ 11.2). Au-delà de DENSITY_FROM, la zone est d'abord sondée : en
+ * Île-de-France, 30 km de rayon couvrent des dizaines de milliers d'objets et Overpass
+ * expire ; en campagne, il en faut autant pour trouver assez de lieux.
+ */
+const DENSITY_FROM = 8000;
+/** Demi-côté du carré compté autour du départ. */
+const DENSITY_PROBE = 5000;
+/** Lieux visés dans la zone : de quoi choisir, sans dépasser ce qu'Overpass rend sans expirer. */
+const DENSITY_TARGET = 150;
+/** Bornes de la zone adaptée : jamais moins que ceci, et ceci si le comptage échoue. */
+const DENSITY_MIN = 6000;
+const DENSITY_FALLBACK = 10000;
+
+/**
+ * Zone de recherche adaptée à la densité du lieu de départ : réduite là où les lieux abondent,
+ * gardée entière là où ils sont rares. Ne dépasse jamais la zone demandée.
+ */
+export async function zoneForDensity(
+  center: { lat: number; lng: number },
+  zone: number,
+  count: typeof countPlacesAround = countPlacesAround,
+): Promise<number> {
+  if (zone <= DENSITY_FROM) return zone;
+  try {
+    const counted = await count(center, DENSITY_PROBE, true);
+    return Math.min(zone, Math.max(DENSITY_MIN, radiusForDensity(counted, DENSITY_PROBE, DENSITY_TARGET)));
+  } catch {
+    // Sans mesure, une zone prudente plutôt que la plus grande : c'est elle qui expire.
+    return Math.min(zone, DENSITY_FALLBACK);
+  }
+}
 
 export class OsmClaudeGenerator implements HuntGenerator {
   private readonly planner: ClaudePlanner;
@@ -74,14 +107,21 @@ export class OsmClaudeGenerator implements HuntGenerator {
   }
 
   /**
-   * Lieux candidats : une seule requête Overpass, un peu au-delà du rayon visé (les instances
-   * publiques limitent le débit), puis les lieux du rayon visé s'ils suffisent. Ceux du thème
-   * passent en premier.
+   * Lieux candidats : une requête Overpass un peu au-delà du rayon visé, réduite selon la
+   * densité du lieu de départ sur les grandes zones, puis les lieux du rayon visé s'ils
+   * suffisent. Ceux du thème passent en premier.
    */
   private async candidates(center: Place, req: GenerationRequest, count: number, theme: ThemeFilter[]): Promise<Poi[]> {
     const radius = searchRadius(req.durationMinutes, req.travel);
     const area = SEARCH_AREA[req.travel];
-    const all = await placesAround(center, Math.min(Math.round(radius * area.factor), area.max), theme);
+    const cap = Math.min(Math.round(radius * area.factor), area.max);
+    let zone = await zoneForDensity(center, cap);
+    let all = await placesAround(center, zone, theme);
+    // Densité surestimée (lieux groupés près du départ) : un cran plus large, une fois.
+    if (all.length < count + 2 && zone < cap) {
+      zone = Math.min(cap, zone * 2);
+      all = await placesAround(center, zone, theme);
+    }
     const near = all.filter((p) => distanceMeters(center, p) <= radius);
     const pois = near.length >= count + 2 ? near : all;
     // Un lieu de plus : le rendez-vous.
