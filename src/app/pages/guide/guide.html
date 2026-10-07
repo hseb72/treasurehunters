@@ -16,7 +16,7 @@
         <button type="button" class="mic" [class.on]="voice.listening()" (click)="talk()" [attr.aria-label]="voice.listening() ? 'J’ai fini' : 'Parler au guide'">
           <mat-icon>{{ voice.listening() ? 'stop' : 'mic' }}</mat-icon>
         </button>
-        <span class="small muted">{{ voice.listening() ? 'Je vous écoute… touchez pour terminer' : step() === 'asking' ? 'Touchez pour répondre' : 'Touchez et parlez' }}</span>
+        <span class="small muted">{{ voice.listening() ? 'Je vous écoute… touchez pour terminer' : step() === 'listening' ? 'Un instant…' : step() === 'asking' ? 'Touchez pour répondre' : 'Touchez et parlez' }}</span>
       </div>
       @if (voice.listening() && voice.transcript()) {
         <p class="heard">« {{ voice.transcript() }} »</p>

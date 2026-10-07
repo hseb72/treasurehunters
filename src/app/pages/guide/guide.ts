@@ -85,6 +85,8 @@ export class GuidePage {
       this.voice.stopListening();
       return;
     }
+    // Arrêt demandé, fin de phrase attendue : un second appui ne relance pas d'écoute.
+    if (this.step() === 'listening') return;
     const asking = this.step() === 'asking';
     this.error.set(null);
     this.step.set('listening');
