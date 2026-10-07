@@ -444,7 +444,7 @@
             </div>
           }
           @case ('nearby') {
-            <th-nearby-panel [travel]="s.hunt.travel" />
+            <th-nearby-panel [travel]="s.hunt.travel" [huntId]="s.hunt.id" />
           }
           @case ('team') {
             <th-team-roles [team]="s.team" (changed)="state.reload()" />

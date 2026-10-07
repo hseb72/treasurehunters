@@ -30,6 +30,7 @@ import { PlacePhoto } from '../../shared/place-photo';
 import { ReportProblem } from '../../shared/report-dialog';
 import { LatLng } from '../../shared/location-map';
 import { NearbyPanel } from '../../shared/nearby-panel';
+import { GuideHandoff } from '../../core/guide-handoff';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
 const REFRESH_MS = 15_000;
@@ -56,6 +57,13 @@ export class PlayPage {
     params: () => this.id(),
     stream: ({ params }) => timer(0, REFRESH_MS).pipe(switchMap(() => this.api.getPlay(params))),
   });
+  /** Centres d'intérêt dits au guide (§ 46) : enregistrés pour l'équipe à l'ouverture de la partie. */
+  private readonly handoff = inject(GuideHandoff);
+  private readonly applyGuide = effect(() => {
+    const hunt = this.state.value()?.hunt;
+    if (hunt) untracked(() => this.handoff.apply(hunt));
+  });
+
   /** Skin de la chasse, dès qu'elle est connue. */
   protected readonly skin = computed(() => this.state.value()?.hunt.skin);
   protected readonly fx = inject(SkinEffects);

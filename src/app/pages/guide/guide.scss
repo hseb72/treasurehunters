@@ -1,0 +1,155 @@
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.bubble {
+  position: relative;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.mic-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.mic {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--th-primary);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+
+  mat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 44px;
+  }
+
+  &.on {
+    background: var(--th-danger);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--th-danger) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 16px color-mix(in srgb, var(--th-danger) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mic.on {
+    animation: none;
+  }
+}
+
+.heard {
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
+
+.write {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    align-self: flex-end;
+  }
+}
+
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.example {
+  padding: 8px 12px;
+  border: 1px dashed var(--th-border);
+  border-radius: var(--th-radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan p {
+  margin: 0 0 8px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    background: color-mix(in srgb, var(--th-primary) 12%, transparent);
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+
+  .interest {
+    background: color-mix(in srgb, var(--th-danger) 14%, transparent);
+  }
+}
+
+.proposal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > button {
+    align-self: flex-end;
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

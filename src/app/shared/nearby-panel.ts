@@ -89,6 +89,8 @@ export class NearbyPanel {
   private readonly api = inject(HuntApi);
 
   readonly travel = input<Travel>('walk');
+  /** Partie en cours : les centres d'intérêt de l'équipe (§ 46) passent en tête. */
+  readonly huntId = input<number | undefined>();
 
   protected readonly me = signal<LatLng | null>(null);
   protected readonly result = signal<NearbyResult | null>(null);
@@ -115,7 +117,7 @@ export class NearbyPanel {
     try {
       const p = await currentPosition();
       this.me.set({ lat: p.lat, lng: p.lng });
-      this.api.nearby({ lat: p.lat, lng: p.lng }, NEARBY_RADIUS[this.travel()]).subscribe({
+      this.api.nearby({ lat: p.lat, lng: p.lng }, NEARBY_RADIUS[this.travel()], this.huntId()).subscribe({
         next: (r) => {
           this.result.set(r);
           // Le premier centre d'intérêt de l'équipe ; sinon la catégorie en cours si elle a des

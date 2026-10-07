@@ -16,6 +16,7 @@ export const routes: Routes = [
   { path: 'catalog', title: 'Catalogue des Secret Tracks', loadComponent: () => import('./pages/catalog/catalog').then((m) => m.CatalogPage) },
   { path: 'catalog/:id', title: 'Secret Track du catalogue', loadComponent: () => import('./pages/catalog/catalog-entry').then((m) => m.CatalogEntryPage) },
   { path: 'organizers/:id', title: 'Organisateur', loadComponent: () => import('./pages/organizer/organizer').then((m) => m.OrganizerPage) },
+  { path: 'guide', title: 'Votre guide', canActivate: [authGuard], loadComponent: () => import('./pages/guide/guide').then((m) => m.GuidePage) },
   { path: 'generate', title: 'Secret Track sur mesure', canActivate: [authGuard], loadComponent: () => import('./pages/generate/generate').then((m) => m.GeneratePage) },
   { path: 'creator', title: 'Atelier créateur', loadComponent: () => import('./pages/creator/creator-studio').then((m) => m.CreatorStudioPage) },
   { path: 'creators/:id', title: 'Créateur', loadComponent: () => import('./pages/creator/creator-page').then((m) => m.CreatorPage) },

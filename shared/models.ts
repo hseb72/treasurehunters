@@ -378,6 +378,8 @@ export interface Features {
   assist?: boolean;
   /** Traduction des chasses en anglais (§ 33). */
   translation?: boolean;
+  /** Guide vocal (§ 46). */
+  guide?: boolean;
 }
 
 /** Ouverture d'un paiement : l'adresse de la page Stripe, ou null si rien n'était à payer. */

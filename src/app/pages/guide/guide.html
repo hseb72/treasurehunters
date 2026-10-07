@@ -1,0 +1,92 @@
+<div class="page stack guide">
+  <header class="head">
+    <h1>Votre guide</h1>
+    @if (voice.canSpeak) {
+      <button mat-icon-button type="button" (click)="toggleMute()" [attr.aria-label]="muted() ? 'Réactiver la voix du guide' : 'Couper la voix du guide'">
+        <mat-icon>{{ muted() ? 'volume_off' : 'volume_up' }}</mat-icon>
+      </button>
+    }
+  </header>
+
+  <p class="bubble surface" aria-live="polite">{{ said() }}</p>
+
+  @if (step() === 'idle' || step() === 'listening' || step() === 'asking' || step() === 'error') {
+    @if (voice.canListen) {
+      <div class="mic-wrap">
+        <button type="button" class="mic" [class.on]="voice.listening()" (click)="talk()" [attr.aria-label]="voice.listening() ? 'J’ai fini' : 'Parler au guide'">
+          <mat-icon>{{ voice.listening() ? 'stop' : 'mic' }}</mat-icon>
+        </button>
+        <span class="small muted">{{ voice.listening() ? 'Je vous écoute… touchez pour terminer' : step() === 'asking' ? 'Touchez pour répondre' : 'Touchez et parlez' }}</span>
+      </div>
+      @if (voice.listening() && voice.transcript()) {
+        <p class="heard">« {{ voice.transcript() }} »</p>
+      }
+    }
+
+    @if (!voice.listening()) {
+      <form class="write" (ngSubmit)="submitText()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ voice.canListen ? 'Ou écrivez votre demande' : 'Votre demande' }}</mat-label>
+          <textarea matInput name="text" rows="3" maxlength="600" [ngModel]="text()" (ngModelChange)="text.set($event)"></textarea>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="text().trim().length < 3"><mat-icon>send</mat-icon>Envoyer</button>
+      </form>
+      @if (step() === 'idle') {
+        <div class="examples">
+          <span class="small muted">Par exemple :</span>
+          @for (e of examples; track e) {
+            <button type="button" class="example" (click)="useExample(e)">« {{ e }} »</button>
+          }
+        </div>
+      }
+    }
+  }
+
+  @if (step() === 'thinking' || step() === 'searching') {
+    <p class="center muted"><mat-icon class="spin">progress_activity</mat-icon></p>
+  }
+
+  @if (understood(); as u) {
+    @if (step() !== 'thinking' && step() !== 'asking') {
+      <section class="surface plan" aria-label="Ce que le guide a compris">
+        <p class="small muted">Vous avez dit : « {{ text() }} »</p>
+        <ul class="chips">
+          <li><mat-icon>{{ travelIcons[u.travel] }}</mat-icon>{{ travelLabels[u.travel] }}</li>
+          <li><mat-icon>timer</mat-icon>{{ spokenMinutes(u.playMinutes) }} de jeu</li>
+          @for (r of u.reserved; track r.activity) {
+            <li><mat-icon>schedule</mat-icon>{{ spokenMinutes(r.minutes) }} pour {{ r.activity }}</li>
+          }
+          <li><mat-icon>extension</mat-icon>Énigmes {{ difficultyLabels[u.difficulty].toLowerCase() }}</li>
+          <li><mat-icon>place</mat-icon>{{ u.place ?? 'Autour de vous' }}</li>
+          @if (u.theme) {
+            <li><mat-icon>palette</mat-icon>{{ u.theme }}</li>
+          }
+          @for (i of u.interests; track i.label) {
+            <li class="interest"><mat-icon>favorite</mat-icon>{{ i.label }}</li>
+          }
+        </ul>
+        <button mat-button type="button" (click)="restart()"><mat-icon>edit</mat-icon>Modifier ma demande</button>
+      </section>
+    }
+  }
+
+  @if (step() === 'proposals') {
+    <section class="stack" aria-label="Secret Tracks proposées">
+      @for (e of proposals(); track e.id) {
+        <!-- La carte est un lien : le clic passe aussi par ici, avant la navigation. -->
+        <div class="proposal" (click)="remember(e)">
+          <th-catalog-card [entry]="e" />
+          <button mat-flat-button type="button" (click)="choose(e)"><mat-icon>check</mat-icon>Choisir ce parcours</button>
+        </div>
+      }
+      <button mat-stroked-button type="button" (click)="create()"><mat-icon>auto_awesome</mat-icon>Plutôt un parcours sur mesure</button>
+    </section>
+  }
+
+  @if (step() === 'creating' && !canCreate()) {
+    <section class="surface center">
+      <p>Le parcours sur mesure demande un droit de génération.</p>
+      <a mat-flat-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Créer un parcours sur mesure</a>
+    </section>
+  }
+</div>
