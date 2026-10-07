@@ -236,11 +236,18 @@ export class PlayPage {
     const s = this.state.value();
     if (!s) return 'loading';
     if (s.team.finished) return 'finished';
+    if (s.team.abandoned) return 'abandoned';
     // Chasse surprise « chacun son chrono » : la course a pu partir sans notre équipe.
     if (s.hunt.status === 'published' || s.selfStart) return 'before';
     if (s.hunt.status !== 'running') return 'over';
     if (!s.team.started || Date.parse(s.team.started) > this.clock.now()) return 'waiting';
     return 'playing';
+  });
+
+  /** Arrivée par abandon du trésor : le parcours est fini, sans trésor trouvé. */
+  protected readonly treasureSkipped = computed(() => {
+    const s = this.state.value();
+    return !!s?.team.finished && !!s.validated.find((v) => v.order === s.totalSteps)?.skipped;
   });
 
   protected readonly skippedOrders = computed(() => (this.state.value()?.validated ?? []).filter((v) => v.skipped).map((v) => v.order));
@@ -298,13 +305,16 @@ export class PlayPage {
   /** Abandon de l'épreuve en cours (« 4ᵉ joker »), après confirmation. */
   protected skip(targetOrder: number): void {
     const penalty = this.state.value()?.hunt.skipPenalty ?? 0;
+    const final = targetOrder === this.state.value()?.totalSteps;
     this.confirm
       .ask({
-        title: `Abandonner l’épreuve ${targetOrder} ?`,
+        title: final ? 'Abandonner le trésor ?' : `Abandonner l’épreuve ${targetOrder} ?`,
         message:
           (penalty ? `Votre équipe prendra ${penalty} min de pénalité. ` : '') +
-          'L’énigme suivante s’affichera aussitôt, sans que vous ayez trouvé ce lieu. Ce choix est définitif.',
-        confirm: 'Abandonner',
+          (final
+            ? 'Votre parcours s’arrête ici, sans le trésor : votre équipe sera classée après celles qui l’ont trouvé. Ce choix est définitif.'
+            : 'L’énigme suivante s’affichera aussitôt, sans que vous ayez trouvé ce lieu. Ce choix est définitif.'),
+        confirm: final ? 'Abandonner le trésor' : 'Abandonner',
         danger: true,
       })
       .pipe(
@@ -320,7 +330,41 @@ export class PlayPage {
           this.confirmHint.set(false);
           this.checkin.set(null);
           this.busy.set(false);
-          this.notify.info('Épreuve abandonnée : place à l’énigme suivante.');
+          this.notify.info(final ? 'Parcours terminé, sans le trésor.' : 'Épreuve abandonnée : place à l’énigme suivante.');
+        },
+        error: (e) => {
+          this.notify.error(e);
+          this.busy.set(false);
+        },
+      });
+  }
+
+  /** Abandon de la partie (§ 5.2) : toute l'équipe s'arrête, sans classement. */
+  protected abandonGame(): void {
+    const s = this.state.value();
+    if (!s) return;
+    const team = s.team.members.length > 1;
+    this.confirm
+      .ask({
+        title: 'Abandonner la partie ?',
+        message:
+          (team ? `Toute l’équipe « ${s.team.name} » s’arrête avec vous. ` : '') +
+          'Le chrono s’arrête, plus aucune énigme ne s’affichera et vous ne serez pas classé. Ce choix est définitif.',
+        confirm: 'Abandonner la partie',
+        danger: true,
+      })
+      .pipe(
+        filter(Boolean),
+        switchMap(() => {
+          this.busy.set(true);
+          return this.api.abandonHunt(this.id());
+        }),
+      )
+      .subscribe({
+        next: (state) => {
+          this.state.set(state);
+          this.busy.set(false);
+          this.notify.info('Partie abandonnée.');
         },
         error: (e) => {
           this.notify.error(e);

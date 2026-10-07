@@ -113,16 +113,22 @@ describe('abandon d’épreuve (4ᵉ joker)', () => {
     expect((await lucas.post(`/api/scan/${DEMO_TOKENS.nefles[3]}`)).body.outcome).toBe('validated');
   });
 
-  it('refuse d’abandonner l’arrivée', async () => {
+  it('laisse abandonner l’arrivée : parcours terminé, classé après les équipes qui ont trouvé le trésor', async () => {
     const nathan = await loginAs(ctx.app, 'nathan@example.com'); // Les Retardataires : aucune étape
     for (const target of [2, 3, 4, 5]) {
       expect((await nathan.post('/api/hunts/1/skip')).body.clue.targetOrder).toBe(target);
     }
     const last = await nathan.post('/api/hunts/1/skip');
-    expect(last.status).toBe(409);
-    expect(last.body.message).toMatch(/arrivée/);
-    const live = (await (await loginAs(ctx.app, 'camille@example.com')).get('/api/hunts/1/live')).body;
-    expect(live.find((row: { team: { name: string } }) => row.team.name === 'Les Retardataires').skips).toBe(4);
+    expect(last.status).toBe(200);
+    expect(last.body.clue).toBeNull();
+    expect(last.body.team.finished).not.toBeNull();
+    const camille = await loginAs(ctx.app, 'camille@example.com');
+    const live = (await camille.get('/api/hunts/1/live')).body;
+    expect(live.find((row: { team: { name: string } }) => row.team.name === 'Les Retardataires')).toMatchObject({ skips: 5, status: 'finished' });
+    const ranking = (await camille.get('/api/hunts/1/results')).body as { teamName: string; rank: number | null; treasureSkipped: boolean }[];
+    const ranked = ranking.filter((r) => r.rank !== null);
+    expect(ranked.at(-1)).toMatchObject({ teamName: 'Les Retardataires', treasureSkipped: true });
+    expect(ranked.slice(0, -1).every((r) => !r.treasureSkipped)).toBe(true);
   });
 });
 

@@ -58,7 +58,7 @@ import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
 import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
 import { OfflineEvent, offlineHash, OfflinePack, OfflineSyncResult } from '@shared/offline';
-import { ExplorerJournal, explorerJournal, JournalHunt } from '@shared/journal';
+import { ExplorerJournal, explorerJournal, HistoryEntry, historyEntry, JournalHunt } from '@shared/journal';
 import {
   arrivalCheck,
   routeKm,
@@ -550,12 +550,39 @@ export class MockHuntApi extends HuntApi {
       const state = this.playState(huntId);
       const clue = state.clue;
       if (!clue) throw new ApiError('Aucune épreuve en cours.');
-      if (!clue.canSkip) throw new ApiError('L’arrivée ne peut pas être abandonnée : il faut trouver le trésor.');
       const target = this.stepsOf(huntId).find((s) => s.order === clue.targetOrder)!;
-      this.db.validations.push({ teamId: state.team.id, stepId: target.id, hunterId: me, source: 'SKIP', at: new Date().toISOString() });
-      this.arrivals.delete(`${state.team.id}:${target.id}`);
+      this.recordSkip(state.team.id, target, me);
       return this.playState(huntId);
     });
+  }
+
+  abandonHunt(huntId: number): Observable<PlayState> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const state = this.playState(huntId);
+      const team = this.db.teams.find((t) => t.id === state.team.id)!;
+      if (team.abandoned) return state;
+      if (team.finished) throw new ApiError('Votre équipe est déjà arrivée.');
+      if (state.hunt.status !== 'running' || !team.started || Date.parse(team.started) > Date.now()) {
+        throw new ApiError('Votre partie n’a pas commencé : vous pouvez simplement quitter la Secret Track.');
+      }
+      team.abandoned = new Date().toISOString();
+      this.closeSurpriseIfAllArrived(this.db.hunts.find((h) => h.id === huntId)!);
+      void me;
+      return this.playState(huntId);
+    });
+  }
+
+  /** Épreuve abandonnée ; sur l'arrivée, l'équipe a fini son parcours (classée après celles qui ont trouvé le trésor). */
+  private recordSkip(teamId: number, target: Step, me: number, at?: string): void {
+    const team = this.db.teams.find((t) => t.id === teamId)!;
+    const now = at ?? new Date().toISOString();
+    this.db.validations.push({ teamId, stepId: target.id, hunterId: me, source: 'SKIP', at: now });
+    this.arrivals.delete(`${teamId}:${target.id}`);
+    if (target.order === finalOrder(this.stepsOf(team.huntId))) {
+      team.finished = now;
+      this.closeSurpriseIfAllArrived(this.db.hunts.find((h) => h.id === team.huntId)!);
+    }
   }
 
   scan(token: string): Observable<ScanResult> {
@@ -588,7 +615,7 @@ export class MockHuntApi extends HuntApi {
               instructions: step!.instructions,
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
-              canSkip: step!.order + 1 < final,
+              canSkip: true,
               illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
@@ -1010,7 +1037,7 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       return this.db.teams
-        .filter((t) => t.started && Date.parse(t.started) <= Date.now() && !t.finished && t.members.some((m) => m.hunterId === me))
+        .filter((t) => t.started && Date.parse(t.started) <= Date.now() && !t.finished && !t.abandoned && t.members.some((m) => m.hunterId === me))
         .map((t) => ({ t, h: this.db.hunts.find((x) => x.id === t.huntId)! }))
         .filter(({ h }) => h.status === 'running')
         .map(({ t, h }) => {
@@ -1036,10 +1063,17 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       const me = this.requireUser();
       const hunts: JournalHunt[] = [];
-      for (const t of this.db.teams.filter((x) => x.finished && x.started && x.members.some((m) => m.hunterId === me))) {
-        const h = this.db.hunts.find((x) => x.id === t.huntId);
-        const row = h && this.ranking(h.id).find((r) => r.teamId === t.id);
-        if (!h || !row?.time || !row.started) continue;
+      const history: HistoryEntry[] = [];
+      for (const t of this.db.teams.filter((x) => x.members.some((m) => m.hunterId === me))) {
+        const hv = this.db.hunts.find((x) => x.id === t.huntId);
+        if (!hv) continue;
+        const ranking = this.ranking(hv.id);
+        const stars = this.ratings.find((r) => r.huntId === hv.id && r.hunterId === me)?.rating.stars ?? null;
+        history.push(historyEntry({ hunt: this.huntView(hv), team: t, ranking, total: finalOrder(this.stepsOf(hv.id)), stars, me, now: Date.now() }));
+        if (!t.finished || !t.started) continue;
+        const h = hv;
+        const row = ranking.find((r) => r.teamId === t.id);
+        if (!row?.time || !row.started || row.treasureSkipped) continue;
         const steps = this.stepsOf(h.id);
         const found = this.db.validations
           .filter((v) => v.teamId === t.id && v.source !== 'SKIP')
@@ -1063,7 +1097,7 @@ export class MockHuntApi extends HuntApi {
           km: Math.round(meters / 100) / 10,
         });
       }
-      return explorerJournal(hunts);
+      return explorerJournal(hunts, history);
     });
   }
 
@@ -2213,9 +2247,8 @@ export class MockHuntApi extends HuntApi {
         this.db.hintUses.push({ teamId: team.id, stepId: clue.stepId, level: clue.hintsRevealed.length + 1, hunterId: me, at: e.at });
         return null;
       case 'skip':
-        if (!clue?.canSkip || !target || target.id !== e.stepId) return 'Cet abandon ne correspond pas à l’épreuve en cours.';
-        this.db.validations.push({ teamId: team.id, stepId: target.id, hunterId: me, source: 'SKIP', at: e.at });
-        this.arrivals.delete(`${team.id}:${target.id}`);
+        if (!clue || !target || target.id !== e.stepId) return 'Cet abandon ne correspond pas à l’épreuve en cours.';
+        this.recordSkip(team.id, target, me, e.at);
         return null;
       case 'arrive':
       case 'scan': {
@@ -2354,7 +2387,7 @@ export class MockHuntApi extends HuntApi {
 
   /** Chasse surprise : quand toutes les équipes sont arrivées, elle se clôt et le podium s'affiche. */
   private closeSurpriseIfAllArrived(h: MockDb['hunts'][number]): void {
-    if (!h.surprise || this.db.teams.some((t) => t.huntId === h.id && !t.finished)) return;
+    if (!h.surprise || this.db.teams.some((t) => t.huntId === h.id && !t.finished && !t.abandoned)) return;
     h.status = 'closed';
     h.closed = new Date().toISOString();
   }
@@ -2419,6 +2452,7 @@ export class MockHuntApi extends HuntApi {
       startOrder: null,
       started: null,
       finished: null,
+      abandoned: null,
       members: [{ hunterId: owner, nickname: this.nick(owner) }],
     };
     this.db.teams.push(team);
@@ -2451,7 +2485,7 @@ export class MockHuntApi extends HuntApi {
 
     let clue: PlayClue | null = null;
     const started = team.started !== null && Date.parse(team.started) <= Date.now();
-    if (hunt.status === 'running' && started && !team.finished) {
+    if (hunt.status === 'running' && started && !team.finished && !team.abandoned) {
       const current = steps.find((s) => s.order === lastValidatedOrder(steps, vals))!;
       const revealed = hints.filter((u) => u.stepId === current.id).sort((a, b) => a.level - b.level);
       clue = {
@@ -2460,7 +2494,7 @@ export class MockHuntApi extends HuntApi {
         instructions: current.instructions ?? '',
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]),
         hintsTotal: current.hints.length,
-        canSkip: current.order + 1 < finalOrder(steps),
+        canSkip: true,
         illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
@@ -2526,7 +2560,13 @@ export class MockHuntApi extends HuntApi {
       .filter((t) => t.huntId === huntId)
       .map((team) => {
         const vals = this.db.validations.filter((v) => v.teamId === team.id);
-        const status: LiveRow['status'] = team.finished ? 'finished' : team.started && Date.parse(team.started) <= now ? 'running' : 'waiting';
+        const status: LiveRow['status'] = team.finished
+          ? 'finished'
+          : team.abandoned
+            ? 'abandoned'
+            : team.started && Date.parse(team.started) <= now
+              ? 'running'
+              : 'waiting';
         return {
           team,
           lastOrder: lastValidatedOrder(steps, vals),

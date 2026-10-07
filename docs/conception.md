@@ -19,7 +19,8 @@ Ce document décrit le fonctionnement cible de l'application : le vocabulaire, l
 | **Équipe** (*team*) | Le groupe qui progresse. **Dans une chasse en solo, chaque joueur forme une équipe d'une personne.** Toutes les règles s'écrivent donc une seule fois, pour des équipes. | `th_teams` |
 | **Validation** | Le fait qu'une équipe a atteint une étape, par un scan ou manuellement par l'organisateur. | `th_validations` |
 | **Joker** | Un indice supplémentaire (1 à 3 par énigme) que l'équipe peut dévoiler, avec une pénalité en minutes qui dépend de son niveau. | `th_hintuses` |
-| **Abandon** (« 4ᵉ joker ») | L'équipe renonce au lieu qu'elle cherche et passe directement à l'énigme suivante, moyennant une pénalité de temps. L'arrivée ne s'abandonne pas. | `th_validations` (source `SKIP`) |
+| **Abandon** (« 4ᵉ joker ») | L'équipe renonce au lieu qu'elle cherche et passe directement à l'énigme suivante, moyennant une pénalité de temps. Abandonner l'arrivée (le trésor) termine le parcours : l'équipe est classée après celles qui l'ont trouvé. | `th_validations` (source `SKIP`) |
+| **Abandon de la partie** | Toute l'équipe renonce : le chrono s'arrête, plus aucune énigme ne s'affiche, l'équipe n'est pas classée. | `th_teams.tea_abandoned` |
 
 ---
 
@@ -136,7 +137,8 @@ Par défaut, les étapes sont **linéaires** : l'étape *n* n'est acceptée que 
 
 - En **départ groupé**, toutes les heures de départ sont égales, donc le plus petit temps correspond au **premier arrivé**. Une seule formule couvre les deux modes.
 - **Pénalités de jokers, par niveau** (`hun_penalty1`, `hun_penalty2`, `hun_penalty3`, en minutes, 0 par défaut). Exemple : joker 1 = +2 min, joker 2 = +5 min, joker 3 = +10 min. Les jokers d'une énigme se dévoilent dans l'ordre, donc le joker 2 n'est accessible qu'après le 1.
-- **Abandon d'une épreuve** (`hun_skippenalty`, en minutes, 30 par défaut) : une équipe bloquée peut renoncer au lieu qu'elle cherche. L'étape est enregistrée comme validation de source `SKIP`, sans QR, et l'énigme suivante s'affiche aussitôt. Le QR de l'étape abandonnée, s'il est trouvé plus tard, n'apporte plus rien (« déjà validée »). **L'arrivée ne s'abandonne pas** : il faut trouver le trésor pour être classé. L'abandon est confirmé à part et se sérialise avec les scans de l'équipe.
+- **Abandon d'une épreuve** (`hun_skippenalty`, en minutes, 30 par défaut) : une équipe bloquée peut renoncer au lieu qu'elle cherche. L'étape est enregistrée comme validation de source `SKIP`, sans QR, et l'énigme suivante s'affiche aussitôt. Le QR de l'étape abandonnée, s'il est trouvé plus tard, n'apporte plus rien (« déjà validée »). **Abandonner l'arrivée** (« Abandonner le trésor ») termine le parcours : le chrono s'arrête, la pénalité s'ajoute, et l'équipe est **classée après toutes celles qui ont trouvé le trésor** (puis entre elles au temps). Elle est repérée sans colonne dédiée : l'arrivée est toujours la dernière étape validée, donc une équipe arrivée dont la dernière validation est un `SKIP` a abandonné le trésor (`treasureSkipped` dans le classement). L'abandon est confirmé à part et se sérialise avec les scans de l'équipe.
+- **Abandon de la partie** (`POST /hunts/:id/abandon`, depuis l'accueil ou le carnet de route) : un membre renonce **pour toute l'équipe**, après confirmation, une fois la partie commencée (avant, on quitte simplement la Secret Track). `tea_abandoned` et `tea_abandoned_by` sont renseignés (migration `031_abandon.sql`) : plus d'énigme, de joker, d'abandon ni de validation (un scan répond `team_abandoned`, l'organisateur ne peut plus valider à la main), la partie quitte « Ma partie en cours », l'équipe apparaît « abandon » dans le direct et ferme la marche du classement, non classée. Une chasse surprise se clôt quand toutes ses équipes sont arrivées ou ont abandonné.
 - **Égalité** : on départage par l'heure d'arrivée la plus tôt, puis par le nombre de jokers et d'abandons.
 - **Équipes non arrivées à la clôture** : elles sont **non classées** et apparaissent après les équipes classées. On les trie par nombre d'étapes validées (décroissant), puis par le temps écoulé entre leur départ et leur dernière validation (croissant). Ce critère reste juste en départ échelonné.
 
@@ -260,7 +262,7 @@ Serveur : `server/src/app.ts`. Préfixe `/api`, JSON, noms de champs en camelCas
 | `GET /hunts/:id/teams` · `POST /hunts/:id/teams` · `POST /hunts/:id/solo` | équipes, inscription | connecté |
 | `GET /hunts/:id/my-team` · `DELETE /hunts/:id/my-team` · `POST /teams/join` | mon équipe, quitter, rejoindre par code | connecté |
 | `PUT /hunts/:id/teams/order` · `POST /teams/:id/delay` | ordre de passage, décalage d'un départ | organisateur |
-| `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours | membre |
+| `GET /hunts/:id/play` · `POST /hunts/:id/hints` · `POST /hunts/:id/skip` · `POST /hunts/:id/abandon` | carnet de route de mon équipe (avec sa position provisoire), joker suivant, abandon de l'épreuve en cours (y compris le trésor), abandon de la partie par toute l'équipe | membre |
 | `POST /hunts/:id/checkin` · `POST /hunts/:id/self-start` | « Je suis arrivé » (validation par géolocalisation, § 11.3), départ d'une chasse surprise | membre |
 | `PUT /hunts/:id/self-paced` | chasse surprise : « chacun son chrono » ou départ commun (§ 11.4) | hôte |
 | `POST /hunts/:id/photos` · `POST /photos/:id/insist` · `GET /photos/:id/image` | preuve par photo : envoi jugé par l'IA, insistance de l'équipe, image (§ 12) | membre (image : membre ou organisateur) |
@@ -336,7 +338,8 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | Ordre des étapes | **Linéaire** |
 | Énigmes à réponse | Pas dans un premier temps ; la colonne `cod_answer` est réservée |
 | Pénalité des jokers | **Une valeur par niveau** de joker, fixée pour la chasse |
-| Abandon d'une épreuve | **« 4ᵉ joker »** : pénalité de temps réglable par chasse (30 min par défaut), accès à l'énigme suivante ; l'arrivée ne s'abandonne pas |
+| Abandon d'une épreuve | **« 4ᵉ joker »** : pénalité de temps réglable par chasse (30 min par défaut), accès à l'énigme suivante ; abandonner le trésor termine le parcours, classé après les équipes qui l'ont trouvé (octobre 2026) |
+| Abandon de la partie | **Toute l'équipe**, par n'importe quel membre, après confirmation : non classée (octobre 2026) |
 | Classement pendant la course | Chaque équipe ne voit **que sa propre position** ; l'organisateur voit tout |
 | `htc_giftedby_htr` | Remplacé par la **validation manuelle** par l'organisateur (`val_source = 'MANUAL'`, `val_by_htr`) |
 | Participation (`hun_contribution`) | **Affichage seul** dans la première version |
@@ -393,6 +396,7 @@ La génération dure de quelques secondes à une minute. Elle tourne **en tâche
 2. Si un thème est demandé, **Claude le traduit d'abord en catégories OpenStreetMap** (ex. `shop=shoes`, `leisure=park`, `tourism=artwork`), en effort `low`. Le serveur ne garde que des clés d'une liste blanche (`tourism`, `historic`, `amenity`, `leisure`, `shop`, `natural`, `craft`, `sport`, `man_made`, `memorial`, `artwork_type`…) et des valeurs simples (`[a-z0-9_:-]`, 6 filtres et 10 valeurs au plus) : le texte du joueur n'entre jamais tel quel dans la requête Overpass. Un échec de cette étape n'empêche pas la génération : le thème est alors ignoré.
 3. Le serveur cherche les lieux remarquables et nommés autour du point avec **Overpass** : monuments, statues, fontaines, œuvres d'art, lieux de culte, points de vue, parcs… plus les lieux du thème, marqués comme tels et placés en tête des candidats. Au-delà de 4 km de rayon, seuls les lieux les plus notables (fiche Wikidata, points de vue, musées…) sont retenus hors thème, pour que la réponse reste raisonnable. Une seule requête de recherche, sur une zone élargie selon le déplacement (×2 jusqu'à 3 km en Balade, ×1,5 jusqu'à 8 km en Aventure, ×1,2 jusqu'à 30 km en Expédition). **Au-delà de 8 km, la zone s'adapte à la densité du lieu de départ** : une requête de comptage (`out count`, légère car rien n'est rapatrié) mesure les lieux marquants dans un carré de 10 km de côté, et la zone est réduite au rayon qui en contiendrait environ 150 (le nombre de lieux croît comme la surface), sans descendre sous 6 km ni dépasser la zone demandée. En Île-de-France, la zone reste ainsi autour de 6 à 10 km au lieu de 30 et la requête n'expire plus ; en campagne, elle garde toute son étendue. Si le comptage échoue, la zone est ramenée à 10 km ; si la zone réduite ne rend pas assez de lieux, elle est doublée une fois. La requête porte sur une **boîte englobante** (`bbox`, indexée : un filtre `around` sur ces clés fait expirer les instances publiques) ; le cercle exact est appliqué ensuite ; les lieux du rayon visé sont préférés s'ils suffisent. Les instances publiques limitent le débit et saturent souvent : en cas de 429, 5xx, d'expiration ou de réponse illisible, le serveur réessaie (3 essais, `Retry-After` respecté) en alternant les instances de `OVERPASS_URLS`.
 4. **Claude** reçoit au plus 60 lieux candidats, le déplacement et le thème. Il choisit d'abord un **lieu de rendez-vous** : un lieu nommé de la liste, tout près du point demandé, hors du parcours. Le départ (étape 0) prend ses coordonnées et son nom, et le texte de départ s'ouvre sur une phrase qui le désigne concrètement. Comme personne ne valide la présence des joueurs au départ, la **première énigme** part explicitement de ce lieu nommé, ou se suffit à elle-même, sans consigne du type « marchez vers le nord pendant 10 minutes » ; les suivantes partent du lieu précédent, que les joueurs viennent de valider. Si le modèle désigne un rendez-vous inconnu ou déjà sur le parcours, le serveur prend le lieu libre le plus proche du point demandé. Le carnet de route affiche ce point de départ, avec un lien vers la carte. Il choisit un parcours faisable avec ce moyen de déplacement (en Expédition : lieux accessibles par la route, où l'on peut se garer, énigmes lues à l'arrêt) et, s'il y a un thème, construit le parcours autour des lieux du thème autant que possible. Le thème reste un souhait : le modèle ne suit aucune instruction qu'il contiendrait. Il rédige, en français, le nom de la chasse, l'accroche, le texte de départ et, pour chaque lieu, l'énigme qui y mène, trois jokers et le message d'arrivée. La réponse suit un **schéma JSON imposé** (sortie structurée) ; elle comprend une phrase qui dit comment le thème a été suivi, ou pourquoi il ne l'a été qu'en partie, sans nommer de lieu du parcours. Cette phrase est gardée dans `gen_note` et rendue dans `note`.
+   **Le parcours forme une boucle** : le trésor doit se trouver près du rendez-vous, à moins de 500 m en Balade, 1,5 km en Aventure et 5 km en Expédition (`LOOP_MAX_METERS`, `shared/generation.ts`). Les joueurs viennent souvent au départ en voiture ou en transports, et un trésor éloigné imposerait un long retour sans énigme. Chaque lieu candidat porte sa distance au point de départ (`from_start`). Si le trésor rendu est trop loin, le serveur fait reprendre le modèle **une fois**, en lui donnant l'écart mesuré ; des deux versions, il garde celle dont le retour est le plus court (`planWithLoop`).
 5. Le serveur vérifie la réponse : il écarte les lieux inconnus ou répétés et reprend les **coordonnées d'OpenStreetMap**, jamais celles du modèle. Il crée alors la chasse et passe la génération à `done`.
 6. Le front interroge `GET /generations/:id` toutes les 2,5 s ; à la fin, il affiche la `note` sur le thème s'il y en a une. En cas d'échec, `error` porte un message lisible (lieu introuvable, pas assez de lieux, service indisponible…).
 
@@ -470,7 +474,7 @@ Chaque photo est enregistrée dans `th_photos`, même non retenue : avis de l'IA
 Dans l'onglet Direct, les photos qui ont validé une étape (reconnues par l'IA ou confirmées par l'équipe) s'affichent à côté de la photo de référence, avec l'avis de l'IA. Pendant la course ou après la clôture, l'organisateur :
 
 - **tamponne** la photo : l'étape est définitivement validée ;
-- ou la **refuse** : l'épreuve compte comme **abandonnée** (`val_source` passe à `SKIP`, avec la pénalité d'abandon du § 5.2). L'arrivée ne s'abandonne pas : une photo d'arrivée refusée retire la validation, et l'équipe n'est plus arrivée (non classée tant qu'elle n'a pas trouvé le trésor).
+- ou la **refuse** : l'épreuve compte comme **abandonnée** (`val_source` passe à `SKIP`, avec la pénalité d'abandon du § 5.2). Une photo d'arrivée refusée ne vaut pas abandon du trésor : elle retire la validation, et l'équipe n'est plus arrivée (elle peut chercher encore, ou abandonner le trésor elle-même, § 5.2).
 
 Le carnet de route de l'équipe montre l'état de chaque étape validée par photo : à contrôler, tamponnée, refusée.
 
@@ -636,7 +640,7 @@ Une étape du parcours (pas le départ) peut porter une **épreuve à résoudre 
 1. L'équipe arrive sur le lieu comme d'habitude : QR scanné, « Je suis arrivé » (géolocalisation) ou photo reconnue (ou confirmée). Sans énigme, l'étape est validée ; avec une énigme, l'**arrivée** est notée (`th_arrivals`, avec sa source : QR, GEO, PHOTO) et le carnet de route montre l'épreuve à la place de l'énigme de lieu (le scan renvoie l'issue `puzzle`, le check-in aussi).
 2. `POST /hunts/:id/puzzle { answer }` : juste, l'étape est **validée avec la source de l'arrivée** et l'heure de la réponse (classement inchangé : le temps passé à chercher compte) ; fausse, le nombre d'essais augmente, sans pénalité, et la carte tremble.
 3. `POST /hunts/:id/puzzle/hint` affiche l'indice de l'épreuve, s'il y en a un (gratuit).
-4. Une équipe bloquée **abandonne l'épreuve** comme une énigme de lieu (pénalité d'abandon) ; l'arrivée en attente est effacée. L'arrivée (le trésor) ne s'abandonne pas. L'organisateur peut aussi valider l'étape à la main (onglet Direct).
+4. Une équipe bloquée **abandonne l'épreuve** comme une énigme de lieu (pénalité d'abandon) ; l'arrivée en attente est effacée. Abandonner le trésor termine le parcours (§ 5.2). L'organisateur peut aussi valider l'étape à la main (onglet Direct).
 5. Les joueurs ne reçoivent jamais la réponse : la vue joueur (`PlayPuzzle`) ne porte que la consigne, le nombre de chiffres d'un cadenas, le texte chiffré ou les lettres mélangées, et l'indice une fois demandé.
 
 **Types** (`shared/puzzles.ts`) et packs de la boutique (§ 16)
@@ -799,7 +803,17 @@ Un joueur qui a fini une chasse du catalogue en autonomie envoie un lien « bats
 
 ## 29. Carnet d'explorateur
 
-Page `/carnet` (liée au profil et au souvenir) : chasses finies (temps, lieux trouvés, jokers, distance, lien vers le souvenir), villes visitées (le lieu avant la virgule, sans code postal), totaux (chasses, lieux, kilomètres à vol d'oiseau entre les lieux trouvés) et **sept badges sobres** : premier trésor, 5 et 10 chasses, trois villes, une chasse sans joker, une chasse en autonomie, 20 km parcourus. Pas de niveaux ni de points. `GET /me/journal` ; calcul commun `shared/journal.ts`.
+Page `/carnet` (liée au profil et au souvenir).
+
+**Historique de mes parcours** : toutes les parties du joueur, de la plus récente à la plus ancienne, avec leur statut (à venir, en cours, terminée, trésor abandonné, abandonnée, non terminée à la clôture, annulée), le lieu et la date, et selon le cas :
+- le **temps de parcours face au temps de référence** : la durée annoncée de la chasse (`hun_duration`), à défaut le meilleur temps de la partie (« 1 h 12 · prévu 1 h 30 (18 min de moins) »), le nombre de lieux trouvés et le rang ;
+- le temps écoulé jusqu'à l'abandon, ou depuis le départ pour une partie en cours ;
+- **mon avis** en étoiles s'il est donné, sinon « Donner mon avis » une fois la chasse close (lien vers le formulaire des résultats) ;
+- un lien vers la partie, le souvenir ou les résultats.
+
+Règle commune au serveur et à la maquette : `historyEntry` (`shared/journal.ts`).
+
+**Le carnet lui-même** ne compte que les trésors trouvés : chasses finies (temps, lieux trouvés, jokers, distance, lien vers le souvenir), villes visitées (le lieu avant la virgule, sans code postal), totaux (chasses, lieux, kilomètres à vol d'oiseau entre les lieux trouvés) et **sept badges sobres** : premier trésor, 5 et 10 chasses, trois villes, une chasse sans joker, une chasse en autonomie, 20 km parcourus. Pas de niveaux ni de points. `GET /me/journal` ; calcul commun `shared/journal.ts`.
 
 ## 30. Répétition sur place
 

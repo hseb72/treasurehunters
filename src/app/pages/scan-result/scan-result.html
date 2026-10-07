@@ -93,6 +93,14 @@
           <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]"><mat-icon>menu_book</mat-icon>Revoir mon énigme</a>
         }
 
+        @case ('team_abandoned') {
+          <section class="surface center">
+            <mat-icon class="hero-icon">flag</mat-icon>
+            <h1>Votre équipe a abandonné la partie</h1>
+            <p>Ce lieu ne compte plus pour elle. Merci d'avoir joué !</p>
+          </section>
+          <a mat-flat-button class="th-cta" [routerLink]="['/play', r.hunt?.id]">Mon carnet de route</a>
+        }
         @case ('team_finished') {
           <section class="surface center">
             <mat-icon class="hero-icon gold">diamond</mat-icon>

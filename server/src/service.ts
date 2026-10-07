@@ -52,7 +52,7 @@ import { StepReliability, stepReliability } from '../../shared/gps.js';
 import { diagnoseSteps } from '../../shared/diagnosis.js';
 import { TeamRole } from '../../shared/roles.js';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '../../shared/surprise.js';
-import { ExplorerJournal, explorerJournal, JournalHunt } from '../../shared/journal.js';
+import { ExplorerJournal, explorerJournal, HistoryEntry, historyEntry, JournalHunt } from '../../shared/journal.js';
 import { DEFAULT_SKIN } from '../../shared/skins.js';
 import { compassReading, DEFAULT_TOOLS, owns, PRODUCTS, productById, TOOL_IDS } from '../../shared/store.js';
 import { acceptedAnswers, checkAnswer, publicPuzzle, Puzzle, puzzleProblem, puzzleType } from '../../shared/puzzles.js';
@@ -565,7 +565,7 @@ export class Service {
       const hunt = await this.joinableHunt(db, team.huntId, me);
       if (team.solo) throw conflict('Cette Secret Track se joue en solo.');
       if (team.members.length >= hunt.teamMax) throw conflict('Cette équipe est complète.');
-      if (team.finished) throw conflict('Cette équipe a déjà terminé l’expédition.');
+      if (team.finished || team.abandoned) throw conflict('Cette équipe a déjà terminé l’expédition.');
       await db.query('INSERT INTO th_teamhunters (thr_team_tea, thr_hunt_hun, thr_hunter_htr) VALUES ($1, $2, $3)', [team.id, hunt.id, me]);
       return (await teamById(db, team.id))!;
     });
@@ -638,6 +638,7 @@ export class Service {
       const hunt = await this.ownedHunt(db, viewer, team.huntId);
       if (hunt.status !== 'running' || !team.started) throw conflict('La Secret Track n’est pas en cours.');
       if (team.finished) throw conflict('Cette équipe est déjà arrivée.');
+      if (team.abandoned) throw conflict('Cette équipe a abandonné la partie.');
       // Jamais avant le déclenchement de la chasse.
       await db.query(
         `UPDATE th_teams SET tea_started = greatest(tea_started + make_interval(mins => $2), $3::timestamptz), tea_lastupdate = now()
@@ -677,7 +678,8 @@ export class Service {
   /**
    * Abandon de l'épreuve en cours (« 4ᵉ joker », § 5.2) : l'étape cherchée est validée
    * sans QR (source SKIP), l'énigme suivante se dévoile, la pénalité d'abandon s'ajoute
-   * au temps. L'arrivée ne s'abandonne pas : il faut trouver le trésor pour être classé.
+   * au temps. Abandonner l'arrivée termine le parcours : l'équipe est classée après celles
+   * qui ont trouvé le trésor.
    */
   async skipStep(viewer: Viewer, huntId: number): Promise<PlayState> {
     const me = requireUser(viewer);
@@ -688,13 +690,45 @@ export class Service {
       const state = await this.playState(db, me, huntId);
       const clue = state.clue;
       if (!clue) throw conflict('Aucune épreuve en cours.');
-      if (!clue.canSkip) throw conflict('L’arrivée ne peut pas être abandonnée : il faut trouver le trésor.');
       const target = (await stepsOf(db, huntId)).find((s) => s.order === clue.targetOrder)!;
-      await db.query(
-        `INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source) VALUES ($1, $2, $3, 'SKIP')`,
-        [team.id, target.id, me],
-      );
-      await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, target.id]);
+      await this.recordSkip(db, team.id, target, me, null);
+      return this.playState(db, me, huntId);
+    });
+  }
+
+  /** Épreuve abandonnée (source SKIP) ; sur l'arrivée, l'équipe a fini son parcours. */
+  private async recordSkip(db: Db, teamId: number, target: Step, me: number, at: Date | null): Promise<void> {
+    await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_creation) VALUES ($1, $2, $3, 'SKIP', coalesce($4, now()))`, [
+      teamId,
+      target.id,
+      me,
+      at,
+    ]);
+    await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [teamId, target.id]);
+    if (target.order === finalOrder(await stepsOf(db, target.huntId))) {
+      await db.query('UPDATE th_teams SET tea_finished = coalesce($2, now()) WHERE tea_id = $1', [teamId, at]);
+      await this.closeSurpriseIfAllArrived(db, (await huntById(db, target.huntId))!);
+    }
+  }
+
+  /**
+   * Abandon de la partie (§ 5.2) : un membre renonce pour toute l'équipe. Le chrono s'arrête,
+   * l'équipe n'est pas classée et ne valide plus rien. Avant le départ, on quitte simplement.
+   */
+  async abandonHunt(viewer: Viewer, huntId: number): Promise<PlayState> {
+    const me = requireUser(viewer);
+    return tx(this.pool, async (db) => {
+      const mine = await teamOf(db, huntId, me);
+      if (!mine) throw forbidden('Vous n’êtes pas inscrit à cette Secret Track.');
+      const team = (await teamById(db, mine.id, true))!; // sérialisé avec les scans de l'équipe
+      if (team.abandoned) return this.playState(db, me, huntId);
+      if (team.finished) throw conflict('Votre équipe est déjà arrivée.');
+      const hunt = (await huntById(db, huntId))!;
+      if (hunt.status !== 'running' || !team.started || Date.parse(team.started) > Date.now()) {
+        throw conflict('Votre partie n’a pas commencé : vous pouvez simplement quitter la Secret Track.');
+      }
+      await db.query('UPDATE th_teams SET tea_abandoned = now(), tea_abandoned_by = $2, tea_lastupdate = now() WHERE tea_id = $1', [team.id, me]);
+      await this.closeSurpriseIfAllArrived(db, hunt);
       return this.playState(db, me, huntId);
     });
   }
@@ -983,14 +1017,7 @@ export class Service {
       }
       case 'skip': {
         if (!clue || !target || target.id !== e.stepId) return 'Cet abandon ne correspond pas à l’épreuve en cours.';
-        if (!clue.canSkip) return 'L’arrivée ne peut pas être abandonnée.';
-        await db.query(`INSERT INTO th_validations (val_team_tea, val_code_cod, val_hunter_htr, val_source, val_creation) VALUES ($1, $2, $3, 'SKIP', $4)`, [
-          team.id,
-          target.id,
-          me,
-          at,
-        ]);
-        await db.query('DELETE FROM th_arrivals WHERE arr_team_tea = $1 AND arr_code_cod = $2', [team.id, target.id]);
+        await this.recordSkip(db, team.id, target, me, at);
         return null;
       }
       case 'arrive':
@@ -1121,7 +1148,7 @@ export class Service {
               instructions: step!.instructions,
               hintsRevealed: step!.hints,
               hintsTotal: step!.hints.length,
-              canSkip: step!.order + 1 < final,
+              canSkip: true,
               illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
@@ -1176,7 +1203,7 @@ export class Service {
     let clue: PlayClue | null = null;
     const now = Date.now();
     const started = team.started !== null && Date.parse(team.started) <= now;
-    if (hunt.status === 'running' && started && !team.finished) {
+    if (hunt.status === 'running' && started && !team.finished && !team.abandoned) {
       const current = steps.find((s) => s.order === lastValidatedOrder(steps, vals))!;
       const revealed = hints.filter((u) => u.stepId === current.id).sort((a, b) => a.level - b.level);
       clue = {
@@ -1185,7 +1212,7 @@ export class Service {
         instructions: current.instructions ?? '',
         hintsRevealed: revealed.map((u) => current.hints[u.level - 1]).filter((h) => h !== undefined),
         hintsTotal: current.hints.length,
-        canSkip: current.order + 1 < finalOrder(steps),
+        canSkip: true,
         illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
@@ -1248,7 +1275,7 @@ export class Service {
       this.pool,
       `SELECT t.tea_id, t.tea_started, h.hun_id FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
        JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun
-       WHERE m.thr_hunter_htr = $1 AND t.tea_started IS NOT NULL AND t.tea_started <= now() AND t.tea_finished IS NULL AND h.hun_status_hst = $2
+       WHERE m.thr_hunter_htr = $1 AND t.tea_started IS NOT NULL AND t.tea_started <= now() AND t.tea_finished IS NULL AND t.tea_abandoned IS NULL AND h.hun_status_hst = $2
        ORDER BY t.tea_started DESC LIMIT 10`,
       [me, STATUS_IDS.running],
     );
@@ -1272,26 +1299,40 @@ export class Service {
     return games;
   }
 
-  /** Carnet d'explorateur (§ 29) : les chasses finies du joueur, ses villes, ses kilomètres et ses badges. */
+  /**
+   * Carnet d'explorateur (§ 29) : les chasses finies du joueur (trésor trouvé), ses villes, ses
+   * kilomètres et ses badges ; et l'historique de toutes ses parties, finies ou non.
+   */
   async journal(viewer: Viewer): Promise<ExplorerJournal> {
     const me = requireUser(viewer);
-    const finished = await rows(
+    const mine = await rows(
       this.pool,
       `SELECT t.tea_id, t.tea_hunt_hun FROM th_teams t JOIN th_teamhunters m ON m.thr_team_tea = t.tea_id
-       WHERE m.thr_hunter_htr = $1 AND t.tea_finished IS NOT NULL AND t.tea_started IS NOT NULL
-       ORDER BY t.tea_finished DESC LIMIT 200`,
+       JOIN th_hunts h ON h.hun_id = t.tea_hunt_hun
+       WHERE m.thr_hunter_htr = $1
+       ORDER BY coalesce(t.tea_started, h.hun_begin) DESC LIMIT 200`,
       [me],
     );
+    const stars = new Map(
+      (await rows(this.pool, 'SELECT rat_hunt_hun, rat_stars FROM th_ratings WHERE rat_hunter_htr = $1', [me])).map((r) => [r['rat_hunt_hun'] as number, r['rat_stars'] as number]),
+    );
     const hunts: JournalHunt[] = [];
-    for (const f of finished) {
+    const history: HistoryEntry[] = [];
+    for (const f of mine) {
       const hunt = await huntById(this.pool, f['tea_hunt_hun']);
       if (!hunt) continue;
       const teams = await teamsWhere(this.pool, 't.tea_hunt_hun = $1', [hunt.id]);
+      const team = teams.find((t) => t.id === f['tea_id']);
+      if (!team) continue;
       const vals = await validationsOfHunt(this.pool, hunt.id);
-      const row = computeRanking(hunt, teams, vals, await hintUsesOfHunt(this.pool, hunt.id)).find((r) => r.teamId === f['tea_id']);
-      if (!row?.time || !row.started) continue;
       const steps = await stepsOf(this.pool, hunt.id);
-      const found = vals.filter((v) => v.teamId === f['tea_id'] && v.source !== 'SKIP').map((v) => steps.find((s) => s.id === v.stepId)!);
+      const ranking = computeRanking(hunt, teams, vals, await hintUsesOfHunt(this.pool, hunt.id));
+      history.push(historyEntry({ hunt, team, ranking, total: finalOrder(steps), stars: stars.get(hunt.id) ?? null, me, now: Date.now() }));
+
+      // Le carnet ne garde que les trésors trouvés.
+      const row = ranking.find((r) => r.teamId === team.id);
+      if (!row?.time || !row.started || row.treasureSkipped) continue;
+      const found = vals.filter((v) => v.teamId === team.id && v.source !== 'SKIP').map((v) => steps.find((s) => s.id === v.stepId)!);
       const places = [steps.find((s) => s.order === 0), ...found.sort((a, b) => a.order - b.order)]
         .filter((s): s is Step => !!s && s.latitude !== null && s.longitude !== null)
         .map((s) => ({ lat: Number(s.latitude), lng: Number(s.longitude) }));
@@ -1310,7 +1351,7 @@ export class Service {
         km: Math.round(meters / 100) / 10,
       });
     }
-    return explorerJournal(hunts);
+    return explorerJournal(hunts, history);
   }
 
   /**
@@ -1457,6 +1498,7 @@ export class Service {
       if (!team) throw notFound('Équipe introuvable.');
       const hunt = await this.ownedHunt(db, me, team.huntId);
       if (hunt.status !== 'running') throw conflict('La Secret Track n’est pas en cours.');
+      if (team.abandoned) throw conflict('Cette équipe a abandonné la partie.');
       const steps = await stepsOf(db, hunt.id);
       const step = steps.find((s) => s.id === stepId);
       if (!step) throw notFound('Étape introuvable.');
@@ -1492,7 +1534,13 @@ export class Service {
     const now = Date.now();
     return teams.map((team) => {
       const vals = validations.filter((v) => v.teamId === team.id);
-      const status: LiveRow['status'] = team.finished ? 'finished' : team.started && Date.parse(team.started) <= now ? 'running' : 'waiting';
+      const status: LiveRow['status'] = team.finished
+        ? 'finished'
+        : team.abandoned
+          ? 'abandoned'
+          : team.started && Date.parse(team.started) <= now
+            ? 'running'
+            : 'waiting';
       return {
         team,
         lastOrder: lastValidatedOrder(steps, vals),
@@ -2753,10 +2801,10 @@ export class Service {
     if (h.startMode === 'staggered' && !h.interval) throw badRequest('Indiquez l’intervalle entre deux départs.');
   }
 
-  /** Chasse surprise : quand toutes les équipes sont arrivées, elle se clôt et le podium s'affiche. */
+  /** Chasse surprise : quand toutes les équipes sont arrivées ou ont abandonné, elle se clôt et le podium s'affiche. */
   private async closeSurpriseIfAllArrived(db: Db, hunt: Hunt): Promise<void> {
     if (!hunt.surprise) return;
-    const waiting = await one(db, 'SELECT 1 FROM th_teams WHERE tea_hunt_hun = $1 AND tea_finished IS NULL', [hunt.id]);
+    const waiting = await one(db, 'SELECT 1 FROM th_teams WHERE tea_hunt_hun = $1 AND tea_finished IS NULL AND tea_abandoned IS NULL', [hunt.id]);
     if (waiting) return;
     await db.query(`UPDATE th_hunts SET hun_closed = now(), hun_status_hst = $2, hun_lastupdate = now() WHERE hun_id = $1`, [
       hunt.id,

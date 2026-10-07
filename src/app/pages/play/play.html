@@ -198,7 +198,8 @@
           @if (s.clue?.canSkip) {
             <div class="give-up">
               <button mat-button type="button" class="give-up-btn" (click)="skip(pz.order)" [disabled]="busy()">
-                <mat-icon>skip_next</mat-icon>Abandonner cette épreuve <span class="small">(+{{ s.hunt.skipPenalty }} min)</span>
+                <mat-icon>skip_next</mat-icon>{{ pz.order === s.totalSteps ? 'Abandonner le trésor' : 'Abandonner cette épreuve' }}
+                <span class="small">(+{{ s.hunt.skipPenalty }} min)</span>
               </button>
             </div>
           }
@@ -255,7 +256,7 @@
             @if (clue.canSkip) {
               <div class="give-up">
                 <button mat-button type="button" class="give-up-btn" (click)="skip(clue.targetOrder)" [disabled]="busy()">
-                  <mat-icon>skip_next</mat-icon>Abandonner cette épreuve
+                  <mat-icon>skip_next</mat-icon>{{ clue.targetOrder === s.totalSteps ? 'Abandonner le trésor' : 'Abandonner cette épreuve' }}
                   @if (s.hunt.skipPenalty) {
                     <span class="small">(+{{ s.hunt.skipPenalty }} min)</span>
                   }
@@ -265,6 +266,11 @@
             <div class="give-up">
               <button mat-button type="button" class="give-up-btn" (click)="report.open(s.hunt.id, clue.targetOrder, 'le lieu que vous cherchez')">
                 <mat-icon>flag</mat-icon>Signaler un problème (lieu fermé, travaux…)
+              </button>
+            </div>
+            <div class="give-up">
+              <button mat-button type="button" class="give-up-btn" (click)="abandonGame()" [disabled]="busy()">
+                <mat-icon>logout</mat-icon>Abandonner la partie
               </button>
             </div>
           </section>
@@ -287,7 +293,12 @@
       }
       @case ('finished') {
         <section class="surface center finish">
-          <span class="stamp stamp--accent big-stamp">Trésor trouvé !</span>
+          @if (treasureSkipped()) {
+            <span class="stamp big-stamp">Parcours terminé</span>
+            <p class="small muted">Trésor abandonné : votre équipe est classée après celles qui l'ont trouvé.</p>
+          } @else {
+            <span class="stamp stamp--accent big-stamp">Trésor trouvé !</span>
+          }
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
           <p class="muted small">Temps de parcours{{ s.penalty ? ', pénalités incluses (+' + s.penalty + ' min)' : '' }}</p>
@@ -306,6 +317,17 @@
             <a mat-stroked-button [routerLink]="['/catalog', s.hunt.catalogId]" fragment="classement"><mat-icon>leaderboard</mat-icon>Comparer mon temps aux autres joueurs</a>
           }
           <a mat-stroked-button [routerLink]="['/hunts', s.hunt.id, 'souvenir']"><mat-icon>photo_album</mat-icon>Mon souvenir à partager</a>
+        </section>
+      }
+      @case ('abandoned') {
+        <section class="surface center">
+          <mat-icon class="big-icon">flag</mat-icon>
+          <h2>Partie abandonnée</h2>
+          <p class="muted">Votre équipe a abandonné le {{ s.team.abandoned | date: 'd MMMM à HH:mm' }}, après {{ s.validated.length }} étape{{ s.validated.length > 1 ? 's' : '' }} sur {{ s.totalSteps }}. Elle n'est pas classée.</p>
+          @if (s.hunt.status !== 'running') {
+            <a mat-flat-button class="th-cta" [routerLink]="['/hunts', s.hunt.id, 'results']"><mat-icon>emoji_events</mat-icon>Voir les résultats</a>
+          }
+          <a mat-stroked-button routerLink="/carnet"><mat-icon>history_edu</mat-icon>Mon historique</a>
         </section>
       }
       @case ('over') {

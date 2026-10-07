@@ -34,6 +34,9 @@
               @case ('finished') {
                 <span class="badge badge--accent"><mat-icon>diamond</mat-icon>arrivée {{ r.team.finished | date: 'HH:mm' }}</span>
               }
+              @case ('abandoned') {
+                <span class="badge badge--cancelled"><mat-icon>flag</mat-icon>abandon {{ r.team.abandoned | date: 'HH:mm' }}</span>
+              }
               @case ('waiting') {
                 <span class="badge badge--published"><mat-icon>hourglass_top</mat-icon>départ dans {{ startsIn(r.team.started) }}</span>
               }
@@ -41,7 +44,7 @@
                 <span class="badge badge--running"><mat-icon>directions_run</mat-icon>en piste</span>
               }
             }
-            @if (h.status === 'running' && r.status !== 'finished') {
+            @if (h.status === 'running' && r.status !== 'finished' && r.status !== 'abandoned') {
               <button mat-icon-button type="button" [matMenuTriggerFor]="menu" aria-label="Actions"><mat-icon>more_vert</mat-icon></button>
               <mat-menu #menu="matMenu">
                 @if (r.status === 'running') {

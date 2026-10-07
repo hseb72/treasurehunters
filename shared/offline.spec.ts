@@ -42,7 +42,7 @@ describe('carnet hors ligne', () => {
     p = applyOffline(pack, p, { id: 'e4', kind: 'arrive', stepId: 102, at: '2026-09-28T10:20:00Z', lat: 43.6, lng: 3.8, accuracy: 5 });
     expect(offlineView(pack, p).phase).toBe('puzzle');
     p = applyOffline(pack, p, { id: 'e5', kind: 'answer', stepId: 102, at: '2026-09-28T10:22:00Z', answer: '1789' });
-    expect(offlineView(pack, p)).toMatchObject({ phase: 'playing', target: { order: 3 }, canSkip: false });
+    expect(offlineView(pack, p)).toMatchObject({ phase: 'playing', target: { order: 3 }, canSkip: true }); // le trésor s'abandonne aussi
     p = applyOffline(pack, p, { id: 'e6', kind: 'arrive', stepId: 103, at: '2026-09-28T10:30:00Z', lat: 43.6, lng: 3.8, accuracy: 5 });
     expect(offlineView(pack, p).phase).toBe('finished');
   });

@@ -34,13 +34,20 @@
   </div>
 
   @for (g of games(); track g.huntId) {
-    <a class="surface game" [routerLink]="['/play', g.huntId]" [attr.aria-label]="'Reprendre ' + g.name">
-      <span class="small muted"><mat-icon inline>{{ g.offline ? 'cloud_off' : 'play_circle' }}</mat-icon> Ma partie en cours</span>
-      <strong class="game-name">{{ g.name }}</strong>
-      <span class="small">Étape {{ g.step }}/{{ g.totalSteps }} · {{ elapsed(g.started) }}</span>
-      <span class="bar" aria-hidden="true"><span [style.width.%]="((g.step - 1) / g.totalSteps) * 100"></span></span>
-      <span class="game-cta">Reprendre <mat-icon>arrow_forward</mat-icon></span>
-    </a>
+    <div class="game-wrap">
+      <a class="surface game" [routerLink]="['/play', g.huntId]" [attr.aria-label]="'Reprendre ' + g.name">
+        <span class="small muted"><mat-icon inline>{{ g.offline ? 'cloud_off' : 'play_circle' }}</mat-icon> Ma partie en cours</span>
+        <strong class="game-name">{{ g.name }}</strong>
+        <span class="small">Étape {{ g.step }}/{{ g.totalSteps }} · {{ elapsed(g.started) }}</span>
+        <span class="bar" aria-hidden="true"><span [style.width.%]="((g.step - 1) / g.totalSteps) * 100"></span></span>
+        <span class="game-cta">Reprendre <mat-icon>arrow_forward</mat-icon></span>
+      </a>
+      @if (!g.offline) {
+        <button mat-button type="button" class="game-abandon" (click)="abandon(g)" [disabled]="abandoning() === g.huntId" [attr.aria-label]="'Abandonner ' + g.name">
+          <mat-icon>logout</mat-icon>Abandonner la partie
+        </button>
+      }
+    </div>
   }
 
   @for (hunt of running(); track hunt.id) {

@@ -294,6 +294,7 @@ export function buildFixtures(now = Date.now()): MockDb {
       startOrder: opts.startOrder ?? null,
       started: opts.started ?? null,
       finished: passes.length === final ? new Date(origin + passes[passes.length - 1] * MIN).toISOString() : null,
+      abandoned: null,
       members: members(...memberIds),
     });
   };

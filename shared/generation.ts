@@ -62,6 +62,13 @@ export function searchRadius(durationMinutes: number, travel: Travel = 'walk'): 
   return Math.min(s.max, Math.max(s.min, Math.round(durationMinutes * s.perMinute)));
 }
 
+/**
+ * Retour au point de départ : distance maximale entre le trésor et le rendez-vous (§ 11.2).
+ * Les joueurs viennent souvent au départ en voiture ou en transports ; un trésor à 3 km doublerait
+ * la balade d'un retour sans énigme. Le parcours forme donc une boucle.
+ */
+export const LOOP_MAX_METERS: Record<Travel, number> = { walk: 500, active: 1500, motor: 5000 };
+
 /** Déplacement : les trois formules de chasse. */
 export const TRAVEL_LABELS: Record<Travel, string> = {
   walk: 'Balade',
@@ -136,9 +143,10 @@ export function demoPlan(center: { lat: number; lng: number }, count: number, pl
     },
   ];
   for (let i = 1; i <= count; i++) {
-    const angle = i * 2.1;
-    const dist = 120 * i; // mètres
     const final = i === count;
+    const angle = i * 2.1;
+    // Le parcours s'éloigne puis revient : le trésor est tout près du rendez-vous (boucle, § 11.2).
+    const dist = final ? 150 : 120 * Math.min(i, count - i); // mètres
     const place = places[(i - 1) % places.length];
     steps.push({
       title: final ? 'Le trésor' : place[0].toUpperCase() + place.slice(1),

@@ -138,6 +138,8 @@ export interface Team {
   startOrder: number | null;
   started: string | null;
   finished: string | null;
+  /** Partie abandonnée par l'équipe : chrono arrêté, équipe non classée. */
+  abandoned: string | null;
   members: Member[];
 }
 
@@ -176,6 +178,10 @@ export interface RankingRow {
   time: number | null;
   penalty: number;
   lastValidation: string | null;
+  /** Arrivée par abandon du trésor : classée après les équipes qui l'ont trouvé. */
+  treasureSkipped: boolean;
+  /** Partie abandonnée : non classée. */
+  abandoned: boolean;
 }
 
 export interface PlayStep {
@@ -198,7 +204,7 @@ export interface PlayClue {
   instructions: string;
   hintsRevealed: string[];
   hintsTotal: number;
-  /** L'équipe peut abandonner cette épreuve (jamais l'arrivée). */
+  /** L'équipe peut abandonner cette épreuve ; abandonner l'arrivée termine le parcours (classé après les équipes qui ont trouvé le trésor). */
   canSkip: boolean;
   /** Photo du lieu cherché, en tête de l'énigme si l'organisateur l'a voulu (§ 18). */
   illustration: number | null;
@@ -459,6 +465,7 @@ export type ScanOutcome =
   | 'organizer'
   | 'team_not_started'
   | 'team_finished'
+  | 'team_abandoned'
   | 'already_validated'
   | 'skipped'
   | 'validated'
@@ -483,7 +490,7 @@ export interface LiveRow {
   lastAt: string | null;
   hints: number;
   skips: number;
-  status: 'waiting' | 'running' | 'finished';
+  status: 'waiting' | 'running' | 'finished' | 'abandoned';
   /** Photos qui ont validé une étape et attendent le contrôle de l'organisateur. */
   photosToReview: number;
 }
