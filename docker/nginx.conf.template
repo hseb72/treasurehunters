@@ -31,8 +31,9 @@ server {
     add_header X-Content-Type-Options    "nosniff"                          always;
     add_header X-Frame-Options           "DENY"                             always;
     add_header Referrer-Policy           "strict-origin-when-cross-origin"  always;
-    # camera=(self) : le scanner de QR code intégré en a besoin.
-    add_header Permissions-Policy        "camera=(self), microphone=(), geolocation=(self)" always;
+    # camera=(self) : le scanner de QR code intégré en a besoin ; microphone=(self) : le guide
+    # vocal (§ 46). Avec microphone=(), Chrome ouvre le micro mais la reconnaissance ne reçoit rien.
+    add_header Permissions-Policy        "camera=(self), microphone=(self), geolocation=(self)" always;
     add_header Cache-Control             $th_cache_control                  always;
     add_header Content-Security-Policy   "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob: https://tile.openstreetmap.org; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; media-src 'self' blob:" always;
 

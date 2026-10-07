@@ -25,7 +25,7 @@ const STOP_GRACE_MS = 1500;
 const STOP_WAIT_MS = 6000;
 
 const ERRORS: Record<string, string> = {
-  'not-allowed': 'Autorisez le micro pour ce site dans les réglages du navigateur.',
+  'not-allowed': 'Le micro est refusé : autorisez-le pour ce site (cadenas à gauche de l’adresse → Autorisations → Micro).',
   'service-not-allowed': 'Autorisez le micro pour ce site dans les réglages du navigateur.',
   'no-speech': 'Je n’ai rien entendu. Touchez le micro et parlez près du téléphone.',
   'audio-capture': 'Aucun micro disponible sur cet appareil.',
@@ -86,7 +86,8 @@ export class Voice {
         this.transcribing.set(false);
         if (graceTimer) clearTimeout(graceTimer);
         const heard = (final || this.transcript()).trim();
-        if (failed && !heard && !byUser) reject(new Error(failed));
+        // Même après le bouton d'arrêt : une erreur du navigateur (micro refusé, réseau) se dit telle quelle.
+        if (failed && !heard) reject(new Error(failed));
         else resolve(heard);
       };
       this.finishNow = finish;
