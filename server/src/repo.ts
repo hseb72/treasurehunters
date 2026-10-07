@@ -184,6 +184,7 @@ export function toTeam(r: Row): Team {
     startOrder: r['tea_startorder'],
     started: iso(r['tea_started']),
     finished: iso(r['tea_finished']),
+    abandoned: iso(r['tea_abandoned']),
     members: r['members'],
   };
 }

@@ -98,7 +98,7 @@ export function offlineView(pack: OfflinePack, p: OfflineProgress): OfflineView 
     current,
     target: phase === 'finished' ? null : target,
     hintsRevealed: current ? current.hints.slice(0, used) : [],
-    canSkip: !!target && target.order < finalOrder,
+    canSkip: !!target,
     finalOrder,
   };
 }

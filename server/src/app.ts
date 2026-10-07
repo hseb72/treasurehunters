@@ -393,6 +393,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.get('/api/hunts/:id/play', async (req) => service.getPlay(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/hints', async (req) => service.revealHint(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/skip', async (req) => service.skipStep(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/abandon', async (req) => service.abandonHunt(req.viewer, idParams.parse(req.params).id));
   app.post('/api/hunts/:id/self-start', async (req) => service.selfStart(req.viewer, idParams.parse(req.params).id));
   app.put('/api/hunts/:id/self-paced', async (req) => {
     const { selfPaced } = z.object({ selfPaced: z.boolean() }).parse(req.body);

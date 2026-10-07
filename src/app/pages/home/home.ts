@@ -7,13 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
-import { of } from 'rxjs';
+import { filter, of, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Clock } from '../../core/clock';
 import { OfflineStore } from '../../core/offline-store';
 import { offlineView } from '@shared/offline';
 import { GameInProgress } from '@shared/models';
 import { Notify } from '../../core/notify';
+import { Confirm } from '../../shared/confirm-dialog';
 import { Session } from '../../core/session';
 import { formatClock } from '../../shared/format';
 import { HuntCard } from '../../shared/hunt-card';
@@ -90,6 +91,40 @@ export class HomePage {
     }
     return list;
   });
+
+  private readonly confirm = inject(Confirm);
+  /** Partie en cours d'abandon (bouton désactivé le temps de la requête). */
+  protected readonly abandoning = signal<number | null>(null);
+
+  /** Abandon de la partie depuis l'accueil (§ 5.2) : toute l'équipe s'arrête, non classée. */
+  protected abandon(g: GameInProgress): void {
+    this.confirm
+      .ask({
+        title: `Abandonner « ${g.name} » ?`,
+        message:
+          'Le chrono s’arrête et vous ne serez pas classé. Si vous jouez en équipe, toute l’équipe s’arrête avec vous. Ce choix est définitif.',
+        confirm: 'Abandonner la partie',
+        danger: true,
+      })
+      .pipe(
+        filter(Boolean),
+        switchMap(() => {
+          this.abandoning.set(g.huntId);
+          return this.api.abandonHunt(g.huntId);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.abandoning.set(null);
+          this.inProgress.reload();
+          this.notify.info('Partie abandonnée. Elle reste dans votre historique.');
+        },
+        error: (e) => {
+          this.abandoning.set(null);
+          this.notify.error(e);
+        },
+      });
+  }
 
   protected elapsed(iso: string): string {
     const m = Math.max(0, Math.round((this.clock.now() - Date.parse(iso)) / 60_000));

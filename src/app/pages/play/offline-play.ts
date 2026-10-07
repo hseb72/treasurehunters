@@ -115,7 +115,7 @@ import { filter } from 'rxjs';
                   <button mat-stroked-button type="button" (click)="hint()"><mat-icon>key</mat-icon>Joker {{ v.hintsRevealed.length + 1 }} / {{ v.current.hints.length }}</button>
                 }
                 @if (v.canSkip) {
-                  <button mat-button type="button" (click)="skip()">Abandonner cette épreuve</button>
+                  <button mat-button type="button" (click)="skip()">{{ v.target?.order === v.finalOrder ? 'Abandonner le trésor' : 'Abandonner cette épreuve' }}</button>
                 }
               </div>
             </section>
@@ -212,7 +212,16 @@ export class OfflinePlay {
     const target = this.view()?.target;
     if (!target) return;
     this.confirm
-      .ask({ title: 'Abandonner cette épreuve ?', message: 'L’énigme suivante se dévoile, avec la pénalité d’abandon.', confirm: 'Abandonner', danger: true })
+      .ask(
+        target.order === this.view()?.finalOrder
+          ? {
+              title: 'Abandonner le trésor ?',
+              message: 'Votre parcours s’arrête ici, avec la pénalité d’abandon : votre équipe sera classée après celles qui ont trouvé le trésor.',
+              confirm: 'Abandonner le trésor',
+              danger: true,
+            }
+          : { title: 'Abandonner cette épreuve ?', message: 'L’énigme suivante se dévoile, avec la pénalité d’abandon.', confirm: 'Abandonner', danger: true },
+      )
       .pipe(filter(Boolean))
       .subscribe(() => this.store.record(this.huntId(), { kind: 'skip', stepId: target.stepId }));
   }

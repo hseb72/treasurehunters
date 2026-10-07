@@ -57,6 +57,9 @@
               @if (r.skips) {
                 <span class="small penalty">{{ r.skips }} épreuve{{ r.skips > 1 ? 's' : '' }} abandonnée{{ r.skips > 1 ? 's' : '' }}</span>
               }
+              @if (r.treasureSkipped) {
+                <span class="small penalty">trésor abandonné</span>
+              }
             </span>
           </div>
         }
@@ -70,7 +73,7 @@
             <span class="hide-sm">{{ r.started | date: 'HH:mm' }}</span>
             <span class="hide-sm">—</span>
             <span>{{ r.hints }}</span>
-            <span class="num small">Non classée · {{ r.steps }} étape{{ r.steps > 1 ? 's' : '' }}</span>
+            <span class="num small">{{ r.abandoned ? 'Abandon' : 'Non classée' }} · {{ r.steps }} étape{{ r.steps > 1 ? 's' : '' }}</span>
           </div>
         }
       </div>
@@ -80,7 +83,7 @@
 
   @if (hunt.value(); as h) {
     @if (h.status === 'closed' || h.status === 'archived') {
-      <th-rating-form [huntId]="h.id" />
+      <th-rating-form id="avis" [huntId]="h.id" />
     }
   }
 </div>

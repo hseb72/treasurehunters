@@ -170,4 +170,10 @@
   .game-cta { align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--th-primary); }
 }
 
+.game-wrap {
+  display: flex;
+  flex-direction: column;
+  .game-abandon { align-self: flex-end; color: var(--th-ink-soft); }
+}
+
 button.action { border: 0; font-family: inherit; cursor: pointer; }

@@ -122,6 +122,8 @@ export abstract class HuntApi {
   abstract revealHint(huntId: number): Observable<PlayState>;
   /** Abandonne l'épreuve en cours (« 4ᵉ joker ») : pénalité d'abandon, énigme suivante. */
   abstract skipStep(huntId: number): Observable<PlayState>;
+  /** Abandon de la partie : toute l'équipe s'arrête, non classée (§ 5.2). */
+  abstract abandonHunt(huntId: number): Observable<PlayState>;
   abstract scan(token: string): Observable<ScanResult>;
   /** « Je suis arrivé » : validation de l'étape cherchée par géolocalisation. */
   abstract checkin(huntId: number, pos: { lat: number; lng: number; accuracy: number }): Observable<CheckinResult>;

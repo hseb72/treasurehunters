@@ -5,7 +5,7 @@ const T0 = Date.parse('2026-09-24T10:00:00Z');
 const at = (min: number) => new Date(T0 + min * 60_000).toISOString();
 
 function team(id: number, extra: Partial<Team> = {}): Team {
-  return { id, huntId: 1, name: `T${id}`, ownerId: id, joinCode: `C${id}`, solo: false, startOrder: null, started: null, finished: null, members: [], ...extra };
+  return { id, huntId: 1, name: `T${id}`, ownerId: id, joinCode: `C${id}`, solo: false, startOrder: null, started: null, finished: null, abandoned: null, members: [], ...extra };
 }
 
 function hunt(extra: Partial<Hunt> = {}): Hunt {
@@ -63,6 +63,8 @@ describe('evaluateScan', () => {
     expect(evaluateScan(base({ team: team(1, { started: at(45) }) }))).toBe('team_not_started'));
   it('ne revalide rien après l’arrivée', () =>
     expect(evaluateScan(base({ team: team(1, { started: at(0), finished: at(20) }) }))).toBe('team_finished'));
+  it('une équipe qui a abandonné la partie ne valide plus rien', () =>
+    expect(evaluateScan(base({ team: team(1, { started: at(0), abandoned: at(20) }) }))).toBe('team_abandoned'));
 });
 
 describe('computeRanking', () => {
@@ -88,6 +90,29 @@ describe('computeRanking', () => {
     expect(rows[0].teamId).toBe(2);
     expect(rows[1].time).toBe(70 * 60);
     expect(rows[1].penalty).toBe(600);
+  });
+
+  it('classe après les équipes qui ont trouvé le trésor celles qui l’ont abandonné', () => {
+    // A arrive en 40 min en abandonnant le trésor (+30 = 70) ; B trouve le trésor en 90 min.
+    const teams = [team(1, { started: at(0), finished: at(40) }), team(2, { started: at(0), finished: at(90) })];
+    const v: Validation[] = [
+      ...vals(1, 2),
+      { teamId: 1, stepId: 13, hunterId: 1, source: 'SKIP', at: at(40) },
+      ...vals(2, 3),
+    ];
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, v, []);
+    expect(rows.map((r) => [r.teamId, r.rank, r.treasureSkipped])).toEqual([[2, 1, false], [1, 2, true]]);
+    expect(rows[1].time).toBe(70 * 60);
+  });
+
+  it('ne classe pas une équipe qui a abandonné la partie et la place en dernier', () => {
+    const teams = [
+      team(1, { started: at(0), abandoned: at(50) }),
+      team(2, { started: at(0) }),
+      team(3, { started: at(0), finished: at(60) }),
+    ];
+    const rows = computeRanking({ hintPenalties: [0, 0, 0], skipPenalty: 30 }, teams, [...vals(1, 2), ...vals(2, 1), ...vals(3, 3)], []);
+    expect(rows.map((r) => [r.teamId, r.rank, r.abandoned])).toEqual([[3, 1, false], [2, null, false], [1, null, true]]);
   });
 
   it('ajoute la pénalité de chaque épreuve abandonnée', () => {

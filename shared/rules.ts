@@ -58,6 +58,7 @@ export function evaluateScan(ctx: ScanContext): ScanOutcome {
   if (!ctx.team) return 'not_registered';
   if (!ctx.team.started || Date.parse(ctx.team.started) > ctx.now) return 'team_not_started';
   if (ctx.team.finished) return 'team_finished';
+  if (ctx.team.abandoned) return 'team_abandoned';
   if (ctx.validations.some((v) => v.stepId === step.id)) return 'already_validated';
   if (step.order !== lastValidatedOrder(ctx.steps, ctx.validations) + 1) return 'skipped';
   return 'validated';
@@ -79,9 +80,21 @@ export function penaltyMinutes(
 }
 
 /**
+ * Arrivée par abandon du trésor : l'arrivée est toujours la dernière étape validée, donc une
+ * équipe arrivée dont la dernière validation est un abandon (SKIP) n'a pas trouvé le trésor.
+ */
+export function treasureSkipped(team: Pick<Team, 'finished'>, validations: Pick<Validation, 'source' | 'at'>[]): boolean {
+  if (!team.finished || !validations.length) return false;
+  const last = validations.reduce((a, v) => (v.at >= a.at ? v : a));
+  return last.source === 'SKIP';
+}
+
+/**
  * Classement (§ 5.2) : temps = arrivée − départ + pénalités (jokers et abandons).
  * En départ groupé, cela revient à classer par ordre d'arrivée.
- * Les équipes non arrivées suivent, par nombre d'étapes puis par temps écoulé à leur dernière validation.
+ * Les équipes arrivées en abandonnant le trésor sont classées après celles qui l'ont trouvé.
+ * Les équipes non arrivées suivent, non classées, par nombre d'étapes puis par temps écoulé à
+ * leur dernière validation ; celles qui ont abandonné la partie ferment la marche.
  */
 export function computeRanking(
   hunt: Pick<Hunt, 'hintPenalties' | 'skipPenalty'>,
@@ -110,16 +123,23 @@ export function computeRanking(
       time,
       penalty,
       lastValidation,
+      treasureSkipped: treasureSkipped(t, vals),
+      abandoned: !t.finished && !!t.abandoned,
     };
   });
 
   rows.sort((a, b) => {
     if (a.time !== null && b.time !== null) {
-      return a.time - b.time || a.finished!.localeCompare(b.finished!) || a.hints + a.skips - (b.hints + b.skips);
+      return (
+        Number(a.treasureSkipped) - Number(b.treasureSkipped) ||
+        a.time - b.time ||
+        a.finished!.localeCompare(b.finished!) ||
+        a.hints + a.skips - (b.hints + b.skips)
+      );
     }
     if (a.time !== null) return -1;
     if (b.time !== null) return 1;
-    return b.steps - a.steps || elapsedAtLast(a) - elapsedAtLast(b);
+    return Number(a.abandoned) - Number(b.abandoned) || b.steps - a.steps || elapsedAtLast(a) - elapsedAtLast(b);
   });
 
   let rank = 0;
