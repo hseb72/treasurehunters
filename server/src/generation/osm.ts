@@ -197,7 +197,63 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Place> {
 }
 
 /** Au-delà de ce rayon, la zone est trop vaste pour tout ramener : seulement les lieux marquants. */
-const PROMINENT_FROM = 4000;
+export const PROMINENT_FROM = 4000;
+
+/** Boîte englobante d'un cercle, au format Overpass (sud, ouest, nord, est). */
+function bboxAround(center: { lat: number; lng: number }, radius: number): string {
+  const dLat = radius / 111_195;
+  const dLng = radius / (111_195 * Math.cos((center.lat * Math.PI) / 180));
+  return [center.lat - dLat, center.lng - dLng, center.lat + dLat, center.lng + dLng].map((x) => x.toFixed(6)).join(',');
+}
+
+/**
+ * Catégories de lieux recherchées. `nw` et non `nwr` : les relations (grands parcs
+ * multipolygones) coûtent cher à calculer et font rarement de bonnes étapes. Sur une grande
+ * zone, seulement les lieux marquants.
+ */
+function placeClauses(prominent: boolean): string {
+  return prominent
+    ? `  nw[historic][name][wikidata];
+  nw[tourism~"^(viewpoint|attraction|museum)$"][name];
+  nw[amenity~"^(place_of_worship|theatre)$"][name][wikidata];
+  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
+  nw[leisure~"^(park|garden)$"][name][wikidata];`
+    : `  nw[historic][name];
+  nw[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
+  nw[amenity~"^(fountain|place_of_worship|clock|library|theatre)$"][name];
+  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
+  nw[leisure~"^(park|garden)$"][name];`;
+}
+
+/**
+ * Nombre de lieux remarquables dans un carré autour du point (§ 11.2), sans les rapatrier :
+ * `out count` ne renvoie qu'un total, la requête reste légère même en zone très dense. Sert
+ * à mesurer la densité avant d'interroger une grande zone.
+ */
+export async function countPlacesAround(center: { lat: number; lng: number }, radius: number, prominent: boolean): Promise<number> {
+  const query = `[out:json][timeout:15][bbox:${bboxAround(center, radius)}];
+(
+${placeClauses(prominent)}
+);
+out count;`;
+  const data = (await osmFetch(config.overpassUrls, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `data=${encodeURIComponent(query)}`,
+  })) as { elements?: { type: string; tags?: Record<string, string> }[] };
+  const total = Number(data.elements?.find((e) => e.type === 'count')?.tags?.['total']);
+  if (!Number.isFinite(total)) throw unavailable(new Error('Overpass : comptage sans total'));
+  return total;
+}
+
+/**
+ * Rayon qui contiendrait environ `target` lieux, d'après le nombre compté dans un carré de
+ * demi-côté `probeRadius` : le nombre de lieux croît comme la surface, donc comme le carré
+ * du rayon. Aucun lieu compté : rayon infini (l'appelant plafonne).
+ */
+export function radiusForDensity(counted: number, probeRadius: number, target: number): number {
+  return counted <= 0 ? Number.POSITIVE_INFINITY : Math.round(probeRadius * Math.sqrt(target / counted));
+}
 
 /**
  * Lieux remarquables et nommés dans un rayon donné, du plus proche au plus lointain, plus ceux
@@ -213,26 +269,10 @@ export async function placesAround(
   // Zone de recherche en boîte englobante (`bbox`) : indexée, donc rapide. Un filtre
   // `around` combiné à des clés comme [historic] fait parcourir bien trop d'objets et
   // les instances publiques abandonnent (504). Le cercle exact est appliqué ensuite.
-  const dLat = radius / 111_195;
-  const dLng = radius / (111_195 * Math.cos((center.lat * Math.PI) / 180));
-  const f = (x: number) => x.toFixed(6);
-  const bbox = [center.lat - dLat, center.lng - dLng, center.lat + dLat, center.lng + dLng].map(f).join(',');
-  // `nw` et non `nwr` : les relations (grands parcs multipolygones) coûtent cher à
-  // calculer et font rarement de bonnes étapes.
+  const bbox = bboxAround(center, radius);
   // `maxsize` à 128 Mio au lieu de 512 : Overpass admet une requête selon les ressources
   // qu'elle annonce, et un serveur chargé refuse (504) celles qui en demandent beaucoup.
-  const base =
-    radius > PROMINENT_FROM
-      ? `  nw[historic][name][wikidata];
-  nw[tourism~"^(viewpoint|attraction|museum)$"][name];
-  nw[amenity~"^(place_of_worship|theatre)$"][name][wikidata];
-  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
-  nw[leisure~"^(park|garden)$"][name][wikidata];`
-      : `  nw[historic][name];
-  nw[tourism~"^(artwork|viewpoint|attraction|museum)$"][name];
-  nw[amenity~"^(fountain|place_of_worship|clock|library|theatre)$"][name];
-  nw[man_made~"^(tower|lighthouse|obelisk|water_tower)$"][name];
-  nw[leisure~"^(park|garden)$"][name];`;
+  const base = placeClauses(radius > PROMINENT_FROM);
   const filters = safeThemeFilters(theme);
   // Deux jeux de résultats : les lieux du thème ne doivent pas être évincés par la limite.
   const themed = filters.length ? `(\n${filters.map((f) => `  ${themeClause(f)};`).join('\n')}\n)->.theme;\n.theme out center tags 200;\n` : '';

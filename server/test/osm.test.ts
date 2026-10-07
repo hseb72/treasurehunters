@@ -2,7 +2,8 @@ import { createServer, Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { config } from '../src/config.js';
-import { placesAround } from '../src/generation/osm.js';
+import { countPlacesAround, placesAround, radiusForDensity } from '../src/generation/osm.js';
+import { zoneForDensity } from '../src/generation/generator.js';
 
 /** Faux Overpass : répond selon un scénario, dans l'ordre des requêtes. */
 let server: Server;
@@ -44,6 +45,37 @@ describe('OpenStreetMap : requête', () => {
     expect(pois.map((p) => p.name)).toEqual(['Fontaine']);
     expect(bodies[0]).toMatch(/\[bbox:43\.595\d+,3\.873\d+,43\.604\d+,3\.886\d+\]/);
     expect(bodies[0]).not.toMatch(/around|nwr/);
+  });
+});
+
+describe('OpenStreetMap : densité', () => {
+  it('compte les lieux marquants sans les rapatrier', async () => {
+    config.overpassUrls = [`${base}/principal`];
+    bodies.length = 0;
+    script = [ok([{ type: 'count', id: 0, tags: { nodes: '40', ways: '2', relations: '0', total: '42' } }])];
+    expect(await countPlacesAround({ lat: 48.71, lng: 2.04 }, 5000, true)).toBe(42);
+    expect(bodies[0]).toMatch(/out count;/);
+    expect(bodies[0]).toMatch(/\[wikidata\]/);
+    expect(bodies[0]).toMatch(/\[bbox:48\.665\d+,1\.97\d+,48\.754\d+,2\.10\d+\]/);
+  });
+
+  it('déduit le rayon de la densité, comme une surface', () => {
+    expect(radiusForDensity(150, 5000, 150)).toBe(5000);
+    expect(radiusForDensity(600, 5000, 150)).toBe(2500); // 4 fois plus dense : rayon divisé par 2
+    expect(radiusForDensity(0, 5000, 150)).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('réduit la zone en ville, la garde en campagne, reste prudent sans mesure', async () => {
+    const center = { lat: 48.71, lng: 2.04 };
+    const counted = (n: number) => async () => n;
+    expect(await zoneForDensity(center, 30000, counted(2000))).toBe(6000); // Île-de-France : plancher
+    expect(await zoneForDensity(center, 30000, counted(60))).toBe(7906); // banlieue verte
+    expect(await zoneForDensity(center, 30000, counted(5))).toBe(27386); // campagne
+    expect(await zoneForDensity(center, 30000, counted(0))).toBe(30000); // désert : la zone demandée
+    expect(await zoneForDensity(center, 30000, async () => Promise.reject(new Error('504')))).toBe(10000);
+    let probed = false;
+    expect(await zoneForDensity(center, 3000, async () => ((probed = true), 0))).toBe(3000); // à pied : pas de mesure
+    expect(probed).toBe(false);
   });
 });
 
