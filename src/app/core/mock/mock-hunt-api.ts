@@ -54,6 +54,7 @@ import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
+import { NEARBY_CATEGORIES, NearbyPlace, NearbyResult } from '@shared/nearby';
 import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
 import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
@@ -1890,6 +1891,45 @@ export class MockHuntApi extends HuntApi {
         this.purchases.set(me, owned);
       }
       return this.storeFor(me);
+    });
+  }
+
+  /** Adresses fictives disposées autour du joueur, quelques-unes par catégorie. */
+  nearby(pos: { lat: number; lng: number }, radius: number): Observable<NearbyResult> {
+    return this.reply(() => {
+      this.requireUser();
+      const samples: [string, string | null, string, string | null][] = [
+        ['snack', 'Boulangerie des Halles', 'Boulangerie', 'lun-sam 7h-19h30 · dim 7h-13h'],
+        ['snack', 'Glacier Pinguino', 'Glacier', 'tous les jours 11h-23h'],
+        ['snack', 'Café de la Comédie', 'Café', null],
+        ['food', 'La Table du Marché', 'Restaurant', 'mar-sam 12h-14h, 19h-22h'],
+        ['food', 'Crêperie Bretonne', 'Restaurant', null],
+        ['shops', 'Run & Co', 'Chaussures', 'lun-sam 10h-19h'],
+        ['shops', 'Librairie Sauramps', 'Librairie', 'lun-sam 10h-19h30'],
+        ['shops', 'Le Jouet Rouge', 'Jouets', null],
+        ['toilets', null, 'Toilettes', null],
+        ['pharmacy', 'Pharmacie de la Place', 'Pharmacie', 'lun-sam 8h30-20h'],
+        ['water', null, 'Point d’eau potable', null],
+        ['playground', 'Square des Enfants', 'Aire de jeux', null],
+      ];
+      const places: NearbyPlace[] = samples
+        .map(([category, name, kind, hours], i) => {
+          const distance = Math.round(Math.min(radius, 60 + i * 37));
+          const angle = i * 2.4;
+          return {
+            id: `n${900 + i}`,
+            name,
+            category,
+            kind,
+            lat: pos.lat + (Math.sin(angle) * distance) / 111_195,
+            lng: pos.lng + (Math.cos(angle) * distance) / (111_195 * Math.cos((pos.lat * Math.PI) / 180)),
+            distance,
+            hours,
+            address: name ? `${3 + i} rue de la Loge` : null,
+          };
+        })
+        .sort((a, b) => a.distance - b.distance);
+      return { radius, categories: NEARBY_CATEGORIES.map(({ id, label, icon }) => ({ id, label, icon })), places };
     });
   }
 

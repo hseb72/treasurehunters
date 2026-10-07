@@ -934,3 +934,13 @@ Joueurs → données → diagnostic → IA → amélioration → nouvelle versio
 ## 44. Identité graphique
 
 Pistes retenues pour la suite, sans changement dans ce lot : une identité **« rallye moderne »** (fond clair, noir et blanc et une couleur d'accent, carte au centre, gros numéro d'étape, distance, temps, équipe), proche de l'exploration outdoor mais neutre, pour accueillir aussi bien une chasse familiale qu'un rallye automobile, gastronomique ou d'entreprise. Le **tracé** A → ① → ② → ③ → 🏁 en serait le symbole, jusqu'au logo. Le coffre, la boussole et la carte ancienne restent des **skins** de chasse (§ 15), pas l'identité permanente de l'application.
+
+## 45. Autour de moi
+
+Pendant la partie, le bouton **Autour** de la barre d'outils (§ 16) ouvre les adresses utiles près du joueur : **Goûter, café** (cafés, glaciers, boulangeries, pâtisseries, chocolatiers), **Restaurants**, **Boutiques**, **Toilettes**, **Pharmacie**, **Eau potable**, **Aires de jeux**. Une carte centrée sur le joueur et une liste triée par distance montrent pour chaque adresse sa nature, son adresse et ses horaires quand OpenStreetMap les connaît ; le bouton d'itinéraire ouvre l'application de cartes du téléphone (Plans sur iPhone, Google Maps ailleurs), à pied. Rien du parcours n'est dévoilé : la carte ne montre que le joueur et les adresses.
+
+Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 2 km en expédition. Les 25 adresses les plus proches de chaque catégorie sont gardées.
+
+**Serveur** : `POST /api/nearby` `{ lat, lng, radius }` (connecté, 20 par minute et par session). Une seule requête Overpass par ouverture, un jeu de résultats par catégorie pour qu'aucune ne soit évincée par une autre ; une adresse qui relève de deux catégories va à la première (une pâtisserie est un goûter, pas une boutique). La réponse est **gardée 15 minutes** par case de 200 m : les équipes d'une même chasse passent aux mêmes endroits et les instances publiques d'Overpass limitent le débit ; un échec n'est pas gardé. La position est envoyée dans le corps de la requête : elle n'apparaît pas dans les journaux et n'est pas enregistrée.
+
+**Centres d'intérêt** : des catégories propres à l'équipe (« Sneakers » → magasins de chaussures et de sport) se placent en tête des filtres ; elles viennent du guide (§ 46).

@@ -407,6 +407,7 @@
         <button type="button" (click)="openSheet('compass')" [class.on]="sheet() === 'compass'"><mat-icon>explore</mat-icon>Boussole</button>
       }
       <button type="button" (click)="showClue()"><mat-icon>lightbulb</mat-icon>Indices</button>
+      <button type="button" (click)="openSheet('nearby')" [class.on]="sheet() === 'nearby'"><mat-icon>storefront</mat-icon>Autour</button>
       <button type="button" (click)="openSheet('team')" [class.on]="sheet() === 'team'"><mat-icon>groups</mat-icon>Équipe</button>
       <a routerLink="/"><mat-icon>home</mat-icon>Accueil</a>
     </nav>
@@ -441,6 +442,9 @@
               <span class="spacer"></span>
               <button mat-flat-button type="button" (click)="useCompass()" [disabled]="compassBusy()"><mat-icon>refresh</mat-icon>Actualiser</button>
             </div>
+          }
+          @case ('nearby') {
+            <th-nearby-panel [travel]="s.hunt.travel" />
           }
           @case ('team') {
             <th-team-roles [team]="s.team" (changed)="state.reload()" />

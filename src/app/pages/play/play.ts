@@ -29,6 +29,7 @@ import { PuzzleCard } from '../../shared/puzzle-card';
 import { PlacePhoto } from '../../shared/place-photo';
 import { ReportProblem } from '../../shared/report-dialog';
 import { LatLng } from '../../shared/location-map';
+import { NearbyPanel } from '../../shared/nearby-panel';
 
 /** Rafraîchissement pour voir les scans des équipiers. */
 const REFRESH_MS = 15_000;
@@ -37,7 +38,7 @@ import { SkinDirective, SkinEffects } from '../../shared/skin';
 
 @Component({
   selector: 'th-play',
-  imports: [OfflinePlay, ReadAloud, SkinDirective, DatePipe, InvitePanel, TeamRoles, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap],
+  imports: [OfflinePlay, ReadAloud, SkinDirective, DatePipe, InvitePanel, TeamRoles, MatButtonModule, MatIconModule, RouterLink, PuzzleCard, PlacePhoto, StartPlace, Trail, TrailMap, NearbyPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './play.html',
   styleUrls: ['./play.scss', './play-tools.scss'],
@@ -103,14 +104,14 @@ export class PlayPage {
 
   /* ---------- Barre d'outils (§ 16) ---------- */
 
-  protected readonly sheet = signal<'map' | 'compass' | 'team' | null>(null);
-  protected readonly sheetTitles = { map: 'Carte du parcours', compass: 'Boussole', team: 'Mon équipe' } as const;
+  protected readonly sheet = signal<'map' | 'compass' | 'nearby' | 'team' | null>(null);
+  protected readonly sheetTitles = { map: 'Carte du parcours', compass: 'Boussole', nearby: 'Autour de moi', team: 'Mon équipe' } as const;
   protected readonly me = signal<LatLng | null>(null);
   protected readonly locatingMe = signal(false);
   protected readonly reading = signal<CompassReading | null>(null);
   protected readonly compassBusy = signal(false);
 
-  protected openSheet(kind: 'map' | 'compass' | 'team'): void {
+  protected openSheet(kind: 'map' | 'compass' | 'nearby' | 'team'): void {
     this.sheet.set(this.sheet() === kind ? null : kind);
     if (this.sheet() === 'compass') this.useCompass();
   }

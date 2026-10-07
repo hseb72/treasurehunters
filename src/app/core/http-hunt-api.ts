@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/commo
 import { inject, Injectable } from '@angular/core';
 import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
+import { NearbyResult } from '@shared/nearby';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import {
@@ -357,6 +358,10 @@ export class HttpHuntApi extends HuntApi {
   creatorSkin(id: string): Observable<SkinManifest> {
     return this.http.get<SkinManifest>(`${this.url}/skins/${encodeURIComponent(id)}`);
   }
+  nearby(pos: { lat: number; lng: number }, radius: number): Observable<NearbyResult> {
+    return this.http.post<NearbyResult>(`${this.url}/nearby`, { ...pos, radius });
+  }
+
   compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
     return this.http.post<CompassReading>(`${this.url}/hunts/${huntId}/compass`, pos);
   }
