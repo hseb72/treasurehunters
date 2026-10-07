@@ -36,6 +36,7 @@ export const routes: Routes = [
           { path: '', pathMatch: 'full', redirectTo: 'info' },
           { path: 'info', title: 'Informations', loadComponent: () => import('./pages/organize/hunt-form').then((m) => m.HuntFormPage) },
           { path: 'steps', title: 'Étapes', loadComponent: () => import('./pages/organize/steps-editor').then((m) => m.StepsEditorPage) },
+          { path: 'map', title: 'Carte du parcours', loadComponent: () => import('./pages/organize/route-map-page').then((m) => m.RouteMapPage) },
           { path: 'teams', title: 'Équipes', loadComponent: () => import('./pages/organize/teams-panel').then((m) => m.TeamsPanelPage) },
           { path: 'qrcodes', title: 'QR codes', loadComponent: () => import('./pages/organize/qr-sheet').then((m) => m.QrSheetPage) },
           { path: 'live', title: 'Direct', loadComponent: () => import('./pages/organize/live-board').then((m) => m.LiveBoardPage) },

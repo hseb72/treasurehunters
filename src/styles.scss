@@ -491,6 +491,16 @@ a.surface {
   background: #e4572e;
 }
 
+.trail-pin--end {
+  background: #b45309;
+  font-size: 1rem;
+}
+
+.trail-pin--selected {
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.55);
+  transform: scale(1.15);
+}
+
 /* ---------- Ajustements Material ---------- */
 
 .mat-mdc-form-field {

@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,6 +45,20 @@ export class StepsEditorPage {
     params: () => this.workspace.huntId() || undefined,
     stream: ({ params }) => this.api.getSteps(params),
     defaultValue: [],
+  });
+
+  /** Étape à ouvrir à l'arrivée (« ?step=<id> », depuis la carte du parcours). */
+  readonly step = input<string | undefined>();
+  private openedFromLink: number | null = null;
+  private readonly openRequested = effect(() => {
+    const id = Number(this.step());
+    const target = this.steps.value().find((s) => s.id === id);
+    if (!target || this.openedFromLink === id) return;
+    this.openedFromLink = id;
+    untracked(() => {
+      this.edit(target);
+      setTimeout(() => document.getElementById(`step-${id}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
+    });
   });
 
   /** Preuve par photo activée sur le serveur (et chasse à QR codes) : photos de référence. */
