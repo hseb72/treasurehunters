@@ -16,6 +16,9 @@ interface Recognition {
 
 type RecognitionCtor = new () => Recognition;
 
+/** Attente de la fin de phrase après le bouton d'arrêt. */
+const STOP_GRACE_MS = 800;
+
 const ERRORS: Record<string, string> = {
   'not-allowed': 'Autorisez le micro pour ce site dans les réglages du navigateur.',
   'service-not-allowed': 'Autorisez le micro pour ce site dans les réglages du navigateur.',
@@ -41,10 +44,15 @@ export class Voice {
   readonly transcript = signal('');
   private recognition: Recognition | null = null;
 
+  /** Demande d'arrêt du joueur pour l'écoute en cours. */
+  private stopRequest: (() => void) | null = null;
+  /** Fin immédiate de l'écoute en cours, sans attendre le navigateur. */
+  private finishNow: (() => void) | null = null;
+
   /** Écoute une demande ; résout avec le texte final (vide si rien n'a été compris). */
   listen(lang = 'fr-FR'): Promise<string> {
     this.stopSpeaking();
-    this.recognition?.abort();
+    this.cancel();
     if (!this.ctor) return Promise.reject(new Error('Votre navigateur ne sait pas écouter : écrivez votre demande.'));
     const r = new this.ctor();
     r.lang = lang;
@@ -54,9 +62,30 @@ export class Voice {
     this.recognition = r;
     this.transcript.set('');
     this.listening.set(true);
-    let final = '';
     return new Promise((resolve, reject) => {
+      let final = '';
       let failed: string | null = null;
+      let done = false;
+      let byUser = false;
+      // Une seule fin, qu'elle vienne du navigateur (onend) ou du délai après le bouton d'arrêt.
+      const finish = () => {
+        if (done) return;
+        done = true;
+        r.onresult = r.onerror = r.onend = null;
+        if (this.recognition === r) this.recognition = null;
+        if (this.finishNow === finish) this.finishNow = this.stopRequest = null;
+        this.listening.set(false);
+        const heard = (final || this.transcript()).trim();
+        if (failed && !heard && !byUser) reject(new Error(failed));
+        else resolve(heard);
+      };
+      this.finishNow = finish;
+      this.stopRequest = () => {
+        byUser = true;
+        // Le bouton répond tout de suite ; la fin de phrase arrive souvent juste après l'arrêt.
+        this.listening.set(false);
+        setTimeout(finish, STOP_GRACE_MS);
+      };
       r.onresult = (e) => {
         let interim = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -69,19 +98,49 @@ export class Voice {
       r.onerror = (e) => {
         if (e.error !== 'aborted') failed = ERRORS[e.error] ?? 'Je n’ai pas pu vous écouter. Écrivez votre demande à la place.';
       };
-      r.onend = () => {
-        this.listening.set(false);
-        if (this.recognition === r) this.recognition = null;
-        if (failed && !final.trim()) reject(new Error(failed));
-        else resolve((final || this.transcript()).trim());
-      };
-      r.start();
+      r.onend = finish;
+      try {
+        r.start();
+      } catch (e) {
+        failed = (e as Error).message;
+        finish();
+      }
     });
   }
 
-  /** Fin de la demande : la transcription se termine avec ce qui a été dit. */
+  /**
+   * Fin de la demande, au bouton d'arrêt. Le navigateur est prié de s'arrêter et de rendre la
+   * fin de la phrase ; on ne l'attend pas plus de STOP_GRACE_MS : sur certains téléphones
+   * (Chrome Android), sa confirmation tarde ou ne vient jamais.
+   */
   stopListening(): void {
-    this.recognition?.stop();
+    const r = this.recognition;
+    if (!r) return;
+    this.stopRequest?.();
+    try {
+      r.stop();
+    } catch {
+      // Déjà arrêtée.
+    }
+    // Si le micro reste ouvert malgré tout, on le coupe.
+    setTimeout(() => {
+      try {
+        r.abort();
+      } catch {
+        // Déjà arrêtée.
+      }
+    }, STOP_GRACE_MS + 700);
+  }
+
+  /** Abandon de l'écoute (nouvelle écoute, page quittée), sans attendre. */
+  private cancel(): void {
+    const r = this.recognition;
+    this.finishNow?.();
+    try {
+      r?.abort();
+    } catch {
+      // Déjà arrêtée.
+    }
   }
 
   speak(text: string, lang = 'fr-FR'): void {
