@@ -73,6 +73,21 @@ import { ASSIST_LIMITS } from '@shared/assist';
         </p>
       </section>
 
+      <section class="surface" id="guide">
+        <h2>Guide vocal et « Autour de moi »</h2>
+        <p>
+          Quand vous parlez au guide, la <strong>reconnaissance vocale de votre navigateur</strong> transforme votre voix en texte ; selon
+          l'appareil, elle passe par les serveurs d'Apple ou de Google. Le texte obtenu, et votre position si vous l'autorisez, sont
+          envoyés à notre serveur puis à l'IA (Anthropic) pour comprendre votre demande ; ils <strong>ne sont pas enregistrés</strong>.
+          Vous pouvez toujours écrire votre demande au lieu de la dire.
+        </p>
+        <p>
+          Le volet « Autour de moi » envoie votre position à notre serveur pour chercher les adresses proches dans OpenStreetMap ; elle
+          n'est pas enregistrée. Les centres d'intérêt dits au guide (« des sneakers ») sont gardés avec votre équipe, le temps de la
+          Secret Track. Les adresses et horaires viennent d'OpenStreetMap : vérifiez-les sur place.
+        </p>
+      </section>
+
       <section class="surface">
         <h2>Achats et paiement</h2>
         <p>

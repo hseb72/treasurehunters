@@ -12,6 +12,8 @@ export const config = {
   /** Workspace à utiliser, exigé par l'API quand la clé n'est rattachée à aucun workspace. */
   anthropicWorkspaceId: process.env['ANTHROPIC_WORKSPACE_ID']?.trim() || null,
   generatorModel: process.env['GENERATOR_MODEL'] ?? 'claude-opus-5',
+  /** Guide (§ 46) : un modèle rapide suffit pour extraire des critères. */
+  guideModel: process.env['GUIDE_MODEL'] ?? 'claude-sonnet-5',
   generatorEffort: (process.env['GENERATOR_EFFORT'] ?? 'medium') as 'low' | 'medium' | 'high',
   /** Générations autorisées par joueur sur 24 heures glissantes. */
   generationDailyQuota: Number(process.env['GENERATION_DAILY_QUOTA'] ?? 5),

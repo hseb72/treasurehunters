@@ -54,6 +54,8 @@ import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
+import { NEARBY_CATEGORIES, NearbyCategory, NearbyPlace, NearbyResult } from '@shared/nearby';
+import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
 import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
@@ -1893,6 +1895,72 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /** Adresses fictives disposées autour du joueur, quelques-unes par catégorie. */
+  /** Centres d'intérêt par équipe (§ 46), le temps de la session de maquette. */
+  private readonly interests = new Map<number, GuideInterest[]>();
+
+  understand(req: GuideRequest): Observable<GuideUnderstanding> {
+    return this.reply(() => {
+      this.requireUser();
+      return demoUnderstanding(req);
+    });
+  }
+
+  setInterests(huntId: number, interests: GuideInterest[]): Observable<GuideInterest[]> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const team = this.db.teams.find((t) => t.huntId === huntId && t.members.some((m) => m.hunterId === me));
+      if (!team) throw new ApiError('Vous ne jouez pas cette Secret Track.');
+      const clean = interests.filter((i) => i.label.trim() && i.filters.length).slice(0, GUIDE_MAX_INTERESTS);
+      this.interests.set(team.id, clean);
+      return clean;
+    });
+  }
+
+  nearby(pos: { lat: number; lng: number }, radius: number, huntId?: number): Observable<NearbyResult> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      const team = huntId ? this.db.teams.find((t) => t.huntId === huntId && t.members.some((m) => m.hunterId === me)) : undefined;
+      const interests = team ? (this.interests.get(team.id) ?? []) : [];
+      const samples: [string, string | null, string, string | null][] = [
+        ['snack', 'Boulangerie des Halles', 'Boulangerie', 'lun-sam 7h-19h30 · dim 7h-13h'],
+        ['snack', 'Glacier Pinguino', 'Glacier', 'tous les jours 11h-23h'],
+        ['snack', 'Café de la Comédie', 'Café', null],
+        ['food', 'La Table du Marché', 'Restaurant', 'mar-sam 12h-14h, 19h-22h'],
+        ['food', 'Crêperie Bretonne', 'Restaurant', null],
+        [interests.length ? 'interest-0' : 'shops', 'Run & Co', 'Chaussures', 'lun-sam 10h-19h'],
+        ['shops', 'Librairie Sauramps', 'Librairie', 'lun-sam 10h-19h30'],
+        ['shops', 'Le Jouet Rouge', 'Jouets', null],
+        ['toilets', null, 'Toilettes', null],
+        ['pharmacy', 'Pharmacie de la Place', 'Pharmacie', 'lun-sam 8h30-20h'],
+        ['water', null, 'Point d’eau potable', null],
+        ['playground', 'Square des Enfants', 'Aire de jeux', null],
+      ];
+      const places: NearbyPlace[] = samples
+        .map(([category, name, kind, hours], i) => {
+          const distance = Math.round(Math.min(radius, 60 + i * 37));
+          const angle = i * 2.4;
+          return {
+            id: `n${900 + i}`,
+            name,
+            category,
+            kind,
+            lat: pos.lat + (Math.sin(angle) * distance) / 111_195,
+            lng: pos.lng + (Math.cos(angle) * distance) / (111_195 * Math.cos((pos.lat * Math.PI) / 180)),
+            distance,
+            hours,
+            address: name ? `${3 + i} rue de la Loge` : null,
+          };
+        })
+        .sort((a, b) => a.distance - b.distance);
+      const categories: NearbyCategory[] = [
+        ...interests.map((i, n) => ({ id: `interest-${n}`, label: i.label, icon: 'favorite' })),
+        ...NEARBY_CATEGORIES.map(({ id, label, icon }) => ({ id, label, icon })),
+      ];
+      return { radius, categories, places };
+    });
+  }
+
   compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading> {
     return this.reply(() => {
       const state = this.playState(huntId);
@@ -1927,7 +1995,7 @@ export class MockHuntApi extends HuntApi {
 
   getFeatures(): Observable<Features> {
     // La maquette montre le paiement activé, simulé (§ 20).
-    return this.reply(() => ({ photos: true, generation: true, payments: true, assist: true }));
+    return this.reply(() => ({ photos: true, generation: true, payments: true, assist: true, guide: true }));
   }
 
   /* ---------- Assistant de rédaction (§ 25), simulé ---------- */

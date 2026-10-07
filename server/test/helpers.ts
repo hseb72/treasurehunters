@@ -3,6 +3,7 @@ import pg from 'pg';
 import { DEMO_TOKENS } from '../../shared/fixtures.js';
 import { buildApp } from '../src/app.js';
 import { DemoGenerator } from '../src/generation/generator.js';
+import { DemoGuide } from '../src/guide/guide.js';
 import { createPool } from '../src/db.js';
 import { migrate } from '../src/migrate.js';
 import { seedDemo } from '../src/seed-demo.js';
@@ -21,7 +22,7 @@ export async function setup(): Promise<Ctx> {
   await pool.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
   await migrate(pool);
   await seedDemo(pool);
-  return { pool, app: await buildApp(pool, { generator: new DemoGenerator() }) };
+  return { pool, app: await buildApp(pool, { generator: new DemoGenerator(), guide: new DemoGuide() }) };
 }
 
 export async function teardown(ctx: Ctx): Promise<void> {

@@ -934,3 +934,29 @@ Joueurs → données → diagnostic → IA → amélioration → nouvelle versio
 ## 44. Identité graphique
 
 Pistes retenues pour la suite, sans changement dans ce lot : une identité **« rallye moderne »** (fond clair, noir et blanc et une couleur d'accent, carte au centre, gros numéro d'étape, distance, temps, équipe), proche de l'exploration outdoor mais neutre, pour accueillir aussi bien une chasse familiale qu'un rallye automobile, gastronomique ou d'entreprise. Le **tracé** A → ① → ② → ③ → 🏁 en serait le symbole, jusqu'au logo. Le coffre, la boussole et la carte ancienne restent des **skins** de chasse (§ 15), pas l'identité permanente de l'application.
+
+## 45. Autour de moi
+
+Pendant la partie, le bouton **Autour** de la barre d'outils (§ 16) ouvre les adresses utiles près du joueur : **Goûter, café** (cafés, glaciers, boulangeries, pâtisseries, chocolatiers), **Restaurants**, **Boutiques**, **Toilettes**, **Pharmacie**, **Eau potable**, **Aires de jeux**. Une carte centrée sur le joueur et une liste triée par distance montrent pour chaque adresse sa nature, son adresse et ses horaires quand OpenStreetMap les connaît ; le bouton d'itinéraire ouvre l'application de cartes du téléphone (Plans sur iPhone, Google Maps ailleurs), à pied. Rien du parcours n'est dévoilé : la carte ne montre que le joueur et les adresses.
+
+Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 2 km en expédition. Les 25 adresses les plus proches de chaque catégorie sont gardées.
+
+**Serveur** : `POST /api/nearby` `{ lat, lng, radius }` (connecté, 20 par minute et par session). Une seule requête Overpass par ouverture, un jeu de résultats par catégorie pour qu'aucune ne soit évincée par une autre ; une adresse qui relève de deux catégories va à la première (une pâtisserie est un goûter, pas une boutique). La réponse est **gardée 15 minutes** par case de 200 m : les équipes d'une même chasse passent aux mêmes endroits et les instances publiques d'Overpass limitent le débit ; un échec n'est pas gardé. La position est envoyée dans le corps de la requête : elle n'apparaît pas dans les journaux et n'est pas enregistrée.
+
+**Centres d'intérêt** : des catégories propres à l'équipe (« Sneakers » → magasins de chaussures et de sport) se placent en tête des filtres ; elles viennent du guide (§ 46).
+
+## 46. Guide vocal
+
+« **Demander au guide** », en tête de l'accueil, ouvre la page `/guide`. Le joueur touche le micro et dit ce qu'il souhaite (« On est en vacances en famille avec deux enfants, on veut visiter la ville cet après-midi en balade ; prévois une pause pour le goûter »), ou l'écrit. Le guide répond à l'écran et à voix haute (bouton pour couper sa voix).
+
+**Voix** : reconnaissance et synthèse vocales du navigateur (gratuites ; Chrome et Safari, transcription par Google ou Apple). Le navigateur demande l'autorisation du micro. Sans reconnaissance vocale (Firefox), la demande s'écrit.
+
+**Compréhension** : `POST /api/guide` `{ text, position }` (connecté, 10 par minute et par session). Un appel court à l'IA (`GUIDE_MODEL`, Sonnet 5, effort bas) **extrait seulement des critères** : lieu nommé, temps disponible, temps réservé, déplacement, difficulté, public, âge du plus jeune, thème, centres d'intérêt. Le serveur en calcule le reste : bornes, **durée de jeu = temps disponible − temps réservé** (30 min au moins ; « 2 h avec goûter » = 1 h 30 de jeu + 30 min de goûter), récapitulatif dit au joueur, et la question « Où souhaitez-vous jouer ? » s'il n'y a ni lieu ni position. Sans réponse exploitable de l'IA, une compréhension par mots-clés prend le relais. Rien n'est enregistré.
+
+**Catalogue d'abord** : le front cherche les Secret Tracks jouables en autonomie, du même déplacement, d'une durée entre 60 % et +20 min de la durée de jeu, près du joueur (3 km à pied, 10 km à vélo, 40 km en véhicule) ou au lieu nommé. Les trois meilleures sont proposées : bonne difficulté, bon public, âge minimum compatible, proximité, note. « Plutôt un parcours sur mesure » reste possible.
+
+**Sur mesure** : sans proposition, le guide dit « Je vous concocte un parcours personnalisé » et lance la génération (§ 11) en « Je joue », avec la durée de jeu ; l'écran d'attente habituel prend le relais. Sans droit de génération (§ 21), il renvoie vers la page de création.
+
+**Centres d'intérêt** : ce que le joueur veut trouver pendant la partie (« une paire de sneakers » → magasins de chaussures et de sport) suit la Secret Track choisie ou générée ; à l'ouverture du carnet de route, ils sont enregistrés pour l'équipe (`PUT /api/hunts/:id/interests`, catégories OpenStreetMap filtrées par le serveur, 3 au plus ; migration `032_interests.sql`) et passent en tête du volet « Autour de moi » (§ 45).
+
+**Coût** : environ un centime par demande quand le catalogue répond ; une génération sur mesure coûte comme aujourd'hui et compte dans les droits de génération.

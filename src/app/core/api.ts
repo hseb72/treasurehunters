@@ -10,6 +10,8 @@ import { TrackList, TrackListDetail } from '@shared/lists';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import { ExplorerJournal } from '@shared/journal';
+import { NearbyResult } from '@shared/nearby';
+import { GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
   AuthResult,
@@ -184,6 +186,12 @@ export abstract class HuntApi {
   abstract creatorSkin(id: string): Observable<SkinManifest>;
   /** Outil Boussole : direction et fourchette de distance du prochain lieu. */
   abstract compass(huntId: number, pos: { lat: number; lng: number }): Observable<CompassReading>;
+  /** Autour de moi (§ 45) : adresses utiles près du joueur ; `huntId` ajoute les centres d'intérêt de son équipe. */
+  abstract nearby(pos: { lat: number; lng: number }, radius: number, huntId?: number): Observable<NearbyResult>;
+  /** Guide (§ 46) : ce que le guide comprend de la demande du joueur. */
+  abstract understand(req: GuideRequest): Observable<GuideUnderstanding>;
+  /** Centres d'intérêt de l'équipe du joueur dans une chasse (§ 46). */
+  abstract setInterests(huntId: number, interests: GuideInterest[]): Observable<GuideInterest[]>;
 
   /* Énigmes d'arrivée (§ 17) */
   abstract solvePuzzle(huntId: number, answer: string): Observable<PuzzleResult>;

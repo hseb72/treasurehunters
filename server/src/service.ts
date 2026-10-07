@@ -105,6 +105,10 @@ import { AssistReply, AssistRequest, AssistUsage } from '../../shared/assist.js'
 import { RiddleWriter } from './assist/writer.js';
 import { assistUsageOf } from './assist/usage.js';
 import { Translator } from './translate/translator.js';
+import { Guide } from './guide/guide.js';
+import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '../../shared/guide.js';
+import { safeThemeFilters } from './generation/osm.js';
+import { Interest } from './nearby.js';
 
 export type Viewer = number | null;
 export type HuntScope = 'public' | 'playing' | 'organized';
@@ -155,6 +159,8 @@ export class Service {
   writer: RiddleWriter | null = null;
   /** Traduction des chasses (§ 33) ; null sans clé d'API (seul le cache sert). */
   translator: Translator | null = null;
+  /** Guide (§ 46) ; null sans clé d'API. */
+  guide: Guide | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -169,7 +175,37 @@ export class Service {
 
   /** Fonctions activées sur ce serveur, pour que le front n'affiche que ce qui marche. */
   features(): Features {
-    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled, assist: !!this.writer, translation: !!this.translator };
+    return { photos: !!this.photos, generation: !!this.generator, payments: !!this.payments?.enabled, assist: !!this.writer, translation: !!this.translator, guide: !!this.guide };
+  }
+
+  /* ================================================================ Guide (§ 46) */
+
+  async understand(viewer: Viewer, req: GuideRequest): Promise<GuideUnderstanding> {
+    requireUser(viewer);
+    if (!this.guide) throw new HttpError(503, 'Le guide n’est pas disponible sur ce serveur.');
+    return this.guide.understand(req);
+  }
+
+  /** Centres d'intérêt de l'équipe du joueur, filtrés : seules des catégories OpenStreetMap sûres. */
+  async setInterests(viewer: Viewer, huntId: number, interests: GuideInterest[]): Promise<GuideInterest[]> {
+    const team = await teamOf(this.pool, huntId, requireUser(viewer));
+    if (!team) throw notFound('Vous ne jouez pas cette Secret Track.');
+    const clean = interests
+      .map((i) => ({ label: i.label.trim().slice(0, 25), filters: safeThemeFilters(i.filters) }))
+      .filter((i) => i.label && i.filters.length)
+      .slice(0, GUIDE_MAX_INTERESTS);
+    await this.pool.query('UPDATE th_teams SET tea_interests = $2 WHERE tea_id = $1', [team.id, JSON.stringify(clean)]);
+    return clean;
+  }
+
+  /** Centres d'intérêt de l'équipe du joueur dans cette chasse ; aucun s'il n'y joue pas. */
+  async interestsOf(viewer: Viewer, huntId: number): Promise<Interest[]> {
+    const r = await one(
+      this.pool,
+      `SELECT t.tea_interests FROM th_teamhunters m JOIN th_teams t ON t.tea_id = m.thr_team_tea WHERE m.thr_hunt_hun = $1 AND m.thr_hunter_htr = $2`,
+      [huntId, requireUser(viewer)],
+    );
+    return (r?.['tea_interests'] as Interest[] | undefined) ?? [];
   }
 
   /* ================================================================ Assistant de rédaction (§ 25) */

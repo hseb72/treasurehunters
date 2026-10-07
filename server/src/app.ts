@@ -20,6 +20,10 @@ import { LIST_ICONS } from '../../shared/lists.js';
 import { TEAM_ROLE_IDS } from '../../shared/roles.js';
 import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical.js';
 import { Service, Viewer } from './service.js';
+import { NearbyFinder, OsmNearby } from './nearby.js';
+import { ClaudeGuide, Guide } from './guide/guide.js';
+import { THEME_KEYS } from './generation/osm.js';
+import { NEARBY_MAX_RADIUS } from '../../shared/nearby.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -139,6 +143,10 @@ export interface AppOptions {
   writer?: RiddleWriter | null;
   /** Traduction des chasses (§ 33) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
   translator?: Translator | null;
+  /** Adresses utiles près du joueur (§ 45) ; par défaut OpenStreetMap. */
+  nearby?: NearbyFinder;
+  /** Guide (§ 46) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
+  guide?: Guide | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -178,6 +186,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   service.payments = payments;
   service.writer = opts.writer !== undefined ? opts.writer : keyUsable ? new ClaudeRiddleWriter(key!) : null;
   service.translator = opts.translator !== undefined ? opts.translator : keyUsable ? new ClaudeTranslator(key!) : null;
+  service.guide = opts.guide !== undefined ? opts.guide : keyUsable ? new ClaudeGuide(key!) : null;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -265,6 +274,42 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     return service.solvePuzzle(req.viewer, idParams.parse(req.params).id, answer);
   });
   app.post('/api/hunts/:id/puzzle/hint', async (req) => service.puzzleHint(req.viewer, idParams.parse(req.params).id));
+  /* ----- Autour de moi (§ 45) : la position n'est ni journalisée (corps de requête) ni enregistrée. */
+  const nearby = opts.nearby ?? new OsmNearby();
+  const nearbyLimit = { max: 20, timeWindow: '1 minute', keyGenerator: (req: FastifyRequest) => req.headers.authorization ?? req.ip };
+  app.post('/api/nearby', { config: { rateLimit: nearbyLimit } }, async (req) => {
+    if (req.viewer === null) throw new HttpError(401, 'Connectez-vous pour continuer.');
+    const b = z
+      .object({
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        radius: z.number().int().min(100).max(NEARBY_MAX_RADIUS).default(500),
+        /** Chasse en cours : ses centres d'intérêt (§ 46) passent en tête. */
+        huntId: z.number().int().positive().optional(),
+      })
+      .parse(req.body);
+    const interests = b.huntId ? await service.interestsOf(req.viewer, b.huntId) : [];
+    return nearby.find({ lat: b.lat, lng: b.lng }, b.radius, interests);
+  });
+
+  /* ----- Guide (§ 46) : la demande transcrite n'est pas enregistrée. */
+  const interest = z.object({
+    label: z.string().trim().min(1).max(25),
+    filters: z.array(z.object({ key: z.enum(THEME_KEYS), values: z.array(z.string().max(40)).max(10).nullable() })).max(6),
+  });
+  app.post('/api/guide', { config: { rateLimit: { max: 10, timeWindow: '1 minute', keyGenerator: (req: FastifyRequest) => req.headers.authorization ?? req.ip } } }, async (req) => {
+    const b = z
+      .object({
+        text: z.string().trim().min(3).max(600),
+        position: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).nullable().default(null),
+      })
+      .parse(req.body);
+    return service.understand(req.viewer, b);
+  });
+  app.put('/api/hunts/:id/interests', async (req) => {
+    const { interests } = z.object({ interests: z.array(interest).max(3) }).parse(req.body);
+    return service.setInterests(req.viewer, idParams.parse(req.params).id, interests);
+  });
   app.post('/api/hunts/:id/compass', async (req) => {
     const pos = z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(req.body);
     return service.compass(req.viewer, idParams.parse(req.params).id, pos);

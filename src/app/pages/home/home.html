@@ -16,6 +16,14 @@
     <a mat-icon-button routerLink="/catalog" aria-label="Plus de critères, dans le catalogue"><mat-icon>tune</mat-icon></a>
   </div>
 
+  <a class="surface guide-cta" routerLink="/guide">
+    <span class="guide-mic"><mat-icon>mic</mat-icon></span>
+    <span>
+      <strong>Demander au guide</strong>
+      <span class="small muted">Dites ce dont vous avez envie : il trouve votre parcours.</span>
+    </span>
+  </a>
+
   <div class="quick">
     <a class="action" routerLink="/scan"><mat-icon>qr_code_scanner</mat-icon>Scanner</a>
     <a class="action" routerLink="/catalog" [queryParams]="{ jouer: 1 }"><mat-icon>hiking</mat-icon>Jouer en autonomie</a>

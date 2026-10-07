@@ -155,7 +155,7 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
  * le débit et saturent souvent. Chaque essai passe à l'adresse suivante (miroirs), en boucle :
  * chaque miroir est essayé au moins une fois, et il y a au moins trois essais en tout.
  */
-async function osmFetch(urls: string | string[], init: RequestInit = {}): Promise<unknown> {
+export async function osmFetch(urls: string | string[], init: RequestInit = {}): Promise<unknown> {
   const list = Array.isArray(urls) ? urls : [urls];
   const attempts = Math.max(BACKOFF_MS.length + 1, list.length);
   const failures: string[] = [];
@@ -200,7 +200,7 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Place> {
 export const PROMINENT_FROM = 4000;
 
 /** Boîte englobante d'un cercle, au format Overpass (sud, ouest, nord, est). */
-function bboxAround(center: { lat: number; lng: number }, radius: number): string {
+export function bboxAround(center: { lat: number; lng: number }, radius: number): string {
   const dLat = radius / 111_195;
   const dLng = radius / (111_195 * Math.cos((center.lat * Math.PI) / 180));
   return [center.lat - dLat, center.lng - dLng, center.lat + dLat, center.lng + dLng].map((x) => x.toFixed(6)).join(',');
