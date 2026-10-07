@@ -71,6 +71,7 @@ export class WorkspacePage {
   protected readonly tabs = [
     { path: 'info', label: 'Infos', icon: 'edit_note' },
     { path: 'steps', label: 'Étapes', icon: 'route' },
+    { path: 'map', label: 'Carte', icon: 'map' },
     { path: 'teams', label: 'Équipes', icon: 'groups' },
     { path: 'qrcodes', label: 'QR codes', icon: 'qr_code_2' },
     { path: 'live', label: 'Direct', icon: 'radar' },

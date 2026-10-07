@@ -298,6 +298,7 @@ Tous les écrans sont conçus **d'abord pour le téléphone**, pour les joueurs 
 | E8 | Mes expéditions | `/organize` | organisateur |
 | E9 | Espace de l'expédition, onglet **Infos** : présentation, calendrier, règles, pénalités | `/organize/:id/info` | organisateur |
 | E10 | Onglet **Étapes** : parcours réordonnable, énigmes, jokers | `/organize/:id/steps` | organisateur |
+| E10 bis | Onglet **Carte** : le parcours créé ou généré sur une carte OpenStreetMap, étapes numérotées dans l'ordre (⚑ départ, ★ arrivée, entrées secondaires en petits points), reliées, avec le retour arrivée → départ en pointillés ; longueur du parcours (vol d'oiseau), distance de retour (alerte au-delà de la boucle conseillée, § 11.2), étapes à placer. Un repère touché ouvre sa fiche ; « Modifier » mène à l'étape dans l'onglet Étapes (`?step=<id>`) | `/organize/:id/map` | organisateur |
 | E11 | Onglet **Équipes** : inscrits, ordre de passage, tirage au sort | `/organize/:id/teams` | organisateur |
 | E12 | Onglet **QR codes** : planche imprimable | `/organize/:id/qrcodes` | organisateur |
 | E13 | Onglet **Direct** : progression, validation manuelle, retard de départ | `/organize/:id/live` | organisateur |
