@@ -65,6 +65,8 @@ export class StepsEditorPage {
   private readonly features = rxResource({ stream: () => this.api.getFeatures() });
   /** Photo du lieu (§ 18) : illustration pour les joueurs, et référence de l'arbitre photo des chasses à QR. */
   protected readonly photos = computed(() => !!this.features.value()?.photos);
+  /** Serveur sans stockage de photos : on le dit plutôt que de cacher la fonction. */
+  protected readonly photosOff = computed(() => this.features.value()?.photos === false);
   /** Assistant de rédaction (§ 25), si le serveur a une clé d'IA. */
   protected readonly assist = computed(() => !!this.features.value()?.assist);
   /** Envoi d'une photo de référence en cours, et compteur pour recharger l'aperçu. */
