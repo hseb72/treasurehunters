@@ -10,13 +10,13 @@
 
   <p class="bubble surface" aria-live="polite">{{ said() }}</p>
 
-  @if (step() === 'idle' || step() === 'listening' || step() === 'asking' || step() === 'error') {
+  @if (step() === 'idle' || step() === 'listening' || step() === 'asking' || step() === 'confirm' || step() === 'error') {
     @if (voice.canListen) {
       <div class="mic-wrap">
         <button type="button" class="mic" [class.on]="voice.listening()" (click)="talk()" [attr.aria-label]="voice.listening() ? 'J’ai fini' : 'Parler au guide'">
           <mat-icon>{{ voice.listening() ? 'stop' : 'mic' }}</mat-icon>
         </button>
-        <span class="small muted">{{ voice.listening() ? 'Je vous écoute… touchez pour terminer' : step() === 'listening' ? 'Je transcris ce que vous avez dit…' : step() === 'asking' ? 'Touchez pour répondre' : 'Touchez et parlez' }}</span>
+        <span class="small muted">{{ voice.listening() ? 'Je vous écoute… touchez pour terminer' : step() === 'listening' ? 'Je transcris ce que vous avez dit…' : step() === 'asking' ? 'Touchez pour répondre' : step() === 'confirm' ? 'Touchez et répondez « oui » ou « non »' : 'Touchez et parlez' }}</span>
       </div>
       @if ((voice.listening() || step() === 'listening') && voice.transcript()) {
         <p class="heard">« {{ voice.transcript() }} »</p>
@@ -80,6 +80,22 @@
         </div>
       }
       <button mat-stroked-button type="button" (click)="create()"><mat-icon>auto_awesome</mat-icon>Plutôt un parcours sur mesure</button>
+    </section>
+  }
+
+  @if (step() === 'confirm') {
+    <!-- Rien au catalogue : le sur-mesure est proposé, jamais lancé sans accord (il consomme un droit de génération). -->
+    <section class="surface center confirm" aria-label="Parcours sur mesure">
+      @if (canCreate()) {
+        <p>Rien au catalogue pour cette demande. Je peux vous inventer un parcours sur mesure, avec les critères ci-dessus.</p>
+        <div class="row">
+          <button mat-flat-button type="button" (click)="create()"><mat-icon>auto_awesome</mat-icon>Oui, crée mon parcours</button>
+          <button mat-button type="button" (click)="restart()"><mat-icon>edit</mat-icon>Modifier ma demande</button>
+        </div>
+      } @else {
+        <p>Le parcours sur mesure demande un droit de génération.</p>
+        <a mat-flat-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Créer un parcours sur mesure</a>
+      }
     </section>
   }
 
