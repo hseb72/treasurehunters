@@ -17,7 +17,11 @@ import { GuideHandoff } from '../../core/guide-handoff';
 import { Voice } from '../../core/voice';
 import { CatalogCard } from '../../shared/catalog-card';
 
-type Step = 'idle' | 'listening' | 'thinking' | 'asking' | 'searching' | 'proposals' | 'creating' | 'error';
+type Step = 'idle' | 'listening' | 'thinking' | 'asking' | 'searching' | 'proposals' | 'confirm' | 'creating' | 'error';
+
+/** Réponses dites au guide quand il propose le sur-mesure. */
+const YES = /^\s*(oui|ouais|ok|okay|d'?accord|vas[- ]y|allez|go|c'est parti|volontiers|carr[ée]ment|bien s[uû]r|parfait|yes)\b/i;
+const NO = /^\s*(non|nan|pas maintenant|plus tard|annule|laisse tomber|no)\b/i;
 
 /**
  * Guide (§ 46) : le joueur dit ce qu'il souhaite ; le guide le comprend, cherche dans le
@@ -88,18 +92,26 @@ export class GuidePage {
     // Arrêt demandé, fin de phrase attendue : un second appui ne relance pas d'écoute.
     if (this.step() === 'listening') return;
     const asking = this.step() === 'asking';
+    const confirming = this.step() === 'confirm';
     this.error.set(null);
     this.step.set('listening');
     try {
       const heard = await this.voice.listen();
       if (!heard) {
         // Ne pas revenir en silence : le joueur doit savoir que rien n'a été transcrit.
-        this.step.set(asking ? 'asking' : 'idle');
+        this.step.set(asking ? 'asking' : confirming ? 'confirm' : 'idle');
         this.say('Je n’ai rien entendu. Touchez le micro et parlez près du téléphone, ou écrivez votre demande.');
         return;
       }
-      // Réponse à une question : elle complète la demande.
-      this.text.set(asking && this.text() ? `${this.text()} ${heard}` : heard);
+      // Réponse à la proposition de sur-mesure : oui lance la génération, non l'écarte.
+      if (confirming && YES.test(heard)) return void (await this.create());
+      if (confirming && NO.test(heard)) {
+        this.step.set('confirm');
+        this.say('Entendu, je ne crée rien. Vous pouvez modifier votre demande ou chercher dans le catalogue.');
+        return;
+      }
+      // Réponse à une question, ou précision après la proposition : elle complète la demande.
+      this.text.set((asking || confirming) && this.text() ? `${this.text()} ${heard}` : heard);
       await this.understand();
     } catch (e) {
       this.fail((e as Error).message);
@@ -164,7 +176,13 @@ export class GuidePage {
       // Catalogue injoignable : le sur-mesure reste possible.
     }
     this.proposals.set([]);
-    await this.create();
+    // Une génération consomme un droit et prend du temps : on la propose, on ne la lance pas.
+    this.step.set('confirm');
+    this.say(
+      this.canCreate()
+        ? 'Je n’ai trouvé aucun parcours dans le catalogue. Voulez-vous que je vous concocte un parcours sur mesure ? Dites oui, ou touchez le bouton.'
+        : 'Je n’ai trouvé aucun parcours dans le catalogue. Vous pouvez créer un parcours sur mesure.',
+    );
   }
 
   /** Les centres d'intérêt suivent la Secret Track choisie jusqu'à la partie. */

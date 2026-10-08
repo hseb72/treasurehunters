@@ -81,6 +81,26 @@ export class CatalogPage {
     { initialValue: [DURATION_MIN, DURATION_MAX] as const },
   );
 
+  /** « ?criteres=1 » : ouvrir directement les critères avancés (lien « Plus de critères » de l'accueil). */
+  readonly criteres = input<string | undefined>();
+  /** Critères avancés : masqués par défaut, ouverts par « Plus de critères ». */
+  protected readonly moreOpen = linkedSignal(() => this.criteres() === '1');
+  /** Nombre de critères avancés en vigueur, rappelé sur le bouton quand la section est fermée. */
+  protected readonly activeCriteria = computed(
+    () =>
+      [
+        this.travel().length > 0,
+        this.difficulty().length > 0,
+        this.practical().length > 0,
+        this.audience().length > 0,
+        this.setting().length > 0,
+        this.price() !== null,
+        this.maxKm() !== null,
+        this.session() !== null,
+        this.minDuration() > DURATION_MIN || this.maxDuration() < DURATION_MAX,
+      ].filter(Boolean).length,
+  );
+
   protected readonly filtered = computed(
     () =>
       this.travel().length > 0 ||
