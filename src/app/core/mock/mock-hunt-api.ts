@@ -29,6 +29,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoCredit,
   PhotoShow,
   PlayClue,
   PlayState,
@@ -54,6 +55,7 @@ import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
+import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '@shared/similarity';
 import { NEARBY_CATEGORIES, NearbyCategory, NearbyPlace, NearbyResult } from '@shared/nearby';
 import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
@@ -75,6 +77,11 @@ import {
   teamStartTimes,
 } from '@shared/rules';
 import { Session } from '../session';
+
+/** Image d'exemple d'une photo importée par lien dans la maquette (un carré dégradé). */
+const MOCK_LINKED_PHOTO =
+  'data:image/svg+xml;base64,' +
+  btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><defs><linearGradient id="g"><stop offset="0" stop-color="#2a9d8f"/><stop offset="1" stop-color="#e9c46a"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/></svg>');
 import { buildFixtures, MockDb } from '@shared/fixtures';
 
 const LATENCY_MS = 150;
@@ -151,6 +158,8 @@ export class MockHuntApi extends HuntApi {
       this.refPhotos.set(step.id, image);
       step.referencePhoto = true;
       step.photoShow = show;
+      // Une photo libre, avec le crédit que sa licence exige (§ 47).
+      if (order === 3) step.photoCredit = { text: 'Photo : Jean Dupont · CC BY-SA 4.0 · Wikimedia Commons', url: 'https://commons.wikimedia.org/' };
     }
   }
 
@@ -601,11 +610,18 @@ export class MockHuntApi extends HuntApi {
       if (outcome === 'unknown') return result;
       result.hunt = this.huntView(rawHunt!);
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
+      const stepInfo = {
+        order: step!.order,
+        title: step!.title,
+        arrival: step!.arrival,
+        isFinal: step!.order === final,
+        illustration: this.illustration(step!, 'arrival'),
+        credit: this.illustrationCredit(step!, 'arrival'),
+      };
 
       if (outcome === 'validated' && this.arrive(team!.id, step!, me!, 'QR') === 'puzzle') {
         result.outcome = 'puzzle';
-        result.step = { ...stepInfo, arrival: null, illustration: null };
+        result.step = { ...stepInfo, arrival: null, illustration: null, credit: null };
         return result;
       }
       if (outcome === 'organizer') {
@@ -619,6 +635,7 @@ export class MockHuntApi extends HuntApi {
               hintsTotal: step!.hints.length,
               canSkip: true,
               illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
+              credit: this.illustrationCredit(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -1289,6 +1306,32 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /** Comme le serveur (§ 48) : trop proche d'une Secret Track d'une autre lignée, la proposition est refusée. */
+  private checkSimilarity(huntId: number, parentId: number | null, steps: MockEntry['content']['steps']): void {
+    // La lignée : de la racine de la version d'origine à toutes les versions qui en dérivent.
+    let root = parentId === null ? undefined : this.catalog.find((e) => e.id === parentId);
+    while (root?.parentId) root = this.catalog.find((e) => e.id === root!.parentId);
+    const family = new Set<number>(root ? [root.id] : []);
+    for (let grew = true; grew; ) {
+      grew = false;
+      for (const e of this.catalog) if (e.parentId !== null && family.has(e.parentId) && !family.has(e.id)) grew = !!family.add(e.id);
+    }
+    const close = this.catalog
+      .filter((e) => !e.withdrawn && e.huntId !== huntId && !family.has(e.id))
+      .map((e) => ({ e, ratio: sharedStepRatio(steps, e.content.steps) }))
+      .filter((c) => c.ratio > SIMILARITY_LIMIT)
+      .sort((a, b) => b.ratio - a.ratio);
+    if (!close.length) return;
+    const list = close
+      .slice(0, 3)
+      .map((c) => `« ${c.e.title} » de ${this.db.hunters.find((x) => x.id === c.e.authorId)?.nickname ?? '?'} (${percent(c.ratio)} d’étapes en commun)`)
+      .join(', ');
+    throw new ApiError(
+      `Votre parcours est trop proche d’une Secret Track déjà au catalogue : ${list}. Pour proposer des corrections ou des améliorations, ` +
+        `copiez cette Secret Track depuis le catalogue et partagez-en une nouvelle version ; sinon, changez davantage d’étapes.`,
+    );
+  }
+
   publishToCatalog(huntId: number, pub: CatalogPublication): Observable<CatalogDetail> {
     return this.reply(() => this.entryDetail(this.publish(this.ownedHunt(huntId), pub).id));
   }
@@ -1377,6 +1420,7 @@ export class MockHuntApi extends HuntApi {
     if (parent && parent.fingerprint === fingerprint) {
       throw new ApiError(`Le parcours n’a pas changé depuis « ${parent.title} » : modifiez des étapes, des énigmes, des jokers ou des pénalités avant de partager une nouvelle version.`);
     }
+    this.checkSimilarity(h.id, parent?.id ?? null, content.steps);
     const entry: MockEntry = {
       id: this.catalog.length + 1,
       authorId,
@@ -2152,6 +2196,10 @@ export class MockHuntApi extends HuntApi {
     if (!step?.referencePhoto || !step.photoShow) return null;
     return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
   }
+  private illustrationCredit(step: Step | undefined, moment: PhotoShow): PhotoCredit | null {
+    return this.illustration(step, moment) !== null ? (step?.photoCredit ?? null) : null;
+  }
+
 
   illustrationImage(stepId: number): Observable<Blob> {
     return this.blob(() => {
@@ -2176,6 +2224,20 @@ export class MockHuntApi extends HuntApi {
       if (image === null) this.refPhotos.delete(stepId);
       else this.refPhotos.set(stepId, image);
       step.referencePhoto = image !== null;
+      return step;
+    });
+  }
+
+  /** La maquette ne télécharge rien : elle vérifie le lien comme le serveur, puis garde une image d'exemple. */
+  setReferencePhotoUrl(stepId: number, url: string): Observable<Step> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      if (!/^https:\/\/[^/\s]+\.[^/\s]+\//.test(url.trim())) throw new ApiError('Seuls les liens sécurisés (https://) vers un site sont acceptés.');
+      this.refPhotos.set(stepId, MOCK_LINKED_PHOTO);
+      step.referencePhoto = true;
+      step.photoCredit = null;
       return step;
     });
   }
@@ -2546,6 +2608,7 @@ export class MockHuntApi extends HuntApi {
           skipped: v.source === 'SKIP',
           photo: photo ? ((photo.review ?? 'pending') as PhotoReview) : null,
           illustration: this.illustration(s, 'arrival'),
+              credit: this.illustrationCredit(s, 'arrival'),
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -2564,6 +2627,7 @@ export class MockHuntApi extends HuntApi {
         hintsTotal: current.hints.length,
         canSkip: true,
         illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
+              credit: this.illustrationCredit(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
     let puzzle: PlayState['puzzle'] = null;
@@ -2664,6 +2728,7 @@ export class MockHuntApi extends HuntApi {
       address: null,
       referencePhoto: false,
       photoShow: null,
+      photoCredit: null,
       entrances: [],
       puzzle: null,
     };

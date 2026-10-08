@@ -66,11 +66,15 @@ export async function loginAs(app: FastifyInstance, email: string) {
   return client(app, known.get(email));
 }
 
+/** Publications déjà faites : chacune part un peu plus à l'est, pour ne pas copier la précédente (§ 48). */
+let published = 0;
+
 /** Une Secret Track générée à Montpellier (3 étapes, validation par géolocalisation), publiée au catalogue. */
 export async function publishedEntry(ctx: Ctx, email: string, pub: Record<string, unknown> = {}) {
   const author = await loginAs(ctx.app, email);
   const job = await author.post('/api/hunts/generate', {
-    location: { query: 'Montpellier', lat: 43.6085, lng: 3.8795 },
+    // Quelque 250 m de décalage : des parcours distincts, tous près du centre.
+    location: { query: 'Montpellier', lat: 43.6085, lng: 3.8795 + 0.003 * published++ },
     durationMinutes: 45,
     travel: 'walk',
     difficulty: 'easy',

@@ -129,6 +129,18 @@
         </section>
       }
       @case ('playing') {
+        @if (revealed(); as r) {
+          <!-- Épreuve abandonnée : le lieu manqué est dévoilé (§ 47). -->
+          <section class="surface center revealed" aria-live="polite">
+            <span class="stamp">Étape {{ r.order }} abandonnée</span>
+            <p class="small muted">Le lieu à trouver était :</p>
+            <h2>{{ r.title }}</h2>
+            @if (r.illustration; as pic) {
+              <th-place-photo [stepId]="pic" [alt]="r.title" [credit]="r.credit" />
+            }
+            <button mat-button type="button" (click)="revealed.set(null)">Voir l'énigme suivante</button>
+          </section>
+        }
         @if (photo(); as r) {
           <section class="surface center photo-result" [class.found]="r.photo.review" aria-live="polite">
             @if (photoPreview(); as src) {
@@ -143,7 +155,7 @@
               @if (photoStep(); as st) {
                 <h2>{{ st.title }}</h2>
                 @if (st.illustration; as pic) {
-                  <th-place-photo [stepId]="pic" />
+                  <th-place-photo [stepId]="pic" [credit]="st.credit" />
                 }
                 @if (st.arrival) {
                   <p class="note">{{ st.arrival }}</p>
@@ -175,7 +187,7 @@
               <span class="stamp stamp--success" [class]="fxClass()">Étape {{ c.step.order }} trouvée</span>
               <h2>{{ c.step.title }}</h2>
               @if (pictureOf(c.state, c.step.order); as pic) {
-                <th-place-photo [stepId]="pic" />
+                <th-place-photo [stepId]="pic.illustration!" [credit]="pic.credit" />
               }
               @if (c.step.arrival) {
                 <p class="note">{{ c.step.arrival }}</p>
@@ -210,7 +222,7 @@
               <th-read-aloud [text]="spoken(clue)" />
             </div>
             @if (clue.illustration; as pic) {
-              <th-place-photo [stepId]="pic" alt="Le lieu à trouver" />
+              <th-place-photo [stepId]="pic" alt="Le lieu à trouver" [credit]="clue.credit" />
             }
             @if (clue.targetOrder === 1 && s.start; as start) {
               <th-start-place class="small" [start]="start" />
@@ -298,6 +310,16 @@
             <p class="small muted">Trésor abandonné : votre équipe est classée après celles qui l'ont trouvé.</p>
           } @else {
             <span class="stamp stamp--accent big-stamp">Trésor trouvé !</span>
+          }
+          @if (treasure(); as t) {
+            @if (t.illustration) {
+              <!-- Le lieu du trésor, trouvé ou abandonné (§ 47). -->
+              <p class="small muted">{{ treasureSkipped() ? 'Le trésor était caché ici :' : t.title }}</p>
+              @if (treasureSkipped()) {
+                <h2>{{ t.title }}</h2>
+              }
+              <th-place-photo [stepId]="t.illustration" [alt]="t.title" [credit]="t.credit" />
+            }
           }
           <p>Arrivée à {{ s.team.finished | date: 'HH:mm:ss' }}</p>
           <div class="big-number">{{ finalTime() }}</div>
@@ -387,8 +409,8 @@
               @if (v.arrival && !v.skipped) {
                 <p class="small muted log-text">{{ v.arrival }}</p>
               }
-              @if (v.illustration && !v.skipped) {
-                <th-place-photo class="compact" [stepId]="v.illustration" [alt]="v.title" />
+              @if (v.illustration) {
+                <th-place-photo class="compact" [stepId]="v.illustration" [alt]="v.title" [credit]="v.credit" />
               }
             </li>
           }

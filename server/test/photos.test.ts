@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { PhotoCase, PhotoJudge, PhotoVerdict } from '../src/photos/judge.js';
@@ -16,6 +17,12 @@ class ScriptedJudge implements PhotoJudge {
 
 /** Assez d'octets pour être reconnus comme un JPEG. */
 const jpeg = (tag: string) => `data:image/jpeg;base64,${Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.from(tag)]).toString('base64')}`;
+/** Vraie photo unie (les photos d'étape sont décodées puis réencodées, § 47). */
+const RED = { r: 200, g: 30, b: 30 };
+const solid = async (color: { r: number; g: number; b: number }) =>
+  `data:image/png;base64,${(await sharp({ create: { width: 120, height: 90, channels: 3, background: color } }).png().toBuffer()).toString('base64')}`;
+/** Couleur dominante d'une image servie. */
+const dominant = async (bytes: Buffer) => (await sharp(bytes).stats()).dominant;
 
 let ctx: Ctx;
 let app: Awaited<ReturnType<typeof buildApp>>;
@@ -66,7 +73,7 @@ describe('preuve par photo', () => {
     // Photo de référence de l'organisateur : transmise à l'IA, jamais aux joueurs.
     const steps = (await camille.get('/api/hunts/1/steps')).body;
     const step = steps.find((s: { order: number }) => s.order === target);
-    expect((await camille.put(`/api/steps/${step.id}/reference-photo`, { image: jpeg('ref') })).body.referencePhoto).toBe(true);
+    expect((await camille.put(`/api/steps/${step.id}/reference-photo`, { image: await solid(RED) })).body.referencePhoto).toBe(true);
     expect((await player.get(`/api/steps/${step.id}/reference-photo`)).status).toBe(403);
 
     judge.verdicts = [{ match: false, reason: 'La photo ne semble pas montrer le lieu.' }];
@@ -74,7 +81,7 @@ describe('preuve par photo', () => {
     expect(miss.status).toBe(201);
     expect(miss.body.photo).toMatchObject({ verdict: 'nomatch', insisted: false, review: null, stepOrder: target });
     expect(miss.body.state.clue.targetOrder).toBe(target); // pas validée
-    expect(judge.cases.at(-1)!.reference!.bytes.toString()).toContain('ref');
+    expect((await dominant(judge.cases.at(-1)!.reference!.bytes)).r).toBeGreaterThan(150); // la référence rouge, transmise à l'IA
 
     // L'image reste visible de l'équipe et de l'organisateur seulement.
     expect((await app.inject({ url: `/api/photos/${miss.body.photo.id}/image`, headers: { authorization: '' } })).statusCode).toBe(401);
@@ -126,7 +133,7 @@ describe('preuve par photo', () => {
     expect(next.order).toBeLessThan(before.totalSteps); // l'étape d'après n'est pas l'arrivée
 
     // Par défaut, la photo reste une référence privée.
-    await camille.put(`/api/steps/${step.id}/reference-photo`, { image: jpeg('fontaine') });
+    await camille.put(`/api/steps/${step.id}/reference-photo`, { image: await solid(RED) });
     expect((await player.get('/api/hunts/1/play')).body.clue.illustration).toBeNull();
     expect((await player.get(`/api/steps/${step.id}/illustration`)).status).toBe(404);
     expect((await camille.get(`/api/steps/${step.id}/illustration`)).status).toBe(200);
@@ -136,11 +143,11 @@ describe('preuve par photo', () => {
     expect((await player.get('/api/hunts/1/play')).body.clue.illustration).toBe(step.id);
     const image = await player.get(`/api/steps/${step.id}/illustration`);
     expect(image.status).toBe(200);
-    expect(image.body.toString()).toContain('fontaine');
+    expect((await dominant(image.body as Buffer)).r).toBeGreaterThan(150); // la photo rouge, réencodée
     expect((await outsider.get(`/api/steps/${step.id}/illustration`)).status).toBe(404); // hors de la Secret Track
 
     // À l'arrivée : cachée tant que le lieu n'est pas trouvé.
-    await camille.put(`/api/steps/${next.id}/reference-photo`, { image: jpeg('kiosque') });
+    await camille.put(`/api/steps/${next.id}/reference-photo`, { image: await solid({ r: 20, g: 40, b: 200 }) });
     await camille.patch(`/api/steps/${next.id}`, { photoShow: 'arrival' });
     judge.verdicts = [{ match: true, reason: 'Reconnu.' }];
     const found = (await player.post('/api/hunts/1/photos', { image: jpeg('ici') })).body.state;

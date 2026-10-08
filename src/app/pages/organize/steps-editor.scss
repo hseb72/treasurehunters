@@ -224,3 +224,13 @@
 
 .import-cta { display: flex; justify-content: flex-end; margin-bottom: 8px; }
 .import { display: flex; margin-bottom: 12px; }
+
+.ref-url {
+  flex-wrap: wrap;
+  align-items: center;
+
+  mat-form-field {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+}

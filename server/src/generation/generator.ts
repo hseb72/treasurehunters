@@ -7,6 +7,7 @@ import { GenerationRequest, Travel } from '../../../shared/models.js';
 import { distanceMeters } from '../../../shared/rules.js';
 import { HttpError } from '../errors.js';
 import { ClaudePlanner } from './claude.js';
+import { freePhotoFor } from '../photos/commons.js';
 import { Access, accessOf, countPlacesAround, geocode, placesAround, Place, Poi, radiusForDensity, reverseGeocode, ThemeFilter } from './osm.js';
 
 export interface GeneratedHunt {
@@ -103,7 +104,7 @@ export class OsmClaudeGenerator implements HuntGenerator {
     const chosen = new Set(plan.steps.map((s) => s.source));
     const gated = pois.filter((p) => p.gated && chosen.has(p.id));
     const access = gated.length ? await accessOf(gated).catch(() => new Map<string, Access>()) : new Map<string, Access>();
-    return { plan: placeAtEntrances(plan, access), location: place.name, note };
+    return { plan: await withPhotos(placeAtEntrances(plan, access), pois), location: place.name, note };
   }
 
   /**
@@ -136,6 +137,25 @@ export class OsmClaudeGenerator implements HuntGenerator {
       .slice(0, MAX_CANDIDATES)
       .map(({ p }) => p);
   }
+}
+
+/** Délai global de la recherche des photos : le parcours ne l'attend pas davantage. */
+const PHOTOS_MS = 20_000;
+
+/**
+ * Photo libre de chaque lieu du parcours (§ 47), cherchée en parallèle ; le départ n'en a pas.
+ * Un lieu sans photo, ou trop lent à répondre, reste sans photo.
+ */
+export async function withPhotos(plan: HuntPlan, pois: Poi[], find: typeof freePhotoFor = freePhotoFor): Promise<HuntPlan> {
+  const byId = new Map(pois.map((p) => [p.id, p]));
+  const timeout = new Promise<null>((r) => setTimeout(() => r(null), PHOTOS_MS).unref());
+  const photos = await Promise.all(
+    plan.steps.map((s, i) => {
+      const poi = i > 0 && s.source ? byId.get(s.source) : undefined;
+      return poi ? Promise.race([find(poi).catch(() => null), timeout]) : Promise.resolve(null);
+    }),
+  );
+  return { ...plan, steps: plan.steps.map((s, i) => (photos[i] ? { ...s, photo: photos[i] } : s)) };
 }
 
 /**

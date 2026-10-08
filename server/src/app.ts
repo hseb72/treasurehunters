@@ -22,6 +22,7 @@ import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical
 import { Service, Viewer } from './service.js';
 import { NearbyFinder, OsmNearby } from './nearby.js';
 import { ClaudeGuide, Guide } from './guide/guide.js';
+import { ClaudeImageModerator, ImageModerator } from './photos/moderator.js';
 import { THEME_KEYS } from './generation/osm.js';
 import { NEARBY_MAX_RADIUS } from '../../shared/nearby.js';
 
@@ -147,6 +148,8 @@ export interface AppOptions {
   nearby?: NearbyFinder;
   /** Guide (§ 46) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
   guide?: Guide | null;
+  /** Contrôle des photos d'étape (§ 47) ; par défaut Claude si ANTHROPIC_API_KEY est définie. */
+  moderator?: ImageModerator | null;
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
@@ -187,6 +190,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   service.writer = opts.writer !== undefined ? opts.writer : keyUsable ? new ClaudeRiddleWriter(key!) : null;
   service.translator = opts.translator !== undefined ? opts.translator : keyUsable ? new ClaudeTranslator(key!) : null;
   service.guide = opts.guide !== undefined ? opts.guide : keyUsable ? new ClaudeGuide(key!) : null;
+  service.moderator = opts.moderator !== undefined ? opts.moderator : keyUsable ? new ClaudeImageModerator(key!) : null;
 
   await app.register(cors, { origin: config.corsOrigin });
   await app.register(rateLimit, { global: false });
@@ -650,9 +654,12 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.get('/api/steps/:id/reference-photo', async (req, reply) =>
     sendImage(reply, await service.referenceImage(req.viewer, idParams.parse(req.params).id)),
   );
-  app.put('/api/steps/:id/reference-photo', photoRoute, async (req) =>
-    service.setReferencePhoto(req.viewer, idParams.parse(req.params).id, photoBody.parse(req.body).image),
-  );
+  // Fichier envoyé ({ image }) ou lien vers une photo ({ url }, § 47), contrôlés puis réencodés.
+  app.put('/api/steps/:id/reference-photo', { ...photoRoute, config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (req) => {
+    const id = idParams.parse(req.params).id;
+    const body = z.union([photoBody, z.object({ url: z.string().trim().min(10).max(1000) })]).parse(req.body);
+    return 'url' in body ? service.setReferencePhotoFromUrl(req.viewer, id, body.url) : service.setReferencePhoto(req.viewer, id, body.image);
+  });
   app.delete('/api/steps/:id/reference-photo', async (req) => service.setReferencePhoto(req.viewer, idParams.parse(req.params).id, null));
 
   // POST : un scan peut valider une étape, il ne doit jamais être déclenché par un simple préchargement.

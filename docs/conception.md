@@ -684,7 +684,7 @@ Les maquettes montrent une photo en tête d'étape. L'organisateur choisit, pour
 
 **Accès** : le carnet de route (`PlayClue.illustration`, `PlayStep.illustration`) et le scan (`ScanResult.step.illustration`) donnent l'identifiant de l'étape dont la photo peut être montrée ; l'image se charge par `GET /steps/:id/illustration`, que le serveur n'accorde qu'à l'organisateur, ou à une équipe de la chasse pour qui l'étape est l'énigme en cours (réglage « dès l'énigme ») ou déjà validée. Un joueur d'une autre équipe qui n'y est pas encore, ou hors de la chasse, reçoit 404. Une épreuve d'arrivée en attente (§ 17) ne montre pas encore la photo d'arrivée. Sans stockage de photos configuré, rien n'est montré.
 
-La photo ne suit pas la chasse au catalogue (§ 13) : elle reste celle de l'organisateur. Migration `db/migrations/013_step_photo.sql`.
+Une photo montrée aux joueurs (réglage « à l'arrivée » ou « dès l'énigme ») suit la version publiée au catalogue (§ 13), copiée pour elle (§ 47) ; une photo gardée comme simple référence de l'arbitre reste celle de l'organisateur. Migration `db/migrations/013_step_photo.sql`.
 
 ## 19. Ouverture aux créateurs
 
@@ -960,3 +960,31 @@ Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 
 **Centres d'intérêt** : ce que le joueur veut trouver pendant la partie (« une paire de sneakers » → magasins de chaussures et de sport) suit la Secret Track choisie ou générée ; à l'ouverture du carnet de route, ils sont enregistrés pour l'équipe (`PUT /api/hunts/:id/interests`, catégories OpenStreetMap filtrées par le serveur, 3 au plus ; migration `032_interests.sql`) et passent en tête du volet « Autour de moi » (§ 45).
 
 **Coût** : environ un centime par demande quand le catalogue répond ; une génération sur mesure coûte comme aujourd'hui et compte dans les droits de génération.
+
+## 47. Photos des étapes : photos libres, liens et sécurité
+
+**Dévoilement** : la photo d'un lieu apparaît avec la confirmation de l'étape (carnet de route, scan, photo, check-in, épreuve résolue) et aussi quand l'équipe **abandonne** l'épreuve : « Étape N abandonnée — le lieu à trouver était… », avec le nom et la photo. Le trésor, trouvé ou abandonné, montre la sienne sur l'écran d'arrivée. Le journal de bord garde les photos des étapes abandonnées.
+
+**Parcours générés** : chaque lieu reçoit, si elle existe, une **photo libre de Wikimedia Commons** : celle liée au lieu dans OpenStreetMap (`wikimedia_commons`), sinon celle de sa fiche Wikidata (P18), sinon une photo géolocalisée à moins de 60 m dont le titre reprend le nom du lieu. Seules les licences libres sont gardées (CC0, CC BY, CC BY-SA, domaine public ; jamais NC, ND ni « fair use »). La photo est téléchargée, réencodée, rangée avec les autres (`refs/gen-…`), montrée **à l'arrivée** (jamais avant : elle dévoilerait la solution), et son **crédit** (auteur, licence, lien vers la page Commons), exigé par la licence, s'affiche sous la photo. Recherche en parallèle, 20 s au plus : un lieu sans photo reste sans photo.
+
+**Traques créées par les utilisateurs** : l'organisateur envoie une photo depuis son téléphone (comme avant) ou colle le **lien d'une photo**. Dans les deux cas, rien n'est montré tel quel :
+
+| Contrôle | Contre |
+|---|---|
+| Le serveur télécharge la photo et la ré-héberge ; le lien n'est jamais montré aux joueurs | pages publicitaires, hameçonnage, pistage des joueurs |
+| HTTPS seulement, nom de domaine (pas d'adresse IP), port standard, pas d'identifiants dans le lien | liens piégés |
+| Résolution DNS vérifiée au moment de la connexion, et à chaque redirection (3 au plus) : aucune adresse interne, de boucle locale ou de métadonnées du cloud | attaques SSRF contre le réseau interne |
+| Raccourcisseurs et régies publicitaires refusés ; Google Safe Browsing si `SAFE_BROWSING_API_KEY` est définie | destinations cachées, sites signalés |
+| 8 Mo au plus, type `image/*`, 64 px de côté au moins, 50 mégapixels au plus ; jamais de SVG | fichiers déguisés, bombes de décompression, scripts |
+| Image **décodée puis réencodée** en JPEG (1600 px au plus) | charges cachées dans le fichier, failles des décodeurs ; les métadonnées (position GPS de l'appareil, auteur) disparaissent |
+| **Contrôle par l'IA** (`GUIDE_MODEL`) : publicité, contenu choquant ou inapproprié pour des enfants, données personnelles lisibles → refus motivé | images publicitaires ou déplacées |
+
+Si l'IA ne répond pas, la photo passe (l'organisateur en répond, et les joueurs peuvent la signaler, § 30). Le lien d'origine est gardé côté serveur (`cod_photosource`) en cas de signalement. `PUT /api/steps/:id/reference-photo` accepte `{ image }` ou `{ url }` (20 par minute). Migration `033_photo_credit.sql` (`cod_photocredit`, `cod_photocrediturl`, `cod_photosource`).
+
+**Catalogue** : les photos montrées aux joueurs sont copiées sous `catalog/…` à la publication d'une version ; les parties jouées depuis le catalogue y renvoient. L'auteur peut changer les siennes sans toucher la version publiée ; changer de photo ne fait pas une nouvelle version.
+
+## 48. Contrôle de similitude au catalogue
+
+À chaque nouvelle version partagée au catalogue, le serveur compare le parcours aux Secret Tracks en ligne dont le départ est dans les environs. Deux étapes désignent le même lieu à moins de 40 m (même titre pour une étape sans position) ; le départ ne compte pas, souvent une place centrale commune. Si **plus de 80 % des étapes** de la proposition figurent déjà dans une même Secret Track, la publication est refusée (409) avec son titre, son auteur et la part d'étapes en commun.
+
+**Exception — nouvelle version** : les Secret Tracks de la même lignée ne comptent pas (versions précédentes de la même chasse, version copiée depuis le catalogue et toutes celles qui dérivent de la même origine). Pour corriger ou améliorer la Secret Track d'un autre auteur, on la copie depuis le catalogue et on en partage une nouvelle version, créditée comme telle. Une version retirée du catalogue ne bloque plus personne.

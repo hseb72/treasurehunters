@@ -34,6 +34,7 @@ import {
   PhotoAttempt,
   PhotoResult,
   PhotoReview,
+  PhotoCredit,
   PhotoShow,
   Difficulty,
   Travel,
@@ -106,6 +107,9 @@ import { RiddleWriter } from './assist/writer.js';
 import { assistUsageOf } from './assist/usage.js';
 import { Translator } from './translate/translator.js';
 import { Guide } from './guide/guide.js';
+import { fetchImage, sanitizeImage } from './photos/safe-image.js';
+import { ImageModerator } from './photos/moderator.js';
+import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '../../shared/similarity.js';
 import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '../../shared/guide.js';
 import { safeThemeFilters } from './generation/osm.js';
 import { Interest } from './nearby.js';
@@ -161,6 +165,8 @@ export class Service {
   translator: Translator | null = null;
   /** Guide (§ 46) ; null sans clé d'API. */
   guide: Guide | null = null;
+  /** Contrôle des photos d'étape ajoutées par les organisateurs (§ 47) ; null sans clé d'API. */
+  moderator: ImageModerator | null = null;
 
   constructor(
     private readonly pool: pg.Pool,
@@ -1164,13 +1170,20 @@ export class Service {
       result.hunt = hunt;
 
       const final = finalOrder(steps);
-      const stepInfo = { order: step!.order, title: step!.title, arrival: step!.arrival, isFinal: step!.order === final, illustration: this.illustration(step!, 'arrival') };
+      const stepInfo = {
+        order: step!.order,
+        title: step!.title,
+        arrival: step!.arrival,
+        isFinal: step!.order === final,
+        illustration: this.illustration(step!, 'arrival'),
+        credit: this.credit(step!, 'arrival'),
+      };
 
       if (outcome === 'validated') {
         // Étape à énigme : le scan prouve l'arrivée ; l'étape se valide en résolvant l'énigme (§ 17).
         if ((await this.arrive(db, team!.id, step!, viewer!, 'QR', null, now)) === 'puzzle') {
           result.outcome = 'puzzle';
-          result.step = { ...stepInfo, arrival: null, illustration: null };
+          result.step = { ...stepInfo, arrival: null, illustration: null, credit: null };
           return result;
         }
         result.team = await teamById(db, team!.id);
@@ -1186,6 +1199,7 @@ export class Service {
               hintsTotal: step!.hints.length,
               canSkip: true,
               illustration: this.illustration(steps.find((s) => s.order === step!.order + 1), 'clue'),
+              credit: this.credit(steps.find((s) => s.order === step!.order + 1), 'clue'),
             }
           : null;
       }
@@ -1232,6 +1246,7 @@ export class Service {
           skipped: v.source === 'SKIP',
           photo: photoReviews.get(s.id) ?? null,
           illustration: this.illustration(s, 'arrival'),
+          credit: this.credit(s, 'arrival'),
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -1250,6 +1265,7 @@ export class Service {
         hintsTotal: current.hints.length,
         canSkip: true,
         illustration: this.illustration(steps.find((s) => s.order === current.order + 1), 'clue'),
+        credit: this.credit(steps.find((s) => s.order === current.order + 1), 'clue'),
       };
     }
 
@@ -1738,6 +1754,11 @@ export class Service {
     return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
   }
 
+  /** Crédit à afficher sous la photo du lieu, quand elle est montrée (§ 47). */
+  private credit(step: Step | undefined, moment: PhotoShow): PhotoCredit | null {
+    return this.illustration(step, moment) !== null ? (step?.photoCredit ?? null) : null;
+  }
+
   /** Image de la photo du lieu, pour l'organisateur ou une équipe à qui elle est montrée. */
   async illustrationImage(viewer: Viewer, stepId: number): Promise<StoredPhoto> {
     const photos = this.requirePhotos();
@@ -1759,18 +1780,123 @@ export class Service {
   }
 
   async setReferencePhoto(viewer: Viewer, stepId: number, image: string | null): Promise<Step> {
+    if (image === null) return this.replaceStepPhoto(viewer, stepId, null);
+    // Réencodée : métadonnées (position GPS de l'appareil) et contenu caché éliminés (§ 47).
+    return this.replaceStepPhoto(viewer, stepId, { photo: await sanitizeImage(decodeImage(image).bytes), source: null, credit: null });
+  }
+
+  /**
+   * Photo d'étape depuis un lien (§ 47) : téléchargée et réencodée par le serveur, jamais
+   * montrée par son lien ; refusée si l'IA y voit de la publicité ou un contenu inapproprié.
+   */
+  async setReferencePhotoFromUrl(viewer: Viewer, stepId: number, url: string): Promise<Step> {
+    this.requirePhotos();
+    await this.ownedStepPhoto(viewer, stepId);
+    const fetched = await fetchImage(url);
+    return this.replaceStepPhoto(viewer, stepId, { photo: { bytes: fetched.bytes, contentType: fetched.contentType }, source: fetched.finalUrl, credit: null });
+  }
+
+  /** Enregistre (ou efface) la photo d'une étape, après le contrôle de l'IA pour les photos d'organisateur. */
+  private async replaceStepPhoto(
+    viewer: Viewer,
+    stepId: number,
+    next: { photo: StoredPhoto; source: string | null; credit: PhotoCredit | null } | null,
+  ): Promise<Step> {
     const photos = this.requirePhotos();
     const { step, key: old } = await this.ownedStepPhoto(viewer, stepId);
     if (step.order === 0) throw badRequest('Le départ n’a pas de lieu à photographier.');
     let key: string | null = null;
-    if (image !== null) {
-      const photo = decodeImage(image);
-      key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${photo.contentType.split('/')[1]}`;
-      await photos.store.put(key, photo);
+    if (next) {
+      await this.moderate(next.photo, step);
+      key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${next.photo.contentType.split('/')[1]}`;
+      await photos.store.put(key, next.photo);
     }
-    await this.pool.query('UPDATE th_codes SET cod_refphoto = $2, cod_lastupdate = now() WHERE cod_id = $1', [stepId, key]);
-    if (old) await photos.store.delete(old).catch((e) => this.log(e, `Photo de référence ${old} non effacée`));
+    await this.pool.query(
+      `UPDATE th_codes SET cod_refphoto = $2, cod_photosource = $3, cod_photocredit = $4, cod_photocrediturl = $5, cod_lastupdate = now() WHERE cod_id = $1`,
+      [stepId, key, next?.source?.slice(0, 1000) ?? null, next?.credit?.text ?? null, next?.credit?.url ?? null],
+    );
+    // Une photo du catalogue (catalog/…) sert aussi aux autres copies : elle n'est jamais effacée ici.
+    if (old && !old.startsWith('catalog/')) await photos.store.delete(old).catch((e) => this.log(e, `Photo de référence ${old} non effacée`));
     return (await stepById(this.pool, stepId))!;
+  }
+
+  /** L'IA écarte publicité et contenus inappropriés ; si elle ne répond pas, la photo passe (l'organisateur en répond). */
+  private async moderate(photo: StoredPhoto, step: Step): Promise<void> {
+    if (!this.moderator) return;
+    let verdict;
+    try {
+      verdict = await this.moderator.review(photo, { title: step.title });
+    } catch (e) {
+      this.log(e, `Contrôle de la photo de l'étape ${step.id} indisponible`);
+      return;
+    }
+    if (!verdict.ok) throw new HttpError(422, `Photo refusée : ${verdict.reason}`);
+  }
+
+  /**
+   * Contrôle de similitude (§ 48) : une proposition dont plus de 80 % des étapes figurent déjà
+   * dans une Secret Track du catalogue est refusée, sauf si celle-ci est de la même lignée
+   * (versions précédentes, versions qui en dérivent, copie dont elle vient) : une nouvelle
+   * version, avec corrections ou améliorations, reste possible. Seules les versions en ligne
+   * comptent, et seulement celles dont le départ est dans les environs.
+   */
+  private async checkSimilarity(db: Db, huntId: number, parentId: number | null, content: CatalogContent): Promise<void> {
+    const start = contentStart(content);
+    const candidates = await rows(
+      db,
+      `WITH RECURSIVE up AS (
+         SELECT cat_id, cat_parent_cat FROM th_catalog WHERE cat_id = $2
+         UNION SELECT c.cat_id, c.cat_parent_cat FROM th_catalog c JOIN up ON c.cat_id = up.cat_parent_cat
+       ), root AS (SELECT cat_id FROM up WHERE cat_parent_cat IS NULL),
+       family AS (
+         SELECT cat_id FROM root
+         UNION SELECT c.cat_id FROM th_catalog c JOIN family f ON c.cat_parent_cat = f.cat_id
+       )
+       SELECT c.cat_id, c.cat_title, c.cat_content, u.htr_nickname
+       FROM th_catalog c JOIN th_hunters u ON u.htr_id = c.cat_author_htr
+       WHERE c.cat_withdrawn IS NULL
+         AND c.cat_hunt_hun IS DISTINCT FROM $1
+         AND c.cat_id NOT IN (SELECT cat_id FROM family)
+         AND ($3::float8 IS NULL OR c.cat_lat IS NULL OR (abs(c.cat_lat - $3) < 0.3 AND abs(c.cat_lng - $4) < 0.4))`,
+      [huntId, parentId, start?.lat ?? null, start?.lng ?? null],
+    );
+    const close = candidates
+      .map((c) => ({ title: c['cat_title'] as string, author: c['htr_nickname'] as string, ratio: sharedStepRatio(content.steps, (c['cat_content'] as CatalogContent).steps) }))
+      .filter((c) => c.ratio > SIMILARITY_LIMIT)
+      .sort((a, b) => b.ratio - a.ratio);
+    if (!close.length) return;
+    const list = close
+      .slice(0, 3)
+      .map((c) => `« ${c.title} » de ${c.author} (${percent(c.ratio)} d’étapes en commun)`)
+      .join(', ');
+    throw conflict(
+      `Votre parcours est trop proche d’une Secret Track déjà au catalogue : ${list}. Pour proposer des corrections ou des améliorations, ` +
+        `copiez cette Secret Track depuis le catalogue et partagez-en une nouvelle version ; sinon, changez davantage d’étapes.`,
+    );
+  }
+
+  /**
+   * Photos d'étape d'une version du catalogue (§ 47) : celles que l'auteur montre aux joueurs,
+   * copiées sous catalog/ pour que la version les garde même si l'auteur change les siennes.
+   * Les parties jouées depuis le catalogue y renvoient sans les copier. L'empreinte de la
+   * version est calculée avant : changer de photo ne fait pas une nouvelle version.
+   */
+  private async attachCatalogPhotos(db: Db, content: CatalogContent, steps: Step[]): Promise<void> {
+    const store = this.photos?.store;
+    if (!store) return;
+    const shown = steps.filter((s) => s.referencePhoto && s.photoShow && s.order > 0);
+    if (!shown.length) return;
+    const keys = await rows(db, 'SELECT cod_id, cod_refphoto FROM th_codes WHERE cod_id = ANY($1)', [shown.map((s) => s.id)]);
+    const folder = `catalog/${randomToken(16)}`;
+    for (const s of shown) {
+      const key = keys.find((k) => k['cod_id'] === s.id)?.['cod_refphoto'] as string | undefined;
+      const image = key ? await store.get(key).catch(() => null) : null;
+      if (!image) continue;
+      const copy = `${folder}/step-${s.order}.${image.contentType.split('/')[1]}`;
+      await store.put(copy, image);
+      const target = content.steps.find((c) => c.order === s.order);
+      if (target) target.photo = { key: copy, show: s.photoShow!, credit: s.photoCredit };
+    }
   }
 
   /** Photos des équipes effacées quelques jours après la clôture de leur chasse. */
@@ -2001,6 +2127,10 @@ export class Service {
           );
         }
       }
+      // Trop proche d'une Secret Track d'une autre lignée : refusée (§ 48).
+      await this.checkSimilarity(db, huntId, parentId, content);
+      // Photos montrées aux joueurs (§ 47) : elles suivent la version, copiées pour elle seule.
+      await this.attachCatalogPhotos(db, content, steps);
       const r = await one(
         db,
         `INSERT INTO th_catalog (cat_author_htr, cat_hunt_hun, cat_parent_cat, cat_title, cat_summary, cat_location, cat_difficulty,
@@ -2542,8 +2672,9 @@ export class Service {
     for (const s of content.steps) {
       await db.query(
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle,
+                               cod_refphoto, cod_photoshow, cod_photocredit, cod_photocrediturl)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
         [
           huntId,
           s.order,
@@ -2559,6 +2690,11 @@ export class Service {
           s.address,
           s.entrances?.length ? JSON.stringify(s.entrances) : null,
           s.puzzle ? JSON.stringify(s.puzzle) : null,
+          // Photo de la version (§ 47), partagée par toutes ses parties.
+          s.photo?.key ?? null,
+          s.photo?.show ?? null,
+          s.photo?.credit?.text ?? null,
+          s.photo?.credit?.url ?? null,
         ],
       );
     }
@@ -2689,10 +2825,12 @@ export class Service {
   }
 
   private async runGeneration(jobId: string, me: number, req: GenerationRequest): Promise<void> {
+    let photos = new Map<number, { key: string; credit: PhotoCredit; source: string }>();
     try {
       const { plan, location, note } = await this.generator!.generate(req);
+      photos = await this.storeFreePhotos(jobId, plan);
       await tx(this.pool, async (db) => {
-        const huntId = await this.createFromPlan(db, me, req, plan, location);
+        const huntId = await this.createFromPlan(db, me, req, plan, location, photos);
         await db.query(`UPDATE th_generations SET gen_status = 'done', gen_hunt_hun = $2, gen_note = $3, gen_lastupdate = now() WHERE gen_id = $1`, [
           jobId,
           huntId,
@@ -2700,6 +2838,8 @@ export class Service {
         ]);
       });
     } catch (e) {
+      // Chasse non créée : ses photos rangées d'avance ne servent à rien.
+      for (const { key } of photos.values()) await this.photos?.store.delete(key).catch(() => {});
       // Toujours journalisé, avec la cause technique : le joueur ne voit que le message.
       // La raison technique figure aussi dans le message : c'est souvent la seule ligne affichée.
       const cause = e instanceof HttpError && e.cause ? e.cause : e;
@@ -2717,7 +2857,41 @@ export class Service {
    * adversaires, et les départs se donnent depuis l'application. Mode
    * « organize » : brouillon ordinaire dont le joueur devient l'organisateur.
    */
-  private async createFromPlan(db: Db, me: number, req: GenerationRequest, plan: HuntPlan, location: string): Promise<number> {
+  /** Télécharge de quoi illustrer un parcours généré : publique, la source n'a pas d'utilité ici. */
+  fetchFreePhoto: (url: string) => Promise<StoredPhoto> = (url) => fetchImage(url, true);
+
+  /**
+   * Photos libres d'un parcours généré (§ 47), téléchargées, réencodées et rangées avant la
+   * création : une photo qui échoue est simplement absente. Sans stockage de photos, aucune.
+   */
+  private async storeFreePhotos(jobId: string, plan: HuntPlan): Promise<Map<number, { key: string; credit: PhotoCredit; source: string }>> {
+    const stored = new Map<number, { key: string; credit: PhotoCredit; source: string }>();
+    const store = this.photos?.store;
+    if (!store) return stored;
+    await Promise.all(
+      plan.steps.map(async (s, order) => {
+        if (order === 0 || !s.photo) return;
+        try {
+          const photo = await this.fetchFreePhoto(s.photo.url);
+          const key = `refs/gen-${jobId}/step-${order}-${randomToken(12)}.jpeg`;
+          await store.put(key, photo);
+          stored.set(order, { key, credit: s.photo.credit, source: s.photo.url });
+        } catch (e) {
+          this.log(e, `Photo libre de l'étape ${order} non récupérée (${s.photo.url})`);
+        }
+      }),
+    );
+    return stored;
+  }
+
+  private async createFromPlan(
+    db: Db,
+    me: number,
+    req: GenerationRequest,
+    plan: HuntPlan,
+    location: string,
+    photos: Map<number, { key: string; credit: PhotoCredit; source: string }> = new Map(),
+  ): Promise<number> {
     const play = req.mode === 'play';
     const owner = play ? await this.systemAccount(db) : me;
     const owned = await this.ownedProducts(db, me);
@@ -2759,8 +2933,9 @@ export class Service {
     for (const [order, s] of plan.steps.entries()) {
       await db.query(
         `INSERT INTO th_codes (cod_hunt_hun, cod_order, cod_longid, cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3,
-                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+                               cod_latitude, cod_longitude, cod_address, cod_entrances, cod_puzzle,
+                               cod_refphoto, cod_photoshow, cod_photocredit, cod_photocrediturl, cod_photosource)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
         [
           huntId,
           order,
@@ -2776,6 +2951,12 @@ export class Service {
           s.address,
           s.entrances?.length ? JSON.stringify(s.entrances) : null,
           order > 0 && s.puzzle ? JSON.stringify(s.puzzle) : null,
+          // Photo libre : dévoilée à l'arrivée (ou à l'abandon), jamais avant.
+          photos.get(order)?.key ?? null,
+          photos.has(order) ? 'arrival' : null,
+          photos.get(order)?.credit.text ?? null,
+          photos.get(order)?.credit.url ?? null,
+          photos.get(order)?.source ?? null,
         ],
       );
     }
@@ -2962,7 +3143,11 @@ interface CatalogContent {
     | 'contribution'
   > &
     Partial<Pick<Hunt, 'skin' | 'tools'>>;
-  steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> & Partial<Pick<Step, 'entrances' | 'puzzle'>>)[];
+  steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> &
+    Partial<Pick<Step, 'entrances' | 'puzzle'>> & {
+      /** Photo montrée aux joueurs (§ 47), ajoutée après le calcul de l'empreinte. */
+      photo?: { key: string; show: PhotoShow; credit: PhotoCredit | null };
+    })[];
 }
 
 /** Premier lieu placé du parcours (le départ, sinon la première étape) : repère de la carte du catalogue (§ 23). */

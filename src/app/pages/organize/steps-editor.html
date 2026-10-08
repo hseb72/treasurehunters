@@ -227,6 +227,17 @@
                 }
               </div>
               <input #refInput type="file" accept="image/*" capture="environment" hidden (change)="setReference(step, $event)" />
+              <!-- Ou un lien : le serveur télécharge, vérifie et réencode la photo ; le lien n'est jamais montré aux joueurs (§ 47). -->
+              <div class="row ref-url">
+                <mat-form-field subscriptSizing="dynamic">
+                  <mat-label>Ou le lien d'une photo</mat-label>
+                  <input matInput type="url" inputmode="url" placeholder="https://…/photo.jpg" [value]="refUrl()" (input)="refUrl.set($any($event.target).value)" (keydown.enter)="$event.preventDefault(); setReferenceUrl(step)" />
+                </mat-form-field>
+                <button mat-stroked-button type="button" (click)="setReferenceUrl(step)" [disabled]="refBusy() || !refUrl().trim()"><mat-icon>link</mat-icon>Importer</button>
+              </div>
+              @if (step.photoCredit; as c) {
+                <span class="small muted">{{ c.text }}</span>
+              }
             </div>
           </div>
         }

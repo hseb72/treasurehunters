@@ -267,6 +267,28 @@ export class StepsEditorPage {
     }
   }
 
+  /** Lien vers une photo (§ 47), saisi dans l'étape ouverte. */
+  protected readonly refUrl = signal('');
+
+  protected setReferenceUrl(step: Step): void {
+    const url = this.refUrl().trim();
+    if (!url) return;
+    this.refBusy.set(true);
+    this.api.setReferencePhotoUrl(step.id, url).subscribe({
+      next: (updated) => {
+        this.steps.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
+        this.refVersion.update((v) => v + 1);
+        this.refBusy.set(false);
+        this.refUrl.set('');
+        this.notify.info('Photo du lieu récupérée et vérifiée.');
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.refBusy.set(false);
+      },
+    });
+  }
+
   protected removeReference(step: Step): void {
     this.refBusy.set(true);
     this.updateReference(step, null, 'Photo du lieu retirée.');

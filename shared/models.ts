@@ -117,9 +117,17 @@ export interface Step {
    * à l'arrivée avec le message, ou dès l'énigme qui mène au lieu.
    */
   photoShow: PhotoShow | null;
+  /** Crédit de la photo (photo libre de Wikimedia Commons, § 47) ; null pour une photo de l'organisateur. */
+  photoCredit: PhotoCredit | null;
 }
 
 export type PhotoShow = 'arrival' | 'clue';
+
+/** Crédit d'une photo sous licence libre (§ 47) : auteur et licence, et la page de la photo. */
+export interface PhotoCredit {
+  text: string;
+  url: string | null;
+}
 
 export interface Member {
   hunterId: number;
@@ -195,6 +203,8 @@ export interface PlayStep {
   photo: PhotoReview | null;
   /** Photo du lieu à montrer (§ 18) : identifiant de l'étape, pour GET /api/steps/:id/illustration. */
   illustration: number | null;
+  /** Crédit à afficher sous cette photo (§ 47). */
+  credit?: PhotoCredit | null;
 }
 
 export interface PlayClue {
@@ -208,6 +218,7 @@ export interface PlayClue {
   canSkip: boolean;
   /** Photo du lieu cherché, en tête de l'énigme si l'organisateur l'a voulu (§ 18). */
   illustration: number | null;
+  credit?: PhotoCredit | null;
 }
 
 export interface PlayState {
@@ -478,7 +489,7 @@ export interface ScanResult {
   outcome: ScanOutcome;
   hunt: Hunt | null;
   /** Étape scannée (titre et message d'arrivée seulement si l'accès est autorisé). */
-  step: { order: number; title: string; arrival: string | null; isFinal: boolean; illustration?: number | null } | null;
+  step: { order: number; title: string; arrival: string | null; isFinal: boolean; illustration?: number | null; credit?: PhotoCredit | null } | null;
   /** Énigme suivante, si débloquée. */
   next: PlayClue | null;
   team: Team | null;
