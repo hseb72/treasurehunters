@@ -35,6 +35,7 @@ import {
   PhotoResult,
   PhotoReview,
   PhotoCredit,
+  PhotoProposal,
   PhotoShow,
   Difficulty,
   Travel,
@@ -108,6 +109,7 @@ import { assistUsageOf } from './assist/usage.js';
 import { Translator } from './translate/translator.js';
 import { Guide } from './guide/guide.js';
 import { fetchImage, sanitizeImage } from './photos/safe-image.js';
+import { describeFile, proposePhotos } from './photos/commons.js';
 import { ImageModerator } from './photos/moderator.js';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '../../shared/similarity.js';
 import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '../../shared/guide.js';
@@ -1754,6 +1756,30 @@ export class Service {
     return moment === 'clue' && step.photoShow !== 'clue' ? null : step.id;
   }
 
+  /**
+   * Couverture d'une chasse (§ 49) : la photo de son départ, pour l'organisateur, ses joueurs,
+   * et tout le monde si la chasse est publique. Le départ n'est pas un secret (il s'affiche
+   * avant la partie).
+   */
+  async huntCover(viewer: Viewer, huntId: number): Promise<StoredPhoto> {
+    const photos = this.requirePhotos();
+    const hunt = await huntById(this.pool, huntId);
+    const allowed = !!hunt && (hunt.isPublic || (viewer !== null && (hunt.ownerId === viewer || hunt.hostId === viewer || !!(await teamOf(this.pool, huntId, viewer)))));
+    const r = allowed ? await one(this.pool, 'SELECT cod_refphoto FROM th_codes WHERE cod_hunt_hun = $1 AND cod_order = 0', [huntId]) : null;
+    const image = r?.['cod_refphoto'] ? await photos.store.get(r['cod_refphoto']) : null;
+    if (!image) throw notFound('Pas de couverture pour cette Secret Track.');
+    return image;
+  }
+
+  /** Couverture d'une version du catalogue (§ 49), publique comme sa fiche. */
+  async catalogCover(entryId: number): Promise<StoredPhoto> {
+    const photos = this.requirePhotos();
+    const r = await one(this.pool, `SELECT cat_content -> 'steps' -> 0 -> 'photo' ->> 'key' AS key FROM th_catalog WHERE cat_id = $1 AND cat_withdrawn IS NULL`, [entryId]);
+    const image = r?.['key'] ? await photos.store.get(r['key']) : null;
+    if (!image) throw notFound('Pas de couverture pour cette Secret Track.');
+    return image;
+  }
+
   /** Crédit à afficher sous la photo du lieu, quand elle est montrée (§ 47). */
   private credit(step: Step | undefined, moment: PhotoShow): PhotoCredit | null {
     return this.illustration(step, moment) !== null ? (step?.photoCredit ?? null) : null;
@@ -1796,18 +1822,60 @@ export class Service {
     return this.replaceStepPhoto(viewer, stepId, { photo: { bytes: fetched.bytes, contentType: fetched.contentType }, source: fetched.finalUrl, credit: null });
   }
 
+  /** Recherche et description des photos de Commons (remplacées dans les tests). */
+  commons = { propose: proposePhotos, describe: describeFile };
+
+  /**
+   * « Propose-moi une photo » (§ 47) : des photos libres de Wikimedia Commons prises autour de
+   * l'étape ou au nom du lieu, avec un aperçu réencodé par le serveur et leur crédit.
+   */
+  async photoProposals(viewer: Viewer, stepId: number): Promise<PhotoProposal[]> {
+    this.requirePhotos();
+    const { step } = await this.ownedStepPhoto(viewer, stepId);
+    const hunt = await huntById(this.pool, step.huntId);
+    const candidates = await this.commons.propose({
+      name: step.title,
+      lat: step.latitude === null ? null : Number(step.latitude),
+      lng: step.longitude === null ? null : Number(step.longitude),
+      town: hunt?.location ?? null,
+    });
+    const previews = await Promise.all(
+      candidates.map(async (c) => {
+        try {
+          const image = await this.fetchFreePhoto(c.url);
+          return { title: c.title, preview: `data:image/jpeg;base64,${image.bytes.toString('base64')}`, credit: c.credit };
+        } catch {
+          return null;
+        }
+      }),
+    );
+    return previews.filter((p): p is PhotoProposal => p !== null);
+  }
+
+  /** La photo de Commons choisie : licence revérifiée, téléchargée en grand et réencodée. */
+  async setReferencePhotoFromCommons(viewer: Viewer, stepId: number, title: string): Promise<Step> {
+    this.requirePhotos();
+    await this.ownedStepPhoto(viewer, stepId);
+    if (!/^File:[^|#<>[\]{}]{1,240}$/.test(title)) throw badRequest('Photo inconnue.');
+    const photo = await this.commons.describe(title).catch(() => null);
+    if (!photo) throw new HttpError(422, 'Cette photo n’est pas (ou plus) disponible sous licence libre : choisissez-en une autre.');
+    const image = await this.fetchFreePhoto(photo.url);
+    // Photo libre choisie à vue dans Wikimedia Commons : pas de contrôle par l'IA.
+    return this.replaceStepPhoto(viewer, stepId, { photo: image, source: photo.credit.url ?? photo.url, credit: photo.credit }, false);
+  }
+
   /** Enregistre (ou efface) la photo d'une étape, après le contrôle de l'IA pour les photos d'organisateur. */
   private async replaceStepPhoto(
     viewer: Viewer,
     stepId: number,
     next: { photo: StoredPhoto; source: string | null; credit: PhotoCredit | null } | null,
+    moderate = true,
   ): Promise<Step> {
     const photos = this.requirePhotos();
     const { step, key: old } = await this.ownedStepPhoto(viewer, stepId);
-    if (step.order === 0) throw badRequest('Le départ n’a pas de lieu à photographier.');
     let key: string | null = null;
     if (next) {
-      await this.moderate(next.photo, step);
+      if (moderate) await this.moderate(next.photo, step);
       key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${next.photo.contentType.split('/')[1]}`;
       await photos.store.put(key, next.photo);
     }
@@ -1884,7 +1952,8 @@ export class Service {
   private async attachCatalogPhotos(db: Db, content: CatalogContent, steps: Step[]): Promise<void> {
     const store = this.photos?.store;
     if (!store) return;
-    const shown = steps.filter((s) => s.referencePhoto && s.photoShow && s.order > 0);
+    // Le départ : sa photo est la couverture de la Secret Track (§ 49), toujours reprise.
+    const shown = steps.filter((s) => s.referencePhoto && (s.photoShow || s.order === 0));
     if (!shown.length) return;
     const keys = await rows(db, 'SELECT cod_id, cod_refphoto FROM th_codes WHERE cod_id = ANY($1)', [shown.map((s) => s.id)]);
     const folder = `catalog/${randomToken(16)}`;
@@ -1895,7 +1964,7 @@ export class Service {
       const copy = `${folder}/step-${s.order}.${image.contentType.split('/')[1]}`;
       await store.put(copy, image);
       const target = content.steps.find((c) => c.order === s.order);
-      if (target) target.photo = { key: copy, show: s.photoShow!, credit: s.photoCredit };
+      if (target) target.photo = { key: copy, show: s.order === 0 ? null : s.photoShow, credit: s.photoCredit };
     }
   }
 
@@ -2870,7 +2939,7 @@ export class Service {
     if (!store) return stored;
     await Promise.all(
       plan.steps.map(async (s, order) => {
-        if (order === 0 || !s.photo) return;
+        if (!s.photo) return;
         try {
           const photo = await this.fetchFreePhoto(s.photo.url);
           const key = `refs/gen-${jobId}/step-${order}-${randomToken(12)}.jpeg`;
@@ -2953,7 +3022,8 @@ export class Service {
           order > 0 && s.puzzle ? JSON.stringify(s.puzzle) : null,
           // Photo libre : dévoilée à l'arrivée (ou à l'abandon), jamais avant.
           photos.get(order)?.key ?? null,
-          photos.has(order) ? 'arrival' : null,
+          // Le départ n'est pas « trouvé » : sa photo sert de couverture (§ 49).
+          photos.has(order) && order > 0 ? 'arrival' : null,
           photos.get(order)?.credit.text ?? null,
           photos.get(order)?.credit.url ?? null,
           photos.get(order)?.source ?? null,
@@ -3146,7 +3216,7 @@ interface CatalogContent {
   steps: (Pick<Step, 'order' | 'title' | 'arrival' | 'instructions' | 'hints' | 'latitude' | 'longitude' | 'address'> &
     Partial<Pick<Step, 'entrances' | 'puzzle'>> & {
       /** Photo montrée aux joueurs (§ 47), ajoutée après le calcul de l'empreinte. */
-      photo?: { key: string; show: PhotoShow; credit: PhotoCredit | null };
+      photo?: { key: string; show: PhotoShow | null; credit: PhotoCredit | null };
     })[];
 }
 
@@ -3239,7 +3309,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
+            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, (c.cat_content -> 'steps' -> 0 -> 'photo') IS NOT NULL AS has_cover, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
             c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting,
             (SELECT min(sh.hun_begin) FROM eh se JOIN th_hunts sh ON sh.hun_id = se.hun_id WHERE se.cat_id = c.cat_id AND ${SESSION}) AS next_session,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
@@ -3270,6 +3340,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     durationMinutes: r['cat_duration'],
     measuredMinutes: r['measured'] === null ? null : Math.round(Number(r['measured'])),
     stepCount: r['cat_stepcount'],
+    cover: !!r['has_cover'],
     validation: r['cat_validation'],
     plays: r['plays'],
     rating: { count: r['rating_count'], stars: avg(r['stars']), riddles: avg(r['riddles']), route: avg(r['route']), mood: avg(r['mood']) },

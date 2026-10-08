@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { AuthImage } from './auth-image';
 import { Hunt } from '@shared/models';
 import { skinById } from '@shared/skins';
 import { SkinCatalog } from '../core/skin-catalog';
@@ -11,11 +12,16 @@ import { StatusBadge } from './status-badge';
 /** Carte d'une chasse, façon affiche d'expédition. */
 @Component({
   selector: 'th-hunt-card',
-  imports: [DatePipe, MatIconModule, RouterLink, StatusBadge],
+  imports: [AuthImage, DatePipe, MatIconModule, RouterLink, StatusBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a class="surface card" [routerLink]="link() ?? ['/hunts', hunt().id]">
-      <img class="cover" [src]="cover()" alt="" loading="lazy" />
+      @if (hunt().cover) {
+        <!-- Photo du départ (§ 49), l'image du skin en attendant ou à défaut. -->
+        <th-auth-image class="cover" kind="cover" [id]="hunt().id" [fallback]="cover()" />
+      } @else {
+        <img class="cover" [src]="cover()" alt="" loading="lazy" />
+      }
       <div class="head row">
         <th-status-badge [status]="hunt().status" />
         <span class="spacer"></span>
@@ -38,7 +44,7 @@ import { StatusBadge } from './status-badge';
   `,
   styles: `
     .card { display: flex; flex-direction: column; gap: 6px; height: 100%; overflow: hidden; }
-    .cover { display: block; width: calc(100% + 32px); margin: -16px -16px 6px; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
+    .cover { display: block; border-radius: 0; width: calc(100% + 32px); margin: -16px -16px 6px; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
     h3 { margin: 4px 0 0; }
     .date { font-family: var(--th-font-note); color: var(--th-ink-soft); }
     .meta { gap: 4px 14px; }

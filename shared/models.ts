@@ -83,6 +83,8 @@ export interface Hunt {
   contribution: number;
   startText: string | null;
   status: HuntStatus;
+  /** Photo du départ (§ 49) : couverture des cartes, à la place de l'image du skin. */
+  cover?: boolean;
   stepCount: number;
   teamCount: number;
 }
@@ -127,6 +129,15 @@ export type PhotoShow = 'arrival' | 'clue';
 export interface PhotoCredit {
   text: string;
   url: string | null;
+}
+
+/** Photo libre proposée pour illustrer une étape (« Propose-moi une photo », § 47). */
+export interface PhotoProposal {
+  /** Fichier Wikimedia Commons (« File:… »), à renvoyer pour le choisir. */
+  title: string;
+  /** Aperçu réencodé par le serveur, en « data URL » JPEG. */
+  preview: string;
+  credit: PhotoCredit;
 }
 
 export interface Member {
@@ -535,6 +546,8 @@ export interface CatalogEntry {
   durationMinutes: number;
   /** Durée moyenne constatée des équipes arrivées, en minutes (null sans partie). */
   measuredMinutes: number | null;
+  /** Photo du départ (§ 49) : couverture de la carte, à la place de l'image du skin. */
+  cover?: boolean;
   stepCount: number;
   validation: ValidationMode;
   /** Parties jouées et closes (chasse d'origine et copies de cette version). */

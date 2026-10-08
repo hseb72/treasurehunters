@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { filter, switchMap } from 'rxjs';
 import { HuntApi } from '../../core/api';
-import { PhotoShow, Step } from '@shared/models';
+import { PhotoProposal, PhotoShow, Step } from '@shared/models';
 import { Notify } from '../../core/notify';
 import { currentPosition } from '../../core/geo';
 import { compressPhoto } from '../../core/photo';
@@ -265,6 +265,43 @@ export class StepsEditorPage {
       this.notify.error(e);
       this.refBusy.set(false);
     }
+  }
+
+  /** « Propose-moi une photo » (§ 47) : photos libres trouvées pour l'étape ouverte. */
+  protected readonly proposals = signal<{ stepId: number; list: PhotoProposal[] } | null>(null);
+  protected readonly proposing = signal(false);
+
+  protected propose(step: Step): void {
+    this.proposing.set(true);
+    this.proposals.set(null);
+    this.api.photoProposals(step.id).subscribe({
+      next: (list) => {
+        this.proposals.set({ stepId: step.id, list });
+        this.proposing.set(false);
+        if (!list.length) this.notify.info('Aucune photo libre trouvée près de ce lieu : envoyez la vôtre ou collez un lien.');
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.proposing.set(false);
+      },
+    });
+  }
+
+  protected chooseProposal(step: Step, p: PhotoProposal): void {
+    this.refBusy.set(true);
+    this.api.setReferencePhotoCommons(step.id, p.title).subscribe({
+      next: (updated) => {
+        this.steps.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
+        this.refVersion.update((v) => v + 1);
+        this.refBusy.set(false);
+        this.proposals.set(null);
+        this.notify.info('Photo choisie : son auteur sera crédité sous la photo.');
+      },
+      error: (e) => {
+        this.notify.error(e);
+        this.refBusy.set(false);
+      },
+    });
   }
 
   /** Lien vers une photo (§ 47), saisi dans l'étape ouverte. */

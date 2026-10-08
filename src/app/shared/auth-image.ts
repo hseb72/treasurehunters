@@ -15,6 +15,9 @@ import { HuntApi } from '../core/api';
   template: `
     @if (url.value(); as src) {
       <img [src]="src" [alt]="alt()" loading="lazy" />
+    } @else if (fallback(); as src) {
+      <!-- Pendant le chargement ou faute de photo : l'image de repli (couverture du skin). -->
+      <img [src]="src" [alt]="alt()" loading="lazy" />
     } @else if (url.isLoading()) {
       <span class="placeholder"><mat-icon>hourglass_top</mat-icon></span>
     } @else {
@@ -31,7 +34,9 @@ export class AuthImage {
   private readonly api = inject(HuntApi);
 
   /** Photo d'équipe, référence de l'organisateur, ou photo du lieu montrée aux joueurs. */
-  readonly kind = input.required<'photo' | 'reference' | 'illustration'>();
+  readonly kind = input.required<'photo' | 'reference' | 'illustration' | 'cover' | 'catalog-cover'>();
+  /** Image montrée tant que la photo n'est pas là, ou si elle manque. */
+  readonly fallback = input<string | null>(null);
   readonly id = input.required<number>();
   /** Change pour recharger l'image (nouvelle photo de référence, par exemple). */
   readonly version = input<unknown>(null);
@@ -46,7 +51,11 @@ export class AuthImage {
         ? this.api.photoImage(params.id)
         : params.kind === 'illustration'
           ? this.api.illustrationImage(params.id)
-          : this.api.referenceImage(params.id)
+          : params.kind === 'cover'
+            ? this.api.huntCover(params.id)
+            : params.kind === 'catalog-cover'
+              ? this.api.catalogCover(params.id)
+              : this.api.referenceImage(params.id)
       ).pipe(
         map((blob) => {
           if (this.current) URL.revokeObjectURL(this.current);

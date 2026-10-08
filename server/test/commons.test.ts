@@ -7,7 +7,7 @@ import { GenerationRequest } from '../../shared/models.js';
 import { buildApp } from '../src/app.js';
 import { config } from '../src/config.js';
 import { GeneratedHunt, HuntGenerator, withPhotos } from '../src/generation/generator.js';
-import { freeLicense, freePhotoFor, plainText } from '../src/photos/commons.js';
+import { freeLicense, freePhotoFor, plainText, proposePhotos } from '../src/photos/commons.js';
 import { MemoryPhotoStore } from '../src/photos/store.js';
 import { Ctx, loginAs, setup, teardown } from './helpers.js';
 
@@ -33,23 +33,29 @@ beforeAll(async () => {
     if (url.searchParams.get('list') === 'geosearch') {
       return json({ query: { geosearch: [{ title: 'File:Rue quelconque.jpg' }, { title: 'File:Kiosque à musique, Montpellier.jpg' }] } });
     }
-    const title = url.searchParams.get('titles') ?? '';
-    const f = FILES[title];
-    if (!f) return json({ query: { pages: [{ missing: true }] } });
+    if (url.searchParams.get('list') === 'search') {
+      return json({ query: { search: [{ title: 'File:Fontaine de la Licorne.jpg' }, { title: 'File:Tour Eiffel nuit.jpg' }] } });
+    }
+    // Un ou plusieurs fichiers (« A|B »), décrits dans l'ordre ; les inconnus sont « missing ».
+    const titles = (url.searchParams.get('titles') ?? '').split('|');
+    const width = url.searchParams.get('iiurlwidth');
     return json({
       query: {
-        pages: [
-          {
+        pages: titles.map((title) => {
+          const f = FILES[title];
+          if (!f) return { title, missing: true };
+          return {
+            title,
             imageinfo: [
               {
-                thumburl: `https://upload.wikimedia.org/thumb/${encodeURIComponent(title)}`,
+                thumburl: `https://upload.wikimedia.org/thumb/${width}px/${encodeURIComponent(title)}`,
                 descriptionurl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(title)}`,
                 mime: f.mime ?? 'image/jpeg',
                 extmetadata: { License: { value: f.license }, LicenseShortName: { value: f.short }, Artist: { value: f.artist } },
               },
             ],
-          },
-        ],
+          };
+        }),
       },
     });
   });
@@ -78,7 +84,7 @@ describe('photos libres : recherche', () => {
   it('prend la photo liée dans OpenStreetMap, avec son crédit', async () => {
     const p = await freePhotoFor({ name: 'Fontaine de la Licorne', lat: 43.6, lng: 3.88, commons: 'File:Fontaine de la Licorne.jpg' });
     expect(p).toEqual({
-      url: 'https://upload.wikimedia.org/thumb/File%3AFontaine%20de%20la%20Licorne.jpg',
+      url: 'https://upload.wikimedia.org/thumb/1280px/File%3AFontaine%20de%20la%20Licorne.jpg',
       credit: { text: 'Photo : Jean D’Arc · CC BY-SA 4.0 · Wikimedia Commons', url: 'https://commons.wikimedia.org/wiki/File%3AFontaine%20de%20la%20Licorne.jpg' },
     });
   });
@@ -94,7 +100,16 @@ describe('photos libres : recherche', () => {
     expect(await freePhotoFor({ name: 'Rien', lat: 0, lng: 0, wikidata: 'pas un identifiant' })).toBeNull();
   });
 
-  it('cherche une photo par lieu du parcours, pas pour le départ', async () => {
+  it('propose des photos libres autour de l’étape et à son nom, sans les non libres', async () => {
+    const list = await proposePhotos({ name: 'Le kiosque', lat: 43.6, lng: 3.88, town: 'Montpellier' });
+    // Prise sur place et au nom du lieu d'abord, puis la recherche par nom ; la photo NC et l'inconnue sont écartées.
+    expect(list.map((p) => p.title)).toEqual(['File:Kiosque à musique, Montpellier.jpg', 'File:Fontaine de la Licorne.jpg']);
+    expect(list[0].url).toContain('/480px/');
+    // Titre générique, sans position : rien à chercher.
+    expect(await proposePhotos({ name: 'Étape 3', lat: null, lng: null })).toEqual([]);
+  });
+
+  it('cherche une photo par lieu du parcours, départ compris (sa couverture)', async () => {
     const plan = demoPlan({ lat: 43.6, lng: 3.88 }, 3);
     plan.steps[0].source = 'n0';
     plan.steps[1].source = 'n1';
@@ -105,8 +120,8 @@ describe('photos libres : recherche', () => {
       asked.push(p.name);
       return p.name === 'Lieu 2' ? null : { url: `https://upload.wikimedia.org/${p.name}`, credit: { text: 'Photo : X · CC0 · Wikimedia Commons', url: null } };
     });
-    expect(asked.sort()).toEqual(['Lieu 1', 'Lieu 2']);
-    expect(out.steps.map((s) => s.photo?.url ?? null)).toEqual([null, 'https://upload.wikimedia.org/Lieu 1', null, null]);
+    expect(asked.sort()).toEqual(['Lieu 0', 'Lieu 1', 'Lieu 2']);
+    expect(out.steps.map((s) => s.photo?.url ?? null)).toEqual(['https://upload.wikimedia.org/Lieu 0', 'https://upload.wikimedia.org/Lieu 1', null, null]);
   });
 });
 
@@ -164,5 +179,30 @@ describe('photos libres : parcours générés', () => {
     ]);
     expect(steps[1].photoCredit).toEqual({ text: 'Photo : Auteur 1 · CC BY 4.0 · Wikimedia Commons', url: 'https://commons.wikimedia.org/wiki/File:1.jpg' });
     expect([...store.objects.keys()].filter((k) => k.startsWith('refs/gen-'))).toHaveLength(2);
+  });
+
+  it('« Propose-moi une photo » : aperçus, choix avec crédit, licence revérifiée', async () => {
+    const camille = await loginAs(app, 'camille@example.com');
+    const step = (await camille.get('/api/hunts/1/steps')).body.find((s: { order: number }) => s.order === 1);
+    const credit = (n: number) => ({ text: `Photo : Auteur ${n} · CC0 · Wikimedia Commons`, url: `https://commons.wikimedia.org/wiki/File:${n}.jpg` });
+    app.service.commons = {
+      propose: async (place) => {
+        expect(place).toMatchObject({ name: step.title });
+        return [1, 2, 3].map((n) => ({ title: `File:${n}.jpg`, url: n === 2 ? 'https://upload.wikimedia.org/photo-2.jpg' : `https://upload.wikimedia.org/p${n}.jpg`, credit: credit(n) }));
+      },
+      describe: async (title) => (title === 'File:3.jpg' ? { url: 'https://upload.wikimedia.org/p3-grand.jpg', credit: credit(3) } : null),
+    };
+    const list = await camille.get(`/api/steps/${step.id}/photo-proposals`);
+    expect(list.status).toBe(200);
+    expect(list.body.map((p: { title: string }) => p.title)).toEqual(['File:1.jpg', 'File:3.jpg']); // l'aperçu 2 a échoué
+    expect(list.body[0].preview).toMatch(/^data:image\/jpeg;base64,/);
+
+    const chosen = await camille.put(`/api/steps/${step.id}/reference-photo`, { commons: 'File:3.jpg' });
+    expect(chosen.status).toBe(200);
+    expect(chosen.body).toMatchObject({ referencePhoto: true, photoCredit: credit(3) });
+    expect((await camille.put(`/api/steps/${step.id}/reference-photo`, { commons: 'File:1.jpg' })).status).toBe(422); // plus libre
+    expect((await camille.put(`/api/steps/${step.id}/reference-photo`, { commons: 'Category:x|y' })).status).toBe(400);
+    const seb = await loginAs(app, 'seb@example.com');
+    expect((await seb.get(`/api/steps/${step.id}/photo-proposals`)).status).toBe(403);
   });
 });

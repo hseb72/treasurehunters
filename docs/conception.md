@@ -979,6 +979,8 @@ Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 
 | Image **décodée puis réencodée** en JPEG (1600 px au plus) | charges cachées dans le fichier, failles des décodeurs ; les métadonnées (position GPS de l'appareil, auteur) disparaissent |
 | **Contrôle par l'IA** (`GUIDE_MODEL`) : publicité, contenu choquant ou inapproprié pour des enfants, données personnelles lisibles → refus motivé | images publicitaires ou déplacées |
 
+**« Propose-moi une photo »** : troisième choix de l'éditeur, pour illustrer une étape sans photo personnelle. Le serveur cherche dans Wikimedia Commons les photos prises à moins de 150 m de l'étape (celles dont le titre reprend le nom du lieu en premier), puis celles dont la description reprend le nom de l'étape et la ville ; un titre générique (« Étape 3 ») ne sert pas à chercher. Il garde les 6 premières sous licence libre et renvoie un aperçu réencodé (`data:` JPEG, la page n'appelle aucun site tiers) avec le crédit (`GET /api/steps/:id/photo-proposals`, 10 par minute). L'organisateur touche celle qui lui plaît : `PUT /api/steps/:id/reference-photo` `{ commons: "File:…" }` ; le serveur revérifie la licence, télécharge la photo en grand, la réencode et l'enregistre avec son crédit, sans contrôle par l'IA (photo libre choisie à vue).
+
 Si l'IA ne répond pas, la photo passe (l'organisateur en répond, et les joueurs peuvent la signaler, § 30). Le lien d'origine est gardé côté serveur (`cod_photosource`) en cas de signalement. `PUT /api/steps/:id/reference-photo` accepte `{ image }` ou `{ url }` (20 par minute). Migration `033_photo_credit.sql` (`cod_photocredit`, `cod_photocrediturl`, `cod_photosource`).
 
 **Catalogue** : les photos montrées aux joueurs sont copiées sous `catalog/…` à la publication d'une version ; les parties jouées depuis le catalogue y renvoient. L'auteur peut changer les siennes sans toucher la version publiée ; changer de photo ne fait pas une nouvelle version.
@@ -988,3 +990,11 @@ Si l'IA ne répond pas, la photo passe (l'organisateur en répond, et les joueur
 À chaque nouvelle version partagée au catalogue, le serveur compare le parcours aux Secret Tracks en ligne dont le départ est dans les environs. Deux étapes désignent le même lieu à moins de 40 m (même titre pour une étape sans position) ; le départ ne compte pas, souvent une place centrale commune. Si **plus de 80 % des étapes** de la proposition figurent déjà dans une même Secret Track, la publication est refusée (409) avec son titre, son auteur et la part d'étapes en commun.
 
 **Exception — nouvelle version** : les Secret Tracks de la même lignée ne comptent pas (versions précédentes de la même chasse, version copiée depuis le catalogue et toutes celles qui dérivent de la même origine). Pour corriger ou améliorer la Secret Track d'un autre auteur, on la copie depuis le catalogue et on en partage une nouvelle version, créditée comme telle. Une version retirée du catalogue ne bloque plus personne.
+
+## 49. Couverture d'une Secret Track
+
+La **photo du départ** est la couverture de la Secret Track : elle s'affiche en tête de sa carte (accueil, catalogue, mes Secret Tracks, listes, propositions du guide) ; sans elle, l'image par défaut du skin (§ 15), qui sert aussi d'image d'attente pendant le chargement. Dans l'éditeur, la carte de départ a son bloc « Photo de couverture », avec les trois mêmes choix que les étapes (envoyer, lien, « Propose-moi une photo ») et les mêmes contrôles (§ 47) ; le réglage « Montrer aux joueurs » n'y figure pas : le départ n'est pas un lieu à trouver.
+
+Les parcours générés reçoivent une photo libre pour leur rendez-vous, qui devient leur couverture. À la publication, la couverture suit la version du catalogue (copiée sous `catalog/…`), et les parties jouées depuis le catalogue la reprennent.
+
+**API** : `Hunt.cover` et `CatalogEntry.cover` disent s'il y a une couverture ; `GET /api/hunts/:id/cover` (organisateur, hôte, équipes, ou tout le monde si la chasse est publique) et `GET /api/catalog/:id/cover` (public, version en ligne) servent l'image.

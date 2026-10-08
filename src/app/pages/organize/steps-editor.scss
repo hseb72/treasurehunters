@@ -234,3 +234,42 @@
     min-width: 0;
   }
 }
+
+.proposals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.proposal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--th-border);
+  border-radius: 6px;
+  background: var(--th-surface);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .credit {
+    font-size: 0.65rem;
+    line-height: 1.25;
+    color: var(--th-ink-soft);
+    overflow-wrap: anywhere;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--th-primary);
+  }
+}

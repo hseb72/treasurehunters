@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
 import { NearbyResult } from '@shared/nearby';
+import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
@@ -401,12 +402,24 @@ export class HttpHuntApi extends HuntApi {
   illustrationImage(stepId: number): Observable<Blob> {
     return this.http.get(`${this.url}/steps/${stepId}/illustration`, { responseType: 'blob' });
   }
+  huntCover(huntId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/hunts/${huntId}/cover`, { responseType: 'blob' });
+  }
+  catalogCover(entryId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/catalog/${entryId}/cover`, { responseType: 'blob' });
+  }
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
     const url = `${this.url}/steps/${stepId}/reference-photo`;
     return image === null ? this.http.delete<Step>(url) : this.http.put<Step>(url, { image });
   }
   setReferencePhotoUrl(stepId: number, url: string): Observable<Step> {
     return this.http.put<Step>(`${this.url}/steps/${stepId}/reference-photo`, { url });
+  }
+  photoProposals(stepId: number): Observable<PhotoProposal[]> {
+    return this.http.get<PhotoProposal[]>(`${this.url}/steps/${stepId}/photo-proposals`);
+  }
+  setReferencePhotoCommons(stepId: number, title: string): Observable<Step> {
+    return this.http.put<Step>(`${this.url}/steps/${stepId}/reference-photo`, { commons: title });
   }
 
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {

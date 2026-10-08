@@ -30,6 +30,7 @@ import {
   PhotoResult,
   PhotoReview,
   PhotoCredit,
+  PhotoProposal,
   PhotoShow,
   PlayClue,
   PlayState,
@@ -77,6 +78,16 @@ import {
   teamStartTimes,
 } from '@shared/rules';
 import { Session } from '../session';
+
+/** Dégradé d'exemple (aperçus des photos proposées dans la maquette). */
+const mockGradient = (a: string, b: string) =>
+  'data:image/svg+xml;base64,' +
+  btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><defs><linearGradient id="g"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/></svg>`);
+const MOCK_PROPOSALS: [string, string, string][] = [
+  ['File:Place de la Comédie.jpg', '#264653', '#e9c46a'],
+  ['File:Fontaine des Trois Grâces.jpg', '#6d597a', '#eaac8b'],
+  ['File:Arc de triomphe Montpellier.jpg', '#2a9d8f', '#f4a261'],
+];
 
 /** Image d'exemple d'une photo importée par lien dans la maquette (un carré dégradé). */
 const MOCK_LINKED_PHOTO =
@@ -152,6 +163,8 @@ export class MockHuntApi extends HuntApi {
     for (const [order, image, show] of [
       [3, boulodrome, 'clue'],
       [2, mediatheque, 'arrival'],
+      // Le départ : couverture des cartes (§ 49).
+      [0, mediatheque, null],
     ] as const) {
       const step = this.db.steps.find((s) => s.huntId === 1 && s.order === order);
       if (!step) continue;
@@ -1481,6 +1494,7 @@ export class MockHuntApi extends HuntApi {
       durationMinutes: e.durationMinutes,
       measuredMinutes: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null,
       stepCount: e.stepCount,
+      cover: e.huntId !== null && this.coverStep(e.huntId) !== null,
       validation: e.validation,
       plays: played.length,
       rating: {
@@ -2242,6 +2256,34 @@ export class MockHuntApi extends HuntApi {
     });
   }
 
+  /** Propositions de la maquette : trois images d'exemple, avec un crédit fictif. */
+  photoProposals(stepId: number): Observable<PhotoProposal[]> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      return MOCK_PROPOSALS.map(([title, a, b], i) => ({
+        title,
+        preview: mockGradient(a, b),
+        credit: { text: `Photo : Contributeur ${i + 1} · CC BY-SA 4.0 · Wikimedia Commons`, url: 'https://commons.wikimedia.org/' },
+      }));
+    });
+  }
+
+  setReferencePhotoCommons(stepId: number, title: string): Observable<Step> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      const i = MOCK_PROPOSALS.findIndex(([t]) => t === title);
+      if (i < 0) throw new ApiError('Photo inconnue.');
+      this.refPhotos.set(stepId, mockGradient(MOCK_PROPOSALS[i][1], MOCK_PROPOSALS[i][2]));
+      step.referencePhoto = true;
+      step.photoCredit = { text: `Photo : Contributeur ${i + 1} · CC BY-SA 4.0 · Wikimedia Commons`, url: 'https://commons.wikimedia.org/' };
+      return step;
+    });
+  }
+
   private validateByPhoto(photo: MockPhoto, me: number): void {
     photo.counted = true;
     this.arrive(photo.teamId, this.db.steps.find((s) => s.id === photo.stepId)!, me, 'PHOTO');
@@ -2559,7 +2601,30 @@ export class MockHuntApi extends HuntApi {
       hostNickname: h.hostId === null ? null : this.nick(h.hostId),
       stepCount: finalOrder(this.stepsOf(h.id)),
       teamCount: this.db.teams.filter((t) => t.huntId === h.id).length,
+      cover: this.coverStep(h.id) !== null,
     };
+  }
+
+  /** Étape de départ avec photo : la couverture de la chasse (§ 49). */
+  private coverStep(huntId: number): number | null {
+    const start = this.db.steps.find((s) => s.huntId === huntId && s.order === 0);
+    return start && this.refPhotos.has(start.id) ? start.id : null;
+  }
+
+  huntCover(huntId: number): Observable<Blob> {
+    return this.blob(() => {
+      const id = this.coverStep(huntId);
+      return id === null ? null : (this.refPhotos.get(id) ?? null);
+    });
+  }
+
+  /** La maquette reprend la photo du départ de la chasse publiée. */
+  catalogCover(entryId: number): Observable<Blob> {
+    return this.blob(() => {
+      const e = this.catalog.find((x) => x.id === entryId);
+      const id = e?.huntId ? this.coverStep(e.huntId) : null;
+      return id === null ? null : (this.refPhotos.get(id) ?? null);
+    });
   }
 
   private stepsOf(huntId: number): Step[] {
