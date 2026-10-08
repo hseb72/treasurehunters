@@ -8,6 +8,10 @@
   }
 
   @if (entry.value(); as e) {
+    @if (e.cover) {
+      <!-- La photo du départ en grand (§ 49) : la première chose qu'on voit de la Secret Track. -->
+      <th-auth-image class="hero" kind="catalog-cover" [id]="e.id" [alt]="'Le départ de « ' + e.title + ' »'" />
+    }
     <header class="poster banner">
       @if (e.withdrawn) {
         <span class="badge badge--cancelled">retirée du catalogue</span>

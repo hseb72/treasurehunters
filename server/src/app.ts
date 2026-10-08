@@ -207,7 +207,11 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   });
 
   app.setErrorHandler((err, req, reply) => {
-    if (err instanceof HttpError) return reply.status(err.status).send({ message: err.message });
+    if (err instanceof HttpError) {
+      // Panne d'un service (stockage, IA…) : la cause technique va au journal, le message au client.
+      if (err.status >= 500) req.log.error({ err, cause: describeError(err.cause ?? err) }, err.message);
+      return reply.status(err.status).send({ message: err.message });
+    }
     if (err instanceof ZodError) {
       const issue = err.issues[0];
       return reply.status(400).send({ message: `Donnée invalide : ${issue?.path.join('.') || 'requête'}.` });

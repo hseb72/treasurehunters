@@ -69,3 +69,44 @@ describe('couverture d’une Secret Track (§ 49)', () => {
     expect((await camille.get(`/api/hunts/${played.body.id}/cover`)).status).toBe(200);
   });
 });
+
+describe('couverture d’une version publiée avant sa photo', () => {
+  it('reprend la photo du départ ajoutée ensuite à la chasse d’origine', async () => {
+    const zoe = await loginAs(app, 'zoe@example.com');
+    const job = await zoe.post('/api/hunts/generate', {
+      location: { query: 'Montpellier', lat: 43.62, lng: 3.86 },
+      durationMinutes: 45,
+      travel: 'walk',
+      difficulty: 'easy',
+      theme: null,
+      steps: 3,
+      mode: 'organize',
+    });
+    await app.service.settle();
+    const huntId = (await zoe.get(`/api/generations/${job.body.id}`)).body.huntId as number;
+    const entry = await zoe.post(`/api/hunts/${huntId}/catalog`, { summary: 'Balade.', travel: 'walk', difficulty: 'easy', durationMinutes: 45, sampleOrder: 0, changes: null });
+    expect(entry.body.cover).toBe(false);
+    expect((await client(app).get(`/api/catalog/${entry.body.id}/cover`)).status).toBe(404);
+
+    const start = (await zoe.get(`/api/hunts/${huntId}/steps`)).body.find((s: { order: number }) => s.order === 0);
+    await zoe.put(`/api/steps/${start.id}/reference-photo`, { image: await photo() });
+    expect((await client(app).get(`/api/catalog/${entry.body.id}`)).body.cover).toBe(true);
+    expect((await client(app).get(`/api/catalog/${entry.body.id}/cover`)).status).toBe(200);
+  });
+});
+
+describe('stockage des photos en panne', () => {
+  it('répond un message clair (503), pas une erreur interne', async () => {
+    const broken = new MemoryPhotoStore();
+    broken.put = async () => {
+      throw new Error('Stockage : dépôt refusé (403) : AccessDenied');
+    };
+    const down = await buildApp(ctx.pool, { photoStore: broken, guide: null, moderator: null });
+    const camille = await loginAs(down, 'camille@example.com');
+    const step = (await camille.get('/api/hunts/1/steps')).body.find((s: { order: number }) => s.order === 1);
+    const res = await camille.put(`/api/steps/${step.id}/reference-photo`, { image: await photo() });
+    expect(res.status).toBe(503);
+    expect(res.body.message).toContain('Le stockage des photos refuse l’enregistrement');
+    await down.close();
+  });
+});
