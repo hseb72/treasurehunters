@@ -129,6 +129,15 @@ export interface PhotoCredit {
   url: string | null;
 }
 
+/** Photo libre proposée pour illustrer une étape (« Propose-moi une photo », § 47). */
+export interface PhotoProposal {
+  /** Fichier Wikimedia Commons (« File:… »), à renvoyer pour le choisir. */
+  title: string;
+  /** Aperçu réencodé par le serveur, en « data URL » JPEG. */
+  preview: string;
+  credit: PhotoCredit;
+}
+
 export interface Member {
   hunterId: number;
   nickname: string;

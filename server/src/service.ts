@@ -35,6 +35,7 @@ import {
   PhotoResult,
   PhotoReview,
   PhotoCredit,
+  PhotoProposal,
   PhotoShow,
   Difficulty,
   Travel,
@@ -108,6 +109,7 @@ import { assistUsageOf } from './assist/usage.js';
 import { Translator } from './translate/translator.js';
 import { Guide } from './guide/guide.js';
 import { fetchImage, sanitizeImage } from './photos/safe-image.js';
+import { describeFile, proposePhotos } from './photos/commons.js';
 import { ImageModerator } from './photos/moderator.js';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '../../shared/similarity.js';
 import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '../../shared/guide.js';
@@ -1796,18 +1798,62 @@ export class Service {
     return this.replaceStepPhoto(viewer, stepId, { photo: { bytes: fetched.bytes, contentType: fetched.contentType }, source: fetched.finalUrl, credit: null });
   }
 
+  /** Recherche et description des photos de Commons (remplacées dans les tests). */
+  commons = { propose: proposePhotos, describe: describeFile };
+
+  /**
+   * « Propose-moi une photo » (§ 47) : des photos libres de Wikimedia Commons prises autour de
+   * l'étape ou au nom du lieu, avec un aperçu réencodé par le serveur et leur crédit.
+   */
+  async photoProposals(viewer: Viewer, stepId: number): Promise<PhotoProposal[]> {
+    this.requirePhotos();
+    const { step } = await this.ownedStepPhoto(viewer, stepId);
+    if (step.order === 0) throw badRequest('Le départ n’a pas de lieu à illustrer.');
+    const hunt = await huntById(this.pool, step.huntId);
+    const candidates = await this.commons.propose({
+      name: step.title,
+      lat: step.latitude === null ? null : Number(step.latitude),
+      lng: step.longitude === null ? null : Number(step.longitude),
+      town: hunt?.location ?? null,
+    });
+    const previews = await Promise.all(
+      candidates.map(async (c) => {
+        try {
+          const image = await this.fetchFreePhoto(c.url);
+          return { title: c.title, preview: `data:image/jpeg;base64,${image.bytes.toString('base64')}`, credit: c.credit };
+        } catch {
+          return null;
+        }
+      }),
+    );
+    return previews.filter((p): p is PhotoProposal => p !== null);
+  }
+
+  /** La photo de Commons choisie : licence revérifiée, téléchargée en grand et réencodée. */
+  async setReferencePhotoFromCommons(viewer: Viewer, stepId: number, title: string): Promise<Step> {
+    this.requirePhotos();
+    await this.ownedStepPhoto(viewer, stepId);
+    if (!/^File:[^|#<>[\]{}]{1,240}$/.test(title)) throw badRequest('Photo inconnue.');
+    const photo = await this.commons.describe(title).catch(() => null);
+    if (!photo) throw new HttpError(422, 'Cette photo n’est pas (ou plus) disponible sous licence libre : choisissez-en une autre.');
+    const image = await this.fetchFreePhoto(photo.url);
+    // Photo libre choisie à vue dans Wikimedia Commons : pas de contrôle par l'IA.
+    return this.replaceStepPhoto(viewer, stepId, { photo: image, source: photo.credit.url ?? photo.url, credit: photo.credit }, false);
+  }
+
   /** Enregistre (ou efface) la photo d'une étape, après le contrôle de l'IA pour les photos d'organisateur. */
   private async replaceStepPhoto(
     viewer: Viewer,
     stepId: number,
     next: { photo: StoredPhoto; source: string | null; credit: PhotoCredit | null } | null,
+    moderate = true,
   ): Promise<Step> {
     const photos = this.requirePhotos();
     const { step, key: old } = await this.ownedStepPhoto(viewer, stepId);
     if (step.order === 0) throw badRequest('Le départ n’a pas de lieu à photographier.');
     let key: string | null = null;
     if (next) {
-      await this.moderate(next.photo, step);
+      if (moderate) await this.moderate(next.photo, step);
       key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${next.photo.contentType.split('/')[1]}`;
       await photos.store.put(key, next.photo);
     }

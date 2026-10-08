@@ -222,10 +222,27 @@
                 <button mat-stroked-button type="button" (click)="refInput.click()" [disabled]="refBusy()">
                   <mat-icon>add_a_photo</mat-icon>{{ step.referencePhoto ? 'Remplacer' : 'Ajouter' }}
                 </button>
+                <button mat-stroked-button type="button" (click)="propose(step)" [disabled]="refBusy() || proposing()">
+                  <mat-icon>image_search</mat-icon>{{ proposing() ? 'Recherche…' : 'Propose-moi une photo' }}
+                </button>
                 @if (step.referencePhoto) {
                   <button mat-button type="button" (click)="removeReference(step)" [disabled]="refBusy()">Retirer</button>
                 }
               </div>
+              @if (proposals(); as p) {
+                @if (p.stepId === step.id && p.list.length) {
+                  <!-- Photos libres de Wikimedia Commons, au choix ; l'auteur sera crédité sous la photo. -->
+                  <div class="proposals" role="list" aria-label="Photos proposées">
+                    @for (ph of p.list; track ph.title) {
+                      <button type="button" class="proposal" role="listitem" (click)="chooseProposal(step, ph)" [disabled]="refBusy()" [attr.aria-label]="'Choisir cette photo : ' + ph.credit.text">
+                        <img [src]="ph.preview" alt="" />
+                        <span class="credit">{{ ph.credit.text }}</span>
+                      </button>
+                    }
+                  </div>
+                  <span class="small muted">Photos libres de Wikimedia Commons : touchez celle qui vous plaît.</span>
+                }
+              }
               <input #refInput type="file" accept="image/*" capture="environment" hidden (change)="setReference(step, $event)" />
               <!-- Ou un lien : le serveur télécharge, vérifie et réencode la photo ; le lien n'est jamais montré aux joueurs (§ 47). -->
               <div class="row ref-url">

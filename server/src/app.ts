@@ -657,9 +657,16 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   // Fichier envoyé ({ image }) ou lien vers une photo ({ url }, § 47), contrôlés puis réencodés.
   app.put('/api/steps/:id/reference-photo', { ...photoRoute, config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (req) => {
     const id = idParams.parse(req.params).id;
-    const body = z.union([photoBody, z.object({ url: z.string().trim().min(10).max(1000) })]).parse(req.body);
+    const body = z
+      .union([photoBody, z.object({ url: z.string().trim().min(10).max(1000) }), z.object({ commons: z.string().trim().min(6).max(250) })])
+      .parse(req.body);
+    if ('commons' in body) return service.setReferencePhotoFromCommons(req.viewer, id, body.commons);
     return 'url' in body ? service.setReferencePhotoFromUrl(req.viewer, id, body.url) : service.setReferencePhoto(req.viewer, id, body.image);
   });
+  // « Propose-moi une photo » (§ 47) : photos libres de Wikimedia Commons autour de l'étape.
+  app.get('/api/steps/:id/photo-proposals', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) =>
+    service.photoProposals(req.viewer, idParams.parse(req.params).id),
+  );
   app.delete('/api/steps/:id/reference-photo', async (req) => service.setReferencePhoto(req.viewer, idParams.parse(req.params).id, null));
 
   // POST : un scan peut valider une étape, il ne doit jamais être déclenché par un simple préchargement.

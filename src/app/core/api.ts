@@ -11,6 +11,7 @@ import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import { ExplorerJournal } from '@shared/journal';
 import { NearbyResult } from '@shared/nearby';
+import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
@@ -212,6 +213,10 @@ export abstract class HuntApi {
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
   /** Photo du lieu depuis un lien (§ 47) : téléchargée, vérifiée et réencodée par le serveur. */
   abstract setReferencePhotoUrl(stepId: number, url: string): Observable<Step>;
+  /** « Propose-moi une photo » (§ 47) : photos libres de Wikimedia Commons autour de l'étape. */
+  abstract photoProposals(stepId: number): Observable<PhotoProposal[]>;
+  /** Choisit une photo proposée (fichier Commons). */
+  abstract setReferencePhotoCommons(stepId: number, title: string): Observable<Step>;
 
   /* Catalogue (§ 13) */
   /** mine : mes publications ; hunt : celles d'une de mes chasses (retirées comprises). */

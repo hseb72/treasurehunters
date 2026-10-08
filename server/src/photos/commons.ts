@@ -97,22 +97,10 @@ async function fileNearby(place: PhotoPlace): Promise<string | null> {
   return data.query?.geosearch?.find((g) => [...words(g.title)].some((w) => wanted.has(w)))?.title ?? null;
 }
 
-/** Vignette et crédit d'un fichier Commons, s'il est sous licence libre. */
-export async function describeFile(title: string): Promise<FreePhoto | null> {
-  const data = (await api(config.commonsApiUrl, {
-    action: 'query',
-    titles: title,
-    prop: 'imageinfo',
-    iiprop: 'url|mime|extmetadata',
-    iiurlwidth: String(THUMB_WIDTH),
-  })) as {
-    query?: {
-      pages?: {
-        imageinfo?: { thumburl?: string; url?: string; descriptionurl?: string; mime?: string; extmetadata?: Record<string, { value?: string }> }[];
-      }[];
-    };
-  };
-  const info = data.query?.pages?.[0]?.imageinfo?.[0];
+type ImageInfo = { thumburl?: string; url?: string; descriptionurl?: string; mime?: string; extmetadata?: Record<string, { value?: string }> };
+
+/** Photo libre décrite : vignette à la largeur demandée et crédit ; null si la licence ou le format ne conviennent pas. */
+function freePhotoOf(info: ImageInfo | undefined): FreePhoto | null {
   if (!info || !/^image\/(jpeg|png|webp)$/.test(info.mime ?? '')) return null;
   const meta = info.extmetadata ?? {};
   const license = freeLicense(meta);
@@ -121,6 +109,75 @@ export async function describeFile(title: string): Promise<FreePhoto | null> {
   const artist = plainText(meta['Artist']?.value).slice(0, 80) || 'auteur inconnu';
   const page = info.descriptionurl && /^https:\/\/commons\.wikimedia\.org\//.test(info.descriptionurl) ? info.descriptionurl : null;
   return { url, credit: { text: `Photo : ${artist} · ${license} · Wikimedia Commons`.slice(0, 300), url: page } };
+}
+
+/** Plusieurs fichiers en une requête (50 au plus), dans l'ordre demandé ; les non libres sont écartés. */
+async function describeFiles(titles: string[], width: number): Promise<(FreePhoto & { title: string })[]> {
+  if (!titles.length) return [];
+  const data = (await api(config.commonsApiUrl, {
+    action: 'query',
+    titles: titles.slice(0, 50).join('|'),
+    prop: 'imageinfo',
+    iiprop: 'url|mime|extmetadata',
+    iiurlwidth: String(width),
+  })) as { query?: { normalized?: { from: string; to: string }[]; pages?: { title?: string; imageinfo?: ImageInfo[] }[] } };
+  const renamed = new Map((data.query?.normalized ?? []).map((n) => [n.from, n.to]));
+  const byTitle = new Map((data.query?.pages ?? []).map((p) => [p.title ?? '', p.imageinfo?.[0]]));
+  return titles.flatMap((t) => {
+    const photo = freePhotoOf(byTitle.get(renamed.get(t) ?? t) ?? (titles.length === 1 ? data.query?.pages?.[0]?.imageinfo?.[0] : undefined));
+    return photo ? [{ ...photo, title: renamed.get(t) ?? t }] : [];
+  });
+}
+
+/** Vignette et crédit d'un fichier Commons, s'il est sous licence libre. */
+export async function describeFile(title: string): Promise<FreePhoto | null> {
+  const [photo] = await describeFiles([title], THUMB_WIDTH);
+  return photo ? { url: photo.url, credit: photo.credit } : null;
+}
+
+/** Photo proposée à l'organisateur (§ 47) : le fichier Commons, un aperçu et le crédit. */
+export interface PhotoCandidate extends FreePhoto {
+  title: string;
+}
+
+/** Rayon des photos prises autour d'une étape, proposées à l'organisateur. */
+const PROPOSE_NEAR_M = 150;
+const PREVIEW_WIDTH = 480;
+
+/**
+ * Photos libres pour illustrer une étape (« Propose-moi une photo ») : celles prises autour de
+ * l'étape, puis celles dont la description reprend son nom (et sa ville). Au plus `n`.
+ */
+export async function proposePhotos(place: { name: string; lat: number | null; lng: number | null; town?: string | null }, n = 6): Promise<PhotoCandidate[]> {
+  const titles: string[] = [];
+  const add = (list: string[] | undefined) => list?.forEach((t) => !titles.includes(t) && titles.push(t));
+  const near =
+    place.lat !== null && place.lng !== null
+      ? api(config.commonsApiUrl, {
+          action: 'query',
+          list: 'geosearch',
+          gscoord: `${place.lat}|${place.lng}`,
+          gsradius: String(PROPOSE_NEAR_M),
+          gsnamespace: '6',
+          gslimit: '25',
+        }).then((d) => ((d as { query?: { geosearch?: { title: string }[] } }).query?.geosearch ?? []).map((g) => g.title))
+      : Promise.resolve([] as string[]);
+  // Un titre générique (« Étape 3 ») ne sert pas à chercher.
+  const query = [place.name, place.town].filter((x) => x && words(x).size).join(' ').trim();
+  const named =
+    query && words(place.name).size && !/^(étape|etape|arrivée|depart|départ)\b/i.test(place.name.trim())
+      ? api(config.commonsApiUrl, { action: 'query', list: 'search', srsearch: `${query} filetype:bitmap`, srnamespace: '6', srlimit: '15' }).then((d) =>
+          ((d as { query?: { search?: { title: string }[] } }).query?.search ?? []).map((x) => x.title),
+        )
+      : Promise.resolve([] as string[]);
+  const [a, b] = await Promise.all([near.catch(() => []), named.catch(() => [])]);
+  // Les photos prises sur place dont le titre reprend le nom d'abord, puis les autres.
+  const wanted = words(place.name);
+  add(a.filter((t) => [...words(t)].some((w) => wanted.has(w))));
+  add(b);
+  add(a);
+  const described = await describeFiles(titles.slice(0, 40), PREVIEW_WIDTH).catch(() => []);
+  return described.slice(0, n);
 }
 
 /** Photo libre d'un lieu, ou null (aucune, licence non libre, service injoignable). */

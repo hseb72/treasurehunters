@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
 import { NearbyResult } from '@shared/nearby';
+import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
@@ -407,6 +408,12 @@ export class HttpHuntApi extends HuntApi {
   }
   setReferencePhotoUrl(stepId: number, url: string): Observable<Step> {
     return this.http.put<Step>(`${this.url}/steps/${stepId}/reference-photo`, { url });
+  }
+  photoProposals(stepId: number): Observable<PhotoProposal[]> {
+    return this.http.get<PhotoProposal[]>(`${this.url}/steps/${stepId}/photo-proposals`);
+  }
+  setReferencePhotoCommons(stepId: number, title: string): Observable<Step> {
+    return this.http.put<Step>(`${this.url}/steps/${stepId}/reference-photo`, { commons: title });
   }
 
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {

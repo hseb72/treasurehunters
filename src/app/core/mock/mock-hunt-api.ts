@@ -30,6 +30,7 @@ import {
   PhotoResult,
   PhotoReview,
   PhotoCredit,
+  PhotoProposal,
   PhotoShow,
   PlayClue,
   PlayState,
@@ -77,6 +78,16 @@ import {
   teamStartTimes,
 } from '@shared/rules';
 import { Session } from '../session';
+
+/** Dégradé d'exemple (aperçus des photos proposées dans la maquette). */
+const mockGradient = (a: string, b: string) =>
+  'data:image/svg+xml;base64,' +
+  btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><defs><linearGradient id="g"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/></svg>`);
+const MOCK_PROPOSALS: [string, string, string][] = [
+  ['File:Place de la Comédie.jpg', '#264653', '#e9c46a'],
+  ['File:Fontaine des Trois Grâces.jpg', '#6d597a', '#eaac8b'],
+  ['File:Arc de triomphe Montpellier.jpg', '#2a9d8f', '#f4a261'],
+];
 
 /** Image d'exemple d'une photo importée par lien dans la maquette (un carré dégradé). */
 const MOCK_LINKED_PHOTO =
@@ -2238,6 +2249,34 @@ export class MockHuntApi extends HuntApi {
       this.refPhotos.set(stepId, MOCK_LINKED_PHOTO);
       step.referencePhoto = true;
       step.photoCredit = null;
+      return step;
+    });
+  }
+
+  /** Propositions de la maquette : trois images d'exemple, avec un crédit fictif. */
+  photoProposals(stepId: number): Observable<PhotoProposal[]> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      return MOCK_PROPOSALS.map(([title, a, b], i) => ({
+        title,
+        preview: mockGradient(a, b),
+        credit: { text: `Photo : Contributeur ${i + 1} · CC BY-SA 4.0 · Wikimedia Commons`, url: 'https://commons.wikimedia.org/' },
+      }));
+    });
+  }
+
+  setReferencePhotoCommons(stepId: number, title: string): Observable<Step> {
+    return this.reply(() => {
+      const step = this.db.steps.find((s) => s.id === stepId);
+      if (!step) throw new ApiError('Étape introuvable.');
+      this.ownedHunt(step.huntId);
+      const i = MOCK_PROPOSALS.findIndex(([t]) => t === title);
+      if (i < 0) throw new ApiError('Photo inconnue.');
+      this.refPhotos.set(stepId, mockGradient(MOCK_PROPOSALS[i][1], MOCK_PROPOSALS[i][2]));
+      step.referencePhoto = true;
+      step.photoCredit = { text: `Photo : Contributeur ${i + 1} · CC BY-SA 4.0 · Wikimedia Commons`, url: 'https://commons.wikimedia.org/' };
       return step;
     });
   }
