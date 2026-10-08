@@ -104,7 +104,11 @@ le provisionnement (`argocd app sync database`, cf. homelab-platform).
 Sans elle, tout le reste fonctionne et `POST /api/hunts/generate` répond 503.
 La clé se crée sur console.anthropic.com. Réglages facultatifs, dans `api.env` de
 `values.yaml` : `GENERATOR_MODEL` (`claude-opus-5`), `GENERATOR_EFFORT` (`medium`),
-`GENERATION_DAILY_QUOTA` (`5`), `GUIDE_MODEL` (`claude-sonnet-5`, le guide vocal, § 46).
+`GENERATION_DAILY_QUOTA` (`5`), `GUIDE_MODEL` (`claude-sonnet-5`, le guide vocal, § 46, et le contrôle des photos, § 47),
+`SAFE_BROWSING_API_KEY` (facultatif : vérification des liens de photos par Google Safe Browsing).
+
+Les photos libres des parcours générés viennent de `commons.wikimedia.org`, `www.wikidata.org`
+et `upload.wikimedia.org` (HTTPS) ; les photos importées par lien, de n'importe quel site public.
 
 Le générateur sort du cluster vers `api.anthropic.com`, `nominatim.openstreetmap.org`
 et `overpass-api.de` (HTTPS). Les NetworkPolicies du chart laissent la sortie
