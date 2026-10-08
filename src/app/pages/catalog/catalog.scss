@@ -119,3 +119,16 @@
 }
 
 .chip--dice { border-color: var(--th-accent); background: var(--th-accent-light); font-weight: 600; }
+
+.more {
+  justify-content: space-between;
+}
+
+.more-toggle .count {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #fff;
+  background: var(--th-primary);
+}

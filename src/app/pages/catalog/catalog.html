@@ -66,7 +66,21 @@
       }
     </div>
 
-    <div class="criteria">
+    <div class="line more">
+      <button mat-button type="button" class="more-toggle" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-controls="catalog-criteria">
+        <mat-icon>{{ moreOpen() ? 'expand_less' : 'tune' }}</mat-icon>
+        {{ moreOpen() ? 'Moins de critères' : 'Plus de critères' }}
+        @if (!moreOpen() && activeCriteria()) {
+          <span class="count">{{ activeCriteria() }} actif{{ activeCriteria() > 1 ? 's' : '' }}</span>
+        }
+      </button>
+      @if (filtered() && !moreOpen()) {
+        <button mat-button type="button" (click)="reset()"><mat-icon>filter_alt_off</mat-icon>Tous les critères</button>
+      }
+    </div>
+
+    @if (moreOpen()) {
+    <div class="criteria" id="catalog-criteria">
       <div class="criterion">
         <span class="label">Déplacement</span>
         <mat-button-toggle-group multiple [value]="travel()" (change)="travel.set($event.value)" hideMultipleSelectionIndicator aria-label="Déplacement">
@@ -148,8 +162,9 @@
         </mat-slider>
       </div>
     </div>
+    }
 
-    @if (filtered()) {
+    @if (filtered() && moreOpen()) {
       <div class="line end">
         <button mat-button type="button" (click)="reset()"><mat-icon>filter_alt_off</mat-icon>Tous les critères</button>
       </div>
