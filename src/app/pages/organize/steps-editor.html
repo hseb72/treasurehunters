@@ -190,6 +190,13 @@
             />
           }
         }
+        @if (photosOff()) {
+          <p class="small muted photos-off">
+            <mat-icon inline>no_photography</mat-icon>
+            Photos indisponibles : le stockage des photos n'est pas configuré sur ce serveur. L'administrateur doit renseigner la clé du
+            stockage (PHOTO_S3_SECRET_KEY) et redémarrer l'API.
+          </p>
+        }
         @if (photos()) {
           <div class="reference">
             @if (step.referencePhoto) {
