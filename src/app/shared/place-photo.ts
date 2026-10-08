@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { PhotoCredit } from '@shared/models';
 import { AuthImage } from './auth-image';
 
 /**
@@ -15,6 +16,16 @@ import { AuthImage } from './auth-image';
       @if (caption()) {
         <figcaption class="small">{{ caption() }}</figcaption>
       }
+      @if (credit(); as c) {
+        <!-- Crédit exigé par la licence libre de la photo (§ 47). -->
+        <figcaption class="credit">
+          @if (c.url) {
+            <a [href]="c.url" target="_blank" rel="noopener noreferrer">{{ c.text }}</a>
+          } @else {
+            {{ c.text }}
+          }
+        </figcaption>
+      }
     </figure>
   `,
   styles: `
@@ -26,6 +37,8 @@ import { AuthImage } from './auth-image';
     }
     th-auth-image { aspect-ratio: 4 / 3; border-radius: 3px; }
     figcaption { padding: 4px 2px 0; text-align: center; font-family: var(--th-font-note); color: var(--th-ink-soft); }
+    .credit { font: 0.68rem/1.3 var(--th-font-body); overflow-wrap: anywhere; }
+    .credit a { color: inherit; }
     :host(.compact) figure { margin: 6px 0 0; max-width: 160px; transform: none; }
   `,
 })
@@ -34,4 +47,6 @@ export class PlacePhoto {
   readonly stepId = input.required<number>();
   readonly alt = input('Photo du lieu');
   readonly caption = input<string | null>(null);
+  /** Auteur et licence d'une photo libre, affichés sous la photo. */
+  readonly credit = input<PhotoCredit | null | undefined>(null);
 }

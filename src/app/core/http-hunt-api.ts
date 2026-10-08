@@ -405,6 +405,9 @@ export class HttpHuntApi extends HuntApi {
     const url = `${this.url}/steps/${stepId}/reference-photo`;
     return image === null ? this.http.delete<Step>(url) : this.http.put<Step>(url, { image });
   }
+  setReferencePhotoUrl(stepId: number, url: string): Observable<Step> {
+    return this.http.put<Step>(`${this.url}/steps/${stepId}/reference-photo`, { url });
+  }
 
   generateHunt(request: GenerationRequest): Observable<GenerationJob> {
     return this.http.post<GenerationJob>(`${this.url}/hunts/generate`, request);

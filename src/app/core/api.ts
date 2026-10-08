@@ -210,6 +210,8 @@ export abstract class HuntApi {
   abstract illustrationImage(stepId: number): Observable<Blob>;
   /** Photo de référence d'une étape ; null la retire. */
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
+  /** Photo du lieu depuis un lien (§ 47) : téléchargée, vérifiée et réencodée par le serveur. */
+  abstract setReferencePhotoUrl(stepId: number, url: string): Observable<Step>;
 
   /* Catalogue (§ 13) */
   /** mine : mes publications ; hunt : celles d'une de mes chasses (retirées comprises). */

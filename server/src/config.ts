@@ -43,6 +43,11 @@ export const config = {
   /** Adresse publique du front : retours du paiement et de l'inscription des vendeurs. */
   appUrl: (process.env['APP_URL'] ?? process.env['CORS_ORIGIN']?.split(',')[0] ?? 'http://localhost:4200').trim().replace(/\/$/, ''),
   /** Identification exigée par les services OpenStreetMap (Nominatim, Overpass). */
+  /** Google Safe Browsing (facultatif) : vérifie les liens de photos collés par les organisateurs (§ 47). */
+  safeBrowsingKey: process.env['SAFE_BROWSING_API_KEY']?.trim() || null,
+  /** Photos libres des parcours générés (§ 47). */
+  commonsApiUrl: process.env['COMMONS_API_URL'] ?? 'https://commons.wikimedia.org/w/api.php',
+  wikidataApiUrl: process.env['WIKIDATA_API_URL'] ?? 'https://www.wikidata.org/w/api.php',
   osmUserAgent: process.env['OSM_USER_AGENT'] ?? 'TreasureHunters/1.0 (+https://treasurehunters.crealcs.com)',
   nominatimUrl: process.env['NOMINATIM_URL'] ?? 'https://nominatim.openstreetmap.org',
   /** Instances Overpass publiques, essayées tour à tour (séparées par des virgules). */

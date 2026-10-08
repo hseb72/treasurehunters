@@ -23,6 +23,8 @@ export interface PlannedStep {
   source?: string;
   /** Épreuve d'arrivée proposée par l'IA (§ 17.1), à résoudre sur ce lieu. */
   puzzle?: Puzzle | null;
+  /** Photo libre du lieu (§ 47), dévoilée à l'arrivée ou à l'abandon : vignette à télécharger et crédit. */
+  photo?: { url: string; credit: { text: string; url: string | null } } | null;
 }
 
 export interface HuntPlan {

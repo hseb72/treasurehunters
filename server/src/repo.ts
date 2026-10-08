@@ -146,6 +146,7 @@ export function toStep(r: Row): Step {
     puzzle: r['cod_puzzle'] ?? null,
     referencePhoto: !!r['cod_refphoto'],
     photoShow: r['cod_photoshow'] ?? null,
+    photoCredit: r['cod_photocredit'] ? { text: r['cod_photocredit'], url: r['cod_photocrediturl'] ?? null } : null,
   };
 }
 

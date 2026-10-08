@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { filter, switchMap, timer } from 'rxjs';
-import { CheckinResult, CompassReading, PlayClue, PhotoResult, PlayState } from '@shared/models';
+import { CheckinResult, CompassReading, PlayClue, PhotoResult, PlayState, PlayStep } from '@shared/models';
 import { ReadAloud } from '../../shared/read-aloud';
 import { OfflinePlay } from './offline-play';
 import { OfflineStore } from '../../core/offline-store';
@@ -339,6 +339,8 @@ export class PlayPage {
           this.confirmHint.set(false);
           this.checkin.set(null);
           this.busy.set(false);
+          // Le lieu manqué est dévoilé, avec sa photo ; l'arrivée a son propre écran.
+          if (!final) this.revealed.set(s.validated.find((v) => v.order === targetOrder) ?? null);
           this.notify.info(final ? 'Parcours terminé, sans le trésor.' : 'Épreuve abandonnée : place à l’énigme suivante.');
         },
         error: (e) => {
@@ -494,9 +496,19 @@ export class PlayPage {
   /** Signaler un problème sur une étape (§ 22). */
   protected readonly report = inject(ReportProblem);
 
-  protected pictureOf(state: PlayState, order: number): number | null {
-    return state.validated.find((v) => v.order === order)?.illustration ?? null;
+  /** Étape validée dont la photo peut être montrée (avec son crédit), ou null. */
+  protected pictureOf(state: PlayState, order: number): PlayStep | null {
+    const v = state.validated.find((x) => x.order === order);
+    return v?.illustration ? v : null;
   }
+
+  /** Lieu dévoilé après l'abandon d'une épreuve (§ 47) : son nom et sa photo. */
+  protected readonly revealed = signal<PlayStep | null>(null);
+  /** L'arrivée, avec sa photo : le trésor trouvé ou abandonné. */
+  protected readonly treasure = computed(() => {
+    const s = this.state.value();
+    return s ? (s.validated.find((v) => v.order === s.totalSteps) ?? null) : null;
+  });
 
   /** Étape validée par la dernière photo (titre et message d'arrivée). */
   protected readonly photoStep = computed(() => {

@@ -23,6 +23,9 @@ export interface Poi {
    * l'étape depuis son entrée, même fermé.
    */
   gated: boolean;
+  /** Liens vers une photo libre (§ 47) : fiche Wikidata, fichier Wikimedia Commons. */
+  wikidata?: string;
+  commons?: string;
 }
 
 export interface LatLng {
@@ -300,7 +303,18 @@ out center tags 500;`;
     seen.add(key);
     const kind = KIND_TAGS.filter((t) => tags[t] && tags[t] !== 'yes').map((t) => tags[t]).join(', ') || 'lieu';
     const details = Object.fromEntries(DETAIL_TAGS.filter((t) => tags[t]).map((t) => [t, tags[t].slice(0, 300)]));
-    pois.push({ id: `${e.type[0]}${e.id}`, name, kind, lat, lng, details, themed: matchesTheme(tags, filters), gated: isGated(e.type, tags) });
+    pois.push({
+      id: `${e.type[0]}${e.id}`,
+      name,
+      kind,
+      lat,
+      lng,
+      details,
+      themed: matchesTheme(tags, filters),
+      gated: isGated(e.type, tags),
+      ...(tags['wikidata'] ? { wikidata: tags['wikidata'] } : {}),
+      ...(tags['wikimedia_commons'] ? { commons: tags['wikimedia_commons'] } : {}),
+    });
   }
   return pois.filter((p) => distanceMeters(center, p) <= radius).sort((a, b) => distanceMeters(center, a) - distanceMeters(center, b));
 }

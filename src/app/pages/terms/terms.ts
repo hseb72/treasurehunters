@@ -88,6 +88,20 @@ import { ASSIST_LIMITS } from '@shared/assist';
         </p>
       </section>
 
+      <section class="surface" id="photos">
+        <h2>Photos des étapes</h2>
+        <p>
+          Les parcours inventés par l'IA sont illustrés de <strong>photos libres de Wikimedia Commons</strong> ; l'auteur et la licence de
+          chaque photo sont indiqués dessous. Les photos ajoutées par un organisateur, envoyées ou importées par lien, sont téléchargées par
+          notre serveur, vérifiées (lien, format, publicité, contenu inapproprié) et réenregistrées sans leurs métadonnées, dont la position
+          de l'appareil. L'organisateur garantit en avoir le droit ; une photo déplacée peut être signalée depuis la partie.
+        </p>
+        <p>
+          Une Secret Track trop proche d'une autre déjà au catalogue (plus de 80 % d'étapes en commun) n'y est pas acceptée, sauf s'il s'agit
+          d'une nouvelle version de celle-ci.
+        </p>
+      </section>
+
       <section class="surface">
         <h2>Achats et paiement</h2>
         <p>

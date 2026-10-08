@@ -40,7 +40,7 @@
             }
             <h1>{{ r.step?.title }}</h1>
             @if (r.step?.illustration; as pic) {
-              <th-place-photo [stepId]="pic" />
+              <th-place-photo [stepId]="pic" [credit]="r.step?.credit" />
             }
             @if (r.step?.arrival) {
               <p class="arrival">{{ r.step?.arrival }}</p>
@@ -50,7 +50,7 @@
             <section class="surface taped clue">
               <span class="stamp">{{ next.targetOrder === r.hunt?.stepCount ? 'Vers le trésor' : 'Énigme n° ' + next.targetOrder }}</span>
               @if (next.illustration; as pic) {
-                <th-place-photo [stepId]="pic" alt="Le lieu à trouver" />
+                <th-place-photo [stepId]="pic" alt="Le lieu à trouver" [credit]="next.credit" />
               }
               <p class="note clue-text">{{ next.instructions }}</p>
             </section>
@@ -164,14 +164,14 @@
             <h1>Étape {{ r.step?.order }} — {{ r.step?.title }}</h1>
             <p class="muted small">Mode organisateur : ce scan n'est pas enregistré. Voici ce que verront les joueurs.</p>
             @if (r.step?.illustration; as pic) {
-              <th-place-photo [stepId]="pic" />
+              <th-place-photo [stepId]="pic" [credit]="r.step?.credit" />
             }
             @if (r.step?.arrival) {
               <p class="arrival">{{ r.step?.arrival }}</p>
             }
             @if (r.next; as next) {
               @if (next.illustration; as pic) {
-                <th-place-photo [stepId]="pic" caption="En tête de l'énigme suivante" />
+                <th-place-photo [stepId]="pic" caption="En tête de l'énigme suivante" [credit]="next.credit" />
               }
               <p class="note">{{ next.instructions }}</p>
               @for (h of next.hintsRevealed; track $index) {

@@ -183,6 +183,7 @@ export function buildFixtures(now = Date.now()): MockDb {
         address,
         referencePhoto: false,
         photoShow: null,
+        photoCredit: null,
         entrances: [],
         puzzle: null,
       }),
