@@ -1,3 +1,4 @@
+import { AuthImage } from '../../shared/auth-image';
 import { ageLabel, AUDIENCE_TAGS, AudienceTag, PRACTICAL_TAGS, PracticalTag, Setting, SETTINGS } from '@shared/practical';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal, untracked } from '@angular/core';
@@ -25,7 +26,7 @@ import { Dare } from '../../shared/dare-dialog';
 /** Fiche d'une version du catalogue : présentation, extrait, avis, versions, et copie. */
 @Component({
   selector: 'th-catalog-entry',
-  imports: [DatePipe, ListButton, MatButtonModule, MatIconModule, RouterLink, Stars],
+  imports: [AuthImage, DatePipe, ListButton, MatButtonModule, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './catalog-entry.html',
   styleUrl: './catalog-entry.scss',

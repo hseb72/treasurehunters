@@ -1774,7 +1774,15 @@ export class Service {
   /** Couverture d'une version du catalogue (§ 49), publique comme sa fiche. */
   async catalogCover(entryId: number): Promise<StoredPhoto> {
     const photos = this.requirePhotos();
-    const r = await one(this.pool, `SELECT cat_content -> 'steps' -> 0 -> 'photo' ->> 'key' AS key FROM th_catalog WHERE cat_id = $1 AND cat_withdrawn IS NULL`, [entryId]);
+    // La photo recopiée à la publication, sinon celle du départ de la chasse d'origine : une
+    // version publiée avant d'avoir sa photo la montre dès que l'auteur l'ajoute.
+    const r = await one(
+      this.pool,
+      `SELECT coalesce(c.cat_content -> 'steps' -> 0 -> 'photo' ->> 'key',
+                       (SELECT sc.cod_refphoto FROM th_codes sc WHERE sc.cod_hunt_hun = c.cat_hunt_hun AND sc.cod_order = 0)) AS key
+       FROM th_catalog c WHERE c.cat_id = $1 AND c.cat_withdrawn IS NULL`,
+      [entryId],
+    );
     const image = r?.['key'] ? await photos.store.get(r['key']) : null;
     if (!image) throw notFound('Pas de couverture pour cette Secret Track.');
     return image;
@@ -3318,7 +3326,8 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
        FROM eh JOIN th_ratings r ON r.rat_hunt_hun = eh.hun_id GROUP BY eh.cat_id
      )
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
-            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, (c.cat_content -> 'steps' -> 0 -> 'photo') IS NOT NULL AS has_cover, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
+            coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, ((c.cat_content -> 'steps' -> 0 -> 'photo') IS NOT NULL
+             OR EXISTS (SELECT 1 FROM th_codes sc WHERE sc.cod_hunt_hun = c.cat_hunt_hun AND sc.cod_order = 0 AND sc.cod_refphoto IS NOT NULL)) AS has_cover, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
             c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting,
             (SELECT min(sh.hun_begin) FROM eh se JOIN th_hunts sh ON sh.hun_id = se.hun_id WHERE se.cat_id = c.cat_id AND ${SESSION}) AS next_session,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,

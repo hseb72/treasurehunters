@@ -1597,6 +1597,21 @@ export class MockHuntApi extends HuntApi {
   private seedCatalog(): void {
     const closed = this.db.hunts.find((h) => h.status === 'closed');
     if (!closed) return;
+    // Sa photo de départ : la couverture de sa carte dans Explorer (§ 49).
+    const start = this.db.steps.find((s) => s.huntId === closed.id && s.order === 0);
+    if (start) {
+      this.refPhotos.set(
+        start.id,
+        'data:image/svg+xml;base64,' +
+          btoa(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="#8ecae6"/>' +
+              '<circle cx="320" cy="55" r="26" fill="#ffd166"/><rect y="150" width="400" height="75" fill="#e9c46a"/>' +
+              '<path d="M0 150 Q100 120 200 150 T400 150 V160 H0Z" fill="#219ebc"/><rect x="60" y="95" width="70" height="55" fill="#fff"/>' +
+              '<path d="M55 95 L95 65 L135 95Z" fill="#e76f51"/></svg>',
+          ),
+      );
+      start.referencePhoto = true;
+    }
     try {
       // Chasse payante de la démo (§ 20) : 3,99 € reversés à son autrice, moins la commission.
       this.publish(closed, { summary: '', travel: 'walk', difficulty: 'medium', durationMinutes: 75, sampleOrder: 1, changes: null, price: 399, practical: ['toilets'], audience: ['friends', 'group'], setting: 'outdoor' });
