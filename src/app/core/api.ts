@@ -209,6 +209,9 @@ export abstract class HuntApi {
   abstract referenceImage(stepId: number): Observable<Blob>;
   /** Photo du lieu montrée aux joueurs (§ 18). */
   abstract illustrationImage(stepId: number): Observable<Blob>;
+  /** Couverture d'une chasse ou d'une version du catalogue : la photo du départ (§ 49). */
+  abstract huntCover(huntId: number): Observable<Blob>;
+  abstract catalogCover(entryId: number): Observable<Blob>;
   /** Photo de référence d'une étape ; null la retire. */
   abstract setReferencePhoto(stepId: number, image: string | null): Observable<Step>;
   /** Photo du lieu depuis un lien (§ 47) : téléchargée, vérifiée et réencodée par le serveur. */

@@ -990,3 +990,11 @@ Si l'IA ne répond pas, la photo passe (l'organisateur en répond, et les joueur
 À chaque nouvelle version partagée au catalogue, le serveur compare le parcours aux Secret Tracks en ligne dont le départ est dans les environs. Deux étapes désignent le même lieu à moins de 40 m (même titre pour une étape sans position) ; le départ ne compte pas, souvent une place centrale commune. Si **plus de 80 % des étapes** de la proposition figurent déjà dans une même Secret Track, la publication est refusée (409) avec son titre, son auteur et la part d'étapes en commun.
 
 **Exception — nouvelle version** : les Secret Tracks de la même lignée ne comptent pas (versions précédentes de la même chasse, version copiée depuis le catalogue et toutes celles qui dérivent de la même origine). Pour corriger ou améliorer la Secret Track d'un autre auteur, on la copie depuis le catalogue et on en partage une nouvelle version, créditée comme telle. Une version retirée du catalogue ne bloque plus personne.
+
+## 49. Couverture d'une Secret Track
+
+La **photo du départ** est la couverture de la Secret Track : elle s'affiche en tête de sa carte (accueil, catalogue, mes Secret Tracks, listes, propositions du guide) ; sans elle, l'image par défaut du skin (§ 15), qui sert aussi d'image d'attente pendant le chargement. Dans l'éditeur, la carte de départ a son bloc « Photo de couverture », avec les trois mêmes choix que les étapes (envoyer, lien, « Propose-moi une photo ») et les mêmes contrôles (§ 47) ; le réglage « Montrer aux joueurs » n'y figure pas : le départ n'est pas un lieu à trouver.
+
+Les parcours générés reçoivent une photo libre pour leur rendez-vous, qui devient leur couverture. À la publication, la couverture suit la version du catalogue (copiée sous `catalog/…`), et les parties jouées depuis le catalogue la reprennent.
+
+**API** : `Hunt.cover` et `CatalogEntry.cover` disent s'il y a une couverture ; `GET /api/hunts/:id/cover` (organisateur, hôte, équipes, ou tout le monde si la chasse est publique) et `GET /api/catalog/:id/cover` (public, version en ligne) servent l'image.

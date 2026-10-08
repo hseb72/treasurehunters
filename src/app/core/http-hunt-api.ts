@@ -402,6 +402,12 @@ export class HttpHuntApi extends HuntApi {
   illustrationImage(stepId: number): Observable<Blob> {
     return this.http.get(`${this.url}/steps/${stepId}/illustration`, { responseType: 'blob' });
   }
+  huntCover(huntId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/hunts/${huntId}/cover`, { responseType: 'blob' });
+  }
+  catalogCover(entryId: number): Observable<Blob> {
+    return this.http.get(`${this.url}/catalog/${entryId}/cover`, { responseType: 'blob' });
+  }
   setReferencePhoto(stepId: number, image: string | null): Observable<Step> {
     const url = `${this.url}/steps/${stepId}/reference-photo`;
     return image === null ? this.http.delete<Step>(url) : this.http.put<Step>(url, { image });

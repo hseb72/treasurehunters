@@ -109,7 +109,7 @@ describe('photos libres : recherche', () => {
     expect(await proposePhotos({ name: 'Étape 3', lat: null, lng: null })).toEqual([]);
   });
 
-  it('cherche une photo par lieu du parcours, pas pour le départ', async () => {
+  it('cherche une photo par lieu du parcours, départ compris (sa couverture)', async () => {
     const plan = demoPlan({ lat: 43.6, lng: 3.88 }, 3);
     plan.steps[0].source = 'n0';
     plan.steps[1].source = 'n1';
@@ -120,8 +120,8 @@ describe('photos libres : recherche', () => {
       asked.push(p.name);
       return p.name === 'Lieu 2' ? null : { url: `https://upload.wikimedia.org/${p.name}`, credit: { text: 'Photo : X · CC0 · Wikimedia Commons', url: null } };
     });
-    expect(asked.sort()).toEqual(['Lieu 1', 'Lieu 2']);
-    expect(out.steps.map((s) => s.photo?.url ?? null)).toEqual([null, 'https://upload.wikimedia.org/Lieu 1', null, null]);
+    expect(asked.sort()).toEqual(['Lieu 0', 'Lieu 1', 'Lieu 2']);
+    expect(out.steps.map((s) => s.photo?.url ?? null)).toEqual(['https://upload.wikimedia.org/Lieu 0', 'https://upload.wikimedia.org/Lieu 1', null, null]);
   });
 });
 

@@ -663,6 +663,9 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     if ('commons' in body) return service.setReferencePhotoFromCommons(req.viewer, id, body.commons);
     return 'url' in body ? service.setReferencePhotoFromUrl(req.viewer, id, body.url) : service.setReferencePhoto(req.viewer, id, body.image);
   });
+  // Couvertures des cartes (§ 49) : la photo du départ.
+  app.get('/api/hunts/:id/cover', async (req, reply) => sendImage(reply, await service.huntCover(req.viewer, idParams.parse(req.params).id)));
+  app.get('/api/catalog/:id/cover', async (req, reply) => sendImage(reply, await service.catalogCover(idParams.parse(req.params).id)));
   // « Propose-moi une photo » (§ 47) : photos libres de Wikimedia Commons autour de l'étape.
   app.get('/api/steps/:id/photo-proposals', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) =>
     service.photoProposals(req.viewer, idParams.parse(req.params).id),

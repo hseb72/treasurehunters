@@ -143,7 +143,8 @@ export class OsmClaudeGenerator implements HuntGenerator {
 const PHOTOS_MS = 20_000;
 
 /**
- * Photo libre de chaque lieu du parcours (§ 47), cherchée en parallèle ; le départ n'en a pas.
+ * Photo libre de chaque lieu du parcours (§ 47), cherchée en parallèle ; celle du départ sert
+ * de couverture (§ 49).
  * Un lieu sans photo, ou trop lent à répondre, reste sans photo.
  */
 export async function withPhotos(plan: HuntPlan, pois: Poi[], find: typeof freePhotoFor = freePhotoFor): Promise<HuntPlan> {
@@ -151,7 +152,8 @@ export async function withPhotos(plan: HuntPlan, pois: Poi[], find: typeof freeP
   const timeout = new Promise<null>((r) => setTimeout(() => r(null), PHOTOS_MS).unref());
   const photos = await Promise.all(
     plan.steps.map((s, i) => {
-      const poi = i > 0 && s.source ? byId.get(s.source) : undefined;
+      // Le rendez-vous aussi : sa photo devient la couverture de la Secret Track (§ 49).
+      const poi = s.source ? byId.get(s.source) : undefined;
       return poi ? Promise.race([find(poi).catch(() => null), timeout]) : Promise.resolve(null);
     }),
   );

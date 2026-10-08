@@ -33,6 +33,7 @@ const HUNT_SELECT = `
   SELECT h.*, s.hst_code, o.htr_nickname AS owner_nickname,
          (SELECT x.htr_nickname FROM th_hunters x WHERE x.htr_id = h.hun_host_htr) AS host_nickname,
          (SELECT coalesce(max(c.cod_order), 0) FROM th_codes c WHERE c.cod_hunt_hun = h.hun_id) AS step_count,
+         EXISTS (SELECT 1 FROM th_codes c WHERE c.cod_hunt_hun = h.hun_id AND c.cod_order = 0 AND c.cod_refphoto IS NOT NULL) AS has_cover,
          (SELECT count(*) FROM th_teams t WHERE t.tea_hunt_hun = h.hun_id)::int AS team_count
   FROM th_hunts h
   JOIN th_huntstatus s ON s.hst_id = h.hun_status_hst
@@ -79,6 +80,7 @@ export function toHunt(r: Row): Hunt {
     durationMinutes: r['hun_duration'],
     status: r['hst_code'],
     stepCount: r['step_count'],
+    cover: !!r['has_cover'],
     teamCount: r['team_count'],
   };
 }

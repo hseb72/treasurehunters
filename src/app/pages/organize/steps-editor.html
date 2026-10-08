@@ -190,22 +190,25 @@
             />
           }
         }
-        @if (photos() && kind !== 'start') {
+        @if (photos()) {
           <div class="reference">
             @if (step.referencePhoto) {
               <th-auth-image class="reference-img" kind="reference" [id]="step.id" [version]="refVersion()" alt="Photo du lieu" />
             }
             <div class="reference-text">
-              <strong class="small">Photo du lieu</strong>
+              <strong class="small">{{ kind === 'start' ? 'Photo de couverture' : 'Photo du lieu' }}</strong>
               <span class="small muted">
-                @if (geo()) {
+                @if (kind === 'start') {
+                  La photo du point de départ s'affiche en tête de la carte de la Secret Track (accueil, catalogue, mes Secret Tracks) ; sans elle,
+                  l'image du skin.
+                } @else if (geo()) {
                   Une photo qui illustre le lieu, choisie pour ne pas dévoiler la solution.
                 } @else {
                   Photographiez le lieu où vous posez le QR. Si une équipe ne le trouve pas, elle pourra envoyer sa propre photo : l'IA la comparera à
                   celle-ci.
                 }
               </span>
-              @if (step.referencePhoto) {
+              @if (step.referencePhoto && kind !== 'start') {
                 <mat-form-field class="photo-show" subscriptSizing="dynamic">
                   <mat-label>Montrer aux joueurs</mat-label>
                   <mat-select formControlName="photoShow">

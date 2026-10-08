@@ -83,6 +83,8 @@ export interface Hunt {
   contribution: number;
   startText: string | null;
   status: HuntStatus;
+  /** Photo du départ (§ 49) : couverture des cartes, à la place de l'image du skin. */
+  cover?: boolean;
   stepCount: number;
   teamCount: number;
 }
@@ -544,6 +546,8 @@ export interface CatalogEntry {
   durationMinutes: number;
   /** Durée moyenne constatée des équipes arrivées, en minutes (null sans partie). */
   measuredMinutes: number | null;
+  /** Photo du départ (§ 49) : couverture de la carte, à la place de l'image du skin. */
+  cover?: boolean;
   stepCount: number;
   validation: ValidationMode;
   /** Parties jouées et closes (chasse d'origine et copies de cette version). */

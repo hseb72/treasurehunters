@@ -163,6 +163,8 @@ export class MockHuntApi extends HuntApi {
     for (const [order, image, show] of [
       [3, boulodrome, 'clue'],
       [2, mediatheque, 'arrival'],
+      // Le départ : couverture des cartes (§ 49).
+      [0, mediatheque, null],
     ] as const) {
       const step = this.db.steps.find((s) => s.huntId === 1 && s.order === order);
       if (!step) continue;
@@ -1492,6 +1494,7 @@ export class MockHuntApi extends HuntApi {
       durationMinutes: e.durationMinutes,
       measuredMinutes: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null,
       stepCount: e.stepCount,
+      cover: e.huntId !== null && this.coverStep(e.huntId) !== null,
       validation: e.validation,
       plays: played.length,
       rating: {
@@ -2598,7 +2601,30 @@ export class MockHuntApi extends HuntApi {
       hostNickname: h.hostId === null ? null : this.nick(h.hostId),
       stepCount: finalOrder(this.stepsOf(h.id)),
       teamCount: this.db.teams.filter((t) => t.huntId === h.id).length,
+      cover: this.coverStep(h.id) !== null,
     };
+  }
+
+  /** Étape de départ avec photo : la couverture de la chasse (§ 49). */
+  private coverStep(huntId: number): number | null {
+    const start = this.db.steps.find((s) => s.huntId === huntId && s.order === 0);
+    return start && this.refPhotos.has(start.id) ? start.id : null;
+  }
+
+  huntCover(huntId: number): Observable<Blob> {
+    return this.blob(() => {
+      const id = this.coverStep(huntId);
+      return id === null ? null : (this.refPhotos.get(id) ?? null);
+    });
+  }
+
+  /** La maquette reprend la photo du départ de la chasse publiée. */
+  catalogCover(entryId: number): Observable<Blob> {
+    return this.blob(() => {
+      const e = this.catalog.find((x) => x.id === entryId);
+      const id = e?.huntId ? this.coverStep(e.huntId) : null;
+      return id === null ? null : (this.refPhotos.get(id) ?? null);
+    });
   }
 
   private stepsOf(huntId: number): Step[] {

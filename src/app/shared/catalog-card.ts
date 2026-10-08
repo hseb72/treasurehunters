@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { AuthImage } from './auth-image';
 import { DIFFICULTY_LABELS, minutesLabel, TRAVEL_ICONS, TRAVEL_LABELS, TRAVEL_MEANS } from '@shared/generation';
 import { CatalogEntry } from '@shared/models';
 import { skinById } from '@shared/skins';
@@ -16,12 +17,17 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
 /** Carte d'une chasse du catalogue : de quoi comparer avant d'ouvrir sa fiche. */
 @Component({
   selector: 'th-catalog-card',
-  imports: [DatePipe, MatIconModule, RouterLink, Stars],
+  imports: [AuthImage, DatePipe, MatIconModule, RouterLink, Stars],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let e = entry();
     <a class="surface card" [routerLink]="['/catalog', e.id]">
-      <img class="cover" [src]="cover()" alt="" loading="lazy" />
+      @if (entry().cover) {
+        <!-- Photo du départ (§ 49), l'image du skin en attendant ou à défaut. -->
+        <th-auth-image class="cover" kind="catalog-cover" [id]="entry().id" [fallback]="cover()" />
+      } @else {
+        <img class="cover" [src]="cover()" alt="" loading="lazy" />
+      }
       <div class="travel travel--{{ e.travel }}" [attr.aria-label]="'Déplacement : ' + means[e.travel]">
         <mat-icon>{{ icons[e.travel] }}</mat-icon>
         <strong>{{ means[e.travel] }}</strong>
@@ -76,7 +82,7 @@ import { PRACTICAL_TAGS, PracticalTag } from '@shared/practical';
   `,
   styles: `
     .card { display: flex; flex-direction: column; gap: 6px; height: 100%; overflow: hidden; }
-    .cover { display: block; width: calc(100% + 32px); margin: -16px -16px 0; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
+    .cover { display: block; border-radius: 0; width: calc(100% + 32px); margin: -16px -16px 0; aspect-ratio: 16 / 7; max-height: 170px; object-fit: cover; }
     h3 { margin: 0; }
     .distance { color: var(--th-primary); font-weight: 600; }
     .price { color: var(--th-primary); font-weight: 700; }
