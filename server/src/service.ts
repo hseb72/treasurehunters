@@ -1877,11 +1877,20 @@ export class Service {
     if (next) {
       if (moderate) await this.moderate(next.photo, step);
       key = `refs/hunt-${step.huntId}/step-${step.id}-${randomToken(16)}.${next.photo.contentType.split('/')[1]}`;
-      await photos.store.put(key, next.photo);
+      await photos.store.put(key, next.photo).catch((e) => {
+        throw new HttpError(503, 'Le stockage des photos refuse l’enregistrement : réessayez plus tard ou prévenez l’administrateur.', e);
+      });
     }
     await this.pool.query(
       `UPDATE th_codes SET cod_refphoto = $2, cod_photosource = $3, cod_photocredit = $4, cod_photocrediturl = $5, cod_lastupdate = now() WHERE cod_id = $1`,
-      [stepId, key, next?.source?.slice(0, 1000) ?? null, next?.credit?.text ?? null, next?.credit?.url ?? null],
+      [
+        stepId,
+        key,
+        next?.source?.slice(0, 1000) ?? null,
+        next?.credit?.text.slice(0, 300) ?? null,
+        // Lien de la page Commons : sans lui plutôt que tronqué (un lien coupé ne mène nulle part).
+        next?.credit?.url && next.credit.url.length <= 500 ? next.credit.url : null,
+      ],
     );
     // Une photo du catalogue (catalog/…) sert aussi aux autres copies : elle n'est jamais effacée ici.
     if (old && !old.startsWith('catalog/')) await photos.store.delete(old).catch((e) => this.log(e, `Photo de référence ${old} non effacée`));
@@ -2763,7 +2772,7 @@ export class Service {
           s.photo?.key ?? null,
           s.photo?.show ?? null,
           s.photo?.credit?.text ?? null,
-          s.photo?.credit?.url ?? null,
+          s.photo?.credit?.url && s.photo.credit.url.length <= 500 ? s.photo.credit.url : null,
         ],
       );
     }
@@ -3025,7 +3034,7 @@ export class Service {
           // Le départ n'est pas « trouvé » : sa photo sert de couverture (§ 49).
           photos.has(order) && order > 0 ? 'arrival' : null,
           photos.get(order)?.credit.text ?? null,
-          photos.get(order)?.credit.url ?? null,
+          (photos.get(order)?.credit.url?.length ?? 0) <= 500 ? (photos.get(order)?.credit.url ?? null) : null,
           photos.get(order)?.source ?? null,
         ],
       );

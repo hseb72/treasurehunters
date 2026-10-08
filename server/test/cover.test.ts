@@ -69,3 +69,19 @@ describe('couverture d’une Secret Track (§ 49)', () => {
     expect((await camille.get(`/api/hunts/${played.body.id}/cover`)).status).toBe(200);
   });
 });
+
+describe('stockage des photos en panne', () => {
+  it('répond un message clair (503), pas une erreur interne', async () => {
+    const broken = new MemoryPhotoStore();
+    broken.put = async () => {
+      throw new Error('Stockage : dépôt refusé (403) : AccessDenied');
+    };
+    const down = await buildApp(ctx.pool, { photoStore: broken, guide: null, moderator: null });
+    const camille = await loginAs(down, 'camille@example.com');
+    const step = (await camille.get('/api/hunts/1/steps')).body.find((s: { order: number }) => s.order === 1);
+    const res = await camille.put(`/api/steps/${step.id}/reference-photo`, { image: await photo() });
+    expect(res.status).toBe(503);
+    expect(res.body.message).toContain('Le stockage des photos refuse l’enregistrement');
+    await down.close();
+  });
+});
