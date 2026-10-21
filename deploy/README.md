@@ -199,6 +199,11 @@ git push origin deploy-state
 
 ## Écarts connus avec le pattern, à remonter dans platform-patterns
 
+> Le modèle `shared` a été réaligné (platform-patterns 1.0.0, ADR 0001). La
+> comparaison complète et le plan d'action sont dans
+> [`ALIGNEMENT-SHARED.md`](ALIGNEMENT-SHARED.md) ; les trois points ci-dessous y
+> sont couverts par le chart `app` 1.0.0.
+
 Le chart `app` 0.4.0 en mode `shared` suppose une plateforme Gateway API. Le socle
 homelab expose les API par des Ingress de classe `kong` et sert les fronts
 directement par ingress-nginx. D'où trois manifestes locaux, qui auraient leur place
