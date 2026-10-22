@@ -9,7 +9,7 @@
 # Ce que le chart rend, dans le namespace `treasurehunters` :
 #   - Deployments + Services `web` (nginx, 8080) et `api` (Node.js, 5080) ;
 #   - ConfigMap `api-config` (ci-dessous, non sensible) ;
-#   - NetworkPolicy : entrée des pods réservée à la passerelle Kong (ns `gateway`).
+#   - NetworkPolicy : entrée des pods réservée à la passerelle Kong (ns `kong`).
 # Ce qu'il ne rend pas, et qui vit dans manifests/ : l'Ingress nginx du front,
 # l'Ingress kong de l'API, l'entrée depuis ingress-nginx vers le front.
 
@@ -65,7 +65,7 @@ shared:
   httproute:
     enabled: false
   # Namespace du plan de données Kong : seule source admise vers les pods.
-  gatewayDataplaneNamespace: gateway
+  gatewayDataplaneNamespace: kong
   networkPolicy:
     enabled: true
   # La base est provisionnée par le socle (locataire déclaré dans
