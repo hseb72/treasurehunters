@@ -12,13 +12,13 @@ ne déploie **que** l'application, dans un seul namespace : `treasurehunters`.
 Internet
    │
    ▼
-ingress-nginx (ns platform-ingress) ── TLS cert-manager + WAF
+ingress-nginx (ns ingress) ── TLS cert-manager + WAF
    │
    ├──▶ treasurehunters.crealcs.com ─────▶ web (nginx, ns treasurehunters)
    │        pages, QR codes /q/<jeton>          │
    │                                            └── relaie /api ──┐
    │                                                              ▼
-   └──▶ api.treasurehunters.crealcs.com ──▶ kong-proxy (ns gateway)
+   └──▶ api.treasurehunters.crealcs.com ──▶ kong-proxy (ns kong)
                                                   │  Ingress classe kong
                                                   ▼
                                           api (Node.js, ns treasurehunters)

@@ -32,7 +32,7 @@ FROM ${NGINX_IMAGE}
 
 # Valeurs par défaut adaptées à la plateforme mutualisée (k3s) ; surchargeables.
 ENV API_HOST=api.treasurehunters.crealcs.com \
-    API_UPSTREAM=http://kong-proxy.gateway.svc.cluster.local \
+    API_UPSTREAM=http://kong-proxy.kong.svc.cluster.local \
     DNS_RESOLVER=10.43.0.10
 
 COPY --from=builder /app/dist/treasurehunters/browser /usr/share/nginx/html

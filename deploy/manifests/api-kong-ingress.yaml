@@ -3,7 +3,7 @@
 #
 # L'hôte public api.treasurehunters.crealcs.com est amené jusqu'à Kong par une
 # entrée du socle (homelab-platform/gateway/10-ingress-api-hosts.yaml). Le relais
-# /api du front utilise ce même hôte via kong-proxy.gateway.svc : une seule route.
+# /api du front utilise ce même hôte via kong-proxy.kong.svc : une seule route.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
