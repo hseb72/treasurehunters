@@ -1,17 +1,22 @@
-# Valeurs du chart `app` de platform-patterns, pattern `shared`, pour la
-# plateforme mutualisée décrite dans hseb72/homelab-platform.
+# Valeurs du chart `app` de platform-patterns, pattern `shared` CANONIQUE (1.0.0),
+# pour la plateforme mutualisée décrite dans hseb72/homelab-platform.
 #
 # Rendu : oci://ghcr.io/hseb72/platform-patterns/app (version épinglée dans
-# argocd/application.yaml). Argo lit ce fichier sur la branche `deploy-state`,
-# copie de deploy/ tenue à jour par la CI ; le tag d'image (global.imageTag) y
-# est écrit dans deploy/values-image.yaml.
+# argocd/application.yaml : 1.0.0). Argo lit ce fichier sur la branche
+# `deploy-state`, copie de deploy/ tenue à jour par la CI ; le tag d'image
+# (global.imageTag) y est écrit dans deploy/values-image.yaml.
 #
-# Ce que le chart rend, dans le namespace `treasurehunters` :
-#   - Deployments + Services `web` (nginx, 8080) et `api` (Node.js, 5080) ;
-#   - ConfigMap `api-config` (ci-dessous, non sensible) ;
-#   - NetworkPolicy : entrée des pods réservée à la passerelle Kong (ns `kong`).
-# Ce qu'il ne rend pas, et qui vit dans manifests/ : l'Ingress nginx du front,
-# l'Ingress kong de l'API, l'entrée depuis ingress-nginx vers le front.
+# ── Modèle réaligné (chart 1.0.0) ────────────────────────────────────────────
+# Le chart POSSÈDE deux namespaces et y rend TOUT :
+#   - `ui-treasurehunters`  : web (nginx, 8080) + Ingress nginx + NetworkPolicy.
+#   - `api-treasurehunters` : api (Node.js, 5080) + ConfigMap + Ingress kong +
+#                             NetworkPolicy. Étiquettes d'adhésion (postgres +
+#                             minio) posées par le chart.
+# Plus de deploy/manifests/ : le chart rend les deux Ingress et les NetworkPolicies.
+#
+# Datastores MUTUALISÉS : PostgreSQL CloudNativePG (ns `postgres`, postgres-rw) et
+# MinIO (ns `minio`) — la preuve par photo (§12) stocke dans le seau
+# `treasurehunters`.
 
 mode: shared
 
@@ -33,20 +38,20 @@ api:
   replicas: 2
   port: 5080
   healthPath: /api/health
-  # Configuration non sensible (ConfigMap). DATABASE_URL, elle, est dans le
-  # Secret ci-dessous : cf. deploy/README.md.
+  # Configuration non sensible (ConfigMap). Les secrets (DATABASE_URL, DB_PASSWORD,
+  # PHOTO_S3_*, ANTHROPIC_*, STRIPE_*) sont dans `treasurehunters-api-secrets`
+  # (ns api-treasurehunters), créé par create-secrets.sh.
   env:
     NODE_ENV: production
     HOST: 0.0.0.0
     PORT: "5080"
     CORS_ORIGIN: https://treasurehunters.crealcs.com
     SESSION_DAYS: "30"
-    # Preuve par photo (§ 12) : seau du locataire `treasurehunters` sur le MinIO
-    # mutualisé ; les clés d'accès sont dans le Secret (create-secrets.sh).
-    PHOTO_S3_ENDPOINT: http://minio.object-store.svc.cluster.local:9000
+    # Preuve par photo (§12) : seau `treasurehunters` du MinIO MUTUALISÉ (ns `minio`).
+    PHOTO_S3_ENDPOINT: http://minio.minio.svc.cluster.local:9000
     PHOTO_S3_BUCKET: treasurehunters
-    # Paiement (§ 20) : actif seulement si le Secret porte STRIPE_SECRET_KEY et
-    # STRIPE_WEBHOOK_SECRET (create-secrets.sh). Retours de paiement vers le front.
+    # Paiement (§20) : actif seulement si le Secret porte STRIPE_SECRET_KEY et
+    # STRIPE_WEBHOOK_SECRET. Retours de paiement vers le front.
     APP_URL: https://treasurehunters.crealcs.com
     STRIPE_COMMISSION_PERCENT: "20"
   envFrom:
@@ -59,16 +64,72 @@ api:
     limits: { cpu: 500m, memory: 384Mi }
 
 shared:
-  # La plateforme expose les API par des Ingress de classe `kong` (pas de
-  # Gateway API) : l'HTTPRoute du chart est désactivée, la route Kong est dans
-  # manifests/api-kong-ingress.yaml.
+  namespaces:
+    ui: ui-treasurehunters
+    api: api-treasurehunters
+    create: true
+  # SPA : le navigateur appelle /api (relais même-origine par le nginx du front).
+  front:
+    type: spa
+  # Services mutualisés consommés : PostgreSQL + MinIO. Le chart pose
+  # `platform-patterns.io/postgres-client` et `…/minio-client` sur api-treasurehunters.
+  clients:
+    postgres: true
+    minio: true
+  gatewayDataplaneNamespace: kong
   httproute:
     enabled: false
-  # Namespace du plan de données Kong : seule source admise vers les pods.
-  gatewayDataplaneNamespace: kong
+  # Front servi directement par l'edge ingress-nginx (ns `ingress`). Corps à 10m :
+  # la preuve par photo envoie une image jusqu'à ~6 Mo encodée en base64.
+  webIngress:
+    enabled: true
+    className: nginx
+    controllerNamespace: ingress
+    hosts: [treasurehunters.crealcs.com]
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    tls:
+      enabled: true
+      clusterIssuer: letsencrypt-http01
+  # API routée par Kong. L'hôte api.treasurehunters.crealcs.com est amené jusqu'à
+  # kong-proxy par le socle (gateway). ⚠ L'hôte du front est imprimé dans les QR
+  # codes : il ne doit pas changer.
+  kongIngress:
+    enabled: true
+    className: kong
+    hosts: [api.treasurehunters.crealcs.com]
+    stripPath: false
+    preserveHost: true
+    pathType: ImplementationSpecific
+    rules:
+      - path: /
+        service: api
   networkPolicy:
     enabled: true
-  # La base est provisionnée par le socle (locataire déclaré dans
-  # homelab-platform/database/values.yaml), pas par l'application.
+  # Provisionnement self-service — DÉSACTIVÉ sur ce cluster (k3s/kube-router) : le
+  # Job PreSync one-shot se connecte avant que kube-router n'ait indexé l'IP du pod
+  # dans l'ipset du namespaceSelector (~3-5 s) et échoue (cf. mtgwars, issue
+  # platform-patterns). Le slice (base + rôle PostgreSQL, seau + utilisateur MinIO)
+  # est provisionné HORS-BANDE une fois (cf. runbook). Les blocs ci-dessous restent
+  # décrits pour réactivation quand le Job amont réessaiera sa connexion.
   provisioning:
     enabled: false
+    argoHook: true
+    postgres:
+      enabled: true
+      host: postgres-rw.postgres.svc.cluster.local
+      port: 5432
+      database: treasurehunters
+      role: treasurehunters
+      adminSecret: treasurehunters-pg-provisioner
+      appPasswordSecret: treasurehunters-api-secrets
+      appPasswordKey: DB_PASSWORD
+    minio:
+      # Le Job ne crée que le SEAU (mc mb) ; l'utilisateur et sa politique
+      # d'accès au seau sont posés hors-bande (cf. runbook), et sa clé va dans
+      # PHOTO_S3_ACCESS_KEY / PHOTO_S3_SECRET_KEY du Secret applicatif.
+      enabled: true
+      endpoint: http://minio.minio.svc.cluster.local:9000
+      bucket: treasurehunters
+      adminSecret: treasurehunters-minio-provisioner
