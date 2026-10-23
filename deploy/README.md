@@ -1,10 +1,15 @@
 # Déploiement — SecretTracks sur la plateforme mutualisée
 
 SecretTracks suit le **pattern `shared`** de
-[platform-patterns](https://github.com/hseb72/platform-patterns). Il se pose sur le
-socle décrit dans [homelab-platform](https://github.com/hseb72/homelab-platform) :
-ingress-nginx, Kong, cert-manager, PostgreSQL mutualisé et SealedSecrets. Ce dépôt
-ne déploie **que** l'application, dans un seul namespace : `treasurehunters`.
+[platform-patterns](https://github.com/hseb72/platform-patterns) (chart `app`
+**1.0.0**). Il se pose sur le socle décrit dans
+[homelab-platform](https://github.com/hseb72/homelab-platform) : ingress-nginx,
+Kong, cert-manager, PostgreSQL mutualisé **CloudNativePG**, MinIO mutualisé et
+SealedSecrets.
+
+Modèle réaligné (1.0.0) : le chart POSSÈDE **deux namespaces** et y rend tout —
+`ui-treasurehunters` (front) et `api-treasurehunters` (API). Plus de
+`deploy/manifests/` : le chart rend les deux Ingress et les NetworkPolicies.
 
 ## Le chemin d'une requête
 
@@ -14,56 +19,67 @@ Internet
    ▼
 ingress-nginx (ns ingress) ── TLS cert-manager + WAF
    │
-   ├──▶ treasurehunters.crealcs.com ─────▶ web (nginx, ns treasurehunters)
+   ├──▶ treasurehunters.crealcs.com ─────▶ web (nginx, ns ui-treasurehunters)
    │        pages, QR codes /q/<jeton>          │
    │                                            └── relaie /api ──┐
    │                                                              ▼
    └──▶ api.treasurehunters.crealcs.com ──▶ kong-proxy (ns kong)
                                                   │  Ingress classe kong
                                                   ▼
-                                          api (Node.js, ns treasurehunters)
+                                          api (Node.js, ns api-treasurehunters)
                                                   │
-                                                  ▼
-                                   PostgreSQL mutualisé (ns database)
-                                   base `treasurehunters`, rôle `treasurehunters`
+                             ┌────────────────────┼─────────────────────┐
+                             ▼                                           ▼
+            PostgreSQL mutualisé CNPG (ns postgres)       MinIO mutualisé (ns minio)
+            service postgres-rw · base/rôle                seau `treasurehunters`
+            `treasurehunters`                              (preuve par photo, §12)
 ```
 
-Le front appelle l'API en chemin relatif (`/api`), sous la même origine. Il n'y a
-donc pas de CORS à gérer, et les QR codes n'ont qu'un seul hôte à connaître. Le
-relais passe par Kong, jamais directement par l'API.
+Le front appelle l'API en chemin relatif (`/api`), sous la même origine. Les QR
+codes n'ont qu'un seul hôte à connaître. Le relais passe par Kong, jamais
+directement par l'API.
 
 ## Ce qui vient d'où
 
 | Élément | Source |
 |---|---|
-| Deployments / Services `web` et `api`, ConfigMap `api-config`, PDB, NetworkPolicy « Kong seulement » | chart `app` de platform-patterns (OCI, **épinglé**), valeurs [`values.yaml`](values.yaml) |
+| Deployments / Services `web` et `api`, ConfigMap `api-config`, PDB, les **deux Ingress** (nginx du front, kong de l'API) et les **NetworkPolicies** | chart `app` 1.0.0 de platform-patterns (OCI, **épinglé**), valeurs [`values.yaml`](values.yaml) |
 | Tag des images | `deploy/values-image.yaml` sur la branche **`deploy-state`**, écrit par la CI |
-| Ce qu'Argo CD lit | la branche d'environnement **`deploy-state`** : copie de `deploy/` depuis `master`, plus le tag d'image. Tenue à jour par `.github/workflows/deploy.yml` (master est protégée, et Argo exige une seule révision par dépôt) |
-| Ingress nginx du front, Ingress kong de l'API, entrée ingress-nginx → web | [`manifests/`](manifests/) |
-| Secret `treasurehunters-api-secrets` (`DATABASE_URL`, `ANTHROPIC_API_KEY`, `PHOTO_S3_*`, `STRIPE_*` facultatives) | créé **directement dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné (comme findout) |
-| Base + rôle `treasurehunters`, hôte public de l'API | **socle** (homelab-platform) |
+| Ce qu'Argo CD lit | la branche d'environnement **`deploy-state`** : copie de `deploy/` depuis `master`, plus le tag d'image. master est protégée, Argo exige une seule révision par dépôt |
+| Secret `treasurehunters-api-secrets` (`DB_PASSWORD`, `DATABASE_URL`, `PHOTO_S3_*`, `ANTHROPIC_*`, `STRIPE_*`) | créé **dans le cluster** par [`create-secrets.sh`](create-secrets.sh), jamais versionné |
+| Base/rôle `treasurehunters` (CNPG) + seau/utilisateur MinIO | provisionnés **hors-bande** (cf. ci-dessous) ; hôte public de l'API amené à kong-proxy par le **socle** (gateway) |
 
-L'API applique elle-même les migrations SQL au démarrage. Elles sont protégées par
-un verrou PostgreSQL : les deux répliques peuvent démarrer ensemble sans risque.
+Le chart pose `platform-patterns.io/postgres-client` et `…/minio-client` sur
+`api-treasurehunters`. Les images tournent en non-root numérique (uid 1000 API,
+101 nginx) : le `securityContext` `restricted` du chart passe sans réglage.
+
+L'API applique elle-même les migrations SQL au démarrage, sous verrou PostgreSQL.
+
+> **Provisionnement hors-bande (ce cluster).** Sur k3s/kube-router, le Job
+> PreSync de provisionnement du chart échoue (latence d'indexation des
+> NetworkPolicy), donc `shared.provisioning.enabled: false`. Le slice est créé
+> une fois à la main : rôle + base `treasurehunters` dans CNPG, et seau +
+> utilisateur `treasurehunters` dans le MinIO mutualisé (runbook de bascule).
 
 ## Première installation
 
-**0. Prérequis côté pattern — chart publié.** L'Application référence
-`oci://ghcr.io/hseb72/platform-patterns/app:0.4.0`. Le chart doit donc avoir été
-publié (tag `app-0.4.0` dans platform-patterns, cf. `docs/releasing.md`), et Argo CD
-doit pouvoir lire le registre :
+**0. Chart publié.** L'Application référence `oci://ghcr.io/hseb72/platform-patterns/app:1.0.0`.
+Si le paquet est privé :
 
 ```bash
 argocd repo add ghcr.io/hseb72/platform-patterns --type helm --enable-oci \
-  --username <compte> --password <jeton read:packages>   # si le paquet est privé
+  --username <compte> --password <jeton read:packages>
 ```
 
-**1. Côté socle (homelab-platform).**
-- Déclarer le locataire `treasurehunters` dans `database/values.yaml`.
-- Ajouter son mot de passe au Secret `database-tenant-keys`, puis lancer
-  `argocd app sync database`.
-- Déclarer l'hôte `api.treasurehunters.crealcs.com` dans
-  `gateway/10-ingress-api-hosts.yaml`.
+**1. Côté socle (homelab-platform) — provisionnement hors-bande.**
+- PostgreSQL CNPG : créer le rôle `treasurehunters` (mot de passe = `DB_PASSWORD`
+  du Secret de l'étape 4) et la base `treasurehunters OWNER treasurehunters`
+  (via le rôle `provisioner`, cf. runbook).
+- MinIO mutualisé : créer le seau `treasurehunters`, un utilisateur
+  `treasurehunters` avec une politique d'accès à ce seau, et noter sa clé
+  (`PHOTO_S3_SECRET_KEY`).
+- L'hôte `api.treasurehunters.crealcs.com` est déjà amené jusqu'à kong-proxy par
+  le socle (`gateway/10-ingress-api-hosts.yaml`).
 
 **2. DNS.** Deux enregistrements vers l'IP publique de l'ingress, **avant** la
 demande de certificat (HTTP-01) :
@@ -73,91 +89,72 @@ treasurehunters.crealcs.com.       A   <IP>
 api.treasurehunters.crealcs.com.   A   <IP>
 ```
 
-**3. Images.** Le premier passage de la CI sur `master` publie
+**3. Images.** Le passage de la CI sur `master` publie
 `ghcr.io/hseb72/treasurehunters/{web,api}:<sha>` et écrit ce SHA dans
-`deploy/values-image.yaml`, sur la branche `deploy-state` (créée au premier passage). Si les paquets GHCR sont privés, déclarer un
-`imagePullSecret` (`global.imagePullSecrets` dans `values.yaml`) ou rendre les
-paquets publics.
+`deploy/values-image.yaml` (branche `deploy-state`).
 
-**4. Secret de l'API**, créé directement dans le cluster. Le mot de passe est lu
-dans la clé `treasurehunters` de `database-tenant-keys` : c'est celle que le socle
-donne au rôle PostgreSQL. Il est encodé pour l'URL, donc les caractères spéciaux
-sont admis :
+**4. Secret de l'API**, créé directement dans le cluster (ns `api-treasurehunters`) :
 
 ```bash
-ANTHROPIC_API_KEY='sk-ant-…' ./deploy/create-secrets.sh
-kubectl -n treasurehunters rollout restart deploy/api
+PHOTO_S3_SECRET_KEY='<clé MinIO>' ANTHROPIC_API_KEY='sk-ant-…' ./deploy/create-secrets.sh
+kubectl -n api-treasurehunters rollout restart deploy/api
 ```
 
-Relancé sans `ANTHROPIC_API_KEY`, le script conserve la clé déjà en place.
-Si l'API répond « This API key is not scoped to a workspace », la clé n'est
-rattachée à aucun workspace : utiliser une clé créée dans un workspace, ou
-ajouter `ANTHROPIC_WORKSPACE_ID='wrkspc_…'` à la commande (identifiant visible
-dans console.anthropic.com, Settings → Workspaces). Même règle de conservation.
-`DB_PASSWORD=…` reste possible pour forcer une valeur.
-
-En cas de `password authentication failed for user "treasurehunters"` : relancer
-le script tel quel. Si l'erreur persiste, le rôle n'a pas reçu la clé : relancer
-le provisionnement (`argocd app sync database`, cf. homelab-platform).
+`DB_PASSWORD` est tiré au hasard la première fois puis conservé (ou passé en
+ligne de commande pour reprendre une valeur existante). Relancé sans une valeur,
+le script conserve celle déjà en place.
 
 `ANTHROPIC_API_KEY` active la **génération de chasses** (docs/conception.md § 11).
 Sans elle, tout le reste fonctionne et `POST /api/hunts/generate` répond 503.
-La clé se crée sur console.anthropic.com. Réglages facultatifs, dans `api.env` de
+Si l'API répond « This API key is not scoped to a workspace », ajouter
+`ANTHROPIC_WORKSPACE_ID='wrkspc_…'`. Réglages facultatifs, dans `api.env` de
 `values.yaml` : `GENERATOR_MODEL` (`claude-opus-5`), `GENERATOR_EFFORT` (`medium`),
-`GENERATION_DAILY_QUOTA` (`5`), `GUIDE_MODEL` (`claude-sonnet-5`, le guide vocal, § 46, et le contrôle des photos, § 47),
-`SAFE_BROWSING_API_KEY` (facultatif : vérification des liens de photos par Google Safe Browsing).
+`GENERATION_DAILY_QUOTA` (`5`), `GUIDE_MODEL` (`claude-sonnet-5`),
+`SAFE_BROWSING_API_KEY`.
 
-Les photos libres des parcours générés viennent de `commons.wikimedia.org`, `www.wikidata.org`
-et `upload.wikimedia.org` (HTTPS) ; les photos importées par lien, de n'importe quel site public.
-
-Le générateur sort du cluster vers `api.anthropic.com`, `nominatim.openstreetmap.org`
-et `overpass-api.de` (HTTPS). Les NetworkPolicies du chart laissent la sortie
-ouverte ; rien à faire, sauf si un pare-feu filtre la sortie de la VM.
+Les photos libres viennent de `commons.wikimedia.org`, `www.wikidata.org` et
+`upload.wikimedia.org` ; le générateur sort vers `api.anthropic.com`,
+`nominatim.openstreetmap.org` et `overpass-api.de` (HTTPS). Les NetworkPolicies
+du chart laissent la sortie ouverte.
 
 **Preuve par photo** (docs/conception.md § 12) : les photos vont dans le seau
-`treasurehunters` du MinIO mutualisé. Trois conditions :
+`treasurehunters` du MinIO mutualisé (ns `minio`). Trois conditions :
 
-1. côté socle, le locataire `treasurehunters` est déclaré dans
-   `homelab-platform/object-store/values.yaml` (seau `treasurehunters`) et sa clé
-   ajoutée au Secret `object-store/object-store-tenant-keys` (clé `treasurehunters`) ;
-2. le namespace porte l'étiquette `object-store-client: "true"` (posée par
-   `argocd/application.yaml`) ;
-3. le Secret de l'API porte `PHOTO_S3_ACCESS_KEY` / `PHOTO_S3_SECRET_KEY` :
-   `create-secrets.sh` lit la clé dans le cluster, il suffit de le relancer puis de
-   redémarrer l'API. L'adresse et le seau sont dans `api.env` de `values.yaml`.
+1. le seau `treasurehunters` et un utilisateur MinIO `treasurehunters` (avec sa
+   politique d'accès) existent — créés hors-bande à l'étape 1 ;
+2. le namespace `api-treasurehunters` porte `platform-patterns.io/minio-client:
+   "true"` — **posée par le chart** (`shared.clients.minio: true`) ;
+3. le Secret de l'API porte `PHOTO_S3_ACCESS_KEY` (= `treasurehunters`) /
+   `PHOTO_S3_SECRET_KEY` : `create-secrets.sh` les pose quand `PHOTO_S3_SECRET_KEY`
+   est fournie. L'adresse (`minio.minio.svc`) et le seau sont dans `api.env`.
 
-Sans clé, tout le reste fonctionne et le bouton photo n'apparaît pas. L'avis de
-l'IA sur les photos utilise la même clé Anthropic que le générateur ; sans elle,
-les équipes peuvent quand même insister et l'organisateur contrôle chaque photo.
+Sans clé, le bouton photo n'apparaît pas. L'avis de l'IA sur les photos utilise
+la même clé Anthropic que le générateur.
 
-**Paiement** (docs/conception.md § 20) : Stripe Checkout pour les achats, Stripe
-Connect (comptes Express) pour reverser leur part aux créateurs. Désactivé tant que
-les deux valeurs suivantes ne sont pas dans le Secret ; les extensions restent alors
-offertes et les chasses du catalogue gratuites.
+**Paiement** (docs/conception.md § 20) : Stripe Checkout + Connect. Désactivé tant
+que les deux valeurs ne sont pas dans le Secret.
 
-1. dans le tableau de bord Stripe : activer Connect, puis déclarer l'endpoint de
-   webhook `https://api.treasurehunters.crealcs.com/api/payments/webhook` (adresse de
-   l'API derrière Kong) avec les événements `checkout.session.completed`,
-   `checkout.session.async_payment_succeeded`, `checkout.session.expired` et
-   `account.updated` (cocher « événements des comptes connectés » pour ce dernier) ;
+1. dans Stripe : activer Connect, déclarer l'endpoint de webhook
+   `https://api.treasurehunters.crealcs.com/api/payments/webhook` avec les événements
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+   `checkout.session.expired` et `account.updated` ;
 2. `STRIPE_SECRET_KEY='sk_live_…' STRIPE_WEBHOOK_SECRET='whsec_…' ./deploy/create-secrets.sh`
-   puis redémarrer l'API. Relancé sans elles, le script conserve celles en place ;
+   puis redémarrer l'API ;
 3. commission et adresse de retour : `STRIPE_COMMISSION_PERCENT` et `APP_URL` dans
    `api.env` de `values.yaml`.
 
 Essayez d'abord avec les clés de test (`sk_test_…`) et la carte 4242 4242 4242 4242.
 
-Paiement activé, la **chasse sur mesure** devient payante (conception § 21) : crédit à
-l'unité ou forfait. Les membres fondateurs en sont dispensés ; on les désigne en base :
+Paiement activé, la **chasse sur mesure** devient payante (conception § 21). Les
+membres fondateurs en sont dispensés ; on les désigne en base (via un pod CNPG) :
 
 ```bash
-kubectl -n database exec -it deploy/postgres -- psql -U treasurehunters treasurehunters \
+kubectl -n postgres exec -it postgres-1 -- psql -U postgres treasurehunters \
   -c "UPDATE th_hunters SET htr_founder = true WHERE htr_email = 'vous@example.com';"
 ```
 
-Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une
-copie scellée **hors du dépôt** (`~/sealed-secrets/`), à ranger avec celles des
-autres applications. Elle permet de recréer le Secret si le namespace est perdu.
+Rien n'est committé. Si `kubeseal` est installé, le script produit aussi une copie
+scellée **hors du dépôt** (`~/sealed-secrets/`).
 
 **5. Argo CD :**
 
@@ -167,17 +164,13 @@ kubectl apply -f deploy/argocd/application.yaml
 kubectl -n argocd get application treasurehunters -w
 ```
 
-À partir de là, rien ne se fait plus à la main : chaque commit sur `master`
-construit les images, la CI promeut leur SHA sur la branche `deploy-state`, et
-Argo CD applique.
-
 ## Vérifier
 
 ```bash
 curl -fsS https://treasurehunters.crealcs.com/healthz          # front
-curl -fsS https://treasurehunters.crealcs.com/api/health       # front → Kong → API
+curl -fsS https://treasurehunters.crealcs.com/api/health       # front → Kong → API → base
 curl -fsS https://api.treasurehunters.crealcs.com/api/health   # nginx → Kong → API
-kubectl -n treasurehunters logs deploy/api | grep -i migration
+kubectl -n api-treasurehunters logs deploy/api | grep -i migration
 ```
 
 Depuis la VM, ajouter `--resolve <hôte>:443:<IP interne>` (hairpin, cf.
@@ -186,7 +179,7 @@ homelab-platform/gateway/README.md).
 Jeu de démonstration (facultatif, **pas en production**) :
 
 ```bash
-kubectl -n treasurehunters exec deploy/api -- node dist/server/src/seed-demo.js
+kubectl -n api-treasurehunters exec deploy/api -- node dist/server/src/seed-demo.js
 ```
 
 ## Retour arrière
@@ -196,16 +189,3 @@ git switch deploy-state
 git revert <commit de promotion>   # Argo redéploie le SHA précédent
 git push origin deploy-state
 ```
-
-## Écarts connus avec le pattern, à remonter dans platform-patterns
-
-Le chart `app` 0.4.0 en mode `shared` suppose une plateforme Gateway API. Le socle
-homelab expose les API par des Ingress de classe `kong` et sert les fronts
-directement par ingress-nginx. D'où trois manifestes locaux, qui auraient leur place
-dans le chart en option générique :
-
-1. **Ingress kong** pour l'API, en alternative à l'`HTTPRoute`.
-2. **Ingress nginx** du front et l'entrée correspondante dans la NetworkPolicy.
-3. **`securityContext`** sur les workloads (non-root, `drop: [ALL]`, seccomp).
-   Faute de quoi le namespace est en Pod Security `baseline` et non `restricted`.
-   Les images, elles, tournent déjà en non-root (uid 1000 pour l'API, 101 pour nginx).
