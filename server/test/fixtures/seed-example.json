@@ -1,0 +1,45 @@
+{
+  "key": "test-montpellier-ecusson",
+  "name": "L'Écusson en quatre secrets",
+  "location": "Montpellier, Écusson",
+  "summary": "Une boucle courte dans le centre historique, de la grande place aux jardins.",
+  "startText": "Rendez-vous au pied des Trois Grâces, place de la Comédie.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 45,
+  "audience": ["family", "friends"],
+  "setting": "outdoor",
+  "practical": ["stroller", "cafe"],
+  "minAge": 6,
+  "steps": [
+    {
+      "title": "Les Trois Grâces",
+      "lat": 43.6085,
+      "lng": 3.8797,
+      "riddle": "Remontez vers le palais où l'on juge, puis cherchez l'arc qui célèbre un roi soleil.",
+      "hints": ["Il est au bout d'une promenade plantée.", "On dirait un petit cousin d'un monument parisien.", "Rue Foch, tout droit vers l'ouest."]
+    },
+    {
+      "title": "Arc de triomphe",
+      "lat": 43.6110,
+      "lng": 3.8728,
+      "arrival": "Bravo ! L'arc fut élevé à la gloire de Louis XIV.",
+      "riddle": "Passez l'arc et avancez jusqu'à la statue d'un cavalier sur la grande esplanade royale.",
+      "hints": ["Elle est juste derrière vous.", "Un roi à cheval.", "Au milieu de la promenade du Peyrou."]
+    },
+    {
+      "title": "Promenade du Peyrou",
+      "lat": 43.6113,
+      "lng": 3.8705,
+      "arrival": "Le roi à cheval veille sur la ville depuis 1838.",
+      "riddle": "Descendez vers le plus ancien jardin botanique de France.",
+      "hints": ["Il a été créé sous Henri IV.", "Il dépend de la faculté de médecine.", "Boulevard Henri-IV, en contrebas."]
+    },
+    {
+      "title": "Jardin des plantes",
+      "lat": 43.6142,
+      "lng": 3.8718,
+      "arrival": "Vous êtes au trésor : le jardin date de 1593."
+    }
+  ]
+}

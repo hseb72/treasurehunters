@@ -66,6 +66,16 @@
       </section>
     }
 
+    @if (untested(e)) {
+      <section class="surface notices" role="note">
+        <h2 class="section-title"><mat-icon>explore</mat-icon> Parcours d'initialisation, pas encore éprouvé sur place</h2>
+        <p class="small muted">
+          L'équipe SecretTracks l'a écrit pour lancer la plateforme, à partir des cartes et des photos libres. Si un lieu a changé ou
+          qu'une énigme coince, signalez-le depuis votre carnet de route : il sera corrigé.
+        </p>
+      </section>
+    }
+
     @if (e.openReports.length) {
       <section class="surface notices" role="note">
         <h2 class="section-title"><mat-icon>warning</mat-icon> Signalé récemment par des joueurs</h2>

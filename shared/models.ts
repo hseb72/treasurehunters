@@ -579,6 +579,8 @@ export interface CatalogEntry {
   setting: Setting | null;
   /** Prochaine session publique organisée de cette version (§ 40) : son début ; null s'il n'y en a pas. */
   nextSession: string | null;
+  /** Parcours d'initialisation de la plateforme (§ 51), écrit sans être joué sur place. */
+  seed: boolean;
 }
 
 export interface CatalogReview {

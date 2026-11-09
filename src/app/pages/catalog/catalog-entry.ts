@@ -37,6 +37,11 @@ export class CatalogEntryPage {
   protected readonly age = ageLabel;
   protected readonly km = kmLabel;
   /** Durée constatée, seulement quand assez d'équipes sont arrivées pour qu'elle dise vrai (§ 35). */
+  /** Parcours d'initialisation (§ 51) dont moins de MEASURED_MIN équipes sont arrivées. */
+  protected untested(e: CatalogEntry): boolean {
+    return e.seed && e.finishers < MEASURED_MIN;
+  }
+
   protected measured(e: CatalogEntry): number | null {
     return e.measuredMinutes !== null && e.finishers >= MEASURED_MIN ? e.measuredMinutes : null;
   }

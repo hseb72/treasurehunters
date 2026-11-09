@@ -51,6 +51,7 @@ import {
 import { sketchTrail } from '../../shared/souvenir.js';
 import { AudienceTag, PracticalTag, Setting } from '../../shared/practical.js';
 import { Lists } from './lists.js';
+import { SeedHunt } from '../../shared/seed.js';
 import { StepReliability, stepReliability } from '../../shared/gps.js';
 import { diagnoseSteps } from '../../shared/diagnosis.js';
 import { TeamRole } from '../../shared/roles.js';
@@ -3140,6 +3141,82 @@ export class Service {
     return huntId;
   }
 
+  /**
+   * Parcours d'initialisation (§ 51) : crée la Secret Track sous le compte « SecretTracks », avec
+   * ses lieux, énigmes, jokers et photos libres, puis la partage au catalogue, marquée de sa clé.
+   * Une clé déjà importée est laissée telle quelle, sauf `replace` (l'ancienne version est retirée).
+   */
+  async importSeed(seed: SeedHunt, opts: { replace?: boolean } = {}): Promise<{ status: 'imported' | 'replaced' | 'skipped'; catalogId: number; warnings: string[] }> {
+    const existing = await one(this.pool, 'SELECT cat_id FROM th_catalog WHERE cat_seed = $1', [seed.key]);
+    if (existing && !opts.replace) return { status: 'skipped', catalogId: existing['cat_id'], warnings: [] };
+    const sys = await this.systemAccount(this.pool);
+    const begin = new Date();
+    const hunt = await this.createHunt(sys, {
+      name: seed.name,
+      description: seed.summary,
+      location: seed.location,
+      startText: seed.startText,
+      begin: begin.toISOString(),
+      end: new Date(begin.getTime() + 3 * 3_600_000).toISOString(),
+      validation: 'geo',
+      geoRadius: seed.geoRadius ?? 40,
+      isPublic: false,
+      teamGame: true,
+      teamMin: 1,
+      teamMax: 6,
+      travel: seed.travel,
+      difficulty: seed.difficulty,
+      durationMinutes: seed.durationMinutes,
+    });
+    const warnings: string[] = [];
+    try {
+      const [start, finish] = await stepsOf(this.pool, hunt.id);
+      const last = seed.steps.length - 1;
+      const place = (s: SeedHunt['steps'][number]) => ({ title: s.title, latitude: s.lat, longitude: s.lng, address: s.address ?? null });
+      const ids: number[] = [start!.id];
+      await this.updateStep(sys, start!.id, { ...place(seed.steps[0]!), instructions: seed.steps[0]!.riddle!, hints: seed.steps[0]!.hints! });
+      for (const s of seed.steps.slice(1, last)) {
+        const step = await this.createStep(sys, hunt.id, { ...place(s), arrival: s.arrival!, instructions: s.riddle!, hints: s.hints! });
+        ids.push(step.id);
+      }
+      await this.updateStep(sys, finish!.id, { ...place(seed.steps[last]!), arrival: seed.steps[last]!.arrival! });
+      ids.push(finish!.id);
+      // Photos libres : une photo indisponible n'empêche pas l'import, elle est signalée.
+      for (const [i, s] of seed.steps.entries()) {
+        if (!s.photo) continue;
+        if (!this.photos) {
+          warnings.push(`Photos ignorées : le stockage des photos n'est pas configuré.`);
+          break;
+        }
+        try {
+          await this.setReferencePhotoFromCommons(sys, ids[i]!, s.photo);
+          if (i > 0) await this.updateStep(sys, ids[i]!, { photoShow: 'arrival' });
+        } catch (e) {
+          warnings.push(`${s.title} : photo « ${s.photo} » non reprise (${(e as Error).message}).`);
+        }
+      }
+      if (existing) await this.pool.query('UPDATE th_catalog SET cat_withdrawn = now(), cat_seed = NULL WHERE cat_id = $1', [existing['cat_id']]);
+      const entry = await this.publishToCatalog(sys, hunt.id, {
+        summary: seed.summary,
+        travel: seed.travel,
+        difficulty: seed.difficulty,
+        durationMinutes: seed.durationMinutes,
+        sampleOrder: seed.sampleOrder ?? 1,
+        changes: null,
+        practical: seed.practical,
+        minAge: seed.minAge,
+        audience: seed.audience,
+        setting: seed.setting,
+      });
+      await this.pool.query('UPDATE th_catalog SET cat_seed = $2 WHERE cat_id = $1', [entry.id, seed.key]);
+      return { status: existing ? 'replaced' : 'imported', catalogId: entry.id, warnings };
+    } catch (e) {
+      // Rien de bancal ne reste : la chasse à moitié créée disparaît.
+      await this.pool.query('DELETE FROM th_hunts WHERE hun_id = $1', [hunt.id]);
+      throw e;
+    }
+  }
+
   private async systemAccount(db: Db): Promise<number> {
     await db.query(
       `INSERT INTO th_hunters (htr_nickname, htr_email) VALUES ('SecretTracks', $1)
@@ -3414,7 +3491,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
      SELECT c.cat_id, c.cat_author_htr, a.htr_nickname AS author_nickname, c.cat_title, c.cat_summary, c.cat_location, c.cat_difficulty,
             coalesce(c.cat_content -> 'hunt' ->> 'skin', '${DEFAULT_SKIN}') AS skin, ((c.cat_content -> 'steps' -> 0 -> 'photo') IS NOT NULL
              OR EXISTS (SELECT 1 FROM th_codes sc WHERE sc.cod_hunt_hun = c.cat_hunt_hun AND sc.cod_order = 0 AND sc.cod_refphoto IS NOT NULL)) AS has_cover, c.cat_travel, c.cat_duration, c.cat_stepcount, c.cat_validation, c.cat_changes, c.cat_creation, c.cat_withdrawn, c.cat_price,
-            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting,
+            c.cat_lat, c.cat_lng, ${distance} AS distance, c.cat_practical, c.cat_minage, c.cat_km, coalesce(pl.finishers, 0)::int AS finishers, c.cat_audience, c.cat_setting, c.cat_seed IS NOT NULL AS seed,
             (SELECT min(sh.hun_begin) FROM eh se JOIN th_hunts sh ON sh.hun_id = se.hun_id WHERE se.cat_id = c.cat_id AND ${SESSION}) AS next_session,
             p.cat_id AS parent_id, p.cat_title AS parent_title, pa.htr_nickname AS parent_author,
             (SELECT count(*)::int FROM th_catalog v WHERE v.cat_parent_cat = c.cat_id AND v.cat_withdrawn IS NULL) AS version_count,
@@ -3460,6 +3537,7 @@ async function catalogEntries(db: Db, where: string, params: unknown[], order = 
     minAge: r['cat_minage'],
     audience: r['cat_audience'] ?? [],
     setting: r['cat_setting'] ?? null,
+    seed: r['seed'] ?? false,
     nextSession: r['next_session'] ? (r['next_session'] as Date).toISOString() : null,
     km: r['cat_km'] === null ? null : Math.round(Number(r['cat_km']) * 10) / 10,
     finishers: r['finishers'],
