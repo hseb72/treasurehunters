@@ -56,6 +56,7 @@ import { demoPlan, plannedStepCount } from '@shared/generation';
 import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
+import { McpStats } from '@shared/mcp';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '@shared/similarity';
 import { NEARBY_CATEGORIES, NearbyCategory, NearbyPlace, NearbyResult } from '@shared/nearby';
 import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage, guideUsage } from '@shared/guide';
@@ -1979,6 +1980,39 @@ export class MockHuntApi extends HuntApi {
     const me = this.viewer();
     const plan = me === null ? 'visitor' : 'base';
     return guideUsage(this.guideUses.get(me ?? 'visitor') ?? [], plan);
+  }
+
+  /** Serveur MCP (§ 50) : la maquette n'a pas de serveur MCP, seulement les visites. */
+  private readonly mcpVisits: { catalogId: number; at: string }[] = [];
+
+  mcpVisit(catalogId: number): Observable<void> {
+    return this.reply(() => {
+      if (this.catalog.some((e) => e.id === catalogId && !e.withdrawn)) this.mcpVisits.push({ catalogId, at: new Date().toISOString() });
+    });
+  }
+
+  mcpStats(): Observable<McpStats> {
+    return this.reply(() => {
+      const me = this.requireUser();
+      if (!this.isReviewer(me)) throw new ApiError('Réservé aux relecteurs.');
+      const since = (days: number) => this.mcpVisits.filter((v) => Date.now() - Date.parse(v.at) < days * 86_400_000);
+      const counts = new Map<number, number>();
+      for (const v of since(30)) counts.set(v.catalogId, (counts.get(v.catalogId) ?? 0) + 1);
+      const daily = Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(Date.now() - (29 - i) * 86_400_000).toISOString().slice(0, 10);
+        return { day: d, calls: 0, visits: this.mcpVisits.filter((v) => v.at.startsWith(d)).length };
+      });
+      return {
+        tools: [],
+        visits7: since(7).length,
+        visits30: since(30).length,
+        topVisited: [...counts]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([catalogId, visits]) => ({ catalogId, title: this.catalog.find((e) => e.id === catalogId)!.title, visits })),
+        daily,
+      };
+    });
   }
 
   guideUsage(): Observable<GuideUsage> {

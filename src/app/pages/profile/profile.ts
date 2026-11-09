@@ -3,6 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { take, timer } from 'rxjs';
 import { GenerationAccessPanel } from '../../shared/generation-access-panel';
 import { AssistMeterView } from '../../shared/assist-meter';
+import { McpStatsView } from '../../shared/mcp-stats';
 import { AssistMeter } from '../../core/assist-meter';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +18,7 @@ import { Session } from '../../core/session';
 
 @Component({
   selector: 'th-profile',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, RouterLink, GenerationAccessPanel, AssistMeterView],
+  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, RouterLink, GenerationAccessPanel, AssistMeterView, McpStatsView],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page">
@@ -66,6 +67,14 @@ import { Session } from '../../core/session';
           <a mat-stroked-button routerLink="/generate"><mat-icon>auto_awesome</mat-icon>Inventer une Secret Track</a>
         </section>
       }
+
+      @if (mcp.value(); as m) {
+        <section class="surface stack card" id="mcp">
+          <h2><mat-icon>hub</mat-icon> Assistants IA (MCP)</h2>
+          <p class="small muted hint">Usage du serveur MCP du catalogue : ce que les assistants (Claude, ChatGPT…) demandent, et les fiches qu'ils font ouvrir.</p>
+          <th-mcp-stats [stats]="m" />
+        </section>
+      }
     </div>
   `,
   styles: `
@@ -87,6 +96,11 @@ export class ProfilePage {
   protected readonly access = rxResource({ stream: () => this.api.generationAccess() });
   /** Décompte de l'assistant de rédaction (§ 25), rechargé à chaque visite. */
   protected readonly meter = inject(AssistMeter);
+  /** Usage du serveur MCP (§ 50), pour les relecteurs seulement. */
+  protected readonly mcp = rxResource({
+    params: () => (this.session.user()?.reviewer ? this.session.user()!.id : undefined),
+    stream: () => this.api.mcpStats(),
+  });
   /** Retour de la page de paiement. */
   readonly paid = input<string | undefined>();
 

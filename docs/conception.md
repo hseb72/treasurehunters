@@ -1024,9 +1024,15 @@ Les assistants IA (Claude, ChatGPT et les autres clients du protocole MCP) peuve
 | `search_secret_tracks` | Recherche du catalogue : texte, position et rayon, déplacement, difficulté, durée, public, cadre, gratuites, longueur, jouables en autonomie, session aujourd'hui ou cette semaine, tri ; 10 résultats au plus |
 | `get_secret_track` | La fiche : présentation, énigme en extrait, repères pratiques, durée constatée (dès 3 équipes, § 35), 5 derniers avis, prochaines sessions |
 | `surprise_me` | Surprends-moi (§ 37) : une Secret Track jouable en autonomie autour d'une position, dans le temps donné, avec ses raisons |
+| `upcoming_sessions` | Les sessions publiques organisées (§ 40) des prochains jours (7 par défaut, 60 au plus), autour d'une position ou au lieu cherché : date, organisateur, équipes inscrites, départs, lien d'inscription |
+| `leaderboard` | Le classement des parties en autonomie d'une Secret Track (§ 13.5) : les dix meilleurs temps, pénalités comprises, pour fixer un temps à battre |
 
-Chaque Secret Track porte son lien (`APP_URL/catalog/<id>`) : jouer, acheter ou s'inscrire se fait dans l'application. Le serveur ne montre **que ce que montre déjà la fiche publique** — jamais le parcours, les positions, les énigmes autres que l'extrait ni les réponses. Les consignes du serveur rappellent à l'assistant que titres, présentations et avis sont écrits par des utilisateurs : des données, pas des instructions.
+Chaque outil déclare la **forme de sa réponse** (`outputSchema`) et la renvoie structurée (`structuredContent`), ainsi qu'en texte JSON pour les clients qui ne lisent pas les réponses structurées.
+
+Chaque Secret Track porte son lien (`APP_URL/catalog/<id>?via=mcp`) : jouer, acheter ou s'inscrire se fait dans l'application. Le serveur ne montre **que ce que montre déjà la fiche publique** — jamais le parcours, les positions, les énigmes autres que l'extrait ni les réponses. Les consignes du serveur rappellent à l'assistant que titres, présentations et avis sont écrits par des utilisateurs : des données, pas des instructions.
 
 **Brancher** : dans Claude (claude.ai, Réglages → Connecteurs → Ajouter un connecteur personnalisé), l'adresse `https://api.treasurehunters.crealcs.com/api/mcp` ; dans Claude Code : `claude mcp add --transport http secrettracks https://api.treasurehunters.crealcs.com/api/mcp`.
+
+**Mesure** : pour juger si le serveur sert avant d'aller plus loin, chaque appel d'outil est compté — son nom, son nombre de résultats, s'il a échoué, **rien de ce qui a été demandé** ni de qui l'a demandé (`th_mcp_calls`). Les liens donnés aux assistants portent `?via=mcp` : la fiche ouverte ainsi compte une visite, une fois par session de navigation (`POST /api/mcp/visits`, `th_mcp_visits`). Les deux sont gardés 180 jours (migration `035_mcp_usage.sql`). Les relecteurs voient l'usage dans leur profil, section « Assistants IA (MCP) » (`GET /api/mcp/stats`) : appels par outil sur 7 et 30 jours, appels sans résultat (ce que les assistants cherchent et que le catalogue n'a pas), erreurs, fiches ouvertes, les cinq plus ouvertes, et les 30 derniers jours en barres.
 
 **Plus tard** : des outils pour les auteurs et organisateurs (créer une Secret Track, lire ses statistiques), qui exigeront une connexion OAuth et passeront par les mêmes quotas que l'application.

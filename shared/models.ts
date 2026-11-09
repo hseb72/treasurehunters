@@ -605,6 +605,14 @@ export interface CatalogDetail extends CatalogEntry {
   sessions: CatalogSession[];
 }
 
+/** Une session à venir, avec la version du catalogue qu'elle fait jouer (serveur MCP, § 50). */
+export interface UpcomingSession extends CatalogSession {
+  catalogId: number;
+  catalogTitle: string;
+  /** Distance au départ de la version, quand une position est donnée. */
+  distanceKm: number | null;
+}
+
 /** Une session : une occurrence organisée, publique, d'une version du catalogue (§ 40). */
 export interface CatalogSession {
   huntId: number;
