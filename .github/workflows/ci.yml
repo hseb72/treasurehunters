@@ -63,7 +63,8 @@ jobs:
       - name: Valider les manifestes Kubernetes
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz
-          ./kubeconform -strict -summary -ignore-missing-schemas deploy/manifests/*.yaml
+          # Manifestes Argo CD (les ressources applicatives sont rendues par le chart `app`).
+          ./kubeconform -strict -summary -ignore-missing-schemas deploy/argocd/*.yaml
       - name: Aucun Secret en clair dans deploy/
         run: |
           if grep -rlE '^kind:[[:space:]]*Secret[[:space:]]*$' deploy/; then

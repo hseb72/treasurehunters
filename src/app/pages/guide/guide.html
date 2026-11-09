@@ -10,7 +10,32 @@
 
   <p class="bubble surface" aria-live="polite">{{ said() }}</p>
 
-  @if (step() === 'idle' || step() === 'listening' || step() === 'asking' || step() === 'confirm' || step() === 'error') {
+  @if (usage.value(); as q) {
+    @if (q.blocked) {
+      <section class="surface center quota-out" role="note">
+        <p>{{ q.blocked }}</p>
+        @if (q.nextRefill) {
+          <p class="small muted">Une demande redevient disponible le {{ q.nextRefill | date: 'd MMMM' }}.</p>
+        }
+        @if (q.plan === 'visitor') {
+          <a mat-flat-button routerLink="/login" [queryParams]="{ returnUrl: '/guide' }"><mat-icon>person_add</mat-icon>Créer un compte ou me connecter</a>
+        } @else if (q.plan === 'base') {
+          <a mat-stroked-button routerLink="/generate"><mat-icon>workspace_premium</mat-icon>Voir les forfaits</a>
+        }
+        <a mat-button routerLink="/catalog"><mat-icon>travel_explore</mat-icon>Chercher dans le catalogue</a>
+      </section>
+    } @else {
+      <p class="small muted quota">
+        <mat-icon inline>bolt</mat-icon>
+        {{ q.remaining }} demande{{ q.remaining > 1 ? 's' : '' }} restante{{ q.remaining > 1 ? 's' : '' }} sur {{ q.limit }} ce mois-ci
+        @if (q.plan === 'visitor') {
+          · <a routerLink="/login" [queryParams]="{ returnUrl: '/guide' }">connectez-vous</a> pour en avoir 12
+        }
+      </p>
+    }
+  }
+
+  @if (!blocked() && (step() === 'idle' || step() === 'listening' || step() === 'asking' || step() === 'confirm' || step() === 'error')) {
     @if (voice.canListen) {
       <div class="mic-wrap">
         <button type="button" class="mic" [class.on]="voice.listening()" (click)="talk()" [attr.aria-label]="voice.listening() ? 'J’ai fini' : 'Parler au guide'">

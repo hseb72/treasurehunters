@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { GuideHandoff } from '../../core/guide-handoff';
 import { Voice } from '../../core/voice';
+import { Session } from '../../core/session';
 import { CatalogCard } from '../../shared/catalog-card';
 
 type Step = 'idle' | 'listening' | 'thinking' | 'asking' | 'searching' | 'proposals' | 'confirm' | 'creating' | 'error';
@@ -29,7 +31,7 @@ const NO = /^\s*(non|nan|pas maintenant|plus tard|annule|laisse tomber|no)\b/i;
  */
 @Component({
   selector: 'th-guide',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, CatalogCard],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink, CatalogCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './guide.html',
   styleUrl: './guide.scss',
@@ -51,7 +53,14 @@ export class GuidePage {
   /** Le guide parle : désactivé, il se contente d'écrire. */
   protected readonly muted = signal(false);
 
-  protected readonly access = rxResource({ stream: () => this.api.generationAccess() });
+  protected readonly session = inject(Session);
+  protected readonly access = rxResource({
+    params: () => this.session.user()?.id,
+    stream: () => this.api.generationAccess(),
+  });
+  /** Quota du guide (§ 46) : 4 demandes par mois sans compte, 12 avec, 100 avec un forfait. */
+  protected readonly usage = rxResource({ params: () => ({ user: this.session.user()?.id ?? null }), stream: () => this.api.guideUsage() });
+  protected readonly blocked = computed(() => this.usage.value()?.blocked ?? null);
   protected readonly canCreate = computed(() => !!this.access.value()?.right);
 
   protected readonly travelLabels = TRAVEL_LABELS;
@@ -143,6 +152,7 @@ export class GuidePage {
     if (!this.position) this.position = await currentPosition().then((p) => ({ lat: p.lat, lng: p.lng })).catch(() => null);
     try {
       const u = await firstValueFrom(this.api.understand({ text: this.text().trim(), position: this.position }));
+      if (u.usage) this.usage.set(u.usage);
       this.understood.set(u);
       if (u.question) {
         this.step.set('asking');
@@ -229,6 +239,7 @@ export class GuidePage {
   }
 
   private fail(message: string): void {
+    this.usage.reload();
     this.error.set(message);
     this.step.set('error');
     this.said.set(message);

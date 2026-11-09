@@ -5,6 +5,12 @@ export const config = {
   databaseUrl: process.env['DATABASE_URL'] ?? 'postgres://th:th@localhost:5432/treasurehunters',
   corsOrigin: (process.env['CORS_ORIGIN'] ?? 'http://localhost:4200').split(',').map((s) => s.trim()),
   sessionDays: Number(process.env['SESSION_DAYS'] ?? 30),
+  /**
+   * Mandataires de confiance devant l'API, pour l'adresse des visiteurs (quota du guide, limites
+   * de débit) : un nombre de sauts (« 2 » : ingress puis Kong) ou une liste d'adresses/CIDR. Par
+   * défaut tous, ce qui laisse un client choisir son adresse par X-Forwarded-For.
+   */
+  trustProxy: trustProxyOf(process.env['TRUST_PROXY']),
   /** Fréquence de vérification des départs et clôtures automatiques. */
   schedulerMs: 30_000,
   /** Génération de chasses (§ 11) : désactivée sans clé d'API Anthropic. */
@@ -64,3 +70,14 @@ export const config = {
     .map((s) => s.trim())
     .filter(Boolean),
 };
+
+export function trustProxyOf(v: string | undefined): boolean | string[] | ((addr: string, hop: number) => boolean) {
+  const t = v?.trim();
+  if (!t || t === 'true') return true;
+  // n sauts : les n derniers mandataires sont crus, l'adresse vient d'avant eux.
+  if (/^\d+$/.test(t)) {
+    const hops = Number(t);
+    return (_addr, hop) => hop < hops;
+  }
+  return t.split(',').map((x) => x.trim()).filter(Boolean);
+}

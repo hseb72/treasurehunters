@@ -951,7 +951,7 @@ Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 
 
 **Voix** : reconnaissance et synthèse vocales du navigateur (gratuites ; Chrome et Safari, transcription par Google ou Apple). Le navigateur demande l'autorisation du micro. Sans reconnaissance vocale (Firefox), la demande s'écrit.
 
-**Compréhension** : `POST /api/guide` `{ text, position }` (connecté, 10 par minute et par session). Un appel court à l'IA (`GUIDE_MODEL`, Sonnet 5, effort bas) **extrait seulement des critères** : lieu nommé, temps disponible, temps réservé, déplacement, difficulté, public, âge du plus jeune, thème, centres d'intérêt. Le serveur en calcule le reste : bornes, **durée de jeu = temps disponible − temps réservé** (30 min au moins ; « 2 h avec goûter » = 1 h 30 de jeu + 30 min de goûter), récapitulatif dit au joueur, et la question « Où souhaitez-vous jouer ? » s'il n'y a ni lieu ni position. Sans réponse exploitable de l'IA, une compréhension par mots-clés prend le relais. Rien n'est enregistré.
+**Compréhension** : `POST /api/guide` `{ text, position }` (avec ou sans compte, 10 par minute et par session ou adresse). Un appel court à l'IA (`GUIDE_MODEL`, Sonnet 5, effort bas) **extrait seulement des critères** : lieu nommé, temps disponible, temps réservé, déplacement, difficulté, public, âge du plus jeune, thème, centres d'intérêt. Le serveur en calcule le reste : bornes, **durée de jeu = temps disponible − temps réservé** (30 min au moins ; « 2 h avec goûter » = 1 h 30 de jeu + 30 min de goûter), récapitulatif dit au joueur, et la question « Où souhaitez-vous jouer ? » s'il n'y a ni lieu ni position. Sans réponse exploitable de l'IA, une compréhension par mots-clés prend le relais. Rien n'est enregistré.
 
 **Catalogue d'abord** : le front cherche les Secret Tracks jouables en autonomie, du même déplacement, d'une durée entre 60 % et +20 min de la durée de jeu, près du joueur (3 km à pied, 10 km à vélo, 40 km en véhicule) ou au lieu nommé. Les trois meilleures sont proposées : bonne difficulté, bon public, âge minimum compatible, proximité, note. « Plutôt un parcours sur mesure » reste possible.
 
@@ -960,6 +960,18 @@ Le rayon suit le déplacement de la chasse : 500 m en balade, 1 km en aventure, 
 **Centres d'intérêt** : ce que le joueur veut trouver pendant la partie (« une paire de sneakers » → magasins de chaussures et de sport) suit la Secret Track choisie ou générée ; à l'ouverture du carnet de route, ils sont enregistrés pour l'équipe (`PUT /api/hunts/:id/interests`, catégories OpenStreetMap filtrées par le serveur, 3 au plus ; migration `032_interests.sql`) et passent en tête du volet « Autour de moi » (§ 45).
 
 **Coût** : environ un centime par demande quand le catalogue répond ; une génération sur mesure coûte comme aujourd'hui et compte dans les droits de génération.
+
+**Quotas** (`shared/guide.ts`, `GUIDE_LIMITS`) : chaque demande comprise par l'IA compte, sur **30 jours glissants** :
+
+| Demandeur | Demandes par 30 jours |
+|---|---|
+| Visiteur sans compte | 4 |
+| Compte, sans forfait | 12 |
+| Forfait de Secret Tracks sur mesure en cours (§ 21), ou membre fondateur | 100 |
+
+En plus, **200 demandes par jour au plus pour l'ensemble des visiteurs sans compte** : quoi qu'il arrive, le coût du guide ouvert à tous reste borné. La demande est réservée avant l'appel à l'IA, sous verrou, et rendue s'il échoue. Au-delà, le guide le dit (« Créez un compte (gratuit) pour en avoir 12 par mois », « Un forfait en donne 100 ») et propose le catalogue ; le décompte s'affiche sous la bulle (`GET /api/guide/usage`). Un visiteur est reconnu par une **empreinte HMAC de son adresse IP** (clé tirée au hasard dans la base), jamais par l'adresse elle-même ; les lignes de plus de 30 jours sont purgées (`th_guide_uses`, migration `034_guide_uses.sql`). Derrière des mandataires, `TRUST_PROXY` (nombre de sauts, ou adresses et CIDR des mandataires) empêche un visiteur de choisir son adresse par `X-Forwarded-For` ; par défaut tous sont crus, comme avant.
+
+**Le catalogue d'abord, aussi sans le guide** : la page « Secret Track sur mesure » (`/generate`) cherche de même, avant de générer, les Secret Tracks qui répondent déjà au lieu, au déplacement et à la durée demandés (jouables en autonomie pour « Je joue ») ; elle en montre trois au plus, et « Inventer quand même » reste possible.
 
 ## 47. Photos des étapes : photos libres, liens et sécurité
 

@@ -222,6 +222,13 @@ export const EN_MORE: Record<string, string> = {
   "J'organise": 'I organise',
   'Je relis et ajuste les étapes, puis je propose la Secret Track à des joueurs.': 'I review and adjust the steps, then offer the Secret Track to players.',
   'Inventer ma Secret Track': 'Make up my Secret Track',
+  'Elle existe peut-être déjà': 'It may already exist',
+  'Inventer quand même': 'Make one up anyway',
+  'Je regarde le catalogue…': 'Checking the catalogue…',
+  'Cette Secret Track répond déjà à votre demande : lieu, déplacement et durée. Jouer une Secret Track du catalogue ne consomme pas de droit de génération, et la partie peut commencer tout de suite.':
+    'This Secret Track already matches your request: place, travel and duration. Playing a catalogue Secret Track uses no generation right, and the game can start right away.',
+  'Ces Secret Tracks répondent déjà à votre demande : lieu, déplacement et durée. Jouer une Secret Track du catalogue ne consomme pas de droit de génération, et la partie peut commencer tout de suite.':
+    'These Secret Tracks already match your request: place, travel and duration. Playing a catalogue Secret Track uses no generation right, and the game can start right away.',
   'ex. Montpellier, place de la Comédie': 'e.g. Montpellier, place de la Comédie',
   'ex. parcs et coulées vertes': 'e.g. parks and green corridors',
   Durée: 'Duration',
