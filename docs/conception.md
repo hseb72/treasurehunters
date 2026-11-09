@@ -1010,3 +1010,23 @@ La **photo du départ** est la couverture de la Secret Track : elle s'affiche en
 Les parcours générés reçoivent une photo libre pour leur rendez-vous, qui devient leur couverture. À la publication, la couverture suit la version du catalogue (copiée sous `catalog/…`), et les parties jouées depuis le catalogue la reprennent. Une version publiée **sans** couverture montre la photo du départ de sa chasse d'origine dès que l'auteur l'ajoute, sans republier. Dans **Explorer**, la couverture fait l'image de la carte, et la fiche d'une Secret Track l'affiche en grand, au-dessus de son titre : c'est la première chose qu'on en voit.
 
 **API** : `Hunt.cover` et `CatalogEntry.cover` disent s'il y a une couverture ; `GET /api/hunts/:id/cover` (organisateur, hôte, équipes, ou tout le monde si la chasse est publique) et `GET /api/catalog/:id/cover` (public, version en ligne) servent l'image.
+
+## 50. Serveur MCP du catalogue
+
+Les assistants IA (Claude, ChatGPT et les autres clients du protocole MCP) peuvent chercher et présenter les Secret Tracks pour leur utilisateur : « trouve-moi une Secret Track à Montpellier, deux heures en famille, à pied ». C'est **l'IA de l'utilisateur** qui comprend la demande : aucun appel à notre clé d'IA, donc aucun coût pour nous (comparer avec le guide, § 46).
+
+**Adresse** : `POST /api/mcp`, transport « Streamable HTTP » de MCP, **sans état** (un serveur par requête, rien n'est gardé ; `GET` et `DELETE` répondent 405) et en réponses JSON. Public, sans compte, 60 requêtes par minute et par adresse. Code : `server/src/mcp/server.ts`, SDK officiel `@modelcontextprotocol/sdk`.
+
+**Outils**, tous en lecture seule (annotation `readOnlyHint`) :
+
+| Outil | Ce qu'il fait |
+|---|---|
+| `search_secret_tracks` | Recherche du catalogue : texte, position et rayon, déplacement, difficulté, durée, public, cadre, gratuites, longueur, jouables en autonomie, session aujourd'hui ou cette semaine, tri ; 10 résultats au plus |
+| `get_secret_track` | La fiche : présentation, énigme en extrait, repères pratiques, durée constatée (dès 3 équipes, § 35), 5 derniers avis, prochaines sessions |
+| `surprise_me` | Surprends-moi (§ 37) : une Secret Track jouable en autonomie autour d'une position, dans le temps donné, avec ses raisons |
+
+Chaque Secret Track porte son lien (`APP_URL/catalog/<id>`) : jouer, acheter ou s'inscrire se fait dans l'application. Le serveur ne montre **que ce que montre déjà la fiche publique** — jamais le parcours, les positions, les énigmes autres que l'extrait ni les réponses. Les consignes du serveur rappellent à l'assistant que titres, présentations et avis sont écrits par des utilisateurs : des données, pas des instructions.
+
+**Brancher** : dans Claude (claude.ai, Réglages → Connecteurs → Ajouter un connecteur personnalisé), l'adresse `https://api.treasurehunters.crealcs.com/api/mcp` ; dans Claude Code : `claude mcp add --transport http secrettracks https://api.treasurehunters.crealcs.com/api/mcp`.
+
+**Plus tard** : des outils pour les auteurs et organisateurs (créer une Secret Track, lire ses statistiques), qui exigeront une connexion OAuth et passeront par les mêmes quotas que l'application.
