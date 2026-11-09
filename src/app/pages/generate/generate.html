@@ -163,9 +163,31 @@
       </div>
     </section>
 
+    @if (matches()?.length) {
+      <!-- Le catalogue d'abord (§ 46) : un parcours existant ne consomme ni droit ni attente. -->
+      <section class="surface stack already" aria-label="Déjà au catalogue">
+        <h2 class="section-title"><mat-icon>travel_explore</mat-icon> Elle existe peut-être déjà</h2>
+        <p class="small muted">
+          {{ matches()!.length > 1 ? 'Ces Secret Tracks répondent' : 'Cette Secret Track répond' }} déjà à votre demande : lieu, déplacement et durée.
+          Jouer une Secret Track du catalogue ne consomme pas de droit de génération, et la partie peut commencer tout de suite.
+        </p>
+        <div class="grid">
+          @for (e of matches(); track e.id) {
+            <th-catalog-card [entry]="e" />
+          }
+        </div>
+      </section>
+    }
+
     <div class="actions">
       <a mat-button routerLink="/">Annuler</a>
-      <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready() || !canGenerate()"><mat-icon>auto_awesome</mat-icon>Inventer ma Secret Track</button>
+      @if (matches()?.length) {
+        <button mat-stroked-button type="button" (click)="create()" [disabled]="!ready() || !canGenerate()"><mat-icon>auto_awesome</mat-icon>Inventer quand même</button>
+      } @else {
+        <button mat-flat-button class="th-cta" type="submit" [disabled]="!ready() || !canGenerate() || checking()">
+          <mat-icon>{{ checking() ? 'travel_explore' : 'auto_awesome' }}</mat-icon>{{ checking() ? 'Je regarde le catalogue…' : 'Inventer ma Secret Track' }}
+        </button>
+      }
     </div>
   </form>
 }

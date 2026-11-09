@@ -153,7 +153,7 @@ export interface AppOptions {
 }
 
 export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<FastifyInstance & { service: Service }> {
-  const app = Fastify({ logger: opts.logger ?? false, trustProxy: true });
+  const app = Fastify({ logger: opts.logger ?? false, trustProxy: config.trustProxy });
   const key = config.anthropicApiKey;
   // Une clé qui n'est pas de l'ASCII imprimable (un modèle de commande copié tel quel : « sk-ant-… »)
   // ne peut pas partir dans un en-tête HTTP : chaque génération échouerait. On le dit une fois.
@@ -312,8 +312,9 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
         position: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).nullable().default(null),
       })
       .parse(req.body);
-    return service.understand(req.viewer, b);
+    return service.understand(req.viewer, b, req.ip);
   });
+  app.get('/api/guide/usage', async (req) => service.guideUsage(req.viewer, req.ip));
   app.put('/api/hunts/:id/interests', async (req) => {
     const { interests } = z.object({ interests: z.array(interest).max(3) }).parse(req.body);
     return service.setInterests(req.viewer, idParams.parse(req.params).id, interests);

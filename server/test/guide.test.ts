@@ -1,12 +1,12 @@
 import { createServer, Server, ServerResponse } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { config } from '../src/config.js';
-import { assemble } from '../src/guide/guide.js';
+import { config, trustProxyOf } from '../src/config.js';
+import { assemble, DemoGuide } from '../src/guide/guide.js';
 import { buildApp } from '../src/app.js';
 import { demoUnderstanding, GUIDE_WHERE_QUESTION, playMinutesOf, rankProposals } from '../../shared/guide.js';
 import { CatalogEntry } from '../../shared/models.js';
-import { client, Ctx, loginAs, setup, teardown } from './helpers.js';
+import { Ctx, loginAs, setup, teardown } from './helpers.js';
 
 let server: Server;
 let reply: unknown[] = [];
@@ -85,15 +85,70 @@ describe('guide : compréhension', () => {
   });
 });
 
+/** Demande au guide d'un visiteur sans compte, depuis l'adresse donnée. */
+function visitorAsk(ip: string) {
+  return ctx.app.inject({ method: 'POST', url: '/api/guide', remoteAddress: ip, payload: { text: EXAMPLE, position: null } });
+}
+
 describe('guide : API', () => {
-  it('répond à un joueur connecté', async () => {
-    expect((await client(ctx.app).post('/api/guide', { text: EXAMPLE })).status).toBe(401);
+  it('répond aussi aux visiteurs sans compte', async () => {
     const seb = await loginAs(ctx.app, 'seb@example.com');
     expect((await seb.post('/api/guide', { text: 'a' })).status).toBe(400);
     const res = await seb.post('/api/guide', { text: EXAMPLE, position: { lat: 43.6, lng: 3.88 } });
     expect(res.status).toBe(200);
     expect(res.body.playMinutes).toBe(150);
+    expect(res.body.usage).toMatchObject({ plan: 'base', limit: 12, used: 1, remaining: 11, blocked: null });
     expect((await seb.get('/api/features')).body.guide).toBe(true);
+    const visitor = await visitorAsk('203.0.113.9');
+    expect(visitor.statusCode).toBe(200);
+    expect(visitor.json().usage).toMatchObject({ plan: 'visitor', limit: 4, used: 1 });
+  });
+
+  it('limite à 4 demandes par mois sans compte, 12 avec un compte, 100 avec un forfait', async () => {
+    for (let i = 0; i < 4; i++) expect((await visitorAsk('198.51.100.1')).statusCode).toBe(200);
+    const fifth = await visitorAsk('198.51.100.1');
+    expect(fifth.statusCode).toBe(429);
+    expect(fifth.json().message).toMatch(/Créez un compte/);
+    // Un autre visiteur a son propre décompte ; l'adresse n'est jamais stockée en clair.
+    expect((await visitorAsk('198.51.100.2')).statusCode).toBe(200);
+    const stored = (await ctx.pool.query(`SELECT gui_visitor FROM th_guide_uses WHERE gui_visitor IS NOT NULL`)).rows.map((r) => r.gui_visitor);
+    expect(stored.every((v: string) => /^[0-9a-f]{64}$/.test(v))).toBe(true);
+    expect((await ctx.app.inject({ url: '/api/guide/usage', remoteAddress: '198.51.100.1' })).json()).toMatchObject({ remaining: 0, blocked: expect.any(String) });
+
+    const zoe = await loginAs(ctx.app, 'zoe@example.com');
+    const id = (await ctx.pool.query(`SELECT htr_id FROM th_hunters WHERE htr_email = 'zoe@example.com'`)).rows[0].htr_id;
+    // 11 demandes déjà faites ce mois-ci (la limite de débit, 10 par minute, empêche de les jouer ici).
+    await ctx.pool.query(`INSERT INTO th_guide_uses (gui_hunter_htr, gui_creation) SELECT $1, now() - g * interval '1 day' FROM generate_series(1, 11) g`, [id]);
+    await ctx.pool.query(`INSERT INTO th_guide_uses (gui_hunter_htr, gui_creation) VALUES ($1, now() - interval '40 days')`, [id]); // hors fenêtre
+    expect((await zoe.post('/api/guide', { text: EXAMPLE, position: null })).status).toBe(200);
+    const thirteenth = await zoe.post('/api/guide', { text: EXAMPLE, position: null });
+    expect(thirteenth.status).toBe(429);
+    expect(thirteenth.body.message).toMatch(/forfait/);
+    // Avec un forfait en cours, la limite passe à 100.
+    await ctx.pool.query(`INSERT INTO th_genrights (grt_hunter_htr, grt_kind, grt_from, grt_until, grt_source) VALUES ($1, 'pass', now(), now() + interval '30 days', 'grant')`, [id]);
+    expect((await zoe.get('/api/guide/usage')).body).toMatchObject({ plan: 'pass', limit: 100, used: 12, remaining: 88 });
+    expect((await zoe.post('/api/guide', { text: EXAMPLE, position: null })).status).toBe(200);
+  });
+
+  it('ne laisse pas un visiteur choisir son adresse quand les mandataires sont déclarés', async () => {
+    const saved = config.trustProxy;
+    config.trustProxy = trustProxyOf('1'); // un seul mandataire devant l'API
+    const app = await buildApp(ctx.pool, { guide: new DemoGuide(), generator: null });
+    const ask = (forwarded: string) =>
+      app.inject({ method: 'POST', url: '/api/guide', remoteAddress: '10.0.0.1', headers: { 'x-forwarded-for': forwarded }, payload: { text: EXAMPLE, position: null } });
+    // L'adresse vue par le mandataire (la dernière) compte, pas celle que le client prétend.
+    for (let i = 0; i < 4; i++) expect((await ask(`192.0.2.${i}, 203.0.113.50`)).statusCode).toBe(200);
+    expect((await ask('192.0.2.99, 203.0.113.50')).statusCode).toBe(429);
+    await app.close();
+    config.trustProxy = saved;
+  });
+
+  it('ne décompte pas une demande que l’IA n’a pas pu comprendre', async () => {
+    const app = await buildApp(ctx.pool, { guide: { understand: async () => Promise.reject(new Error('panne')) }, generator: null });
+    const lea = await loginAs(app, 'lea@example.com');
+    expect((await lea.post('/api/guide', { text: EXAMPLE, position: null })).status).toBeGreaterThanOrEqual(500);
+    expect((await lea.get('/api/guide/usage')).body).toMatchObject({ used: 0, remaining: 12 });
+    await app.close();
   });
 
   it('est indisponible sans IA', async () => {

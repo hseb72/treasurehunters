@@ -106,13 +106,14 @@ import { HuntPlan } from '../../shared/generation.js';
 import { AssistReply, AssistRequest, AssistUsage } from '../../shared/assist.js';
 import { RiddleWriter } from './assist/writer.js';
 import { assistUsageOf } from './assist/usage.js';
+import { GuideWho, guideUsageOf, visitorOf } from './guide/usage.js';
 import { Translator } from './translate/translator.js';
 import { Guide } from './guide/guide.js';
 import { fetchImage, sanitizeImage } from './photos/safe-image.js';
 import { describeFile, proposePhotos } from './photos/commons.js';
 import { ImageModerator } from './photos/moderator.js';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '../../shared/similarity.js';
-import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '../../shared/guide.js';
+import { GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '../../shared/guide.js';
 import { safeThemeFilters } from './generation/osm.js';
 import { Interest } from './nearby.js';
 
@@ -188,10 +189,43 @@ export class Service {
 
   /* ================================================================ Guide (§ 46) */
 
-  async understand(viewer: Viewer, req: GuideRequest): Promise<GuideUnderstanding> {
-    requireUser(viewer);
-    if (!this.guide) throw new HttpError(503, 'Le guide n’est pas disponible sur ce serveur.');
-    return this.guide.understand(req);
+  /**
+   * Guide (§ 46), ouvert aux visiteurs : chaque demande comprise par l'IA compte dans le quota
+   * du demandeur (4, 12 ou 100 par 30 jours). Elle est réservée avant l'appel, sous verrou, et
+   * rendue si l'IA échoue : une demande ratée n'est pas décomptée.
+   */
+  async understand(viewer: Viewer, req: GuideRequest, ip: string): Promise<GuideUnderstanding> {
+    const guide = this.guide;
+    if (!guide) throw new HttpError(503, 'Le guide n’est pas disponible sur ce serveur.');
+    const who = await this.guideWho(viewer, ip);
+    const reserved = await tx(this.pool, async (db) => {
+      await db.query('SELECT pg_advisory_xact_lock(7326, hashtext($1))', ['hunter' in who ? `h${who.hunter}` : who.visitor]);
+      const usage = await guideUsageOf(db, who);
+      if (usage.blocked) throw new HttpError(429, usage.blocked);
+      // Purge au fil de l'eau : rien n'est gardé au-delà de la fenêtre du quota.
+      await db.query(`DELETE FROM th_guide_uses WHERE gui_creation < now() - interval '31 days'`);
+      const r = await one(db, 'INSERT INTO th_guide_uses (gui_hunter_htr, gui_visitor) VALUES ($1, $2) RETURNING gui_id', [
+        'hunter' in who ? who.hunter : null,
+        'visitor' in who ? who.visitor : null,
+      ]);
+      return r!['gui_id'] as number;
+    });
+    try {
+      const understanding = await guide.understand(req);
+      return { ...understanding, usage: await guideUsageOf(this.pool, who) };
+    } catch (e) {
+      await this.pool.query('DELETE FROM th_guide_uses WHERE gui_id = $1', [reserved]);
+      throw e;
+    }
+  }
+
+  /** Décompte du guide pour le demandeur (joueur connecté, ou visiteur). */
+  async guideUsage(viewer: Viewer, ip: string): Promise<GuideUsage> {
+    return guideUsageOf(this.pool, await this.guideWho(viewer, ip));
+  }
+
+  private async guideWho(viewer: Viewer, ip: string): Promise<GuideWho> {
+    return viewer !== null ? { hunter: viewer } : { visitor: await visitorOf(this.pool, ip) };
   }
 
   /** Centres d'intérêt de l'équipe du joueur, filtrés : seules des catégories OpenStreetMap sûres. */

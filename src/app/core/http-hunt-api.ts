@@ -4,7 +4,7 @@ import { Surprise, SurpriseQuery } from '@shared/surprise';
 import { TrackList, TrackListDetail } from '@shared/lists';
 import { NearbyResult } from '@shared/nearby';
 import { PhotoProposal } from '@shared/models';
-import { GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
+import { GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '@shared/guide';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import {
@@ -364,6 +364,9 @@ export class HttpHuntApi extends HuntApi {
     return this.http.post<NearbyResult>(`${this.url}/nearby`, { ...pos, radius, huntId });
   }
 
+  guideUsage(): Observable<GuideUsage> {
+    return this.http.get<GuideUsage>(`${this.url}/guide/usage`);
+  }
   understand(req: GuideRequest): Observable<GuideUnderstanding> {
     return this.http.post<GuideUnderstanding>(`${this.url}/guide`, req);
   }

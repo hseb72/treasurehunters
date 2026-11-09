@@ -136,3 +136,7 @@
   &.on { border-color: var(--th-primary-light); background: color-mix(in srgb, var(--th-primary-light) 16%, transparent); font-weight: 600; }
   .small { color: var(--th-primary-light); }
 }
+
+/* Le catalogue d'abord (§ 46) */
+.already { border: 2px solid var(--th-accent); }
+.already .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }

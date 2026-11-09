@@ -9,9 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, switchMap, take, takeWhile, timer } from 'rxjs';
+import { firstValueFrom, Subscription, switchMap, take, takeWhile, timer } from 'rxjs';
 import { DIFFICULTY_HINTS, DIFFICULTY_LABELS, plannedStepCount, searchRadius, TRAVEL_HINTS, TRAVEL_ICONS, TRAVEL_LABELS } from '@shared/generation';
-import { Difficulty, GenerationJob, GenerationRequest, Travel } from '@shared/models';
+import { CatalogEntry, Difficulty, GenerationJob, GenerationRequest, Travel } from '@shared/models';
+import { GUIDE_CATALOG_RADIUS, guideDurationWindow, rankForGeneration } from '@shared/guide';
+import { CatalogCard } from '../../shared/catalog-card';
 import { HuntApi } from '../../core/api';
 import { currentPosition } from '../../core/geo';
 import { Notify } from '../../core/notify';
@@ -52,6 +54,7 @@ import { SkinPicker } from '../../shared/skin-picker';
     RouterLink,
     CompassLogo,
     LocationMap,
+    CatalogCard,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './generate.html',
@@ -173,7 +176,42 @@ export class GeneratePage {
     }
   }
 
-  protected submit(): void {
+  /**
+   * Le catalogue d'abord (§ 46) : avant d'inventer un parcours, les Secret Tracks qui répondent
+   * déjà à la demande. null : pas encore cherché pour ces critères ; [] : rien trouvé.
+   */
+  protected readonly matches = signal<CatalogEntry[] | null>(null);
+  protected readonly checking = signal(false);
+  private readonly criteriaChanged = effect(() => {
+    [this.where(), this.query(), this.point(), this.duration(), this.travel(), this.difficulty(), this.mode()];
+    untracked(() => this.matches.set(null));
+  });
+
+  protected async submit(): Promise<void> {
+    if (!this.ready()) return;
+    if (this.matches() === null) {
+      this.checking.set(true);
+      const found = await this.similar().catch(() => [] as CatalogEntry[]);
+      this.checking.set(false);
+      this.matches.set(found);
+      if (found.length) return;
+    }
+    this.create();
+  }
+
+  private async similar(): Promise<CatalogEntry[]> {
+    const p = this.point();
+    const where =
+      this.where() === 'city' ? { q: this.query().trim() } : p ? { near: { lat: p.lat, lng: p.lng }, radius: GUIDE_CATALOG_RADIUS[this.travel()], sort: 'distance' as const } : {};
+    const window = guideDurationWindow(this.duration());
+    const entries = await firstValueFrom(
+      this.api.listCatalog({ ...where, travel: [this.travel()], minDuration: window.min, maxDuration: window.max, autonomous: this.mode() === 'play' || undefined }),
+    );
+    return rankForGeneration(entries, { durationMinutes: this.duration(), difficulty: this.difficulty() });
+  }
+
+  /** Inventer quand même (ou rien trouvé au catalogue). */
+  protected create(): void {
     if (!this.ready()) return;
     const p = this.point();
     const request: GenerationRequest = {

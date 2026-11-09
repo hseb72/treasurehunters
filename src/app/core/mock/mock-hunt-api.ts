@@ -58,7 +58,7 @@ import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '@shared/similarity';
 import { NEARBY_CATEGORIES, NearbyCategory, NearbyPlace, NearbyResult } from '@shared/nearby';
-import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding } from '@shared/guide';
+import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage, guideUsage } from '@shared/guide';
 import { GeoCheck, StepReliability, stepReliability } from '@shared/gps';
 import { FAVORITE_NAME, LISTS_MAX, TrackList, TrackListDetail } from '@shared/lists';
 import { pickSurprise, Surprise, SURPRISE_RADIUS, SurpriseQuery } from '@shared/surprise';
@@ -1972,10 +1972,26 @@ export class MockHuntApi extends HuntApi {
   /** Centres d'intérêt par équipe (§ 46), le temps de la session de maquette. */
   private readonly interests = new Map<number, GuideInterest[]>();
 
+  /** Quotas du guide (§ 46), comme le serveur : par joueur, ou pour le visiteur de ce navigateur. */
+  private readonly guideUses = new Map<number | 'visitor', string[]>();
+
+  private guideUsageNow(): GuideUsage {
+    const me = this.viewer();
+    const plan = me === null ? 'visitor' : 'base';
+    return guideUsage(this.guideUses.get(me ?? 'visitor') ?? [], plan);
+  }
+
+  guideUsage(): Observable<GuideUsage> {
+    return this.reply(() => this.guideUsageNow());
+  }
+
   understand(req: GuideRequest): Observable<GuideUnderstanding> {
     return this.reply(() => {
-      this.requireUser();
-      return demoUnderstanding(req);
+      const usage = this.guideUsageNow();
+      if (usage.blocked) throw new ApiError(usage.blocked);
+      const key = this.viewer() ?? 'visitor';
+      this.guideUses.set(key, [...(this.guideUses.get(key) ?? []), new Date().toISOString()]);
+      return { ...demoUnderstanding(req), usage: this.guideUsageNow() };
     });
   }
 

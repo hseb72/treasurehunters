@@ -50,6 +50,58 @@ export interface GuideUnderstanding {
   question: string | null;
   /** Récapitulatif dit au joueur : « Je vous prévois 1 h 30 de balade… ». */
   summary: string;
+  /** Décompte des demandes après celle-ci (§ 46) ; absent dans la maquette hors ligne. */
+  usage?: GuideUsage;
+}
+
+/**
+ * Quotas du guide (§ 46) : chaque demande comprise par l'IA compte, sur 30 jours glissants.
+ * Sans compte : 4 (comptées par appareil réseau) ; avec un compte : 12 ; avec un forfait de
+ * Secret Tracks sur mesure en cours, ou membre fondateur : 100. Au-delà, plafond commun à
+ * tous les visiteurs sans compte, par jour, pour borner le coût quoi qu'il arrive.
+ */
+export type GuidePlan = 'visitor' | 'base' | 'pass' | 'founder';
+
+export const GUIDE_LIMITS: Record<GuidePlan, number> & { windowDays: number; visitorsDaily: number } = {
+  visitor: 4,
+  base: 12,
+  pass: 100,
+  founder: 100,
+  windowDays: 30,
+  visitorsDaily: 200,
+};
+
+export interface GuideUsage {
+  plan: GuidePlan;
+  limit: number;
+  used: number;
+  remaining: number;
+  /** Quand la plus ancienne demande comptée redevient disponible. */
+  nextRefill: string | null;
+  /** Pourquoi le guide ne peut pas répondre maintenant ; null sinon. */
+  blocked: string | null;
+}
+
+/** Décompte d'après les demandes des 30 derniers jours (règle commune au serveur et à la maquette). */
+export function guideUsage(uses: string[], plan: GuidePlan, now = Date.now(), visitorsToday = 0): GuideUsage {
+  const windowMs = GUIDE_LIMITS.windowDays * 86_400_000;
+  const recent = uses.filter((at) => now - Date.parse(at) < windowMs).sort();
+  const limit = GUIDE_LIMITS[plan];
+  const used = recent.length;
+  const remaining = Math.max(0, limit - used);
+  const nextRefill = recent.length ? new Date(Date.parse(recent[0]!) + windowMs).toISOString() : null;
+  let blocked: string | null = null;
+  if (remaining === 0) {
+    blocked =
+      plan === 'visitor'
+        ? `Vous avez utilisé vos ${limit} demandes gratuites de ce mois-ci. Créez un compte (gratuit) pour en avoir ${GUIDE_LIMITS.base} par mois.`
+        : plan === 'base'
+          ? `Vous avez utilisé vos ${limit} demandes de ce mois-ci. Un forfait de Secret Tracks sur mesure en donne ${GUIDE_LIMITS.pass}.`
+          : `Vous avez utilisé vos ${limit} demandes de ce mois-ci.`;
+  } else if (plan === 'visitor' && visitorsToday >= GUIDE_LIMITS.visitorsDaily) {
+    blocked = 'Le guide est très demandé aujourd’hui : connectez-vous pour l’utiliser, ou revenez demain.';
+  }
+  return { plan, limit, used, remaining, nextRefill, blocked };
 }
 
 /** Durée par défaut quand le joueur n'en dit rien, et durée minimale d'un parcours. */
@@ -95,6 +147,14 @@ export function rankProposals(entries: CatalogEntry[], u: GuideUnderstanding, n 
     .sort((a, b) => b.s - a.s)
     .slice(0, n)
     .map(({ e }) => e);
+}
+
+/**
+ * Avant un parcours sur mesure (§ 46) : les Secret Tracks du catalogue qui répondent déjà à la
+ * demande, déjà filtrées par lieu, déplacement et durée, classées comme celles du guide.
+ */
+export function rankForGeneration(entries: CatalogEntry[], r: { durationMinutes: number; difficulty: Difficulty }, n = 3): CatalogEntry[] {
+  return rankProposals(entries, { difficulty: r.difficulty, audience: null, youngestAge: null, playMinutes: r.durationMinutes } as GuideUnderstanding, n);
 }
 
 /** « 1 h 30 », « 45 min » : pour les phrases dites par le guide. */
