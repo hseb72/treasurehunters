@@ -5,6 +5,7 @@ import { TrackList, TrackListDetail } from '@shared/lists';
 import { NearbyResult } from '@shared/nearby';
 import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '@shared/guide';
+import { McpStats } from '@shared/mcp';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import {
@@ -364,6 +365,12 @@ export class HttpHuntApi extends HuntApi {
     return this.http.post<NearbyResult>(`${this.url}/nearby`, { ...pos, radius, huntId });
   }
 
+  mcpVisit(catalogId: number): Observable<void> {
+    return this.http.post<void>(`${this.url}/mcp/visits`, { catalogId });
+  }
+  mcpStats(): Observable<McpStats> {
+    return this.http.get<McpStats>(`${this.url}/mcp/stats`);
+  }
   guideUsage(): Observable<GuideUsage> {
     return this.http.get<GuideUsage>(`${this.url}/guide/usage`);
   }

@@ -13,6 +13,7 @@ import { ExplorerJournal } from '@shared/journal';
 import { NearbyResult } from '@shared/nearby';
 import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '@shared/guide';
+import { McpStats } from '@shared/mcp';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
   AuthResult,
@@ -191,6 +192,9 @@ export abstract class HuntApi {
   abstract nearby(pos: { lat: number; lng: number }, radius: number, huntId?: number): Observable<NearbyResult>;
   /** Guide (§ 46) : ce que le guide comprend de la demande du joueur. */
   abstract understand(req: GuideRequest): Observable<GuideUnderstanding>;
+  /** Serveur MCP (§ 50) : une fiche ouverte depuis un lien d'assistant, et l'usage (relecteurs). */
+  abstract mcpVisit(catalogId: number): Observable<void>;
+  abstract mcpStats(): Observable<McpStats>;
   /** Décompte du guide (§ 46), connecté ou non : demandes restantes ce mois-ci. */
   abstract guideUsage(): Observable<GuideUsage>;
   /** Centres d'intérêt de l'équipe du joueur dans une chasse (§ 46). */

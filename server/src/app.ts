@@ -5,7 +5,7 @@ import pg from 'pg';
 import { z, ZodError } from 'zod';
 import { resolveSession } from './auth.js';
 import { config } from './config.js';
-import { describeError, HttpError } from './errors.js';
+import { describeError, forbidden, HttpError, unauthorized } from './errors.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { ClaudeRiddleWriter, RiddleWriter } from './assist/writer.js';
@@ -24,6 +24,7 @@ import { NearbyFinder, OsmNearby } from './nearby.js';
 import { ClaudeGuide, Guide } from './guide/guide.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createMcpServer } from './mcp/server.js';
+import { mcpStats, recordVisit } from './mcp/usage.js';
 import { ClaudeImageModerator, ImageModerator } from './photos/moderator.js';
 import { THEME_KEYS } from './generation/osm.js';
 import { NEARBY_MAX_RADIUS } from '../../shared/nearby.js';
@@ -305,7 +306,7 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   /* ----- Serveur MCP du catalogue (§ 50) : lecture seule, public, sans état. */
   app.post('/api/mcp', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (req, reply) => {
     reply.hijack();
-    const server = createMcpServer(service);
+    const server = createMcpServer(service, pool);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     reply.raw.on('close', () => {
       void transport.close();
@@ -313,6 +314,19 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     });
     await server.connect(transport);
     await transport.handleRequest(req.raw, reply.raw, req.body);
+  });
+  // Fiche ouverte depuis un lien donné par un assistant (« ?via=mcp ») : une visite comptée.
+  app.post('/api/mcp/visits', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req, reply) => {
+    const { catalogId } = z.object({ catalogId: id }).parse(req.body);
+    await recordVisit(pool, catalogId);
+    return reply.status(204).send();
+  });
+  // Usage du serveur MCP, pour les relecteurs : faut-il aller plus loin ?
+  app.get('/api/mcp/stats', async (req) => {
+    if (req.viewer === null) throw unauthorized();
+    const r = await pool.query('SELECT 1 FROM th_hunters WHERE htr_id = $1 AND htr_reviewer', [req.viewer]);
+    if (!r.rowCount) throw forbidden('Réservé aux relecteurs.');
+    return mcpStats(pool);
   });
   // Sans état : ni flux d'événements (GET), ni session à fermer (DELETE).
   const mcpMethodNotAllowed = async (_req: FastifyRequest, reply: FastifyReply) =>

@@ -9,6 +9,7 @@ import { Router, RouterLink } from '@angular/router';
 import { filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { priceLabel } from '@shared/store';
 import { CatalogEntry, Challenge, ReportCategory } from '@shared/models';
+import { MCP_VIA } from '@shared/mcp';
 import { REPORT_CATEGORIES } from '@shared/reports';
 import { formatDuration, MEASURED_MIN } from '@shared/rules';
 import { kmLabel } from '../../shared/distance';
@@ -55,6 +56,20 @@ export class CatalogEntryPage {
   readonly id = input.required({ transform: numberAttribute });
   /** « ?defi=12 » : un ami lance un défi « bats mon temps » avec sa partie (§ 28). */
   readonly defi = input<string | undefined>();
+  /** « ?via=mcp » : fiche ouverte depuis un lien donné par un assistant IA (§ 50), comptée une fois. */
+  readonly via = input<string | undefined>();
+  private readonly countVisit = effect(() => {
+    const id = this.id();
+    if (this.via() !== MCP_VIA) return;
+    const key = `th-mcp-visit-${id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      // Stockage indisponible : la visite compte quand même.
+    }
+    untracked(() => this.api.mcpVisit(id).subscribe({ error: () => undefined }));
+  });
   private readonly dareDialog = inject(Dare);
   protected readonly challenge = rxResource({
     params: () => {

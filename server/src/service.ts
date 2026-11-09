@@ -25,6 +25,7 @@ import {
   StepReport,
   AutonomyRow,
   CatalogDetail,
+  UpcomingSession,
   CatalogEntry,
   CatalogPublication,
   OrganizerProfile,
@@ -2403,6 +2404,57 @@ export class Service {
       usualTravel = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
     }
     return pickSurprise(candidates, { played, usualTravel, minutes: q.minutes, exclude: q.exclude });
+  }
+
+  /**
+   * Sessions publiques à venir (ou en cours) de tout le catalogue (§ 40, serveur MCP § 50) :
+   * dans les `days` jours, autour d'une position ou au lieu cherché, les plus proches d'abord.
+   */
+  async upcomingSessions(q: { near?: { lat: number; lng: number }; radius?: number; query?: string; days?: number; limit?: number }): Promise<UpcomingSession[]> {
+    const params: unknown[] = [q.days ?? 7];
+    const where = [SESSION, `sh.hun_begin < now() + $1 * interval '1 day'`, 'c.cat_withdrawn IS NULL'];
+    let distance = 'NULL::float8';
+    if (q.near) {
+      params.push(q.near.lat, q.near.lng);
+      const la = `$${params.length - 1}::float8`;
+      const lo = `$${params.length}::float8`;
+      distance = `(12742 * asin(sqrt(least(1, power(sin(radians(c.cat_lat - ${la}) / 2), 2)
+                   + cos(radians(${la})) * cos(radians(c.cat_lat)) * power(sin(radians(c.cat_lng - ${lo}) / 2), 2)))))`;
+      params.push(q.radius ?? 20);
+      where.push(`c.cat_lat IS NOT NULL AND ${distance} <= $${params.length}`);
+    }
+    if (q.query?.trim()) {
+      params.push(`%${q.query.trim().replace(/[%_\\]/g, '\\$&')}%`);
+      const n = `$${params.length}`;
+      where.push(`(sh.hun_name ILIKE ${n} OR sh.hun_location ILIKE ${n} OR c.cat_title ILIKE ${n} OR c.cat_location ILIKE ${n})`);
+    }
+    params.push(Math.min(20, q.limit ?? 10));
+    const list = await rows(
+      this.pool,
+      `${ENTRY_HUNTS} SELECT sh.hun_id, sh.hun_name, sh.hun_location, sh.hun_begin, sh.hun_end, sh.hun_startmode, sh.hun_interval, s.hst_code, o.htr_nickname,
+              c.cat_id, c.cat_title, ${distance} AS distance,
+              (SELECT count(*)::int FROM th_teams t WHERE t.tea_hunt_hun = sh.hun_id) AS teams
+       FROM eh JOIN th_hunts sh ON sh.hun_id = eh.hun_id JOIN th_catalog c ON c.cat_id = eh.cat_id
+       JOIN th_huntstatus s ON s.hst_id = sh.hun_status_hst JOIN th_hunters o ON o.htr_id = sh.hun_owner_htr
+       WHERE ${where.join(' AND ')} ORDER BY sh.hun_begin, sh.hun_id LIMIT $${params.length}`,
+      params,
+    );
+    return list.map((x) => ({
+      huntId: x['hun_id'],
+      name: x['hun_name'],
+      organizerNickname: x['htr_nickname'],
+      location: x['hun_location'],
+      begin: (x['hun_begin'] as Date).toISOString(),
+      end: (x['hun_end'] as Date).toISOString(),
+      status: x['hst_code'],
+      teams: x['teams'],
+      startMode: x['hun_startmode'] === 2 ? 'staggered' : 'mass',
+      interval: x['hun_interval'],
+      mine: false,
+      catalogId: x['cat_id'],
+      catalogTitle: x['cat_title'],
+      distanceKm: x['distance'] === null ? null : Math.round(Number(x['distance']) * 10) / 10,
+    }));
   }
 
   async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
