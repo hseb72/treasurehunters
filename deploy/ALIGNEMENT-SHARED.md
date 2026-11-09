@@ -8,6 +8,11 @@ Comparaison de l'installation actuelle de SecretTracks (`deploy/`, chart `app`
 charts `app` 1.0.0 et `platform` 1.0.0 (publiés : tags `app-1.0.0`,
 `platform-1.0.0`). État comparé : `master` de treasurehunters au 21/10/2026.
 
+> **Mise à jour (9/11/2026).** Depuis, `master` a appliqué une bonne partie de
+> ce plan (PR #47 et #48 : chart `app` 1.0.0, deux namespaces, manifestes locaux
+> retirés, datastores mutualisés). Les écarts ci-dessous décrivent l'état du
+> 21/10 ; ceux qui restent ouverts sont à revoir au regard de `deploy/` actuel.
+
 ## En bref
 
 L'installation suit l'**ancien** modèle `shared` (≤ 0.5.0) : un seul namespace
