@@ -22,6 +22,8 @@ import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../shared/practical
 import { Service, Viewer } from './service.js';
 import { NearbyFinder, OsmNearby } from './nearby.js';
 import { ClaudeGuide, Guide } from './guide/guide.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createMcpServer } from './mcp/server.js';
 import { ClaudeImageModerator, ImageModerator } from './photos/moderator.js';
 import { THEME_KEYS } from './generation/osm.js';
 import { NEARBY_MAX_RADIUS } from '../../shared/nearby.js';
@@ -299,6 +301,24 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
     const interests = b.huntId ? await service.interestsOf(req.viewer, b.huntId) : [];
     return nearby.find({ lat: b.lat, lng: b.lng }, b.radius, interests);
   });
+
+  /* ----- Serveur MCP du catalogue (§ 50) : lecture seule, public, sans état. */
+  app.post('/api/mcp', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (req, reply) => {
+    reply.hijack();
+    const server = createMcpServer(service);
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
+    reply.raw.on('close', () => {
+      void transport.close();
+      void server.close();
+    });
+    await server.connect(transport);
+    await transport.handleRequest(req.raw, reply.raw, req.body);
+  });
+  // Sans état : ni flux d'événements (GET), ni session à fermer (DELETE).
+  const mcpMethodNotAllowed = async (_req: FastifyRequest, reply: FastifyReply) =>
+    reply.status(405).header('allow', 'POST').send({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
+  app.get('/api/mcp', mcpMethodNotAllowed);
+  app.delete('/api/mcp', mcpMethodNotAllowed);
 
   /* ----- Guide (§ 46) : la demande transcrite n'est pas enregistrée. */
   const interest = z.object({
