@@ -1,0 +1,93 @@
+{
+  "key": "lyon-04-croix-rousse",
+  "name": "La Croix-Rousse, la colline qui travaille",
+  "location": "Lyon 4e, plateau de la Croix-Rousse",
+  "summary": "Sur le plateau des canuts, les tisserands de la soie : la statue de l'inventeur du métier à cartes perforées, l'atelier où battent encore les métiers, le plus grand mur peint en trompe-l'œil de la ville, deux églises de l'ancienne commune et le gros caillou venu des Alpes.",
+  "startText": "Rendez-vous au pied de la statue de Jacquard, place de la Croix-Rousse (métro Croix-Rousse).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place de la Croix-Rousse",
+      "lat": 45.77478,
+      "lng": 4.83209,
+      "riddle": "Partez vers le nord-est par la rue d'un ancien jeu de boule et de maillet, puis gagnez la rue d'Ivry. Au numéro 10, à environ 550 pas, un atelier fait encore battre les métiers à tisser des ouvriers de la soie.",
+      "hints": [
+        "Le jeu de mail, ancêtre du croquet : prenez la rue du Mail.",
+        "Une démonstration de tissage y est proposée.",
+        "La Maison des Canuts, 10 rue d'Ivry."
+      ],
+      "photo": "File:Place_de_la_Croix-Rousse_(Lyon)_-_banc_et_manège_au_fond.jpg"
+    },
+    {
+      "title": "Maison des Canuts",
+      "lat": 45.77711,
+      "lng": 4.83369,
+      "address": "10, rue d'Ivry",
+      "arrival": "On appelait canuts les ouvriers de la soie de la Croix-Rousse. Leurs ateliers, aux plafonds très hauts, accueillaient les grands métiers Jacquard. Leurs révoltes de 1831 et 1834 sont restées célèbres : « Vivre en travaillant ou mourir en combattant ».",
+      "riddle": "Partez vers l'ouest par la rue d'un marchand protestant de Toulouse, supplicié en 1762 et réhabilité grâce à Voltaire. À environ 900 pas, au carrefour du boulevard des tisserands, un immense mur peint en trompe-l'œil montre un escalier, des fenêtres et des habitants du quartier.",
+      "hints": [
+        "Le marchand est Jean Calas : prenez la rue Calas vers l'ouest.",
+        "Le boulevard porte le nom des ouvriers de la soie.",
+        "Le Mur des Canuts, à l'angle du boulevard des Canuts et de la rue Denfert-Rochereau."
+      ],
+      "photo": "File:La_Maison_des_Canuts_Panneau.JPG"
+    },
+    {
+      "title": "Mur des Canuts",
+      "lat": 45.77794,
+      "lng": 4.82798,
+      "arrival": "Peint pour la première fois en 1987 et repeint à plusieurs reprises depuis, le Mur des Canuts est l'une des plus grandes fresques en trompe-l'œil d'Europe. Les personnages vieillissent d'une version à l'autre.",
+      "riddle": "Descendez vers le sud par la rue de l'inventeur du métier à cartes perforées, celui dont vous avez vu la statue au départ. À environ 650 pas, un sanctuaire de briques et de pierre, achevé au début du XXᵉ siècle, porte le nom d'un évêque d'Hippone.",
+      "hints": [
+        "L'inventeur est Joseph-Marie Jacquard : prenez la rue Jacquard.",
+        "L'évêque d'Hippone a écrit les Confessions.",
+        "L'église Saint-Augustin, rue Jacquard."
+      ]
+    },
+    {
+      "title": "Église Saint-Augustin",
+      "lat": 45.77597,
+      "lng": 4.82473,
+      "arrival": "Construite au début du XXᵉ siècle sur les plans de l'architecte Augustin Chomel, l'église Saint-Augustin porte le nom de l'évêque d'Hippone, auteur des Confessions, et le prénom de son architecte.",
+      "riddle": "Partez vers le nord-est et suivez la rue d'un maire de Lyon élu en 1870. Après environ 1 400 pas, un sanctuaire plus ancien, du milieu du XIXᵉ siècle, était la paroisse du plateau quand celui-ci formait encore une commune à part.",
+      "hints": [
+        "Le maire est Jacques-Louis Hénon : suivez la rue Hénon.",
+        "Son saint patron, premier évêque de Paris, est aussi celui d'une basilique royale.",
+        "L'église Saint-Denis de la Croix-Rousse, rue Hénon."
+      ],
+      "photo": "File:Église_Saint-Augustin_de_Lyon_(octobre_2021).jpg"
+    },
+    {
+      "title": "Église Saint-Denis de la Croix-Rousse",
+      "lat": 45.77972,
+      "lng": 4.83183,
+      "arrival": "La Croix-Rousse est restée une commune indépendante jusqu'à son rattachement à Lyon en 1852. Son nom viendrait d'une croix de pierre rousse qui se dressait sur le plateau.",
+      "riddle": "Redescendez vers le sud par la grande rue commerçante du plateau, puis suivez vers l'est le boulevard qui porte le nom de la colline. À son extrémité, à environ 1 200 pas, un énorme rocher posé sur un belvédère domine le Rhône.",
+      "hints": [
+        "La Grande-Rue de la Croix-Rousse, puis le boulevard de la Croix-Rousse vers l'est.",
+        "On l'a trouvé en creusant sous la colline.",
+        "Le Gros Caillou, au bout du boulevard de la Croix-Rousse."
+      ],
+      "photo": "File:Église_Saint-Denis-de-la-Croix-Rousse_de_Lyon_en_octobre_2021.jpg"
+    },
+    {
+      "title": "Le Gros Caillou",
+      "lat": 45.77475,
+      "lng": 4.83483,
+      "arrival": "Bravo ! Ce bloc de roche a été apporté jusqu'ici par un glacier des Alpes il y a des dizaines de milliers d'années, puis mis au jour lors de travaux dans la colline. Il est devenu le symbole de la Croix-Rousse, avec sa vue sur le Rhône et les Alpes par temps clair."
+    }
+  ]
+}

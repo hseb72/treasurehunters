@@ -1,0 +1,93 @@
+{
+  "key": "lyon-06-brotteaux-tete-dor",
+  "name": "Des Brotteaux au parc de la Tête d'Or",
+  "location": "Lyon 6e, Brotteaux et parc de la Tête d'Or",
+  "summary": "Du quartier bourgeois des Brotteaux au plus grand parc urbain de Lyon : une gare devenue salle des ventes, l'église du premier évêque de Lyon, la place du maréchal Lyautey, le pont du premier franchissement moderne du Rhône, la grande grille du parc et le monument aux morts de l'île du Souvenir.",
+  "startText": "Rendez-vous devant l'ancienne gare des Brotteaux, place Jules-Ferry (métro Brotteaux). Le parc de la Tête d'Or ferme le soir : faites le parcours en journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "toilets",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Ancienne gare des Brotteaux",
+      "lat": 45.76728,
+      "lng": 4.85978,
+      "riddle": "Partez vers l'ouest par la rue du maréchal à la casquette, conquérant de l'Algérie, et marchez une vingtaine de minutes jusqu'à un sanctuaire à coupole, dédié au premier évêque de Lyon, martyrisé en 177.",
+      "hints": [
+        "Le maréchal à la casquette est Bugeaud : suivez la rue Bugeaud vers l'ouest.",
+        "L'église ressemble à un temple antique, avec sa colonnade.",
+        "L'église Saint-Pothin, place Edgar-Quinet."
+      ],
+      "photo": "File:Lyon_-_Gare_des_Brotteaux_2015.JPG"
+    },
+    {
+      "title": "Église Saint-Pothin",
+      "lat": 45.7662,
+      "lng": 4.84601,
+      "arrival": "Construite à partir de 1843 sur les plans de Christophe Crépet, l'église est dédiée à saint Pothin, premier évêque de Lyon, mort en 177 lors de la persécution des chrétiens.",
+      "riddle": "Partez vers le nord-ouest par la rue de l'avocat qui défendit Louis XVI devant la Convention, à environ 850 pas, jusqu'à une grande place ronde qui porte le nom du militaire qui fut résident général au Maroc.",
+      "hints": [
+        "L'avocat est Raymond de Sèze : prenez la rue de Sèze.",
+        "La place est au débouché du pont Morand.",
+        "La place du Maréchal-Lyautey."
+      ],
+      "photo": "File:Église_Saint-Pothin_de_Lyon_-_Clocher_et_coupole_côté_sud.jpg"
+    },
+    {
+      "title": "Place du Maréchal-Lyautey",
+      "lat": 45.7688,
+      "lng": 4.8422,
+      "arrival": "Hubert Lyautey, maréchal de France, fut résident général au Maroc de 1912 à 1925. La place ouvre le quartier des Brotteaux sur le Rhône.",
+      "riddle": "Partez vers l'ouest, à environ 400 pas, jusqu'au milieu du pont qui porte le nom de l'architecte qui lança ici, en 1774, un pont de bois sur le Rhône.",
+      "hints": [
+        "L'architecte s'appelait Antoine Morand.",
+        "Il relie le 6ᵉ arrondissement aux Terreaux.",
+        "Le pont Morand, en son milieu."
+      ]
+    },
+    {
+      "title": "Pont Morand",
+      "lat": 45.76862,
+      "lng": 4.83957,
+      "arrival": "En 1774, l'architecte Antoine Morand lança ici un pont de bois : il ouvrit les Brotteaux, alors des terrains inondables, à l'urbanisation. Le pont actuel est un pont moderne qui porte toujours son nom.",
+      "riddle": "Revenez sur la rive gauche et remontez vers le nord-est les berges du grand fleuve. Au bout de vingt minutes de marche environ, une monumentale grille dorée ouvre le plus grand parc de la ville.",
+      "hints": [
+        "Suivez le Rhône vers l'amont.",
+        "La grille fait face à la place du Général-Leclerc.",
+        "La porte des Enfants-du-Rhône, entrée du parc de la Tête d'Or."
+      ]
+    },
+    {
+      "title": "Porte des Enfants-du-Rhône",
+      "lat": 45.77725,
+      "lng": 4.8452,
+      "arrival": "Créé à partir de 1857 par les frères Bühler, paysagistes, le parc de la Tête d'Or s'étend sur plus de cent hectares. Son nom viendrait d'une légende : une tête de Christ en or aurait été enterrée ici.",
+      "riddle": "Entrez dans le parc et suivez vers le nord-est la rive du grand lac. Sur une petite île reliée au rivage par un souterrain, une haute sculpture de pierre blanche honore les Lyonnais tombés pendant la Première Guerre mondiale. Environ 900 pas.",
+      "hints": [
+        "L'île s'appelle l'île du Souvenir.",
+        "Le monument a été inauguré en 1924.",
+        "Le monument aux morts de l'île du Souvenir, sur le lac du parc."
+      ]
+    },
+    {
+      "title": "Monument aux morts de l'île du Souvenir",
+      "lat": 45.78057,
+      "lng": 4.8518,
+      "arrival": "Bravo ! Inauguré en 1924, ce monument dessiné par l'architecte lyonnais Tony Garnier rappelle le souvenir des Lyonnais tombés pendant la Grande Guerre. On y accède par un passage souterrain sous le lac.",
+      "photo": "File:Monument_aux_morts_-_(Parc_de_la_Tête_d'Or)_-_DSC05274.jpg"
+    }
+  ]
+}

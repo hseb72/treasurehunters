@@ -1,0 +1,93 @@
+{
+  "key": "lyon-01-terreaux-pentes",
+  "name": "Des Terreaux aux pentes, l'empereur et les canuts",
+  "location": "Lyon 1er, Terreaux et pentes de la Croix-Rousse",
+  "summary": "Une boucle au pied de la Croix-Rousse : la fontaine que Bordeaux n'a pas voulue, l'opéra coiffé de verre de Jean Nouvel, l'amphithéâtre où moururent les premiers martyrs de Lyon, la cour des Voraces et son escalier géant, puis la grande fresque où trente Lyonnais célèbres vous regardent passer.",
+  "startText": "Rendez-vous devant la fontaine Bartholdi, place des Terreaux (métro Hôtel de Ville – Louis Pradel). Ça grimpe sur les pentes : de bonnes chaussures suffisent. La cour des Voraces se traverse en journée.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Fontaine Bartholdi",
+      "lat": 45.76763,
+      "lng": 4.83346,
+      "riddle": "Contournez par l'est le grand hôtel de ville qui ferme la place, et gagnez la place qui porte le nom d'un genre théâtral où l'on rit. À moins de 450 pas, une salle de spectacle du XIXᵉ siècle a été coiffée d'une immense voûte de verre et d'acier par un architecte d'aujourd'hui.",
+      "hints": [
+        "Le genre où l'on rit, c'est la comédie : la place de la Comédie est derrière l'hôtel de ville.",
+        "L'architecte est Jean Nouvel.",
+        "L'Opéra de Lyon, place de la Comédie."
+      ],
+      "photo": "File:Lyon_1er_-_Fontaine_Bartholdi_-_Statue_et_bassin.jpg"
+    },
+    {
+      "title": "Opéra de Lyon",
+      "lat": 45.7677,
+      "lng": 4.8362,
+      "arrival": "Le théâtre de 1831 a gardé ses façades, mais Jean Nouvel l'a vidé et coiffé d'une voûte de verre : le nouvel Opéra a ouvert en 1993.",
+      "riddle": "Partez vers le nord-ouest et grimpez les pentes jusqu'à la rue qui rappelle les tablettes de bronze d'un empereur né à Lyon, retrouvées sur ces pentes au XVIᵉ siècle. Le long de cette rue, une arène romaine en partie dégagée accueillait chaque année les délégués des soixante peuples gaulois. Comptez une dizaine de minutes.",
+      "hints": [
+        "L'empereur est Claude, né à Lugdunum : la rue des Tables-Claudiennes.",
+        "Sainte Blandine y aurait été martyrisée en 177.",
+        "L'amphithéâtre des Trois Gaules, rue des Tables-Claudiennes."
+      ],
+      "photo": "File:Place_de_la_Comédie_(Lyon,_2025).jpg"
+    },
+    {
+      "title": "Amphithéâtre des Trois Gaules",
+      "lat": 45.77067,
+      "lng": 4.83052,
+      "arrival": "Construit en l'an 19 de notre ère, l'amphithéâtre accueillait l'assemblée des soixante peuples des trois Gaules. Selon la tradition, Blandine et les premiers martyrs chrétiens de Lyon y périrent en 177.",
+      "riddle": "Partez vers le nord-est et suivez jusqu'au bout la rue du père de l'Encyclopédie. Elle débouche, à environ 700 pas, sur une petite place : au numéro 9, une porte ouvre sur un immeuble où un escalier monumental de six étages abritait les réunions d'une société de tisserands rebelles.",
+      "hints": [
+        "Le père de l'Encyclopédie est Denis Diderot : la rue Diderot mène à la place Colbert.",
+        "Ces tisserands se surnommaient eux-mêmes les « Voraces ».",
+        "La cour des Voraces, 9 place Colbert."
+      ],
+      "photo": "File:03._Amphithéatre_des_Trois_Gaules.JPG"
+    },
+    {
+      "title": "Cour des Voraces",
+      "lat": 45.77196,
+      "lng": 4.83467,
+      "arrival": "Cet immeuble des années 1840 est traversé par une traboule ; son escalier à six étages est l'un des plus spectaculaires de Lyon. La société des Voraces, des canuts, y aurait tenu ses réunions pendant la révolution de 1848.",
+      "riddle": "Redescendez vers le sud-ouest par la plus célèbre montée des pentes, celle dont le nom dit simplement qu'elle est grande et qu'elle grimpe. Au bas, gagnez une place plantée de platanes qui porte le nom d'un maire de Lyon sous Napoléon. Environ 800 pas.",
+      "hints": [
+        "La montée de la Grande-Côte descend vers le bas des pentes.",
+        "Le maire s'appelait Nicolas Fay de Sathonay.",
+        "La place Sathonay."
+      ],
+      "photo": "File:Cour_des_Voraces_-_Escalier_central_avec_vue_sur_l'escalier_monumental.jpg"
+    },
+    {
+      "title": "Place Sathonay",
+      "lat": 45.76912,
+      "lng": 4.83044,
+      "arrival": "La place porte le nom de Nicolas Fay de Sathonay, maire de Lyon sous le Premier Empire. Ombragée de platanes, elle est l'un des lieux de rendez-vous des pentes.",
+      "riddle": "Partez vers l'ouest par la rue du major général né à Lyon qui fit fortune en Inde et laissa son argent pour fonder une école. Au bout, sur le quai, à environ 450 pas, trente célébrités de la ville vous regardent depuis les fenêtres d'un immeuble peint.",
+      "hints": [
+        "Le major général est Claude Martin : la rue de la Martinière, comme son école.",
+        "Vous y reconnaîtrez Paul Bocuse et les frères Lumière.",
+        "La fresque des Lyonnais, angle de la rue de la Martinière et du quai Saint-Vincent."
+      ],
+      "photo": "File:Place_Sathonay_(Lyon,_2025).jpg"
+    },
+    {
+      "title": "Fresque des Lyonnais",
+      "lat": 45.76811,
+      "lng": 4.82803,
+      "arrival": "Bravo ! Peinte en 1994, cette fresque en trompe-l'œil réunit une trentaine de Lyonnais célèbres, d'hier et d'aujourd'hui : Paul Bocuse, les frères Lumière, Antoine de Saint-Exupéry et son Petit Prince, l'abbé Pierre… Saurez-vous les reconnaître tous ?"
+    }
+  ]
+}
