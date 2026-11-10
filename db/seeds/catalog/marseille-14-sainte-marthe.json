@@ -1,0 +1,100 @@
+{
+  "key": "marseille-14-sainte-marthe",
+  "name": "De Saint-Barthélemy à Sainte-Marthe, parcs et scènes du nord",
+  "location": "Marseille 14e, Saint-Barthélemy, le Merlan et Sainte-Marthe",
+  "summary": "Les quartiers nord comme on les connaît peu : le parc de Font-Obscure et son théâtre de plein air, le musée de la Moto, la scène nationale du Merlan, le parc des Papillons, une bastide et l'église de Sainte-Marthe, la sainte qui dompta la Tarasque.",
+  "startText": "Rendez-vous devant l'église Saint-Barthélemy, avenue Claude-Monet (métro Malpassé ou bus). Les parcs et le musée ont des horaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Église Saint-Barthélemy",
+      "lat": 43.32387,
+      "lng": 5.39364,
+      "riddle": "Partez vers le nord-est par le boulevard du saint portugais qui fonda l'ordre des Frères hospitaliers, puis par l'avenue d'un peintre de paysages, Camille. À environ 1 400 pas, un parc porte le nom d'une source sombre.",
+      "hints": [
+        "Le boulevard Saint-Jean-de-Dieu, puis l'avenue Corot.",
+        "Font veut dire source en provençal.",
+        "Le parc de Font-Obscure."
+      ]
+    },
+    {
+      "title": "Parc de Font-Obscure",
+      "lat": 43.3269,
+      "lng": 5.40142,
+      "arrival": "Le parc de Font-Obscure porte un nom qui évoque une source, une « font » obscure. Il possède un théâtre de plein air.",
+      "riddle": "Partez vers le nord-est par la rue de l'auteur de L'Enfant, ancien communard. À environ 500 pas, une collection publique expose des deux-roues à moteur.",
+      "hints": [
+        "L'écrivain est Jules Vallès : la rue Jules-Vallès.",
+        "On y voit des motocyclettes anciennes.",
+        "Le musée de la Moto."
+      ]
+    },
+    {
+      "title": "Musée de la Moto",
+      "lat": 43.32813,
+      "lng": 5.40402,
+      "arrival": "Le musée de la Moto de Marseille présente une collection de motocyclettes, des premiers engins à moteur aux modèles de course.",
+      "riddle": "Partez vers le nord-ouest par l'avenue de l'auteur de Carmen, qui fut aussi inspecteur des monuments historiques. À environ 1 000 pas, une grande salle de spectacle programme théâtre, danse et cirque.",
+      "hints": [
+        "L'écrivain est Prosper Mérimée : l'avenue Prosper-Mérimée.",
+        "On l'appelait autrefois le Merlan.",
+        "Le ZEF, scène nationale."
+      ]
+    },
+    {
+      "title": "Le ZEF, scène nationale",
+      "lat": 43.33075,
+      "lng": 5.39867,
+      "arrival": "Ce théâtre est l'une des scènes nationales de Marseille. Longtemps appelé le Merlan, il programme théâtre, danse et cirque au cœur des quartiers nord.",
+      "riddle": "Partez vers le nord par l'avenue de l'acteur qui fut César dans la trilogie de Pagnol, puis par celle du peintre des Maisons à l'Estaque. À environ 1 500 pas, un grand parc porte le nom d'insectes aux ailes colorées.",
+      "hints": [
+        "L'avenue Raimu, puis l'avenue Georges-Braque.",
+        "Les insectes sont des papillons.",
+        "Le parc urbain des Papillons."
+      ]
+    },
+    {
+      "title": "Parc des Papillons",
+      "lat": 43.33746,
+      "lng": 5.40044,
+      "arrival": "Le parc urbain des Papillons offre un grand espace vert aux habitants des quartiers nord, entre les cités et les anciennes campagnes.",
+      "riddle": "Continuez vers le nord par l'avenue qui porte le nom d'un parc de famille noble, à environ 500 pas. Une ancienne maison de campagne porte le nom d'une famille d'inventeurs de ballons.",
+      "hints": [
+        "L'avenue du Parc-Mongolfier.",
+        "Les frères Montgolfier ont inventé la montgolfière.",
+        "La bastide de Montgolfier."
+      ]
+    },
+    {
+      "title": "Bastide de Montgolfier",
+      "lat": 43.33959,
+      "lng": 5.40154,
+      "arrival": "Comme toute la campagne marseillaise, le quartier de Sainte-Marthe était parsemé de bastides, les maisons de campagne des familles aisées. Celle-ci porte le nom de Montgolfier-la-Tour-du-Pin.",
+      "riddle": "Partez vers l'ouest, à environ 950 pas, jusqu'au plateau du sanctuaire du quartier, dédié à la sainte qui dompta la Tarasque.",
+      "hints": [
+        "Montez au plateau de l'Église.",
+        "La Tarasque terrorisait les bords du Rhône.",
+        "L'église Sainte-Marthe."
+      ],
+      "photo": "File:Bastide-montgolfier.jpg"
+    },
+    {
+      "title": "Église Sainte-Marthe",
+      "lat": 43.33923,
+      "lng": 5.39566,
+      "arrival": "Bravo ! Selon la légende provençale, sainte Marthe, sœur de Lazare et de Marie-Madeleine, débarqua en Provence et dompta la Tarasque, un monstre qui terrorisait les bords du Rhône, à Tarascon.",
+      "photo": "File:Eglise_Sainte_Marthe.JPG"
+    }
+  ]
+}

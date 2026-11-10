@@ -1,0 +1,102 @@
+{
+  "key": "marseille-15-aygalades",
+  "name": "Les Aygalades, la cascade cachée du nord",
+  "location": "Marseille 15e, les Aygalades, la Viste et Saint-Louis",
+  "summary": "Au nord de Marseille, l'eau a donné son nom à un quartier : l'église des Aygalades, la cascade cachée dans le domaine de la Cité des arts de la rue, une bastide, l'église de la Viste avec sa vue sur la mer, le parc Brégante et l'église de béton de Saint-Louis.",
+  "startText": "Rendez-vous devant l'église des Aygalades (bus depuis Bougainville ou Gèze). La cascade se trouve dans le domaine de la Cité des arts de la rue, ouvert à certaines heures : renseignez-vous avant de venir.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 80,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Église des Aygalades",
+      "lat": 43.35466,
+      "lng": 5.36605,
+      "riddle": "Partez vers le sud-ouest par le chemin qui porte le nom d'une bastide voisine. À environ 550 pas, un ruisseau fait une chute d'eau dans la verdure.",
+      "hints": [
+        "Le chemin de la Guillermy, puis la rue Augustin-Roux.",
+        "Le ruisseau porte le nom du quartier.",
+        "La cascade des Aygalades, dans le domaine de la Cité des arts de la rue."
+      ],
+      "photo": "File:Aygalades-église-façade.JPG"
+    },
+    {
+      "title": "Cascade des Aygalades",
+      "lat": 43.35319,
+      "lng": 5.36321,
+      "arrival": "Le ruisseau des Aygalades forme ici une cascade cachée dans la verdure. Le nom du quartier viendrait du provençal « aigo », l'eau.",
+      "riddle": "Faites quelques pas vers l'est, à environ 250 pas. Dans d'anciens bâtiments industriels, des compagnies de théâtre de rue et de cirque ont installé leurs ateliers.",
+      "hints": [
+        "Vous êtes déjà dans son domaine.",
+        "On y fabrique des spectacles pour la rue.",
+        "La Cité des arts de la rue."
+      ]
+    },
+    {
+      "title": "Cité des arts de la rue",
+      "lat": 43.3528,
+      "lng": 5.36467,
+      "arrival": "Installée dans d'anciens bâtiments industriels, la Cité des arts de la rue réunit des compagnies de théâtre de rue, de cirque et d'arts plastiques.",
+      "riddle": "Partez vers le nord par la traverse du Cimetière, puis par le chemin qui porte le nom de votre destination. À environ 1 100 pas, une ancienne maison de campagne domine le quartier.",
+      "hints": [
+        "La traverse du Cimetière, puis le chemin de la Guillermy.",
+        "C'est une bastide.",
+        "La bastide de la Guillermy."
+      ]
+    },
+    {
+      "title": "Bastide de la Guillermy",
+      "lat": 43.35778,
+      "lng": 5.36324,
+      "arrival": "La bastide de la Guillermy est l'une des anciennes maisons de campagne qui parsemaient les collines du nord de Marseille avant l'urbanisation.",
+      "riddle": "Partez vers l'ouest par la rue qui mène à la commune voisine du nord, celle des vallons. À environ 1 100 pas, le sanctuaire du quartier perché, celui de la belle vue, est dédié à l'apôtre des nations.",
+      "hints": [
+        "La rue de Septèmes, vers Septèmes-les-Vallons.",
+        "L'apôtre des nations est Paul.",
+        "L'église Saint-Paul de la Viste."
+      ],
+      "photo": "File:Guillermy-vue-est2.JPG"
+    },
+    {
+      "title": "Église Saint-Paul de la Viste",
+      "lat": 43.35972,
+      "lng": 5.35667,
+      "arrival": "La Viste doit son nom à sa vue : du haut de la colline, le regard embrasse la rade de Marseille et les îles.",
+      "riddle": "Descendez vers le sud par le boulevard de la capitale du Viêt Nam, puis par la traverse de l'aqueduc. À environ 1 100 pas, un parc public domine la rade.",
+      "hints": [
+        "Le boulevard d'Hanoï, puis la traverse de l'Aqueduc.",
+        "Il porte le nom d'une famille du quartier.",
+        "Le parc Brégante."
+      ],
+      "photo": "File:Église_de_la_Viste_4.jpg"
+    },
+    {
+      "title": "Parc Brégante",
+      "lat": 43.35497,
+      "lng": 5.35584,
+      "arrival": "Le parc Brégante est l'un des jardins publics des hauteurs de la Viste, au-dessus des bassins du port.",
+      "riddle": "Descendez vers le sud jusqu'au chemin qui mène à la commune voisine du Rove, à environ 1 500 pas. Un sanctuaire de béton des années 1930 est dédié au roi croisé.",
+      "hints": [
+        "Le chemin de Saint-Louis-au-Rove.",
+        "Le roi croisé est Louis IX.",
+        "L'église Saint-Louis, chemin de Saint-Louis-au-Rove."
+      ]
+    },
+    {
+      "title": "Église Saint-Louis",
+      "lat": 43.3484,
+      "lng": 5.35798,
+      "arrival": "Bravo ! Construite dans les années 1930 sur les plans de l'architecte Jean-Louis Sourdeau, l'église Saint-Louis est l'une des premières églises de béton de Marseille. Elle est dédiée au roi Louis IX, qui s'embarqua pour la croisade depuis Aigues-Mortes.",
+      "photo": "File:Marseille-église-Saint-Louis.jpg"
+    }
+  ]
+}

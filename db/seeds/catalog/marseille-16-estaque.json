@@ -1,0 +1,113 @@
+{
+  "key": "marseille-16-estaque",
+  "name": "L'Estaque, le village des peintres",
+  "location": "Marseille 16e, L'Estaque",
+  "summary": "Le petit port où Cézanne, Braque, Renoir ou Dufy sont venus peindre la lumière de la rade : la gare, le parc de la Minerve, l'église du village, le monument aux morts, l'esplanade du mistral, le jardin de la falaise, le chemin des peintres et le viaduc des Riaux. Sans oublier les chichis frégis !",
+  "startText": "Rendez-vous devant la gare de L'Estaque (train TER ou bus 35). Les jardins ferment le soir.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Gare de L'Estaque",
+      "lat": 43.36254,
+      "lng": 5.32159,
+      "riddle": "Partez vers l'ouest par la rue Le Pelletier puis le boulevard Roger-Chieusse, à environ 750 pas. Un parc perché porte le nom de la déesse romaine de la sagesse.",
+      "hints": [
+        "La déesse est Minerve.",
+        "Il domine le village.",
+        "Le parc de la Minerve, boulevard Roger-Chieusse."
+      ]
+    },
+    {
+      "title": "Parc de la Minerve",
+      "lat": 43.36324,
+      "lng": 5.31708,
+      "arrival": "Le parc de la Minerve domine le village de L'Estaque. De ses hauteurs, on comprend ce qui attira les peintres : la rade, les toits de tuiles et la lumière.",
+      "riddle": "Descendez vers le sud-ouest par la montée qui porte le nom des bâtiments où l'on apprend à lire. À environ 600 pas, le sanctuaire du village est dédié à l'apôtre délivré de ses chaînes.",
+      "hints": [
+        "La montée des Écoles.",
+        "« Ès liens » veut dire « dans les liens ».",
+        "L'église Saint-Pierre-ès-Liens, place de l'Église."
+      ]
+    },
+    {
+      "title": "Église Saint-Pierre-ès-Liens",
+      "lat": 43.36152,
+      "lng": 5.31423,
+      "arrival": "L'église du village est dédiée à saint Pierre délivré de ses chaînes : « ès liens » veut dire « dans les liens ».",
+      "riddle": "Descendez vers le sud-ouest jusqu'à l'allée qui porte le nom des hommes de la mer, à environ 350 pas. Un petit square face au port garde la mémoire des enfants du village tombés à la guerre.",
+      "hints": [
+        "L'allée des Pêcheurs.",
+        "Le square porte le nom de ce qu'il abrite.",
+        "Le monument aux morts de L'Estaque, square du Monument-aux-Morts."
+      ],
+      "photo": "File:L'Estaque_-_Église_de_l'Estaque.jpg"
+    },
+    {
+      "title": "Monument aux morts de L'Estaque",
+      "lat": 43.36072,
+      "lng": 5.31248,
+      "arrival": "Le monument aux morts de L'Estaque, dressé dans un petit square face au port, rappelle les pêcheurs et les ouvriers du village tombés à la guerre.",
+      "riddle": "Longez le port vers le nord-ouest par la promenade qui rappelle les baignades d'autrefois. À environ 300 pas, une esplanade porte le nom du vent du nord qui balaie la rade.",
+      "hints": [
+        "La promenade des Bains.",
+        "Le vent est le mistral.",
+        "L'Espace Mistral."
+      ]
+    },
+    {
+      "title": "Espace Mistral",
+      "lat": 43.3613,
+      "lng": 5.3107,
+      "arrival": "L'esplanade porte le nom du vent du nord qui souffle si fort sur la rade. Sur le port, on déguste les chichis frégis, longs beignets parfumés à la fleur d'oranger, spécialité de L'Estaque.",
+      "riddle": "Continuez vers le nord-ouest, puis montez par le boulevard qui porte le nom de votre destination. À environ 500 pas, un jardin perché domine le port.",
+      "hints": [
+        "Le boulevard de la Falaise.",
+        "Il porte le nom du rocher qui le soutient.",
+        "Le jardin de la Falaise."
+      ]
+    },
+    {
+      "title": "Jardin de la Falaise",
+      "lat": 43.36261,
+      "lng": 5.30802,
+      "arrival": "Paul Cézanne a peint L'Estaque à de nombreuses reprises à partir des années 1870. Ses vues de la rade, prises depuis les hauteurs, ont inspiré les peintres qui sont venus après lui.",
+      "riddle": "Suivez le même boulevard vers le nord-ouest, à environ 250 pas. Un panneau y reproduit un tableau peint à cet endroit : vous êtes sur les traces des artistes.",
+      "hints": [
+        "Toujours le boulevard de la Falaise.",
+        "Cézanne et Braque ont peint ici.",
+        "Le chemin des peintres, boulevard de la Falaise."
+      ]
+    },
+    {
+      "title": "Chemin des peintres",
+      "lat": 43.36315,
+      "lng": 5.30679,
+      "arrival": "En 1908, Georges Braque peignit ici ses Maisons à l'Estaque. Devant ces toiles, le critique Louis Vauxcelles parla de « petits cubes » : le mot « cubisme » était né. Des panneaux le long du chemin reproduisent les tableaux à l'endroit où ils ont été peints.",
+      "riddle": "Montez vers le nord-ouest par la montée Antoine-Castejon jusqu'au vallon voisin, à environ 450 pas. Un grand pont de pierre à arches y porte la voie ferrée de la Côte Bleue.",
+      "hints": [
+        "La montée Antoine-Castejon mène au vallon des Riaux.",
+        "Le train longe ensuite la mer jusqu'à Miramas.",
+        "Le viaduc des Riaux."
+      ]
+    },
+    {
+      "title": "Viaduc des Riaux",
+      "lat": 43.36487,
+      "lng": 5.3056,
+      "arrival": "Bravo ! Le viaduc des Riaux porte la ligne de chemin de fer de la Côte Bleue, qui longe la mer jusqu'à Miramas. Le vallon des Riaux abritait aussi une grande usine métallurgique, dont il reste le pavillon d'entrée."
+    }
+  ]
+}

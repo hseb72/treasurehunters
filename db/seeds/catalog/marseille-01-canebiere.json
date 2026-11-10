@@ -1,0 +1,109 @@
+{
+  "key": "marseille-01-canebiere",
+  "name": "Du miroir du Vieux-Port aux Réformés, la Canebière secrète",
+  "location": "Marseille 1er, Vieux-Port et Canebière",
+  "summary": "Du grand miroir du Vieux-Port au clocher des Réformés : l'opéra reconstruit après l'incendie de 1919, le palais de la plus ancienne chambre de commerce de France, les quais du port grec de Massalia, l'ancien music-hall où débutèrent les vedettes marseillaises et le grand escalier de la gare Saint-Charles.",
+  "startText": "Rendez-vous sous l'Ombrière, le grand miroir du quai de la Fraternité, au fond du Vieux-Port (métro Vieux-Port). Le jardin des Vestiges a des horaires : faites le parcours en journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Ombrière du Vieux-Port",
+      "lat": 43.29464,
+      "lng": 5.37414,
+      "riddle": "Quittez le miroir vers le sud-est et gagnez la rue de l'auteur du Misanthrope et du Malade imaginaire. À environ 400 pas, une salle de spectacle à la façade Art déco a été reconstruite après l'incendie qui ravagea l'ancienne en 1919.",
+      "hints": [
+        "L'auteur est Molière : la salle est au 2, rue Molière.",
+        "On y donne des opéras et des ballets.",
+        "L'Opéra de Marseille, place Ernest-Reyer."
+      ]
+    },
+    {
+      "title": "Opéra de Marseille",
+      "lat": 43.29335,
+      "lng": 5.37588,
+      "address": "2, rue Molière",
+      "arrival": "Un premier théâtre s'élevait ici à la fin du XVIIIᵉ siècle. Ravagé par un incendie en 1919, il a été reconstruit dans le style Art déco et rouvert dans les années 1920.",
+      "riddle": "Remontez vers le nord jusqu'à la grande avenue dont le nom vient du chanvre que travaillaient les cordiers. Juste après, à environ 650 pas, un édifice du Second Empire abrite la plus ancienne chambre de commerce de France.",
+      "hints": [
+        "Le chanvre se disait « canebe » en provençal : c'est la Canebière.",
+        "Napoléon III l'inaugura en 1860.",
+        "Le palais de la Bourse, 9 La Canebière."
+      ],
+      "photo": "File:Marseille_-_Opéra_Municipal_(16265981769).jpg"
+    },
+    {
+      "title": "Palais de la Bourse",
+      "lat": 43.29615,
+      "lng": 5.3754,
+      "address": "9, La Canebière",
+      "arrival": "Dessiné par l'architecte Pascal Coste, le palais de la Bourse a été inauguré par Napoléon III en 1860. Il abrite la chambre de commerce de Marseille, fondée en 1599 : la plus ancienne de France.",
+      "riddle": "Contournez l'édifice par le nord et suivez la rue qui porte le nom d'une bataille de 1942 dans le désert libyen, où résistèrent les Français libres. À moins de 350 pas, dans un jardin creusé sous le niveau de la rue, dorment les quais du port de la cité grecque fondée il y a vingt-six siècles.",
+      "hints": [
+        "La bataille de Bir Hakeim : la rue de Bir-Hakeim.",
+        "La cité grecque s'appelait Massalia.",
+        "Le jardin des Vestiges, derrière le palais de la Bourse."
+      ],
+      "photo": "File:Palais_de_la_bourse_à_Marseille.JPG"
+    },
+    {
+      "title": "Jardin des Vestiges",
+      "lat": 43.29762,
+      "lng": 5.3749,
+      "arrival": "En 1967, les travaux du centre commercial voisin mirent au jour les quais du port antique de Massalia, fondée vers 600 avant notre ère par des Grecs de Phocée. Le jardin des Vestiges conserve ces pierres.",
+      "riddle": "Partez vers le nord par le cours qui porte le nom de l'évêque resté à son poste pendant la grande peste de 1720. Au numéro 58, à environ 400 pas, une salle de lecture a gardé l'enseigne d'un célèbre music-hall disparu.",
+      "hints": [
+        "L'évêque est Mgr de Belsunce : suivez le cours Belsunce.",
+        "L'enseigne porte un nom d'origine arabe, comme un palais de Séville.",
+        "La bibliothèque de l'Alcazar, 58 cours Belsunce."
+      ],
+      "photo": "File:Marseille_-_Le_jardin_des_vestiges.JPG"
+    },
+    {
+      "title": "Bibliothèque de l'Alcazar",
+      "lat": 43.29897,
+      "lng": 5.37669,
+      "address": "58, cours Belsunce",
+      "arrival": "De 1857 à 1966, l'Alcazar fut l'un des music-halls les plus célèbres de France : réussir devant son public exigeant ouvrait les portes de Paris. La bibliothèque, ouverte en 2004, a gardé sa marquise d'origine.",
+      "riddle": "Partez vers le nord-est et suivez le boulevard qui porte le nom de la capitale grecque, jusqu'au pied d'une gigantesque volée de marches de pierre ornée de statues. Elle monte vers le terminus des trains et domine la ville. Environ 900 pas.",
+      "hints": [
+        "La capitale grecque : le boulevard d'Athènes.",
+        "Des statues y figurent Marseille, porte de l'Orient, et les colonies.",
+        "Le grand escalier de la gare Saint-Charles."
+      ],
+      "photo": "File:Marseille-001-MR-Alcazar.jpg"
+    },
+    {
+      "title": "Escalier de la gare Saint-Charles",
+      "lat": 43.30172,
+      "lng": 5.38054,
+      "arrival": "Inauguré en 1927, l'escalier monumental de la gare Saint-Charles compte une centaine de marches. Ses statues figurent Marseille, porte de l'Orient, et les colonies d'Afrique et d'Asie, reflet de l'époque coloniale.",
+      "riddle": "Redescendez et partez vers le sud-est par le boulevard qui porte le premier mot de la devise républicaine, puis par la rue du député girondin qui mena les fédérés marseillais à Paris en 1792. À environ 1 100 pas, au haut de la Canebière, où un sanctuaire néo-gothique aux deux flèches ferme la perspective.",
+      "hints": [
+        "Le boulevard de la Liberté, puis la rue Barbaroux.",
+        "Son surnom vient d'un ancien couvent d'Augustins réformés.",
+        "L'église Saint-Vincent-de-Paul, en haut de la Canebière."
+      ],
+      "photo": "File:Escalier_de_la_gare_Marseille-Saint-Charles.JPG"
+    },
+    {
+      "title": "Les Réformés",
+      "lat": 43.29882,
+      "lng": 5.38592,
+      "arrival": "Bravo ! L'église Saint-Vincent-de-Paul, achevée en 1886 sur les plans de François Reybaud, est surnommée « les Réformés » : elle a remplacé la chapelle d'un couvent d'Augustins réformés. Ses deux flèches dominent le haut de la Canebière.",
+      "photo": "File:Église_des_Réformés_in_Marseille.jpg"
+    }
+  ]
+}

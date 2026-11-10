@@ -1,0 +1,102 @@
+{
+  "key": "marseille-13-chateau-gombert",
+  "name": "Château-Gombert, le village provençal",
+  "location": "Marseille 13e, Château-Gombert",
+  "summary": "Un vrai village provençal dans Marseille : le lavoir, le musée des traditions du terroir, l'église du XVIIᵉ siècle, le boulodrome, le cimetière et deux oratoires, ces petits sanctuaires que l'on dressait au bord des chemins.",
+  "startText": "Rendez-vous au lavoir public de Château-Gombert, près de la place des Héros (bus depuis La Rose).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Lavoir de Château-Gombert",
+      "lat": 43.35202,
+      "lng": 5.43704,
+      "riddle": "Partez vers l'est par la rue principale du village jusqu'à la place qui honore ses morts glorieux, à environ 250 pas. Au numéro 5, une maison garde la mémoire de la vie provençale d'autrefois.",
+      "hints": [
+        "La rue Centrale mène à la place des Héros.",
+        "On y voit des santons, des meubles et des costumes.",
+        "Le musée du terroir marseillais, 5 place des Héros."
+      ]
+    },
+    {
+      "title": "Musée du terroir marseillais",
+      "lat": 43.35211,
+      "lng": 5.43864,
+      "address": "5, place des Héros",
+      "arrival": "Le musée des Arts et Traditions populaires du terroir marseillais présente meubles, costumes, santons et objets de la vie provençale d'autrefois.",
+      "riddle": "Partez vers l'est par l'avenue d'un certain Paul Dalbret, à environ 300 pas. Le sanctuaire du village, de la fin du XVIIᵉ siècle, est dédié à l'évangéliste qui était collecteur d'impôts.",
+      "hints": [
+        "L'avenue Paul-Dalbret.",
+        "L'évangéliste est Matthieu.",
+        "L'église Saint-Matthieu."
+      ]
+    },
+    {
+      "title": "Église Saint-Matthieu",
+      "lat": 43.35241,
+      "lng": 5.44032,
+      "arrival": "L'église Saint-Matthieu date de la fin du XVIIᵉ siècle. Château-Gombert est resté un village, avec sa place, son église et ses fêtes provençales.",
+      "riddle": "Continuez vers l'est par la traverse de la Fumade, à environ 300 pas. Ici, on joue au jeu provençal où l'on lance les boules les pieds joints.",
+      "hints": [
+        "La traverse de la Fumade.",
+        "Le jeu est la pétanque.",
+        "Le boulodrome Jean-Masse."
+      ],
+      "photo": "File:Clocher_de_Château_Gombert.jpg"
+    },
+    {
+      "title": "Boulodrome Jean-Masse",
+      "lat": 43.35256,
+      "lng": 5.44225,
+      "arrival": "La pétanque est née en 1907 à La Ciotat, à quelques kilomètres d'ici : un joueur qui ne pouvait plus courir aurait obtenu de jouer « pieds tanqués », les pieds joints et immobiles. D'où le nom.",
+      "riddle": "Partez vers le nord-est par la traverse qui porte le nom de votre destination, à environ 650 pas. Le petit champ de repos du village s'étend à flanc de colline.",
+      "hints": [
+        "La traverse du Cimetière.",
+        "Il est au-dessus du village.",
+        "Le cimetière de Château-Gombert."
+      ]
+    },
+    {
+      "title": "Cimetière de Château-Gombert",
+      "lat": 43.35477,
+      "lng": 5.44468,
+      "arrival": "Le petit cimetière du village garde les tombes des familles de Château-Gombert, à flanc de colline.",
+      "riddle": "Redescendez vers le sud par le chemin de Paranque, puis par le boulevard de l'enfant soldat de la Révolution, tué à quatorze ans. À environ 1 800 pas, un petit sanctuaire de pierre au bord du chemin est dédié à l'annonce faite à Marie.",
+      "hints": [
+        "Le chemin de Paranque, puis le boulevard Bara, du nom de Joseph Bara.",
+        "Ces petits sanctuaires s'appellent des oratoires.",
+        "L'oratoire de l'Annonciade, boulevard Bara."
+      ]
+    },
+    {
+      "title": "Oratoire de l'Annonciade",
+      "lat": 43.34746,
+      "lng": 5.44882,
+      "arrival": "En Provence, les oratoires sont de petits sanctuaires de pierre dressés au bord des chemins, souvent à un carrefour, pour protéger les voyageurs et les récoltes. Celui-ci est dédié à l'Annonciation.",
+      "riddle": "Partez vers le sud-ouest par le chemin de la Grave, puis par la rue du physicien de la relativité. À environ 1 200 pas, un second petit sanctuaire de pierre honore le fondateur du monastère de Lérins.",
+      "hints": [
+        "Le chemin de la Grave, puis la rue Albert-Einstein.",
+        "Le fondateur de Lérins est saint Honorat.",
+        "L'oratoire Saint-Honorat."
+      ]
+    },
+    {
+      "title": "Oratoire Saint-Honorat",
+      "lat": 43.34295,
+      "lng": 5.44528,
+      "arrival": "Bravo ! Cet oratoire est dédié à saint Honorat, qui fonda au Vᵉ siècle le monastère de l'île de Lérins, au large de Cannes, l'un des plus anciens d'Occident."
+    }
+  ]
+}

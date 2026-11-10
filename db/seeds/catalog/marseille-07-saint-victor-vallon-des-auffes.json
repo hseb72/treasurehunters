@@ -1,0 +1,93 @@
+{
+  "key": "marseille-07-saint-victor-vallon-des-auffes",
+  "name": "De l'abbaye Saint-Victor au vallon des Auffes",
+  "location": "Marseille 7e, Saint-Victor, Pharo et Corniche",
+  "summary": "Le long de la mer, de la plus vieille abbaye de Marseille au petit port de pêcheurs du vallon des Auffes : le fort de Louis XIV, le palais construit pour l'impératrice, la plage des Catalans où vivait la Mercédès de Monte-Cristo, et la grande porte ouverte sur l'Orient du monument aux morts.",
+  "startText": "Rendez-vous sur le parvis de l'abbaye Saint-Victor, place Saint-Victor (bus 81 ou 83, ou à pied depuis le Vieux-Port).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Abbaye Saint-Victor",
+      "lat": 43.29031,
+      "lng": 5.36558,
+      "riddle": "Partez vers l'ouest par la rampe qui porte le nom d'un saint officier romain de la légion thébaine. À environ 550 pas, une citadelle de Louis XIV, aux murs de pierre rose, domine l'entrée du Vieux-Port.",
+      "hints": [
+        "Le saint soldat est Maurice : la rampe Saint-Maurice.",
+        "Une citadelle jumelle lui fait face, de l'autre côté du port.",
+        "Le fort Saint-Nicolas, rampe Saint-Maurice."
+      ],
+      "photo": "File:Marseille-Saint-Victor-bjs180810-01.jpg"
+    },
+    {
+      "title": "Fort Saint-Nicolas",
+      "lat": 43.2911,
+      "lng": 5.36234,
+      "arrival": "Après une révolte des Marseillais, Louis XIV fit construire ce fort à partir de 1660, sur les plans du chevalier de Clerville. On disait que ses canons étaient tournés vers la ville plutôt que vers la mer.",
+      "riddle": "Continuez vers le nord-ouest par le boulevard d'un médecin marseillais, Charles. À environ 1 000 pas, une résidence construite pour Napoléon III et l'impératrice Eugénie domine l'entrée du port, au milieu d'un jardin.",
+      "hints": [
+        "Le boulevard Charles-Livon.",
+        "L'empereur n'y a jamais habité.",
+        "Le palais du Pharo."
+      ],
+      "photo": "File:Marseille_Fort_Saint_Nicolas.jpg"
+    },
+    {
+      "title": "Palais du Pharo",
+      "lat": 43.29425,
+      "lng": 5.35803,
+      "arrival": "Napoléon III fit construire ce palais à partir de 1858 pour l'impératrice Eugénie, mais il n'y séjourna jamais. Après la chute de l'Empire, Eugénie le céda à la ville. Son jardin offre l'une des plus belles vues sur le Vieux-Port.",
+      "riddle": "Descendez vers le sud par la rue des pêcheurs venus de Catalogne. À environ 900 pas, une petite étendue de sable s'ouvre au pied de la ville.",
+      "hints": [
+        "La rue des Catalans.",
+        "Alexandre Dumas y fait vivre Mercédès, la fiancée d'Edmond Dantès.",
+        "La plage des Catalans."
+      ],
+      "photo": "File:Le_palais_du_Pharo.jpg"
+    },
+    {
+      "title": "Plage des Catalans",
+      "lat": 43.29073,
+      "lng": 5.3555,
+      "arrival": "Des pêcheurs venus de Catalogne s'installèrent ici et donnèrent leur nom à la plage. Dans Le Comte de Monte-Cristo, Alexandre Dumas fait vivre Mercédès, la fiancée d'Edmond Dantès, dans leur village.",
+      "riddle": "Longez la mer vers le sud-ouest par la corniche qui porte le nom d'un président américain assassiné à Dallas. À environ 1 300 pas, une immense porte de pierre, ouverte sur la mer, honore les soldats tombés dans les Balkans, au Levant et sur les terres lointaines.",
+      "hints": [
+        "La corniche du Président-John-Fitzgerald-Kennedy.",
+        "Une figure de la Victoire se dresse au centre de la porte.",
+        "Le monument aux morts de l'Armée d'Orient, sur la Corniche."
+      ],
+      "photo": "File:La_plage_des_catalans,_Marseille_-_panoramio_(2).jpg"
+    },
+    {
+      "title": "Monument aux morts de l'Armée d'Orient",
+      "lat": 43.28601,
+      "lng": 5.35048,
+      "arrival": "Inauguré en 1927, ce monument de l'architecte Gaston Castel honore les soldats de l'Armée d'Orient et des « terres lointaines ». Sa grande arche est tournée vers la mer, vers les pays d'où beaucoup ne sont jamais revenus.",
+      "riddle": "Descendez par l'escalier, juste à côté, vers le sud-est. En contrebas, à environ 350 pas, un minuscule port de pêcheurs se cache sous un pont de la corniche.",
+      "hints": [
+        "Son nom vient des cordes d'alfa que l'on y tressait.",
+        "On y mange une bouillabaisse réputée.",
+        "Le vallon des Auffes."
+      ],
+      "photo": "File:Vallon_des_auffes_et_morts_d'orient.JPG"
+    },
+    {
+      "title": "Vallon des Auffes",
+      "lat": 43.28513,
+      "lng": 5.35222,
+      "arrival": "Bravo ! Le vallon des Auffes doit son nom à l'« auffe », l'alfa dont les cordiers tiraient des cordages pour les bateaux. Ses cabanons et ses barques de pêche, les pointus, en font l'un des lieux les plus pittoresques de Marseille."
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "key": "marseille-06-notre-dame-de-la-garde",
+  "name": "Du cours Julien à la Bonne Mère",
+  "location": "Marseille 6e, cours Julien, Préfecture et Notre-Dame-de-la-Garde",
+  "summary": "Une montée progressive vers la Bonne Mère : le cours Julien et ses murs peints, l'église de Notre-Dame-du-Mont, le monument au roi assassiné en 1934, la préfecture, les deux cadeaux du marbrier Jules Cantini, et la basilique Notre-Dame-de-la-Garde qui veille sur la ville.",
+  "startText": "Rendez-vous au centre du cours Julien, près des bassins (métro Notre-Dame-du-Mont). La fin du parcours monte fort vers la basilique.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 100,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Cours Julien",
+      "lat": 43.29347,
+      "lng": 5.38333,
+      "riddle": "Partez vers le sud-est, à environ 500 pas. Un sanctuaire du début du XIXᵉ siècle domine une place animée qui a donné son nom à la station de métro voisine.",
+      "hints": [
+        "Il est dédié à la Vierge.",
+        "Son nom évoque une hauteur.",
+        "L'église Notre-Dame-du-Mont."
+      ]
+    },
+    {
+      "title": "Notre-Dame-du-Mont",
+      "lat": 43.29171,
+      "lng": 5.38532,
+      "arrival": "L'église Notre-Dame-du-Mont a été reconstruite à partir de 1824. Elle a donné son nom au quartier et à la station de métro voisine.",
+      "riddle": "Partez vers l'ouest par le cours d'un médecin de Louis XV né à Aix, à environ 750 pas, jusqu'à une grande composition de pierre élevée en 1938. Elle rend hommage à un roi étranger et à un ministre français assassinés en 1934, juste après le débarquement du roi sur le Vieux-Port.",
+      "hints": [
+        "Le médecin est Joseph Lieutaud : le cours Lieutaud.",
+        "Le ministre français s'appelait Louis Barthou.",
+        "Le monument au roi Alexandre Iᵉʳ et à Louis Barthou, près de la préfecture."
+      ],
+      "photo": "File:Eglise_ND_du_Mont_Marseille.jpg"
+    },
+    {
+      "title": "Monument au roi Alexandre Iᵉʳ",
+      "lat": 43.29064,
+      "lng": 5.3809,
+      "arrival": "Le 9 octobre 1934, le roi Alexandre Iᵉʳ de Yougoslavie, venu en visite officielle, fut assassiné à Marseille, peu après son arrivée ; le ministre des Affaires étrangères Louis Barthou fut mortellement blessé. Ce monument de l'architecte Gaston Castel leur rend hommage depuis 1938.",
+      "riddle": "Faites quelques pas vers l'ouest, à environ 200 pas. Un palais du Second Empire abrite les services de l'État dans le département.",
+      "hints": [
+        "Le préfet y a son bureau.",
+        "La place devant lui porte son nom.",
+        "La préfecture des Bouches-du-Rhône."
+      ]
+    },
+    {
+      "title": "Préfecture des Bouches-du-Rhône",
+      "lat": 43.29012,
+      "lng": 5.37975,
+      "arrival": "Le palais de la préfecture, construit sous le Second Empire, a été conçu pour impressionner : sa façade est ornée de nombreuses statues.",
+      "riddle": "Partez vers le nord par la rue du gendre de la marquise de Sévigné, lieutenant général du roi en Provence. Au numéro 19, à environ 550 pas, un hôtel particulier du XVIIᵉ siècle légué à la ville par un riche marbrier abrite des collections d'art moderne.",
+      "hints": [
+        "Le gendre est le comte de Grignan : la rue Grignan.",
+        "Le marbrier s'appelait Jules.",
+        "Le musée Cantini, 19 rue Grignan."
+      ],
+      "photo": "File:Préfecture-région-Marseille.jpg"
+    },
+    {
+      "title": "Musée Cantini",
+      "lat": 43.29225,
+      "lng": 5.37817,
+      "address": "19, rue Grignan",
+      "arrival": "Le marbrier et sculpteur Jules Cantini acheta cet hôtel du XVIIᵉ siècle et le légua à la ville. Le musée d'art moderne qui porte son nom y a ouvert en 1936.",
+      "riddle": "Descendez vers le sud-est par la rue qui porte le nom de la Ville éternelle. Au bout, à environ 1 700 pas, une grande fontaine de marbre se dresse au milieu d'un rond-point : elle a été offerte par le même marbrier.",
+      "hints": [
+        "La Ville éternelle : prenez la rue de Rome.",
+        "Le rond-point porte le nom d'un maréchal de Napoléon.",
+        "La fontaine Cantini, place Castellane."
+      ]
+    },
+    {
+      "title": "Fontaine Cantini",
+      "lat": 43.28592,
+      "lng": 5.38375,
+      "arrival": "Offerte à la ville par Jules Cantini et inaugurée en 1911, la fontaine de la place Castellane est taillée dans le marbre et ornée de statues allégoriques.",
+      "riddle": "Partez vers l'ouest et grimpez par le boulevard de l'ingénieur militaire de Louis XIV. Après une vingtaine de minutes d'effort, au sommet de la colline, une basilique coiffée d'une statue dorée de la Vierge veille sur la ville et sur les marins.",
+      "hints": [
+        "L'ingénieur est Vauban : le boulevard Vauban.",
+        "Les Marseillais l'appellent la « Bonne Mère ».",
+        "La basilique Notre-Dame-de-la-Garde."
+      ],
+      "photo": "File:Fontaine_Jules_Cantini_-_Marseille_VI_(FR13)_-_2023-07-22_-_2.jpg"
+    },
+    {
+      "title": "Notre-Dame-de-la-Garde",
+      "lat": 43.28395,
+      "lng": 5.37124,
+      "arrival": "Bravo ! Construite à partir de 1853 sur les plans d'Henri-Jacques Espérandieu, la basilique remplace une chapelle du Moyen Âge. Sa Vierge dorée, la « Bonne Mère », mesure plus de onze mètres. À l'intérieur, des ex-voto de marins et de familles remercient pour des vœux exaucés ; les murs gardent des impacts des combats de la Libération, en août 1944.",
+      "photo": "File:Notre-damedelagarde.JPG"
+    }
+  ]
+}

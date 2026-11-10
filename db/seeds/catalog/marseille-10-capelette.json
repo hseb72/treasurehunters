@@ -1,0 +1,89 @@
+{
+  "key": "marseille-10-capelette",
+  "name": "Du parc du 26ᵉ Centenaire à la Capelette",
+  "location": "Marseille 10e, Menpenti et la Capelette",
+  "summary": "Un parcours dans les quartiers de l'est du centre : le grand parc qui célèbre les vingt-six siècles de Marseille, une bastide de Menpenti, les églises de quartier, dont celle de la communauté grecque, et le jardin des anciennes fonderies.",
+  "startText": "Rendez-vous à l'entrée du parc du 26ᵉ Centenaire, côté place de la Gare-du-Sud (métro Périer ou tram Rouet). Le parc ferme le soir.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Parc du 26ᵉ Centenaire",
+      "lat": 43.28022,
+      "lng": 5.39586,
+      "riddle": "Partez vers le nord et gagnez l'avenue qui file vers le grand port militaire de la Méditerranée. À environ 1 000 pas, une ancienne bastide rappelle le temps où le quartier n'était que campagnes.",
+      "hints": [
+        "Le port militaire est Toulon : l'avenue de Toulon.",
+        "Le quartier porte le même nom que la bastide.",
+        "Le château de Menpenti, avenue de Toulon."
+      ],
+      "photo": "File:Marseille_Parc_26_Maltese.jpg"
+    },
+    {
+      "title": "Château de Menpenti",
+      "lat": 43.28453,
+      "lng": 5.394,
+      "arrival": "Menpenti était au XIXᵉ siècle un quartier de bastides et de campagnes, à la lisière de la ville. Ce château en est l'un des derniers témoins.",
+      "riddle": "Repartez vers le sud-est par la même avenue du port de guerre, à environ 500 pas. La paroisse du quartier porte le nom d'un saint dont le nom évoque celui qui protège.",
+      "hints": [
+        "Toujours l'avenue de Toulon, puis le boulevard Gilly.",
+        "Son nom évoque celui qui défend.",
+        "L'église Saint-Défendent, boulevard Gilly."
+      ]
+    },
+    {
+      "title": "Église Saint-Défendent",
+      "lat": 43.28314,
+      "lng": 5.39644,
+      "arrival": "L'église Saint-Défendent est la paroisse du quartier de Menpenti, né de l'urbanisation des anciennes campagnes au XIXᵉ siècle.",
+      "riddle": "Partez vers l'est jusqu'à la place qui porte le nom d'un pays d'Europe centrale, à environ 500 pas. Un sanctuaire orthodoxe y est dédié à un évêque de Lyon né en Asie Mineure.",
+      "hints": [
+        "La place de Pologne.",
+        "L'évêque est Irénée, né à Smyrne.",
+        "L'église orthodoxe grecque Saint-Irénée, près de la place de Pologne."
+      ]
+    },
+    {
+      "title": "Église grecque Saint-Irénée",
+      "lat": 43.28384,
+      "lng": 5.39951,
+      "arrival": "Cette église orthodoxe grecque porte le nom de saint Irénée, évêque de Lyon au IIᵉ siècle, né à Smyrne. La présence grecque à Marseille remonte à sa fondation : la ville a été créée vers 600 avant notre ère par des marins grecs venus de Phocée.",
+      "riddle": "Partez vers l'est par l'avenue qui porte le nom du quartier de la petite chapelle, puis par celle d'un industriel qui tira du sucre de la betterave. À environ 900 pas, un jardin public a gardé le souvenir des ateliers où l'on coulait le métal.",
+      "hints": [
+        "L'avenue de la Capelette, puis l'avenue Benjamin-Delessert.",
+        "Le métal y était fondu.",
+        "Le jardin des Anciennes-Fonderies, rue Verdilhan."
+      ]
+    },
+    {
+      "title": "Jardin des Anciennes-Fonderies",
+      "lat": 43.28488,
+      "lng": 5.40502,
+      "arrival": "Comme son nom l'indique, ce jardin occupe l'emplacement d'anciennes fonderies : la Capelette et Menpenti étaient au XIXᵉ siècle des quartiers d'usines et d'ateliers.",
+      "riddle": "Descendez vers le sud par l'avenue de l'industriel du sucre de betterave, à environ 950 pas. La paroisse du quartier est dédiée au diacre de Rome martyrisé sur un gril.",
+      "hints": [
+        "Toujours l'avenue Benjamin-Delessert, puis la rue Alfred-Saurel.",
+        "Le saint martyr se prénomme comme un fleuve du Québec.",
+        "L'église Saint-Laurent de la Capelette."
+      ]
+    },
+    {
+      "title": "Église Saint-Laurent de la Capelette",
+      "lat": 43.28059,
+      "lng": 5.4051,
+      "arrival": "Bravo ! L'église Saint-Laurent est la paroisse de la Capelette, ancien quartier ouvrier. Saint Laurent, diacre de Rome, fut martyrisé sur un gril en 258."
+    }
+  ]
+}
