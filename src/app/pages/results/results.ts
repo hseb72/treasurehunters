@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, numberAttr
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HuntTransfer } from '../organize/hunt-transfer';
 import { of } from 'rxjs';
 import { HuntApi } from '../../core/api';
 import { Session } from '../../core/session';
@@ -16,7 +17,7 @@ import { SkinDirective } from '../../shared/skin';
 
 @Component({
   selector: 'th-results',
-  imports: [SkinDirective, DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium, RatingForm],
+  imports: [HuntTransfer, SkinDirective, DatePipe, MatButtonModule, MatIconModule, RouterLink, DurationPipe, Podium, RatingForm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './results.html',
   styleUrl: './results.scss',
@@ -42,6 +43,15 @@ export class ResultsPage {
   protected readonly myTeamId = computed(() => this.myTeam.value()?.id ?? null);
   /** Équipe du joueur arrivée : son souvenir est prêt (§ 24). */
   protected readonly souvenirReady = computed(() => !!this.myTeam.value()?.finished);
+  /** Chasse surprise finie (§ 52) : son joueur peut l'exporter, la faire réécrire et en garder sa version. */
+  protected readonly rewritable = computed(() => {
+    const h = this.hunt.value();
+    return !!h?.surprise && h.hostId === this.session.user()?.id && this.souvenirReady();
+  });
+  private readonly router = inject(Router);
+  protected openCopy(huntId: number): void {
+    void this.router.navigate(['/organize', huntId, 'steps']);
+  }
   protected readonly ranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank !== null));
   protected readonly unranked = computed(() => (this.rows.value() ?? []).filter((r) => r.rank === null));
   protected readonly modes = START_MODE_LABELS;

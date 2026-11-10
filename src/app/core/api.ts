@@ -14,6 +14,7 @@ import { NearbyResult } from '@shared/nearby';
 import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '@shared/guide';
 import { McpStats } from '@shared/mcp';
+import { HuntFile, HuntImportResult } from '@shared/seed';
 import { OfflineEvent, OfflinePack, OfflineSyncResult } from '@shared/offline';
 import {
   AuthResult,
@@ -102,6 +103,9 @@ export abstract class HuntApi {
   abstract huntAction(id: number, action: HuntAction): Observable<Hunt>;
 
   abstract getSteps(huntId: number): Observable<Step[]>;
+  /** Export / import JSON d'une chasse (§ 52). L'import accepte le fichier brut : le serveur le contrôle. */
+  abstract exportHunt(huntId: number): Observable<HuntFile>;
+  abstract importHunt(huntId: number, file: unknown, dryRun: boolean): Observable<HuntImportResult>;
   abstract saveStep(step: Partial<Step> & { huntId: number }): Observable<Step>;
   abstract deleteStep(id: number): Observable<void>;
   abstract reorderSteps(huntId: number, stepIds: number[]): Observable<Step[]>;
