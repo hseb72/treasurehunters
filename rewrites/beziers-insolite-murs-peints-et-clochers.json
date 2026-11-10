@@ -1,0 +1,164 @@
+{
+  "format": "secrettracks/hunt@1",
+  "name": "Béziers insolite : murs peints et clochers",
+  "location": "Béziers",
+  "summary": "Une boucle de flânerie dans les faubourgs de Béziers, entre le mur des fusillés, les allées Paul-Riquet et la rue du Touat : façades qui mentent, une fontaine au milieu d'un rond-point et des portes de prière. Huit étapes, des énigmes qui vous désignent les rues à suivre, et un trésor qui vous ramène tout près de votre point de départ. Ouvrez l'œil : ici, tout n'est pas ce qu'il paraît.",
+  "startText": "Rendez-vous place du 14-Juillet, au pied de la statue de Jean Moulin, devant le mur des fusillés du 7 juin 1944.\n\nBienvenue à Béziers. Vous voici au pied d'un homme à l'écharpe, figure de l'ombre et du courage, né dans cette ville. Autour de vous, Béziers cache des murs qui racontent des histoires fausses avec un talent fou, une fontaine discrète et des portes closes qui en disent long. Rangez le plan, suivez les énigmes : chacune vous indique une direction et vous souffle, à mots couverts, le nom de la rue à suivre. La boucle vous ramènera tout près d'ici, mais vous ne verrez plus Béziers du même œil.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 90,
+  "steps": [
+    {
+      "title": "Départ",
+      "lat": 43.347641,
+      "lng": 3.221903,
+      "address": "Mur des fusillés du 7 juin 1944 et statue de Jean Moulin, place du 14-Juillet",
+      "arrival": null,
+      "riddle": "Partez vers le sud-ouest et remettez-vous entre les mains du père de l'école gratuite, laïque et obligatoire : c'est sa rue qui vous mène, environ 700 pas en tout (sept à huit minutes). Au bout du chemin, sur une place qui porte le nom d'un général de la France libre, vous attend un animal royal qui ne mange rien, ne dort jamais et porte le nom d'un sculpteur biterrois. Tenez-vous devant lui.",
+      "hints": [
+        "Les lois scolaires de 1881-1882 portent le nom de Jules Ferry : suivez la rue Jules-Ferry, puis la rue Anatole-France jusqu'à la place du Général-de-Gaulle.",
+        "Ce n'est pas un être vivant, mais il a une crinière.",
+        "C'est un lion de pierre ou de métal, posé sur la place : celui que l'on nomme d'après Magrou."
+      ],
+      "puzzle": null,
+      "photo": null
+    },
+    {
+      "title": "Le fauve qui ne rugit pas",
+      "lat": 43.345529,
+      "lng": 3.218115,
+      "address": "Le Lion de Magrou, place du Général-de-Gaulle",
+      "arrival": "Bravo, vous avez apprivoisé le fauve. On l'appelle le Lion de Magrou ; Magrou, c'est le nom de Jean Magrou (1869-1945), sculpteur né à Béziers et auteur de plusieurs monuments de sa ville natale. Celui-ci se laisse photographier sans jamais montrer les dents.",
+      "riddle": "Repartez en direction de l'ouest et laissez-vous guider par une libération estivale : environ 500 pas. Au bout de cette avenue s'ouvre un grand rond-point ; juste avant de l'atteindre, sur votre droite, cherchez une façade où des fenêtres ne s'ouvrent pas, où des volets ne battent jamais et où la perspective est un mensonge. Placez-vous face à elle.",
+      "hints": [
+        "Béziers fut libérée le 22 août 1944, en plein été : suivez l'avenue du 22-Août-1944 jusqu'à l'angle de l'avenue du Maréchal-Foch.",
+        "Ici, le pinceau a remplacé le maçon : balcons, ouvertures et ombres sont peints.",
+        "C'est l'un des trompe-l'œil de Béziers, à l'angle de l'avenue du Maréchal-Foch."
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre pour retrouver l'animal immobile qui vous regarde.",
+        "answer": "LION",
+        "hint": "Quatre lettres : le roi des animaux, celui-là même qui est devant vous."
+      },
+      "photo": null
+    },
+    {
+      "title": "Le mur qui ment",
+      "lat": 43.345209,
+      "lng": 3.215735,
+      "address": "Trompe-l'œil, avenue du Maréchal-Foch",
+      "arrival": "Bien vu ! Béziers s'est offert tout un parcours de fresques murales en trompe-l'œil, qui animent des murs aveugles et racontent l'histoire de la ville. Reculez de quelques pas : l'illusion fonctionne mieux de loin.",
+      "riddle": "Descendez vers le sud en suivant un instant le généralissime des Alliés de 1918, puis longez le grand rond-point jusqu'à son côté sud : environ 150 pas. Un autre mur vous y attend, mais celui-ci a le goût des planches : il habille le dos d'une grande salle de spectacle. Arrêtez-vous devant, sans quitter le trottoir.",
+      "hints": [
+        "Le maréchal Foch commanda les armées alliées en 1918 : c'est son avenue qui débouche sur le rond-point.",
+        "Encore une peinture, mais le thème sent la représentation et les applaudissements.",
+        "C'est le trompe-l'œil peint sur le Théâtre municipal, côté rond-point."
+      ],
+      "puzzle": null,
+      "photo": null
+    },
+    {
+      "title": "La façade qui joue la comédie",
+      "lat": 43.344558,
+      "lng": 3.215663,
+      "address": "Trompe-l'œil du Théâtre municipal, place de la Victoire",
+      "arrival": "Rideau ! Ce décor peint habille le Théâtre municipal, inscrit aux monuments historiques en 1975. Un spectacle permanent, à ciel ouvert, où l'on entre sans billet.",
+      "riddle": "Remontez vers le nord-ouest en longeant le rond-point dont le nom claironne un triomphe : moins de 100 pas. Arrêtez-vous sur le trottoir ouest, près de l'arrêt de bus. Au milieu du rond-point, de l'eau coule sous le même nom que la place. Ne traversez pas la chaussée : l'étape se valide depuis le trottoir.",
+      "hints": [
+        "La place porte le nom d'un succès militaire, celui de 1918 : c'est la place de la Victoire.",
+        "Un point d'eau public, et non une peinture, cette fois.",
+        "C'est la fontaine de la place, visible depuis le trottoir, côté ouest."
+      ],
+      "puzzle": {
+        "type": "rebus",
+        "prompt": "Lisez ce rébus : 🍵 + 🔥 (le foyer de la cheminée, en quatre lettres) = le lieu où l'on joue.",
+        "answer": "THEATRE|THÉÂTRE",
+        "hint": "Une boisson chaude, puis le foyer : thé + âtre."
+      },
+      "photo": null
+    },
+    {
+      "title": "L'eau de la victoire",
+      "lat": 43.344928,
+      "lng": 3.215217,
+      "address": "Fontaine de la Victoire, place de la Victoire (vue depuis le trottoir ouest)",
+      "arrival": "Superbe ! Cette fontaine, qui trône au centre de la place, porte le même nom qu'elle. Admirez-la d'ici : inutile de braver la circulation pour la toucher.",
+      "riddle": "Partez plein nord et engagez-vous dans la rue au nom italien qui quitte le rond-point : environ 150 pas. Une fresque y rend hommage à un républicain biterrois du XIXe siècle, de ceux qui payèrent de leur vie leur fidélité à la République après 1851. Placez-vous face à cet hommage.",
+      "hints": [
+        "La rue porte un nom italien : c'est la rue Riccioti.",
+        "L'homme fut le premier magistrat de Béziers en 1848 et mena la résistance biterroise au coup d'État de décembre 1851.",
+        "C'est le trompe-l'œil consacré à Casimir Péret."
+      ],
+      "puzzle": null,
+      "photo": null
+    },
+    {
+      "title": "Le maire peint",
+      "lat": 43.345602,
+      "lng": 3.21532,
+      "address": "Trompe-l'œil Casimir Péret, rue Riccioti",
+      "arrival": "Bravo. Casimir Péret, maire de Béziers en 1848, prit la tête des Biterrois qui se soulevèrent contre le coup d'État de Louis-Napoléon Bonaparte en décembre 1851. Arrêté et condamné, il fut envoyé au bagne de Cayenne, où il mourut en tentant de s'évader. La ville garde sa mémoire, ici en peinture et ailleurs dans le nom d'une rue.",
+      "riddle": "Continuez vers le nord, puis gagnez la rue qui porte le nom d'une oasis du Sahara et remontez-la : moins de 200 pas en tout. Derrière une porte discrète prie une communauté de tradition orthodoxe, sous la protection de celui qui baptisait dans le Jourdain. Validez devant l'entrée : nul besoin de franchir le seuil.",
+      "hints": [
+        "Le Touat est une région d'oasis du Sahara algérien, occupée par la France en 1900 : c'est la rue du Touat.",
+        "Un lieu de culte chrétien de rite oriental : les icônes y remplacent les statues.",
+        "Elle est placée sous le patronage du Baptiste, Jean."
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Déchiffrez à l'aide de la roue ce que ce mur rend, et à qui.",
+        "answer": "HOMMAGE AU MAIRE",
+        "shift": 7,
+        "hint": "Trois mots : ce que ce mur rend, et à qui — le premier magistrat de la ville."
+      },
+      "photo": null
+    },
+    {
+      "title": "La porte d'Orient",
+      "lat": 43.346457,
+      "lng": 3.215603,
+      "address": "Chapelle orthodoxe Saint-Jean-Baptiste, 31 bis rue du Touat",
+      "arrival": "Bien joué. Cette petite chapelle orthodoxe se devine surtout à sa porte : Béziers abrite une étonnante variété de lieux de prière à quelques rues d'intervalle. Restez à l'extérieur si c'est fermé : l'étape est validée ici.",
+      "riddle": "Ne quittez pas l'oasis : poursuivez vers le nord sur la même rue jusqu'à son extrémité, environ 250 pas, puis regardez sur votre gauche. Un autre sanctuaire vous attend, dédié non pas à un saint mais à une image : celle de celui qui va chercher la brebis perdue. Arrêtez-vous devant.",
+      "hints": [
+        "Restez sur la rue du Touat jusqu'au bout, là où elle rejoint la rue Casimir-Péret.",
+        "Son nom n'est pas un prénom mais une image du Christ, tirée de l'Évangile.",
+        "Pensez au bon berger : le Bon Pasteur."
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez de l'ordre dans ces lettres : le mot désigne un petit édifice de prière, plus modeste qu'une église.",
+        "answer": "CHAPELLE",
+        "hint": "Huit lettres, commence par CHA : c'est exactement ce que vous avez devant vous."
+      },
+      "photo": null
+    },
+    {
+      "title": "Le berger veille",
+      "lat": 43.347578,
+      "lng": 3.2156,
+      "address": "Chapelle du Bon-Pasteur, rue du Bon-Pasteur",
+      "arrival": "Parfait. Construite à partir de 1860 et bénie en 1863, cette chapelle n'est plus affectée au culte. Le « Bon Pasteur » est l'une des plus anciennes images chrétiennes : le berger qui porte l'agneau sur ses épaules. Admirez l'édifice depuis la rue : l'étape se valide ici.",
+      "riddle": "Dernière traversée, la plus longue : partez vers l'est, environ 1 200 pas (une dizaine de minutes). Suivez d'abord la capitale de l'Alsace, puis le poète provençal couronné par le Nobel, avant de retrouver le père de l'école laïque, que vous connaissez déjà. Vous cherchez un lieu de prière dépouillé, ni images ni dorures, dont le nom évoque pourtant un édifice de l'Antiquité. Votre récompense vous attend devant lui.",
+      "hints": [
+        "Boulevard de Strasbourg, puis boulevard Frédéric-Mistral (prix Nobel de littérature 1904), puis rue Jules-Ferry et rue d'Alsace, tout près de votre point de départ.",
+        "La communauté qui s'y réunit met la parole avant l'image : elle est protestante.",
+        "Chez les protestants, on ne dit pas « église » : on dit temple."
+      ],
+      "puzzle": null,
+      "photo": "File:Eglise Bon Pasteur (Béziers).JPG"
+    },
+    {
+      "title": "Le trésor sans statues",
+      "lat": 43.346272,
+      "lng": 3.222545,
+      "address": "Temple protestant, angle de la rue du Temple et de la rue Général-Thomières",
+      "arrival": "Trésor trouvé, et boucle bouclée ! Chez les protestants, le lieu de culte se nomme temple, par distinction volontaire avec l'église : façade sobre, intérieur dépouillé, la parole avant l'image. Votre point de départ n'est qu'à deux minutes : vous avez traversé, en une courte boucle, trois traditions de prière, trois murs menteurs et un lion qui ne rugit pas. Chapeau, Flâneur Émérite !",
+      "riddle": null,
+      "hints": [],
+      "puzzle": null,
+      "photo": null
+    }
+  ]
+}
