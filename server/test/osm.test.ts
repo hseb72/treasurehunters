@@ -118,3 +118,26 @@ describe('OpenStreetMap : reprises', () => {
     expect(String(err.cause.message)).toMatch(/429.*\|.*429.*\|.*429/);
   }, 10_000);
 });
+
+describe('OpenStreetMap : rues des lieux', () => {
+  it('rattache à chaque lieu les rues nommées qui passent au ras', async () => {
+    const { streetsAround } = await import('../src/generation/osm.js');
+    config.overpassUrls = [`${base}/principal`];
+    bodies.length = 0;
+    script = [
+      ok([
+        { type: 'node', id: 1 },
+        { type: 'way', id: 10, tags: { highway: 'residential', name: 'Rue Victor-Hugo' } },
+        { type: 'way', id: 11, tags: { highway: 'residential', name: 'Rue Victor-Hugo' } },
+        { type: 'way', id: 12, tags: { highway: 'primary', name: 'Avenue du 22-Août-1944' } },
+        { type: 'way', id: 7 },
+      ]),
+    ];
+    const poi = (id: string) => ({ id, name: id, kind: 'statue', lat: 43.34, lng: 3.21, details: {}, themed: false, gated: false });
+    const streets = await streetsAround([poi('n1'), poi('w7')]);
+    expect(streets.get('n1')).toEqual(['Rue Victor-Hugo', 'Avenue du 22-Août-1944']);
+    expect(streets.has('w7')).toBe(false);
+    expect(bodies[0]).toMatch(/node\(id:1\);way\(id:7\);/);
+    expect(bodies[0]).toMatch(/foreach/);
+  });
+});

@@ -18,6 +18,8 @@ export interface Poi {
   details: Record<string, string>;
   /** Correspond au thème demandé par le joueur. */
   themed: boolean;
+  /** Rues qui passent au ras du lieu (voir streetsAround) : de quoi désigner, par énigme, la rue à prendre. */
+  streets?: string[];
   /**
    * Lieu clos ou soumis à des horaires (parc, musée, église…) : on doit pouvoir valider
    * l'étape depuis son entrée, même fermé.
@@ -327,6 +329,51 @@ const MAX_ACCESS_POINTS = 30;
 /** Distance maximale d'un portail au contour du lieu. */
 const GATE_NEAR_M = 15;
 /** Portes et portails par lesquels on entre ; pas les issues de secours ni les accès privés. */
+/** Voies où l'on marche, pour nommer la rue à prendre (pas les autoroutes ni les bretelles). */
+const WALKED_WAYS = 'pedestrian|living_street|residential|unclassified|tertiary|secondary|primary|footway|steps|path|cycleway|service';
+/** Distance à laquelle une rue « passe » au lieu, en mètres. */
+const STREET_NEAR_M = 30;
+/** Rues gardées par lieu. */
+const STREETS_PER_PLACE = 4;
+
+/**
+ * Rues nommées qui passent au ras de chaque lieu candidat : l'énigme peut ainsi désigner, par
+ * une allusion à son nom, la rue à emprunter vers le lieu suivant, sans jamais en inventer une.
+ * Une seule requête Overpass : pour chaque lieu, son identifiant puis les rues proches.
+ */
+export async function streetsAround(pois: Poi[]): Promise<Map<string, string[]>> {
+  const result = new Map<string, string[]>();
+  const nodes = pois.filter((p) => p.id.startsWith('n')).map((p) => p.id.slice(1));
+  const ways = pois.filter((p) => p.id.startsWith('w')).map((p) => p.id.slice(1));
+  if (!nodes.length && !ways.length) return result;
+  const query = `[out:json][timeout:25];
+(${nodes.length ? `node(id:${nodes.join(',')});` : ''}${ways.length ? `way(id:${ways.join(',')});` : ''});
+foreach->.p(
+  .p out ids;
+  way(around.p:${STREET_NEAR_M})[highway~"^(${WALKED_WAYS})$"][name];
+  out tags;
+);`;
+  const data = (await osmFetch(config.overpassUrls, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `data=${encodeURIComponent(query)}`,
+  })) as { elements?: { type: string; id: number; tags?: Record<string, string> }[] };
+  // Réponse dans l'ordre : un lieu (sans tags), puis ses rues (avec tags).
+  let current: string | null = null;
+  for (const e of data.elements ?? []) {
+    if (!e.tags) {
+      current = `${e.type === 'node' ? 'n' : 'w'}${e.id}`;
+      continue;
+    }
+    const name = e.tags['name']?.trim();
+    if (!current || !name) continue;
+    const list = result.get(current) ?? [];
+    if (!list.includes(name) && list.length < STREETS_PER_PLACE) list.push(name.slice(0, 120));
+    result.set(current, list);
+  }
+  return result;
+}
+
 const GATE_BARRIERS = 'gate|entrance|turnstile|kissing_gate|lift_gate|swing_gate|full-height_turnstile';
 
 type OsmShape = { type: 'way'; id: number; nodes?: number[]; geometry?: { lat: number; lon: number }[]; tags?: Record<string, string> };

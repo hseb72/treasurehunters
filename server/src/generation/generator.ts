@@ -8,7 +8,7 @@ import { distanceMeters } from '../../../shared/rules.js';
 import { HttpError } from '../errors.js';
 import { ClaudePlanner } from './claude.js';
 import { freePhotoFor } from '../photos/commons.js';
-import { Access, accessOf, countPlacesAround, geocode, placesAround, Place, Poi, radiusForDensity, reverseGeocode, ThemeFilter } from './osm.js';
+import { Access, accessOf, streetsAround, countPlacesAround, geocode, placesAround, Place, Poi, radiusForDensity, reverseGeocode, ThemeFilter } from './osm.js';
 
 export interface GeneratedHunt {
   plan: HuntPlan;
@@ -87,7 +87,11 @@ export class OsmClaudeGenerator implements HuntGenerator {
     const theme = req.theme?.trim() || null;
     // Un thème que l'IA ne sait pas traduire en lieux se contente de guider la rédaction.
     const filters = theme ? await this.planner.themeFilters(theme).catch((): ThemeFilter[] => []) : [];
-    const pois = await this.candidates(place, req, count, filters);
+    const candidates = await this.candidates(place, req, count, filters);
+    // Les rues au ras des lieux, pour que les énigmes désignent la rue à prendre. Sans réponse
+    // d'Overpass, les énigmes s'en passent.
+    const streets = await streetsAround(candidates).catch(() => new Map<string, string[]>());
+    const pois = candidates.map((p) => (streets.get(p.id)?.length ? { ...p, streets: streets.get(p.id) } : p));
     const { plan, note } = await this.planner.plan({
       placeName: place.name,
       center: place,
