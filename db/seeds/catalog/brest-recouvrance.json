@@ -1,0 +1,94 @@
+{
+  "key": "brest-recouvrance",
+  "name": "Brest, de la rue de Siam à Recouvrance",
+  "location": "Brest, centre et Recouvrance",
+  "summary": "Brest, ville du grand port de guerre : la place de la Liberté, la rue de Siam des ambassadeurs de 1686, le château qui garde la rade, le pont levant de Recouvrance, la tour Tanguy et les Ateliers des Capucins, reliés au centre par un téléphérique.",
+  "startText": "Rendez-vous sur la place de la Liberté, face à l'hôtel de ville (tram Liberté).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place de la Liberté",
+      "lat": 48.39072,
+      "lng": -4.48582,
+      "riddle": "Descendez vers le sud-ouest par l'avenue du Tigre, puis prenez l'artère qui porte le nom d'un royaume d'Asie dont les ambassadeurs débarquèrent à Brest sous Louis XIV. Arrêtez-vous à environ 950 pas, à mi-chemin du port.",
+      "hints": [
+        "L'avenue Georges-Clemenceau, puis la place du Général-Leclerc.",
+        "Le royaume s'appelle aujourd'hui la Thaïlande.",
+        "La rue de Siam."
+      ],
+      "photo": "File:Place_liberté2_800x600.JPG"
+    },
+    {
+      "title": "Rue de Siam",
+      "lat": 48.38747,
+      "lng": -4.48988,
+      "arrival": "En juin 1686, les ambassadeurs du roi Narai de Siam débarquèrent à Brest et remontèrent cette rue avant de gagner Versailles. Elle porte leur nom depuis. Presque entièrement détruite en 1944, Brest a été reconstruite après la guerre.",
+      "riddle": "Continuez vers le sud jusqu'au bout de la même rue, puis jusqu'au bord de la rade, à environ 1 400 pas. Une forteresse aux tours rondes, construite sur un rocher depuis l'Antiquité, garde l'entrée du port militaire.",
+      "hints": [
+        "Elle abrite la préfecture maritime.",
+        "On y visite un musée de la marine.",
+        "Le château de Brest."
+      ],
+      "photo": "File:Rue_de_Siam.jpg"
+    },
+    {
+      "title": "Château de Brest",
+      "lat": 48.38175,
+      "lng": -4.49301,
+      "arrival": "Le château de Brest, dont les fondations remontent à un fort romain, a été remanié par Vauban. C'est le plus ancien monument de la ville. Il abrite la préfecture maritime de l'Atlantique et le musée national de la Marine.",
+      "riddle": "Remontez vers le nord-ouest par le boulevard des gens de mer, le long de la rivière, à environ 750 pas. Un ouvrage dont le tablier se soulève entre deux grands pylônes enjambe la Penfeld pour laisser passer les navires.",
+      "hints": [
+        "Le boulevard de la Marine.",
+        "Le tram le traverse depuis 2012.",
+        "Le pont de Recouvrance."
+      ],
+      "photo": "File:17-10-2005-318donjonbrest.jpg"
+    },
+    {
+      "title": "Pont de Recouvrance",
+      "lat": 48.38433,
+      "lng": -4.49626,
+      "arrival": "Inauguré en 1954, le pont de Recouvrance est un pont levant : son tablier peut monter entre les deux pylônes pour laisser passer les navires. Il compte parmi les plus grands ponts levants d'Europe.",
+      "riddle": "Traversez vers l'ouest : sur l'autre rive, au pied de l'ouvrage, à moins de 250 pas, par la rue qui porte le nom de ce que vous cherchez, un donjon médiéval de pierre accueille un musée du vieux Brest.",
+      "hints": [
+        "La rue de la Tour.",
+        "Elle porte le nom d'une grande famille bretonne.",
+        "La tour Tanguy."
+      ],
+      "photo": "File:Brest_harbour2.JPG"
+    },
+    {
+      "title": "Tour Tanguy",
+      "lat": 48.38337,
+      "lng": -4.49712,
+      "arrival": "La tour Tanguy, du XIVᵉ siècle, faisait face au château de l'autre côté de la Penfeld. Elle abrite un musée dont les dioramas montrent Brest avant les destructions de 1944.",
+      "riddle": "Remontez vers le nord dans le quartier de la rive droite, par la place du corsaire de Dunkerque, à environ 1 500 pas. D'anciens hangars de la marine, où l'on usinait les pièces des navires, sont devenus une grande halle publique, reliée au centre par une cabine suspendue.",
+      "hints": [
+        "La place Jean-Bart, puis la rue du Carpon.",
+        "Le téléphérique traverse la Penfeld.",
+        "Les Ateliers des Capucins."
+      ],
+      "photo": "File:Tourtanguy042006.jpg"
+    },
+    {
+      "title": "Ateliers des Capucins",
+      "lat": 48.38982,
+      "lng": -4.49995,
+      "arrival": "Bravo ! Construits au XIXᵉ siècle à l'emplacement d'un couvent de capucins, ces ateliers de la marine ont été transformés en lieu public. Depuis 2016, un téléphérique urbain, le premier de ce type en France, les relie au centre-ville au-dessus de la Penfeld.",
+      "photo": "File:Ateliers_Plateau_des_capucins_2006.jpg"
+    }
+  ]
+}

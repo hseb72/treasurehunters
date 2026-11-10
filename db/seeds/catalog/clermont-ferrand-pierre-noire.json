@@ -1,0 +1,94 @@
+{
+  "key": "clermont-ferrand-pierre-noire",
+  "name": "Clermont-Ferrand, la ville de pierre noire",
+  "location": "Clermont-Ferrand, centre historique",
+  "summary": "Le Clermont de lave et de basalte : la place de Jaude et Vercingétorix, la place de la Victoire et le pape de la première croisade, la cathédrale de pierre de Volvic, la fontaine d'Amboise face au puy de Dôme et la basilique romane Notre-Dame-du-Port.",
+  "startText": "Rendez-vous au centre de la place de Jaude (tram Jaude).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 45,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place de Jaude",
+      "lat": 45.77641,
+      "lng": 3.08214,
+      "riddle": "Faites quelques pas vers le nord, sur la même place, à environ 150 pas. Le chef arverne, à cheval et l'épée levée, y charge les légions romaines ; l'œuvre est du sculpteur de la statue de la Liberté.",
+      "hints": [
+        "Le sculpteur s'appelait Bartholdi.",
+        "Le chef gaulois a vaincu César à Gergovie.",
+        "La statue de Vercingétorix."
+      ],
+      "photo": "File:Jaude_04.JPG"
+    },
+    {
+      "title": "Statue de Vercingétorix",
+      "lat": 45.77712,
+      "lng": 3.08194,
+      "arrival": "Œuvre d'Auguste Bartholdi, l'auteur de la statue de la Liberté, la statue équestre de Vercingétorix a été inaugurée en 1903. Le chef arverne battit César à Gergovie, à quelques kilomètres d'ici, en 52 avant J.-C.",
+      "riddle": "Montez vers l'est par la rue où siège le représentant de l'État, à environ 600 pas, jusqu'à l'esplanade où se dresse la statue du pape qui prêcha la première croisade à Clermont, en 1095.",
+      "hints": [
+        "La rue de la Préfecture, puis la rue Prévôte.",
+        "Le pape s'appelait Urbain II.",
+        "La place de la Victoire."
+      ],
+      "photo": "File:Statue_de_Vercingétorix._(2).jpg"
+    },
+    {
+      "title": "Place de la Victoire",
+      "lat": 45.77804,
+      "lng": 3.08556,
+      "arrival": "En novembre 1095, au concile de Clermont, le pape Urbain II appela à la première croisade. Sa statue domine la place.",
+      "riddle": "Juste au nord, à environ 150 pas, par la place où l'on traitait les affaires, un grand sanctuaire gothique est entièrement bâti d'une pierre volcanique sombre ; ses deux flèches n'ont été achevées qu'au XIXᵉ siècle.",
+      "hints": [
+        "La place de la Bourse.",
+        "La pierre vient de Volvic.",
+        "La cathédrale Notre-Dame-de-l'Assomption."
+      ],
+      "photo": "File:Clermont-Ferrand,_France_(49280494937).jpg"
+    },
+    {
+      "title": "Cathédrale Notre-Dame-de-l'Assomption",
+      "lat": 45.77874,
+      "lng": 3.08583,
+      "arrival": "Commencée en 1248, la cathédrale est bâtie en pierre de lave de Volvic, solide et légère, qui lui donne sa couleur sombre. Sa façade et ses flèches ont été achevées au XIXᵉ siècle par Viollet-le-Duc.",
+      "riddle": "Contournez le chevet vers le nord par la rue où l'on frappait la monnaie, à environ 350 pas. Sur une petite place en terrasse, face au puy de Dôme, un bassin Renaissance sculpté dans la lave a été offert à la ville par un évêque en 1515.",
+      "hints": [
+        "La rue Tour-la-Monnaie.",
+        "L'évêque s'appelait Jacques d'Amboise.",
+        "La fontaine d'Amboise, place de la Poterne."
+      ],
+      "photo": "File:Cathedrale_vue_de_montjuzet_detail.jpg"
+    },
+    {
+      "title": "Fontaine d'Amboise",
+      "lat": 45.78036,
+      "lng": 3.0859,
+      "arrival": "Offerte en 1515 par l'évêque Jacques d'Amboise, la fontaine, sculptée dans la pierre de Volvic, a été installée sur cette terrasse au XIXᵉ siècle. Par temps clair, on voit le puy de Dôme à l'ouest.",
+      "riddle": "Partez vers l'est par la rue du joli coup d'œil, à environ 600 pas. Un sanctuaire roman du XIIᵉ siècle, au chevet de pierre décoré de mosaïques de lave, est inscrit au patrimoine mondial au titre des chemins de Compostelle.",
+      "hints": [
+        "La rue Beauregard.",
+        "Il est dédié à la Vierge, et son nom évoque un lieu d'accostage.",
+        "La basilique Notre-Dame-du-Port."
+      ],
+      "photo": "File:Clermont-Ferrand._Fuente_de_Amboise.jpg"
+    },
+    {
+      "title": "Basilique Notre-Dame-du-Port",
+      "lat": 45.78068,
+      "lng": 3.08963,
+      "arrival": "Bravo ! Construite au XIIᵉ siècle, Notre-Dame-du-Port est l'une des grandes églises romanes d'Auvergne. Elle est inscrite au patrimoine mondial de l'UNESCO au titre des chemins de Saint-Jacques-de-Compostelle.",
+      "photo": "File:F08.N.-D._du_Port.0050.jpg"
+    }
+  ]
+}

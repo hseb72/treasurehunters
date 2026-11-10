@@ -1,0 +1,93 @@
+{
+  "key": "bordeaux-saint-pierre-saint-michel",
+  "name": "Bordeaux, du miroir d'eau aux tours de la ville",
+  "location": "Bordeaux, quartiers Saint-Pierre et Saint-Michel",
+  "summary": "De la place de la Bourse aux tours de Bordeaux : le miroir d'eau, la porte Cailhau élevée pour une victoire de Charles VIII, la flèche de Saint-Michel, la Grosse Cloche, la tour Pey-Berland et le palais d'un archevêque devenu hôtel de ville.",
+  "startText": "Rendez-vous au bord du miroir d'eau, face à la place de la Bourse (tram Place de la Bourse).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Miroir d'eau",
+      "lat": 44.84169,
+      "lng": -0.56908,
+      "riddle": "Longez la Garonne vers le sud par le quai qui porte le nom du cardinal-ministre de Louis XIII. À environ 650 pas, une porte fortifiée de la fin du XVᵉ siècle, coiffée de toits pointus, s'ouvre sur le quartier Saint-Pierre.",
+      "hints": [
+        "Le quai Richelieu.",
+        "Elle a été élevée pour célébrer une victoire de Charles VIII en Italie.",
+        "La porte Cailhau, place du Palais."
+      ],
+      "photo": "File:Miroir_d'eau_Bordeaux_3.jpg"
+    },
+    {
+      "title": "Porte Cailhau",
+      "lat": 44.83875,
+      "lng": -0.56849,
+      "arrival": "Élevée en 1495, la porte Cailhau célèbre la victoire de Charles VIII à Fornoue, en Italie. Elle servait d'entrée à la ville depuis le port et donnait accès au palais de l'Ombrière, résidence des ducs d'Aquitaine.",
+      "riddle": "Partez vers le sud-est par la rue du poète latin né à Burdigala, puis par les ruelles du quartier. À environ 1 100 pas, un grand sanctuaire gothique est flanqué d'un clocher séparé, couronné d'une flèche de plus de cent mètres : la plus haute du sud de la France.",
+      "hints": [
+        "Le poète est Ausone : la rue Ausone, puis la rue de la Rousselle.",
+        "Il est dédié à l'archange qui terrassa le dragon.",
+        "La basilique Saint-Michel, place Meynard."
+      ]
+    },
+    {
+      "title": "Basilique Saint-Michel",
+      "lat": 44.83439,
+      "lng": -0.56505,
+      "arrival": "La basilique Saint-Michel a été construite du XIVᵉ au XVIᵉ siècle. Son clocher isolé, la « flèche Saint-Michel », culmine à 114 mètres : c'est la plus haute flèche du sud de la France.",
+      "riddle": "Partez vers l'ouest par le cours qui porte le nom de l'auteur des Misérables. À environ 1 000 pas, une porte fortifiée à deux tours rondes porte un énorme bourdon qui sonnait autrefois les heures de la ville.",
+      "hints": [
+        "Le cours Victor-Hugo.",
+        "C'était le beffroi de l'ancien hôtel de ville.",
+        "La Grosse Cloche, rue Saint-James."
+      ],
+      "photo": "File:10-Bordeaux_-_basilique_Saint-Michel_(3).JPG"
+    },
+    {
+      "title": "Grosse Cloche",
+      "lat": 44.83545,
+      "lng": -0.57136,
+      "arrival": "La Grosse Cloche est le beffroi de l'ancien hôtel de ville de Bordeaux, construit au XVᵉ siècle. Sa cloche ne sonne plus que dans les grandes occasions. Elle figure sur les armoiries de la ville.",
+      "riddle": "Remontez vers le nord-ouest par la grande rue piétonne de la sainte à la roue, puis prenez à gauche le cours des deux provinces perdues en 1871. À environ 950 pas, un clocher gothique isolé, élevé au XVᵉ siècle à côté de la cathédrale, est coiffé d'une statue dorée de la Vierge ; il porte le nom de l'archevêque qui le fit construire.",
+      "hints": [
+        "La rue Sainte-Catherine, puis le cours d'Alsace-et-Lorraine.",
+        "L'archevêque s'appelait Pierre Berland, Pey en gascon.",
+        "La tour Pey-Berland."
+      ],
+      "photo": "File:Grosse_cloche_de_Bordeaux.jpg"
+    },
+    {
+      "title": "Tour Pey-Berland",
+      "lat": 44.8376,
+      "lng": -0.57661,
+      "arrival": "L'archevêque Pey Berland fit construire ce clocher à partir de 1440, à l'écart de la cathédrale Saint-André, pour éviter que les vibrations des cloches ne l'abîment. La statue dorée de Notre-Dame d'Aquitaine le couronne depuis 1863.",
+      "riddle": "Traversez vers l'ouest la place qui porte le nom de l'archevêque, à environ 500 pas. La résidence construite au XVIIIᵉ siècle pour un archevêque d'une grande famille bretonne abrite aujourd'hui la mairie de Bordeaux.",
+      "hints": [
+        "La place Pey-Berland, puis la rue de l'Hôtel-de-Ville.",
+        "Son jardin abrite un musée des beaux-arts.",
+        "Le palais Rohan, place Pey-Berland."
+      ],
+      "photo": "File:Bordeaux_Tour_Pey_Berland_3.jpg"
+    },
+    {
+      "title": "Palais Rohan",
+      "lat": 44.83791,
+      "lng": -0.5797,
+      "arrival": "Bravo ! Construit à partir de 1771 pour l'archevêque Ferdinand Maximilien Mériadec de Rohan, le palais est devenu l'hôtel de ville de Bordeaux au XIXᵉ siècle. Ses jardins mènent au musée des Beaux-Arts.",
+      "photo": "File:00_2676_Hôtel_de_ville_de_Bordeaux_(Palais_Rohan).jpg"
+    }
+  ]
+}

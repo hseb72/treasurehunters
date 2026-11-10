@@ -1,0 +1,94 @@
+{
+  "key": "angers-cite-plantagenet",
+  "name": "Angers, du château à la maison d'Adam",
+  "location": "Angers, centre historique",
+  "summary": "Angers, ancienne capitale de l'Anjou : le château aux dix-sept tours, la cathédrale Saint-Maurice, la maison d'Adam et ses figures sculptées, la place du Ralliement, la galerie David d'Angers sous le toit de verre d'une abbatiale et le jardin du Mail.",
+  "startText": "Rendez-vous devant l'entrée du château, promenade du Bout-du-Monde. Le château et la galerie David d'Angers se visitent à certaines heures.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 55,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Château d'Angers",
+      "lat": 47.4705,
+      "lng": -0.5585,
+      "riddle": "Partez vers l'est par la promenade qui mène au bout de la terre, puis la place d'un évêque, à environ 550 pas. Un sanctuaire gothique coiffé de deux flèches domine la Maine ; un grand escalier, la « montée », y conduit depuis la rivière.",
+      "hints": [
+        "La promenade du Bout-du-Monde, puis la place Freppel.",
+        "Il est dédié à un officier romain martyr, chef de la légion thébaine.",
+        "La cathédrale Saint-Maurice."
+      ],
+      "photo": "File:Château_d'Angers-2015b.JPG"
+    },
+    {
+      "title": "Cathédrale Saint-Maurice",
+      "lat": 47.47058,
+      "lng": -0.55487,
+      "arrival": "Le château d'Angers, aux dix-sept tours de schiste et de tuffeau, a été construit au XIIIᵉ siècle par Blanche de Castille. Il abrite la tenture de l'Apocalypse, commandée vers 1375 par Louis Iᵉʳ d'Anjou : c'est le plus grand ensemble de tapisseries médiévales conservé. La cathédrale Saint-Maurice, en face, est l'un des premiers exemples du gothique angevin.",
+      "riddle": "Contournez le chevet vers l'est jusqu'à la place de la vraie croix : à quelques dizaines de pas, une demeure à colombages de la fin du XVᵉ siècle est couverte de figurines sculptées, dont certaines bien coquines.",
+      "hints": [
+        "La place Sainte-Croix.",
+        "Son nom évoque le premier homme.",
+        "La maison d'Adam."
+      ],
+      "photo": "File:Angers_cathedrale.jpg"
+    },
+    {
+      "title": "Maison d'Adam",
+      "lat": 47.47038,
+      "lng": -0.55408,
+      "arrival": "Construite à la fin du XVᵉ siècle, la maison d'Adam doit son nom à un pommier sculpté à l'angle de la façade, près duquel figuraient Adam et Ève. Elle est couverte de plusieurs dizaines de personnages sculptés, musiciens, saints et figures grivoises.",
+      "riddle": "Partez vers le nord-est par la rue des chaperons, à environ 300 pas, jusqu'à la grande esplanade du théâtre, cœur commerçant de la ville.",
+      "hints": [
+        "La rue Chaperonnière, puis la rue Chaussée-Saint-Pierre.",
+        "Le Grand Théâtre la borde.",
+        "La place du Ralliement."
+      ],
+      "photo": "File:Maison_Adam_Angers.jpg"
+    },
+    {
+      "title": "Place du Ralliement",
+      "lat": 47.47118,
+      "lng": -0.55228,
+      "arrival": "La place doit son nom aux volontaires qui s'y rassemblaient sous la Révolution. Le Grand Théâtre, de la fin du XIXᵉ siècle, la borde.",
+      "riddle": "Redescendez vers le sud-ouest, puis prenez la rue de tous les saints, à environ 700 pas. Une abbatiale gothique en ruine, couverte d'un toit de verre, abrite les plâtres d'un sculpteur né dans la ville, auteur du fronton du Panthéon.",
+      "hints": [
+        "La rue Toussaint.",
+        "Le sculpteur s'appelait Pierre-Jean David.",
+        "La galerie David d'Angers, rue Toussaint."
+      ],
+      "photo": "File:Angers_-_Tramway_-_Place_du_Ralliement.jpg"
+    },
+    {
+      "title": "Galerie David d'Angers",
+      "lat": 47.46914,
+      "lng": -0.55582,
+      "arrival": "L'abbatiale Toussaint, du XIIIᵉ siècle, ruinée après la Révolution, a été couverte d'une verrière en 1984 pour abriter les œuvres de Pierre-Jean David, dit David d'Angers, sculpteur né à Angers en 1788 et auteur du fronton du Panthéon, à Paris.",
+      "riddle": "Partez vers l'est, et prenez la rue d'une province de l'Est, à environ 1 600 pas. Un grand espace vert à la française s'étend devant l'hôtel de ville ; il porte le nom d'un ancien jeu de boule et de maillet.",
+      "hints": [
+        "La rue Saint-Aubin, puis la rue d'Alsace.",
+        "Le jeu ressemblait au croquet.",
+        "Le jardin du Mail."
+      ],
+      "photo": "File:Angers_-_Abbaye_Toussaint_(1).jpg"
+    },
+    {
+      "title": "Jardin du Mail",
+      "lat": 47.47029,
+      "lng": -0.54551,
+      "arrival": "Bravo ! Le jardin du Mail, devant l'hôtel de ville, doit son nom au jeu de mail, ancêtre du croquet, qu'on y pratiquait autrefois.",
+      "photo": "File:Kiosque_à_musique_du_Mail,_Angers.jpg"
+    }
+  ]
+}

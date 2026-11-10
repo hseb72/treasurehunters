@@ -1,0 +1,92 @@
+{
+  "key": "rennes-centre-historique",
+  "name": "Rennes, du Parlement aux portes de la ville",
+  "location": "Rennes, centre historique",
+  "summary": "Le centre de Rennes reconstruit après le grand incendie de 1720 et ses maisons à pans de bois rescapées : l'hôtel de ville et l'opéra, le palais du Parlement de Bretagne, les places du Champ-Jacquet et Sainte-Anne, les portes Mordelaises où entraient les ducs, et la cathédrale.",
+  "startText": "Rendez-vous sur la place de la Mairie, entre l'hôtel de ville et l'opéra (métro République).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place de la Mairie",
+      "lat": 48.11136,
+      "lng": -1.67943,
+      "riddle": "Partez vers le nord-est, puis prenez la rue d'un jeune général de la Révolution. À environ 450 pas, un palais du XVIIᵉ siècle, siège de la cour de justice de la province, a failli disparaître dans un incendie en 1994.",
+      "hints": [
+        "La rue Hoche, du nom du général Lazare Hoche.",
+        "Il accueille aujourd'hui la cour d'appel.",
+        "Le palais du Parlement de Bretagne."
+      ],
+      "photo": "File:Rennes_-_place_de_la_mairie_6_mai_2012-01.JPG"
+    },
+    {
+      "title": "Parlement de Bretagne",
+      "lat": 48.11282,
+      "lng": -1.67752,
+      "arrival": "Construit à partir de 1618 sur des plans de Salomon de Brosse, le palais du Parlement de Bretagne a été ravagé par un incendie dans la nuit du 4 au 5 février 1994, en marge d'une manifestation de marins-pêcheurs. Il a été restauré et a rouvert en 1999.",
+      "riddle": "Partez vers l'ouest par la rue de l'architecte du palais que vous quittez. À environ 400 pas, une place triangulaire est bordée de hautes maisons à pans de bois, rescapées du grand incendie de 1720 ; une statue y honore un maire de la Révolution.",
+      "hints": [
+        "La rue Salomon-de-Brosse.",
+        "Le maire s'appelait Jean Leperdit.",
+        "La place du Champ-Jacquet."
+      ],
+      "photo": "File:Rennes_-_Parlement_de_Bretagne.jpg"
+    },
+    {
+      "title": "Place du Champ-Jacquet",
+      "lat": 48.11299,
+      "lng": -1.68025,
+      "arrival": "En décembre 1720, un incendie ravagea le centre de Rennes pendant six jours. Les maisons à pans de bois de cette place font partie des rescapées. La statue honore Jean Leperdit, maire de Rennes en 1794.",
+      "riddle": "Remontez vers le nord, à environ 300 pas, jusqu'à une place animée bordée de maisons à colombages, devant une église néo-gothique et un ancien couvent de Jacobins.",
+      "hints": [
+        "Elle porte le nom de la mère de la Vierge.",
+        "L'ancien couvent est devenu un centre des congrès.",
+        "La place Sainte-Anne."
+      ],
+      "photo": "File:Rennes6.JPG"
+    },
+    {
+      "title": "Place Sainte-Anne",
+      "lat": 48.11442,
+      "lng": -1.68057,
+      "arrival": "La place Sainte-Anne est bordée de maisons à pans de bois du XVᵉ au XVIIᵉ siècle. L'ancien couvent des Jacobins, tout proche, a été transformé en centre des congrès.",
+      "riddle": "Descendez vers le sud-ouest par la rue que les étudiants surnomment « de la soif », traversez la place des anciennes joutes, puis suivez la rue qui porte le nom de ce que vous cherchez. À environ 850 pas, deux tours massives du XVᵉ siècle gardent l'ancienne entrée de la ville.",
+      "hints": [
+        "La rue Saint-Michel, la place des Lices, puis la rue des Portes-Mordelaises.",
+        "Les ducs de Bretagne entraient par là avant leur couronnement.",
+        "Les portes Mordelaises."
+      ]
+    },
+    {
+      "title": "Portes Mordelaises",
+      "lat": 48.11213,
+      "lng": -1.68497,
+      "arrival": "Les portes Mordelaises, du XVᵉ siècle, sont le principal vestige des remparts de Rennes. Les ducs de Bretagne entraient par là avant leur couronnement à la cathédrale.",
+      "riddle": "Partez vers le sud-est par la rue où l'on frappait les pièces, à environ 250 pas. Le principal sanctuaire de la ville, reconstruit au XIXᵉ siècle, présente une façade classique flanquée de deux tours.",
+      "hints": [
+        "La rue de la Monnaie.",
+        "Il est dédié à l'apôtre porte-clés.",
+        "La cathédrale Saint-Pierre."
+      ]
+    },
+    {
+      "title": "Cathédrale Saint-Pierre",
+      "lat": 48.1116,
+      "lng": -1.68338,
+      "arrival": "Bravo ! La cathédrale Saint-Pierre a été reconstruite de la fin du XVIIIᵉ siècle au milieu du XIXᵉ, après l'effondrement de l'ancienne. L'intérieur, tout de dorures, contraste avec la façade austère.",
+      "photo": "File:Cathedral_Rennes.jpg"
+    }
+  ]
+}

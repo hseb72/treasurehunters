@@ -1,0 +1,94 @@
+{
+  "key": "reims-centre",
+  "name": "Reims, de la porte de Mars à la cathédrale des sacres",
+  "location": "Reims, centre-ville",
+  "summary": "Du Reims romain au Reims royal : la place du maréchal Drouet d'Erlon, la porte de Mars, plus large arc de l'Empire romain, l'hôtel de ville incendié en 1917, la galerie souterraine de l'ancien forum, la place Royale de Louis XV et la cathédrale où furent sacrés les rois de France.",
+  "startText": "Rendez-vous au centre de la place Drouet-d'Erlon, près de la fontaine (tram Théâtre ou Gare Centre). Le cryptoportique se visite à certaines périodes ; on le voit depuis la place du Forum.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Drouet-d'Erlon",
+      "lat": 49.25629,
+      "lng": 4.0265,
+      "riddle": "Partez vers le nord-est par la rue du premier président de la IIIᵉ République, puis le boulevard du maréchal vainqueur de 1918. À environ 1 100 pas, un arc romain du IIIᵉ siècle, le plus large du monde romain, ouvrait la ville sur la route du nord ; il porte le nom du dieu de la guerre.",
+      "hints": [
+        "La rue Thiers, puis le boulevard Foch.",
+        "Le dieu de la guerre, chez les Romains, est Mars.",
+        "La porte de Mars."
+      ],
+      "photo": "File:Place_Drouet-d’Erlon.jpg"
+    },
+    {
+      "title": "Porte de Mars",
+      "lat": 49.26061,
+      "lng": 4.02995,
+      "arrival": "Élevée au IIIᵉ siècle, la porte de Mars est le plus large arc connu du monde romain. Ses trois arches ouvraient l'antique Durocortorum, capitale de la province de Gaule Belgique.",
+      "riddle": "Redescendez vers le sud par la rue d'un général de l'armée d'Orient. À environ 550 pas, un grand édifice à beffroi, rebâti après l'incendie de 1917, abrite la mairie.",
+      "hints": [
+        "La rue du Général-Sarrail.",
+        "Une statue équestre de Louis XIII orne sa façade.",
+        "L'hôtel de ville de Reims."
+      ],
+      "photo": "File:The_Porte_Mars,_an_ancient_Roman_triumphal_arch_in_Reims_dating_from_the_3rd_century_AD_and_the_widest_arch_in_the_Roman_world,_Durocortorum_(Reims,_France)_(9292412785).jpg"
+    },
+    {
+      "title": "Hôtel de ville de Reims",
+      "lat": 49.25824,
+      "lng": 4.03118,
+      "arrival": "Commencé au XVIIᵉ siècle, l'hôtel de ville est orné d'une statue équestre de Louis XIII. Il fut incendié en mai 1917, pendant les bombardements de la Grande Guerre, puis reconstruit.",
+      "riddle": "Partez vers le sud-est et suivez le tambour, à environ 550 pas, jusqu'à la place qui porte le nom de la grande place publique romaine. Une galerie à demi enterrée y longeait le forum antique.",
+      "hints": [
+        "La rue de Tambour, où se dresse la maison des Musiciens.",
+        "On l'appelle un cryptoportique.",
+        "Le cryptoportique, place du Forum."
+      ],
+      "photo": "File:Hôtel_de_Ville_de_Reims,_Southeast_View_20140306_1.jpg"
+    },
+    {
+      "title": "Cryptoportique",
+      "lat": 49.25666,
+      "lng": 4.03401,
+      "arrival": "Ce cryptoportique, une galerie semi-enterrée du IIᵉ ou IIIᵉ siècle, bordait le forum de Durocortorum. On y conservait sans doute des marchandises à l'abri de la chaleur.",
+      "riddle": "Faites quelques pas vers le sud, à environ 250 pas. Une place à arcades, aménagée sous Louis XV, garde au centre la statue du roi en empereur romain.",
+      "hints": [
+        "Son architecte s'appelait Jean-Gabriel Legendre.",
+        "Son nom dit qu'elle fut dédiée au roi.",
+        "La place Royale."
+      ],
+      "photo": "File:Cryptoportique1.jpg"
+    },
+    {
+      "title": "Place Royale",
+      "lat": 49.25553,
+      "lng": 4.0341,
+      "arrival": "Aménagée au milieu du XVIIIᵉ siècle, la place Royale accueillait une statue de Louis XV par Pigalle, détruite à la Révolution. La statue actuelle, refaite au XIXᵉ siècle, a gardé le socle d'origine et ses deux figures allégoriques.",
+      "riddle": "Descendez vers le sud-ouest par la rue du cloître des chanoines, à environ 300 pas. Le grand sanctuaire gothique, commencé au XIIIᵉ siècle, a vu sacrer presque tous les rois de France ; un ange y sourit au portail.",
+      "hints": [
+        "La rue du Cloître, puis la place du Chapitre.",
+        "On l'appelle l'Ange au sourire.",
+        "La cathédrale Notre-Dame de Reims."
+      ],
+      "photo": "File:Place_Royale_in_Reims_(France).jpg"
+    },
+    {
+      "title": "Cathédrale Notre-Dame de Reims",
+      "lat": 49.2543,
+      "lng": 4.0332,
+      "arrival": "Bravo ! Commencée en 1211, la cathédrale de Reims a vu le sacre de la plupart des rois de France, de Louis VIII à Charles X ; Jeanne d'Arc y conduisit Charles VII en 1429. Gravement touchée par les obus en 1914, elle a été restaurée. Cherchez, au portail nord de la façade, l'Ange au sourire.",
+      "photo": "File:Reims_Cathedral_016_8341.jpg"
+    }
+  ]
+}

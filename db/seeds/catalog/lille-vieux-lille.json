@@ -1,0 +1,106 @@
+{
+  "key": "lille-vieux-lille",
+  "name": "Lille, de la Déesse au berceau du Général",
+  "location": "Lille, Grand Place et Vieux-Lille",
+  "summary": "De la Grand Place au Vieux-Lille : la colonne de la Déesse qui rappelle le siège de 1792, la Vieille Bourse et son marché aux livres, l'opéra, la cathédrale à la façade de marbre translucide, la place aux Oignons, l'hospice d'une comtesse de Flandre et la maison natale de Charles de Gaulle.",
+  "startText": "Rendez-vous au pied de la colonne de la Déesse, au centre de la Grand Place (métro Rihour). La Vieille Bourse et l'hospice Comtesse ont des horaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Colonne de la Déesse",
+      "lat": 50.63689,
+      "lng": 3.06474,
+      "riddle": "À quelques dizaines de pas, vers le nord-ouest, un édifice flamand du XVIIᵉ siècle réunit vingt-quatre maisons autour d'une cour où bouquinistes et joueurs d'échecs se retrouvent.",
+      "hints": [
+        "Les marchands y négociaient leurs affaires.",
+        "Son architecte s'appelait Julien Destrée.",
+        "La Vieille Bourse, entre la Grand Place et la place du Théâtre."
+      ],
+      "photo": "File:Lille_gd_place.jpg"
+    },
+    {
+      "title": "Vieille Bourse",
+      "lat": 50.63705,
+      "lng": 3.06402,
+      "arrival": "Construite en 1652 et 1653 par Julien Destrée, la Vieille Bourse réunit vingt-quatre maisons autour d'une cour. Les bouquinistes y tiennent marché et, l'été, on y danse le tango. Sur la Grand Place, la colonne de la Déesse rappelle la résistance de la ville au siège autrichien de 1792.",
+      "riddle": "Traversez vers l'est la place qui porte le nom de l'art de la scène. À environ 250 pas, une salle de spectacle à colonnes, inaugurée en 1923, fait face au beffroi de la chambre de commerce.",
+      "hints": [
+        "La place du Théâtre.",
+        "Son architecte est Louis-Marie Cordonnier.",
+        "L'opéra de Lille."
+      ],
+      "photo": "File:Lille_vieille_bourse_place_theatre.jpg"
+    },
+    {
+      "title": "Opéra de Lille",
+      "lat": 50.63772,
+      "lng": 3.06532,
+      "arrival": "Construit après l'incendie du théâtre précédent, l'opéra de Louis-Marie Cordonnier fut achevé en 1913 mais inauguré seulement en 1923, à cause de la guerre. Il fait face au beffroi de la chambre de commerce, du même architecte.",
+      "riddle": "Partez vers le nord-ouest et entrez dans le Vieux-Lille par la rue de chats au dos rond. À environ 650 pas, un sanctuaire commencé au XIXᵉ siècle a reçu à la fin du XXᵉ une façade de marbre si fin que la lumière le traverse.",
+      "hints": [
+        "La rue des Chats-Bossus, puis la rue Basse.",
+        "Sa façade a été achevée en 1999.",
+        "La cathédrale Notre-Dame-de-la-Treille, place Gilleson."
+      ],
+      "photo": "File:Lille_opera_face.JPG"
+    },
+    {
+      "title": "Cathédrale Notre-Dame-de-la-Treille",
+      "lat": 50.63987,
+      "lng": 3.06221,
+      "arrival": "Commencée en 1854, la cathédrale n'a été terminée qu'en 1999, avec sa façade de marbre translucide : vue de l'intérieur, elle s'illumine comme un vitrail. Elle doit son nom à une statue de la Vierge entourée d'une treille.",
+      "riddle": "Faites quelques pas vers le nord, à environ 250 pas, en traversant la place d'un ancien maire de la ville, jusqu'à une petite place pavée qui porte le nom d'un légume que l'on y vendait.",
+      "hints": [
+        "La place Gilleson borde le sanctuaire.",
+        "Le légume fait pleurer quand on l'épluche.",
+        "La place aux Oignons."
+      ]
+    },
+    {
+      "title": "Place aux Oignons",
+      "lat": 50.6409,
+      "lng": 3.06156,
+      "arrival": "La place aux Oignons, avec ses maisons basses et ses pavés, est l'un des coins les plus charmants du Vieux-Lille. Son nom rappelle les marchés d'autrefois.",
+      "riddle": "Partez vers l'est jusqu'à la rue de l'ancien atelier où l'on frappait les pièces. À environ 250 pas, un établissement de soins fondé au XIIIᵉ siècle par la souveraine de Flandre abrite un musée.",
+      "hints": [
+        "La rue de la Monnaie.",
+        "La comtesse s'appelait Jeanne de Constantinople.",
+        "L'hospice Comtesse, rue de la Monnaie."
+      ]
+    },
+    {
+      "title": "Hospice Comtesse",
+      "lat": 50.64117,
+      "lng": 3.0632,
+      "arrival": "Fondé en 1237 par Jeanne de Constantinople, comtesse de Flandre, l'hospice a accueilli des malades pendant plus de cinq siècles. Il abrite aujourd'hui un musée.",
+      "riddle": "Partez vers le nord-ouest par la rue du tribunal, puis traversez la place de la musique. Au bout de la rue qui porte le titre de la fille d'un roi, au numéro 9, à environ 1 200 pas, la demeure des grands-parents d'un futur président de la République l'a vu naître en novembre 1890.",
+      "hints": [
+        "La rue du Palais-de-Justice, la place du Concert, puis la rue Princesse.",
+        "Il lança l'appel du 18 juin 1940.",
+        "La maison natale de Charles de Gaulle, 9 rue Princesse."
+      ],
+      "photo": "File:Lille_Hospice_comtesse_entrée.jpg"
+    },
+    {
+      "title": "Maison natale de Charles de Gaulle",
+      "lat": 50.64585,
+      "lng": 3.05867,
+      "address": "9, rue Princesse",
+      "arrival": "Bravo ! Charles de Gaulle est né ici le 22 novembre 1890, dans la maison de ses grands-parents maternels. Elle est devenue un musée.",
+      "photo": "File:Lille_maison-musee_de_gaulle.JPG"
+    }
+  ]
+}

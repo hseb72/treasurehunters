@@ -1,0 +1,91 @@
+{
+  "key": "saint-etienne-centre",
+  "name": "Saint-Étienne, de la Grand'Église à la Cité du design",
+  "location": "Saint-Étienne, centre-ville",
+  "summary": "De la vieille ville à la ville du design : l'hôtel de ville, la place du Peuple, la Grand'Église qui a donné son nom à la ville, la place Jean-Jaurès et sa cathédrale du XXᵉ siècle, puis l'ancienne Manufacture d'armes devenue la Cité du design.",
+  "startText": "Rendez-vous devant l'hôtel de ville, place de l'Hôtel-de-Ville (tram Hôtel de Ville).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Hôtel de ville de Saint-Étienne",
+      "lat": 45.43865,
+      "lng": 4.38733,
+      "riddle": "Descendez vers le sud par la rue d'un général de l'Empire devenu député, à environ 500 pas, jusqu'à la place au cœur de la vieille ville, celle que l'on a dédiée à tous les citoyens.",
+      "hints": [
+        "La rue du Général-Foy.",
+        "Son nom désigne l'ensemble des citoyens.",
+        "La place du Peuple."
+      ]
+    },
+    {
+      "title": "Place du Peuple",
+      "lat": 45.43638,
+      "lng": 4.388,
+      "arrival": "La place du Peuple est l'ancien cœur de Saint-Étienne, au carrefour des routes qui traversaient le bourg médiéval.",
+      "riddle": "Partez vers l'ouest par la rue des anciens fossés de l'enceinte, à environ 300 pas. Le plus ancien sanctuaire de la ville, gothique, a donné son nom à la cité : il est dédié au premier martyr chrétien.",
+      "hints": [
+        "La rue des Fossés.",
+        "Les Stéphanois l'appellent la Grand'Église.",
+        "La Grand'Église, place Boivin."
+      ]
+    },
+    {
+      "title": "Grand'Église",
+      "lat": 45.43643,
+      "lng": 4.38592,
+      "arrival": "La Grand'Église, la plus ancienne de la ville, est dédiée à saint Laurent et à saint Étienne, le premier martyr : c'est de lui que la ville tient son nom.",
+      "riddle": "Remontez vers le nord par la rue de ceux qui refusèrent l'occupation, à environ 1 100 pas, jusqu'à la grande place ombragée qui porte le nom du fondateur de L'Humanité. Un kiosque à musique s'y dresse au milieu des arbres.",
+      "hints": [
+        "La rue de la Résistance.",
+        "Jean Jaurès fonda le journal L'Humanité en 1904.",
+        "La place Jean-Jaurès."
+      ],
+      "photo": "File:Image-La_Grand'Église1.jpg"
+    },
+    {
+      "title": "Place Jean-Jaurès",
+      "lat": 45.44127,
+      "lng": 4.38552,
+      "arrival": "Place centrale de Saint-Étienne, la place Jean-Jaurès est ombragée de platanes et animée par son kiosque à musique.",
+      "riddle": "Au bord de la même place, à moins de 200 pas vers l'ouest, un sanctuaire néo-gothique du début du XXᵉ siècle, siège de l'évêque depuis 1971, est dédié à un archevêque de Milan.",
+      "hints": [
+        "Il donne sur la rue Émile-Combes.",
+        "L'archevêque est saint Charles Borromée.",
+        "La cathédrale Saint-Charles."
+      ],
+      "photo": "File:Saint_Étienne-Place_Jean_Jaurès-2010_01_17-Perspective.jpg"
+    },
+    {
+      "title": "Cathédrale Saint-Charles",
+      "lat": 45.44104,
+      "lng": 4.38458,
+      "arrival": "Achevée au début du XXᵉ siècle, l'église Saint-Charles-Borromée est devenue cathédrale en 1971, lors de la création du diocèse de Saint-Étienne.",
+      "riddle": "Remontez vers le nord par la rue d'une victoire de Bonaparte dans le Piémont, à environ 2 000 pas. Une immense ancienne manufacture où l'on fabriquait des armes accueille depuis 2009 un centre consacré à la création industrielle et à la conception des objets.",
+      "hints": [
+        "La rue Marengo, puis la rue Bergson.",
+        "La place porte le nom de l'ancienne usine.",
+        "La Cité du design, place de la Manufacture-d'Armes."
+      ],
+      "photo": "File:Saint-etienne_cathedrale.JPG"
+    },
+    {
+      "title": "Cité du design",
+      "lat": 45.44987,
+      "lng": 4.3842,
+      "arrival": "Bravo ! La Manufacture d'armes de Saint-Étienne a produit des armes pendant plus d'un siècle. Une partie de ses bâtiments accueille depuis 2009 la Cité du design. Saint-Étienne, ville d'armes, de cycles et de rubans, est devenue « ville créative de design » de l'UNESCO en 2010."
+    }
+  ]
+}

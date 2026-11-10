@@ -1,0 +1,92 @@
+{
+  "key": "nimes-fontaine",
+  "name": "Nîmes, du crocodile à la tour Magne",
+  "location": "Nîmes, centre et jardins de la Fontaine",
+  "summary": "Du centre de Nîmes aux jardins de la Fontaine : le crocodile enchaîné au palmier, emblème de la ville, la cathédrale, le Carré d'Art de Norman Foster, les jardins du XVIIIᵉ siècle autour de la source sacrée, le temple de Diane et la tour Magne au sommet du mont Cavalier.",
+  "startText": "Rendez-vous près de la fontaine au crocodile, place du Marché. Les jardins de la Fontaine ont des horaires d'ouverture ; la montée à la tour Magne est payante.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Fontaine du crocodile",
+      "lat": 43.83617,
+      "lng": 4.35894,
+      "riddle": "Partez vers le nord-est par la rue du trésor, à environ 550 pas. Un sanctuaire dont la façade porte une frise romane sculptée de scènes de la Genèse, d'Adam et Ève à Noé, est le siège de l'évêque.",
+      "hints": [
+        "La rue de la Trésorerie, puis la place du Chapitre.",
+        "Il est dédié à la Vierge et à un évêque d'Apt.",
+        "La cathédrale Notre-Dame-et-Saint-Castor."
+      ]
+    },
+    {
+      "title": "Cathédrale Notre-Dame-et-Saint-Castor",
+      "lat": 43.83834,
+      "lng": 4.3604,
+      "arrival": "La fontaine de la place du Marché, œuvre de Martial Raysse (1987), reprend l'emblème de Nîmes : un crocodile enchaîné à un palmier. Il vient d'une monnaie frappée par la colonie romaine de Nemausus, où s'étaient installés des vétérans de la conquête de l'Égypte.",
+      "riddle": "Partez vers l'ouest par la rue de la pécheresse repentie, puis la place de l'horloge, à environ 850 pas. Un édifice de verre et d'acier, dessiné par Norman Foster, abrite une médiathèque et un musée d'art contemporain ; il fait face à un temple romain.",
+      "hints": [
+        "La rue de la Madeleine, puis la place de l'Horloge.",
+        "Il a été inauguré en 1993.",
+        "Le Carré d'Art."
+      ],
+      "photo": "File:Cathedral,_Nimes.JPG"
+    },
+    {
+      "title": "Carré d'Art",
+      "lat": 43.83798,
+      "lng": 4.35507,
+      "arrival": "Inauguré en 1993, le Carré d'Art de Norman Foster répond, par ses fines colonnes d'acier, au temple romain de la Maison Carrée qui lui fait face.",
+      "riddle": "Partez vers l'ouest et longez le canal par le quai de la source, à environ 900 pas, jusqu'à un vaste parc du XVIIIᵉ siècle aménagé autour d'une source sacrée de l'Antiquité, au pied d'une colline.",
+      "hints": [
+        "Le quai de la Fontaine.",
+        "La source était consacrée au dieu Nemausus, qui a donné son nom à la ville.",
+        "Les jardins de la Fontaine."
+      ]
+    },
+    {
+      "title": "Jardins de la Fontaine",
+      "lat": 43.839,
+      "lng": 4.34977,
+      "arrival": "Aménagés à partir de 1745 autour de la source qui donna naissance à la ville antique, les jardins de la Fontaine comptent parmi les premiers jardins publics d'Europe.",
+      "riddle": "Faites quelques pas vers le nord-ouest, à environ 300 pas, au bout du quai du Tigre. Les ruines d'un édifice romain, voûté de pierre, ont été attribuées sans preuve à une déesse chasseresse.",
+      "hints": [
+        "Le quai Georges-Clemenceau.",
+        "La déesse est la sœur d'Apollon.",
+        "Le temple de Diane."
+      ],
+      "photo": "File:NimesJardins.jpg"
+    },
+    {
+      "title": "Temple de Diane",
+      "lat": 43.83991,
+      "lng": 4.34838,
+      "arrival": "On ignore la fonction exacte de cet édifice du Iᵉʳ ou du IIᵉ siècle : bibliothèque, salle d'un sanctuaire ? Le nom de « temple de Diane » lui a été donné bien plus tard, sans preuve.",
+      "riddle": "Montez vers le nord par les allées du parc, à environ 750 pas, jusqu'au sommet du mont Cavalier. Une haute bâtisse romaine, la plus grande des tours de l'enceinte d'Auguste, domine toute la ville.",
+      "hints": [
+        "Son nom vient du latin magnus, « grand ».",
+        "Un jardinier y a cherché un trésor sur la foi d'une prophétie.",
+        "La tour Magne."
+      ],
+      "photo": "File:Roman_Temple_-_Nîmes.JPG"
+    },
+    {
+      "title": "Tour Magne",
+      "lat": 43.84308,
+      "lng": 4.34947,
+      "arrival": "Bravo ! La tour Magne faisait partie de l'enceinte construite sous Auguste. En 1601, un jardinier, François Traucat, persuadé d'après une prophétie de Nostradamus qu'un trésor y était caché, obtint d'Henri IV l'autorisation de fouiller à ses frais : il ne trouva rien et faillit faire s'écrouler la tour.",
+      "photo": "File:281_Tour_Magne_NIM_1008.jpg"
+    }
+  ]
+}

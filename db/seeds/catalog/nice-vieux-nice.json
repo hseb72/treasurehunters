@@ -1,0 +1,106 @@
+{
+  "key": "nice-vieux-nice",
+  "name": "Nice, des jardins de Masséna au port Garibaldi",
+  "location": "Nice, Vieux-Nice et colline du Château",
+  "summary": "Une balade dans le Vieux-Nice : la grande place Masséna, l'opéra, le cours Saleya et son marché aux fleurs, un palais baroque, la cathédrale de la sainte venue par la mer, la colline du Château et sa vue sur la baie des Anges, puis la place du héros de l'unité italienne, né à Nice.",
+  "startText": "Rendez-vous au centre de la place Masséna, près de la fontaine du Soleil (tram Masséna). La montée à la colline du Château se fait par des escaliers ; un ascenseur existe en saison.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Masséna",
+      "lat": 43.69695,
+      "lng": 7.27032,
+      "riddle": "Partez vers le sud-est, vers la mer, puis suivez vers l'est la rue d'un saint ermite de Calabre. À environ 500 pas, une salle de spectacle reconstruite après l'incendie de 1881 donne sur le quai qui longe la plage.",
+      "hints": [
+        "La rue Saint-François-de-Paule.",
+        "On y joue opéras et ballets.",
+        "L'opéra de Nice."
+      ],
+      "photo": "File:NIKAIA-MassenaPlN3-2007-05-01.jpg"
+    },
+    {
+      "title": "Opéra de Nice",
+      "lat": 43.69542,
+      "lng": 7.2725,
+      "arrival": "L'opéra de Nice a été reconstruit à la fin du XIXᵉ siècle, après l'incendie qui détruisit l'ancien théâtre en 1881 pendant une représentation.",
+      "riddle": "Continuez vers l'est par la même rue de l'ermite, à environ 400 pas, jusqu'à la longue place piétonne où se tient chaque matin le marché aux fleurs. Le peintre Henri Matisse a habité l'immeuble jaune qui la ferme à l'est.",
+      "hints": [
+        "Toujours la rue Saint-François-de-Paule.",
+        "Les Niçois prononcent son nom « Saléya ».",
+        "Le cours Saleya."
+      ],
+      "photo": "File:Opéra_de_Nice_(façade_nord).jpg"
+    },
+    {
+      "title": "Cours Saleya",
+      "lat": 43.69561,
+      "lng": 7.2751,
+      "arrival": "Le cours Saleya accueille un marché aux fleurs et aux légumes. Henri Matisse vécut au numéro 1 de la place Charles-Félix, au bout du cours, de 1921 à 1938.",
+      "riddle": "Remontez vers le nord-est dans les ruelles du Vieux-Nice jusqu'à la rue qui porte un nom tout simple : celle qui ne tourne pas. À environ 550 pas, une demeure baroque du XVIIᵉ siècle, construite pour une famille noble, abrite une collection d'instruments de musique.",
+      "hints": [
+        "La rue Droite traverse le Vieux-Nice.",
+        "La famille était celle des comtes de Vintimille.",
+        "Le palais Lascaris, 15 rue Droite."
+      ],
+      "photo": "File:Nizza.jpg"
+    },
+    {
+      "title": "Palais Lascaris",
+      "lat": 43.69768,
+      "lng": 7.27715,
+      "arrival": "Construit au XVIIᵉ siècle pour la famille Lascaris-Vintimille, le palais garde un escalier d'honneur orné de fresques. Il abrite une collection d'instruments de musique anciens.",
+      "riddle": "Partez vers le sud-ouest par la rue du milieu, à environ 250 pas, jusqu'à une place où un sanctuaire baroque, coiffé d'un dôme de tuiles vernissées, est dédié à la sainte patronne de la ville.",
+      "hints": [
+        "La rue Centrale mène à la place Rossetti, réputée pour ses glaciers.",
+        "La sainte est une martyre de Palestine.",
+        "La cathédrale Sainte-Réparate, place Rossetti."
+      ],
+      "photo": "File:Lascaris2.JPG"
+    },
+    {
+      "title": "Cathédrale Sainte-Réparate",
+      "lat": 43.69713,
+      "lng": 7.27573,
+      "arrival": "Selon la légende, le corps de sainte Réparate, martyre de Palestine, arriva sur une barque guidée par des anges : la baie en aurait gardé le nom de baie des Anges. La cathédrale a été construite à partir de 1650.",
+      "riddle": "Partez vers le sud-est par la rue de l'assemblée des anciens, puis grimpez les escaliers de la hauteur qui domine la ville. À environ 850 pas, un belvédère offre la plus belle vue sur la baie des Anges et le Vieux-Nice.",
+      "hints": [
+        "La rue du Sénat.",
+        "Un château fort s'y dressait jusqu'au début du XVIIIᵉ siècle.",
+        "La colline du Château."
+      ],
+      "photo": "File:Cathedrale_Sainte-Reparate_Nice.jpg"
+    },
+    {
+      "title": "Colline du Château",
+      "lat": 43.69465,
+      "lng": 7.2799,
+      "arrival": "Le château de Nice, qui couronnait cette colline, fut rasé en 1706 sur ordre de Louis XIV. La colline est devenue un parc au XIXᵉ siècle, avec une cascade artificielle. D'ici, la baie des Anges s'étend jusqu'à l'aéroport.",
+      "riddle": "Redescendez vers le nord par l'allée de ceux qui sauvèrent des Juifs pendant la guerre, à environ 1 400 pas, jusqu'à une grande place à arcades ocre, de style piémontais. Elle porte le nom du héros de l'unité italienne, né à Nice en 1807.",
+      "hints": [
+        "L'allée des Justes descend vers le port.",
+        "Le héros aux chemises rouges.",
+        "La place Garibaldi."
+      ]
+    },
+    {
+      "title": "Place Garibaldi",
+      "lat": 43.70112,
+      "lng": 7.28027,
+      "arrival": "Bravo ! Giuseppe Garibaldi est né à Nice en 1807, quand la ville appartenait encore au royaume de Piémont-Sardaigne. Nice n'est devenue française qu'en 1860. La place, aux arcades de style turinois, date de la fin du XVIIIᵉ siècle.",
+      "photo": "File:GaribaldiPano1.jpg"
+    }
+  ]
+}
