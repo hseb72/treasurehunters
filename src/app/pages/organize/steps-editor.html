@@ -305,6 +305,8 @@
   }
 }
 
+<th-hunt-transfer class="transfer" [huntId]="workspace.huntId()" (imported)="afterTransfer($event)" />
+
 <div class="route">
   @if (start(); as s) {
     <ng-container *ngTemplateOutlet="stepCard; context: { $implicit: s, kind: 'start' }" />

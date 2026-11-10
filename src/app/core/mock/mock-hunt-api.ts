@@ -57,6 +57,7 @@ import { sketchTrail } from '@shared/souvenir';
 import { AudienceTag, PracticalTag, Setting } from '@shared/practical';
 import { TeamRole } from '@shared/roles';
 import { McpStats } from '@shared/mcp';
+import { HUNT_FILE_FORMAT, HuntFile, HuntImportResult } from '@shared/seed';
 import { percent, sharedStepRatio, SIMILARITY_LIMIT } from '@shared/similarity';
 import { NEARBY_CATEGORIES, NearbyCategory, NearbyPlace, NearbyResult } from '@shared/nearby';
 import { demoUnderstanding, GUIDE_MAX_INTERESTS, GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage, guideUsage } from '@shared/guide';
@@ -342,6 +343,72 @@ export class MockHuntApi extends HuntApi {
     return this.reply(() => {
       this.ownedHunt(huntId);
       return this.stepsOf(huntId);
+    });
+  }
+
+  /** Export / import JSON (§ 52), version maquette : sans contrôle des distances ni photos. */
+  exportHunt(huntId: number): Observable<HuntFile> {
+    return this.reply(() => {
+      const { h } = this.transferableHunt(huntId);
+      const steps = this.stepsOf(huntId);
+      const last = steps.length - 1;
+      return {
+        format: HUNT_FILE_FORMAT,
+        name: h.name,
+        location: h.location ?? '',
+        summary: h.description ?? '',
+        startText: h.startText ?? '',
+        travel: h.travel,
+        difficulty: h.difficulty ?? 'medium',
+        durationMinutes: h.durationMinutes ?? 60,
+        steps: steps.map((st, i) => ({
+          title: st.title,
+          lat: st.latitude,
+          lng: st.longitude,
+          address: st.address,
+          arrival: i === 0 ? null : st.arrival,
+          riddle: i === last ? null : st.instructions,
+          hints: st.hints,
+          puzzle: st.puzzle,
+          photo: null,
+        })),
+      };
+    });
+  }
+
+  importHunt(huntId: number, raw: unknown, dryRun: boolean): Observable<HuntImportResult> {
+    return this.reply(() => {
+      const { h, owner } = this.transferableHunt(huntId);
+      const file = raw as Partial<HuntFile>;
+      if (file?.format !== HUNT_FILE_FORMAT || !Array.isArray(file.steps) || file.steps.length < 2 || !file.name) {
+        throw new ApiError('Fichier illisible : ce n’est pas une Secret Track exportée.');
+      }
+      const mode = owner && ['draft', 'published'].includes(h.status) ? 'replace' : 'copy';
+      const warnings = mode === 'copy' ? ['Cette Secret Track a déjà été jouée : une nouvelle version est créée en brouillon, l’ancienne et ses avis restent intacts.'] : [];
+      if (dryRun) return { mode, applied: false, huntId, steps: file.steps.length, warnings };
+      let target = h;
+      if (mode === 'copy') {
+        target = { ...h, id: this.nextId(this.db.hunts), status: 'draft', started: null, closed: null, joinCode: randomToken(6).toUpperCase(), ownerId: this.requireUser() };
+        if (!owner) Object.assign(target, { surprise: false, hostId: null, catalogId: null, selfPaced: false });
+        this.db.hunts.push(target);
+      } else {
+        this.db.steps = this.db.steps.filter((st) => st.huntId !== huntId);
+      }
+      Object.assign(target, { name: file.name, description: file.summary ?? '', location: file.location ?? '', startText: file.startText ?? null });
+      const last = file.steps.length - 1;
+      file.steps.forEach((st, i) => {
+        this.db.steps.push({
+          ...this.blankStep(target.id, i, st.title),
+          arrival: i === 0 ? null : (st.arrival ?? null),
+          instructions: i === last ? null : (st.riddle ?? null),
+          hints: st.hints ?? [],
+          latitude: st.lat,
+          longitude: st.lng,
+          address: st.address ?? null,
+          puzzle: i === 0 ? null : (st.puzzle ?? null),
+        });
+      });
+      return { mode, applied: true, huntId: target.id, steps: file.steps.length, warnings };
     });
   }
 
@@ -2644,6 +2711,15 @@ export class MockHuntApi extends HuntApi {
     const h = this.db.hunts.find((x) => x.id === id);
     if (!h || (h.status === 'draft' && h.ownerId !== this.viewer())) throw new ApiError('Secret Track introuvable.');
     return h;
+  }
+
+  /** Export / import (§ 52) : l'organisateur, ou le joueur d'une chasse surprise finie. */
+  private transferableHunt(id: number) {
+    const h = this.visibleHunt(id);
+    const me = this.requireUser();
+    if (h.ownerId === me) return { h, owner: true };
+    if (h.surprise && h.hostId === me && this.db.teams.some((t) => t.huntId === id && t.ownerId === me && t.finished)) return { h, owner: false };
+    throw new ApiError('Réservé à l’organisateur de la Secret Track.');
   }
 
   private ownedHunt(id: number) {

@@ -33,6 +33,13 @@
       }
     </section>
 
+    @if (rewritable()) {
+      <section class="surface rewrite">
+        <h2 class="section-title"><mat-icon>edit_note</mat-icon> Améliorer ce parcours</h2>
+        <th-hunt-transfer [huntId]="id()" (imported)="openCopy($event.huntId)" />
+      </section>
+    }
+
     <section>
       <h2 class="section-title">Classement</h2>
       <div class="table surface">

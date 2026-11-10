@@ -148,6 +148,13 @@ export const EN: Record<string, string> = {
   'Temps à battre :': 'Time to beat:',
   'Voir le classement': 'See the leaderboard',
   'Signalé récemment par des joueurs': 'Recently reported by players',
+  'Améliorer ce parcours': 'Improve this trail',
+  'Exporter (JSON)': 'Export (JSON)',
+  'Importer (JSON)': 'Import (JSON)',
+  'Exportez la Secret Track pour la faire réécrire, puis réimportez le fichier : fiche, lieux, énigmes, jokers et messages sont repris.':
+    'Export the Secret Track to have it rewritten, then import the file back: listing, places, riddles, hints and messages are taken over.',
+  'Créer la nouvelle version': 'Create the new version',
+  Réécrire: 'Rewrite',
   "Parcours d'initialisation, pas encore éprouvé sur place": 'Launch trail, not yet tested on site',
   "L'équipe SecretTracks l'a écrit pour lancer la plateforme, à partir des cartes et des photos libres. Si un lieu a changé ou qu'une énigme coince, signalez-le depuis votre carnet de route : il sera corrigé.":
     'The SecretTracks team wrote it to launch the platform, from maps and free photos. If a place has changed or a riddle gets stuck, report it from your roadbook: it will be fixed.',

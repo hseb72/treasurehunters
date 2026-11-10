@@ -6,6 +6,7 @@ import { z, ZodError } from 'zod';
 import { resolveSession } from './auth.js';
 import { config } from './config.js';
 import { describeError, forbidden, HttpError, unauthorized } from './errors.js';
+import { checkHuntFile } from './seed/validate.js';
 import { HuntGenerator, OsmClaudeGenerator } from './generation/generator.js';
 import { ClaudePhotoJudge, PhotoJudge } from './photos/judge.js';
 import { ClaudeRiddleWriter, RiddleWriter } from './assist/writer.js';
@@ -420,6 +421,14 @@ export async function buildApp(pool: pg.Pool, opts: AppOptions = {}): Promise<Fa
   app.delete('/api/steps/:id', async (req, reply) => {
     await service.deleteStep(req.viewer, idParams.parse(req.params).id);
     return reply.status(204).send();
+  });
+  /* ----- Export / import JSON (§ 52) */
+  app.get('/api/hunts/:id/export', async (req) => service.exportHunt(req.viewer, idParams.parse(req.params).id));
+  app.post('/api/hunts/:id/import', { bodyLimit: 1_000_000, config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (req) => {
+    const dryRun = ['1', 'true'].includes(String((req.query as Record<string, unknown>)['dryRun'] ?? ''));
+    const { file, errors, warnings } = checkHuntFile(req.body);
+    if (!file) throw new HttpError(400, `Fichier illisible : ${errors.join(' ; ')}`);
+    return service.importHunt(req.viewer, idParams.parse(req.params).id, file, warnings, { dryRun });
   });
   app.post('/api/steps/:id/regenerate', async (req) => service.regenerateToken(req.viewer, idParams.parse(req.params).id));
 

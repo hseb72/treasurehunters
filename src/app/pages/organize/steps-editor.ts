@@ -17,9 +17,11 @@ import { AuthImage } from '../../shared/auth-image';
 import { Confirm } from '../../shared/confirm-dialog';
 import { LatLng, LocationMap } from '../../shared/location-map';
 import { WorkspaceState } from './workspace-state';
+import { HuntTransfer } from './hunt-transfer';
+import { HuntImportResult } from '@shared/seed';
 import { AssistPanel } from './assist-panel';
 import { RouteImport } from './route-import';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { MatSelectModule } from '@angular/material/select';
 import { Puzzle, PUZZLE_TYPES, PuzzleType, puzzleType } from '@shared/puzzles';
@@ -27,7 +29,7 @@ import { Shop } from '../../core/shop';
 
 @Component({
   selector: 'th-steps-editor',
-  imports: [AssistPanel, RouteImport, RouterLink, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
+  imports: [AssistPanel, RouteImport, HuntTransfer, RouterLink, MatSelectModule, AuthImage, CdkDrag, CdkDropList, NgTemplateOutlet, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, LocationMap],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './steps-editor.html',
   styleUrl: './steps-editor.scss',
@@ -38,6 +40,7 @@ export class StepsEditorPage {
   private readonly confirm = inject(Confirm);
   private readonly fb = inject(FormBuilder).nonNullable;
   protected readonly workspace = inject(WorkspaceState);
+  private readonly router = inject(Router);
   /** Import d'un parcours ouvert (§ 31). */
   protected readonly importing = signal(false);
 
@@ -346,6 +349,16 @@ export class StepsEditorPage {
         this.refBusy.set(false);
       },
     });
+  }
+
+  /** Import JSON (§ 52) : la chasse réécrite se recharge, la nouvelle version s'ouvre. */
+  protected afterTransfer(r: HuntImportResult): void {
+    if (r.huntId !== this.workspace.huntId()) {
+      void this.router.navigate(['/organize', r.huntId, 'steps']);
+      return;
+    }
+    this.steps.reload();
+    this.workspace.hunt.reload();
   }
 
   protected afterImport(): void {
