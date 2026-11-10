@@ -24,10 +24,10 @@
       "lat": 48.8661,
       "lng": 2.35541,
       "address": "60, rue Réaumur",
-      "riddle": "Descendez la rue Saint-Martin vers le sud puis tournez à gauche dans la rue de Montmorency. Au numéro 51 se dresse une demeure de 1407 : une inscription sur sa façade demande aux pensionnaires de prier pour les morts. Son bâtisseur, un libraire, passa plus tard pour alchimiste.",
+      "riddle": "Descendez vers le sud la rue du saint qui partagea son manteau avec un pauvre, puis tournez à gauche dans celle d'une grande famille de connétables. Au numéro 51, à environ 650 pas du départ, se dresse une demeure de 1407 : une inscription demande aux pensionnaires de prier pour les morts. Son bâtisseur, un libraire, passa plus tard pour alchimiste.",
       "hints": [
-        "C'est l'une des plus vieilles maisons de Paris.",
-        "Son bâtisseur apparaît dans Harry Potter, à la recherche de la pierre philosophale.",
+        "Le saint au manteau est saint Martin ; les connétables, les Montmorency.",
+        "Le bâtisseur apparaît dans Harry Potter, à la recherche de la pierre philosophale.",
         "La maison de Nicolas Flamel, 51 rue de Montmorency."
       ],
       "photo": "File:Musée_des_Arts_et_Métiers_337.jpg"
@@ -38,10 +38,10 @@
       "lng": 2.35314,
       "address": "51, rue de Montmorency",
       "arrival": "Nicolas Flamel, écrivain public et libraire, fit bâtir cette maison en 1407 pour loger des pauvres, en échange de prières. La légende en a fait un alchimiste qui aurait trouvé la pierre philosophale.",
-      "riddle": "Rejoignez au sud la rue des Francs-Bourgeois. Au numéro 60, une vaste cour en fer à cheval, bordée de colonnes, précède le palais où l'on conserve les archives de la nation. Arrêtez-vous devant son portail.",
+      "riddle": "Partez vers l'est jusqu'à la rue qui menait à la forteresse des moines-soldats, et descendez-la vers le sud. Rue des Francs-Bourgeois, au numéro 60, une vaste cour en fer à cheval, bordée de colonnes, précède le palais où l'on conserve les archives de la nation. Comptez près de 1 000 pas.",
       "hints": [
+        "Les moines-soldats sont les Templiers : suivez la rue du Temple vers le sud.",
         "On y garde des documents signés des rois de France.",
-        "Le portail donne sur la rue des Francs-Bourgeois, à l'angle de la rue des Archives.",
         "L'hôtel de Soubise, 60 rue des Francs-Bourgeois."
       ],
       "photo": "File:Auberge_Nicolas_Flamel,_Paris_11_February_2017.jpg"
@@ -52,10 +52,10 @@
       "lng": 2.3571,
       "address": "60, rue des Francs-Bourgeois",
       "arrival": "Le prince et la princesse de Soubise firent transformer ce palais au début du XVIIIᵉ siècle. En 1808, Napoléon y installa les archives de l'Empire : les Archives nationales y sont toujours.",
-      "riddle": "Poursuivez vers l'est jusqu'à la rue de Thorigny. Au numéro 5, une demeure du XVIIᵉ siècle a été bâtie pour un homme qui percevait l'impôt sur le sel. Elle abrite aujourd'hui l'œuvre d'un peintre espagnol, l'auteur de Guernica.",
+      "riddle": "Continuez vers l'est dans la rue qui doit son nom à une maison d'aumône, où logeaient au XVᵉ siècle des pauvres dispensés d'impôts. Gagnez la rue de Thorigny : au numéro 5, une demeure du XVIIᵉ siècle a été bâtie pour un homme qui percevait l'impôt sur le sel. Elle abrite aujourd'hui l'œuvre de l'auteur de Guernica. Environ 700 pas.",
       "hints": [
-        "Les Parisiens l'ont surnommée d'après l'impôt de son propriétaire.",
-        "Le peintre espagnol s'appelle Pablo.",
+        "Les pauvres « francs » d'impôts ont donné son nom à la rue des Francs-Bourgeois.",
+        "Les Parisiens ont surnommé la demeure d'après l'impôt de son propriétaire ; le peintre s'appelle Pablo.",
         "L'hôtel Salé, musée Picasso, 5 rue de Thorigny."
       ],
       "photo": "File:Hôtel_de_Soubise,_Paris_9_June_2017.jpg"
@@ -66,9 +66,9 @@
       "lng": 2.36195,
       "address": "5, rue de Thorigny",
       "arrival": "Pierre Aubert de Fontenay, fermier de la gabelle, l'impôt sur le sel, fit bâtir cet hôtel à partir de 1656 : les Parisiens le surnommèrent aussitôt « l'hôtel Salé ». Il abrite le musée Picasso depuis 1985.",
-      "riddle": "Gagnez au sud l'établissement qui raconte l'histoire de la ville. Il occupe la demeure où une marquise passa ses dernières années parisiennes, à écrire des lettres à sa fille. Rendez-vous devant son entrée, rue de Sévigné.",
+      "riddle": "Descendez vers le sud, puis prenez la rue qui rappelle le jardin d'une ancienne résidence royale, le palais des Tournelles. Rejoignez l'établissement qui raconte l'histoire de la ville : il occupe la demeure où une marquise écrivait des lettres à sa fille. Rendez-vous devant son entrée, à quelque 600 pas.",
       "hints": [
-        "Ses collections permanentes sont gratuites.",
+        "Le jardin royal a donné son nom à la rue du Parc-Royal ; elle mène à la rue de Sévigné.",
         "Dans sa cour trône une statue de Louis XIV par Coysevox.",
         "Le musée Carnavalet, 23 rue de Sévigné."
       ],
@@ -80,9 +80,9 @@
       "lng": 2.36287,
       "address": "23, rue de Sévigné",
       "arrival": "Madame de Sévigné vécut ici de 1677 à 1696 et y écrivit une partie de ses célèbres lettres. Le musée de l'Histoire de Paris y a ouvert en 1880.",
-      "riddle": "Remontez vers le nord par la rue de Turenne, puis prenez la rue de Bretagne. Au numéro 39 se cachent les plus anciennes halles couvertes de Paris, créées sous Louis XIII. Leur nom rappelle la couleur des habits des orphelins d'un hospice voisin.",
+      "riddle": "Remontez vers le nord par la rue du maréchal de Louis XIV fauché par un boulet en 1675, puis prenez à gauche celle d'une province celte de l'Ouest. Au numéro 39, après environ un quart d'heure de promenade, se cachent les plus anciennes halles couvertes de Paris. Leur nom rappelle la couleur des habits des orphelins d'un hospice voisin.",
       "hints": [
-        "L'hospice avait été fondé par Marguerite de Navarre, sœur de François Iᵉʳ.",
+        "Le maréchal est Turenne ; la province, la Bretagne : rue de Turenne, puis rue de Bretagne.",
         "Les orphelins étaient habillés de rouge.",
         "Le marché des Enfants-Rouges, 39 rue de Bretagne."
       ],
@@ -94,10 +94,10 @@
       "lng": 2.36217,
       "address": "39, rue de Bretagne",
       "arrival": "Créé au début du XVIIᵉ siècle, c'est le plus ancien marché couvert de Paris. Il doit son nom aux enfants de l'hospice des Enfants-Rouges, vêtus de rouge, la couleur de la charité.",
-      "riddle": "Deux rues plus au nord, une grande halle de fer et de verre occupe une partie de l'enclos où l'ordre des chevaliers du Christ avait sa forteresse. Louis XVI et sa famille y furent emprisonnés en 1792. Rendez-vous devant la halle, rue Perrée.",
+      "riddle": "Partez vers le nord par la rue d'une province voisine, celle d'Amiens. Moins de 300 pas plus loin, une grande halle de fer et de verre occupe une partie de l'enclos où les chevaliers du Christ avaient leur forteresse. Louis XVI et sa famille y furent emprisonnés en 1792. Rendez-vous devant la halle, rue Perrée.",
       "hints": [
-        "Ces chevaliers sont les Templiers.",
-        "La halle a été restaurée et rouverte en 2014.",
+        "La province d'Amiens est la Picardie : prenez la rue de Picardie.",
+        "Ces chevaliers sont les Templiers ; la halle a rouvert en 2014.",
         "Le Carreau du Temple, rue Perrée."
       ]
     },

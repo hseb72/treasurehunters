@@ -23,10 +23,10 @@
       "title": "Pont de Bir-Hakeim",
       "lat": 48.85573,
       "lng": 2.28755,
-      "riddle": "Descendez les escaliers vers l'île étroite qui file au milieu de la Seine, et marchez vers l'aval. À mi-chemin, un pont ferroviaire de métal la traverse au-dessus de vos têtes : arrêtez-vous dessous.",
+      "riddle": "Descendez les escaliers vers l'île étroite qui file au milieu de la Seine, et suivez vers le sud-ouest le chemin des grands oiseaux blancs. À mi-chemin, à environ 1 000 pas, un pont ferroviaire de métal la traverse au-dessus de vos têtes : arrêtez-vous dessous.",
       "hints": [
+        "Les grands oiseaux blancs sont des cygnes : l'allée des Cygnes parcourt toute l'île.",
         "Les trains du RER C y passent.",
-        "L'île est une ancienne digue plantée d'arbres.",
         "Sous le pont Rouelle, au milieu de l'allée des Cygnes."
       ],
       "photo": "File:Passy_(métro_Paris)_MP73_n°6524_par_Cramos.JPG"
@@ -36,10 +36,10 @@
       "lat": 48.8523,
       "lng": 2.28292,
       "arrival": "L'île aux Cygnes est artificielle : elle est née au XIXᵉ siècle d'une digue construite au milieu du fleuve. Le pont Rouelle, au-dessus de vous, porte la voie ferrée du RER C.",
-      "riddle": "Continuez jusqu'à la pointe aval de l'île. Une dame de bronze y brandit sa torche, tournée vers l'ouest, vers sa grande sœur d'outre-Atlantique. Regardez bien la tablette qu'elle tient : combien de dates y lisez-vous ?",
+      "riddle": "Continuez vers le sud-ouest sur l'allée des oiseaux blancs jusqu'à la pointe de l'île, à environ 700 pas. Une dame de bronze y brandit sa torche, tournée vers l'ouest, vers sa grande sœur d'outre-Atlantique. Regardez bien la tablette qu'elle tient : combien de dates y lisez-vous ?",
       "hints": [
-        "Sa grande sœur se trouve à New York.",
-        "Son sculpteur est Auguste Bartholdi.",
+        "Toujours l'allée des Cygnes, jusqu'au pont de Grenelle.",
+        "Sa grande sœur se trouve à New York ; son sculpteur est Bartholdi.",
         "La statue de la Liberté, au pied du pont de Grenelle."
       ],
       "photo": "File:Pont_Rouelle_and_Eiffel_Tower,_Paris_19_October_2017.jpg"
@@ -49,10 +49,10 @@
       "lat": 48.85002,
       "lng": 2.2797,
       "arrival": "Offerte à la Ville de Paris par la communauté américaine en 1889, pour le centenaire de la Révolution, cette réduction de l'œuvre de Bartholdi regarde vers New York. Sur sa tablette, deux dates : le 4 juillet 1776 et le 14 juillet 1789.",
-      "riddle": "Montez sur le pont routier voisin, gagnez la rive gauche et longez le quai vers l'aval jusqu'au pont suivant, chanté par un poète : « Sous le … coule la Seine / Et nos amours ».",
+      "riddle": "Montez sur le pont routier voisin, gagnez la rive gauche et suivez vers le sud-ouest le quai de l'industriel au double chevron. À environ 950 pas, le pont suivant a été chanté par un poète : « Sous le … coule la Seine / Et nos amours ».",
       "hints": [
-        "Le poète est Guillaume Apollinaire.",
-        "Quatre statues ornent ses piles.",
+        "L'industriel au double chevron est André Citroën : longez le quai André-Citroën.",
+        "Le poète est Guillaume Apollinaire ; quatre statues ornent les piles.",
         "Le pont Mirabeau, côté rive gauche."
       ],
       "photo": "File:Paris-ile-aux-cygnes-statue-de-la-liberte-tour-eiffel-seine.jpg"
@@ -62,9 +62,9 @@
       "lat": 48.8463,
       "lng": 2.2766,
       "arrival": "Achevé en 1896, le pont Mirabeau a été immortalisé par Guillaume Apollinaire dans un poème publié en 1912. Ses piles portent quatre statues allégoriques de Jean-Antoine Injalbert.",
-      "riddle": "Poursuivez le long du quai vers l'aval. Dans un grand parc créé sur les terrains d'une ancienne usine automobile, un aérostat captif gonflé à l'hélium s'élève chaque jour au-dessus des pelouses. Rendez-vous au pied de son câble.",
+      "riddle": "Poursuivez vers le sud le long du quai du constructeur de la 2 CV. Dans un grand parc créé sur les terrains de son ancienne usine, un aérostat captif gonflé à l'hélium s'élève chaque jour au-dessus des pelouses. Rendez-vous au pied de son câble, à environ 1 150 pas.",
       "hints": [
-        "Le constructeur automobile a donné son nom au parc.",
+        "Le constructeur de la 2 CV a donné son nom au quai et au parc.",
         "On peut y monter, contre paiement, pour voir tout l'ouest de la ville.",
         "Le Ballon de Paris, parc André-Citroën, côté Seine."
       ],
@@ -75,10 +75,10 @@
       "lat": 48.84137,
       "lng": 2.274,
       "arrival": "Le parc André-Citroën a ouvert en 1992 sur les terrains des usines Citroën du quai de Javel. Le ballon captif, gonflé à l'hélium, emporte des visiteurs et sert aussi à mesurer la qualité de l'air.",
-      "riddle": "Remontez l'immense pelouse, en vous éloignant du fleuve. À son extrémité, deux hautes serres de verre se font face, de part et d'autre d'une esplanade où jaillissent des jets d'eau. Rejoignez l'espace qui les sépare.",
+      "riddle": "Partez vers l'est et remontez l'immense pelouse centrale, en vous éloignant du fleuve. À son extrémité, à environ 550 pas, deux hautes serres de verre se font face, de part et d'autre d'une esplanade où jaillissent des jets d'eau. Rejoignez l'espace qui les sépare.",
       "hints": [
+        "La pelouse descend en pente douce vers la Seine : remontez-la dans l'autre sens.",
         "Les jets d'eau sortent directement du sol.",
-        "Elles sont tout au bout de la grande pelouse, à l'opposé de la Seine.",
         "Entre les deux serres, au fond du parc André-Citroën."
       ],
       "photo": "File:Ballon_de_Paris_5.jpg"

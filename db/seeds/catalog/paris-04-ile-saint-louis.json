@@ -23,10 +23,10 @@
       "title": "Tour Saint-Jacques",
       "lat": 48.8583,
       "lng": 2.34885,
-      "riddle": "Marchez vers l'est le long de la rue de Rivoli. Le grand palais néo-Renaissance que vous découvrez a été rebâti après avoir brûlé pendant la Commune, en 1871. Rendez-vous sur la vaste place piétonne devant sa façade.",
+      "riddle": "Marchez vers l'est le long de la rue qui célèbre une victoire de Bonaparte près du lac de Garde. À environ 450 pas, le grand palais néo-Renaissance que vous découvrez a été rebâti après avoir brûlé pendant la Commune, en 1871. Rendez-vous sur la vaste place piétonne devant sa façade.",
       "hints": [
-        "Il abrite la mairie de Paris.",
-        "Il fut incendié en mai 1871.",
+        "La victoire est celle de Rivoli, en 1797 : suivez la rue de Rivoli vers l'est.",
+        "Le palais abrite la mairie de Paris.",
         "La place de l'Hôtel-de-Ville."
       ],
       "photo": "File:P1000625_Paris_IV_Tour_Saint-Jacques_resultwk.JPG"
@@ -36,10 +36,10 @@
       "lat": 48.857,
       "lng": 2.35115,
       "arrival": "Cette place s'appelait la place de Grève : une berge de sable où accostaient les bateaux. Les ouvriers sans travail venaient y attendre l'embauche, d'où l'expression « faire grève ». On y exécuta aussi les condamnés jusqu'en 1830.",
-      "riddle": "Passez derrière le palais. Devant une église à la façade classique pousse un arbre : depuis le Moyen Âge, un arbre de la même espèce a toujours été planté ici, et l'on s'y donnait rendez-vous pour régler ses dettes. Trouvez-le.",
+      "riddle": "Passez derrière le palais, vers le sud-est, par la rue d'un maréchal dont Napoléon disait : « Mon mouton est un lion. » Devant une église à la façade classique pousse un arbre : depuis le Moyen Âge, un arbre de la même espèce a toujours été planté ici, et l'on s'y donnait rendez-vous pour régler ses dettes. Environ 500 pas.",
       "hints": [
+        "Le maréchal Mouton, comte de Lobau, a donné son nom à la rue de Lobau.",
         "L'expression « Attendez-moi sous l'… » vient de là.",
-        "Le même arbre est forgé dans les balcons de la rue François-Miron, juste à côté.",
         "L'orme de Saint-Gervais, place Saint-Gervais."
       ]
     },
@@ -48,10 +48,10 @@
       "lat": 48.85576,
       "lng": 2.35399,
       "arrival": "On venait sous l'orme de Saint-Gervais rendre la justice et payer ses dettes ; le créancier qui attendait en vain « attendait sous l'orme ». Levez les yeux vers les balcons des maisons voisines : l'arbre y est dessiné dans le fer forgé.",
-      "riddle": "Suivez la rue François-Miron puis descendez vers la Seine. Une demeure médiévale à tourelles, où vécut la reine Margot, garde dans sa façade un boulet de canon. Notez bien la date gravée sous lui : vous en aurez besoin.",
+      "riddle": "Suivez vers l'est la rue d'un prévôt des marchands du temps d'Henri IV, puis descendez vers la Seine. Une demeure médiévale à tourelles, où vécut la reine Margot, garde dans sa façade un boulet de canon. Notez la date gravée sous lui : vous en aurez besoin. Une dizaine de minutes à pied.",
       "hints": [
-        "Elle abrite aujourd'hui la bibliothèque Forney, consacrée aux arts décoratifs.",
-        "Le boulet date de la révolution des Trois Glorieuses.",
+        "Le prévôt est François Miron : prenez la rue François-Miron vers l'est.",
+        "Le boulet date de la révolution des Trois Glorieuses ; la demeure abrite la bibliothèque Forney.",
         "L'hôtel de Sens, à l'angle de la rue du Figuier."
       ],
       "photo": "File:P1380770_Paris_IV_orme_St-Gervais_rwk.jpg"
@@ -62,11 +62,11 @@
       "lng": 2.35921,
       "address": "1, rue du Figuier",
       "arrival": "Bâti à la fin du XVᵉ siècle pour les archevêques dont dépendait alors Paris, c'est l'une des rares demeures médiévales de la ville. Le boulet de la façade porte la date du 28 juillet 1830, au cœur des Trois Glorieuses.",
-      "riddle": "Prenez l'année gravée sous le boulet et retirez-lui 195 : vous obtenez l'année où fut achevé le pont de pierre tout proche, qui porte le nom de l'entrepreneur qui l'a construit. Rejoignez-le et arrêtez-vous en son milieu.",
+      "riddle": "Prenez l'année gravée sous le boulet et retirez-lui 195 : vous obtenez l'année où fut achevé le pont de pierre tout proche, qui porte le nom de son entrepreneur. Pour l'atteindre, partez vers le sud-ouest et rejoignez le quai des moines d'un ordre fondé par le pape Célestin V. Arrêtez-vous au milieu du pont, à environ 300 pas.",
       "hints": [
-        "1830 − 195 = 1635.",
+        "Le quai des Célestins ; et 1830 − 195 = 1635.",
         "L'entrepreneur s'appelait Christophe Marie.",
-        "Le pont Marie, à deux pas, vers l'île Saint-Louis."
+        "Le pont Marie, vers l'île Saint-Louis."
       ],
       "photo": "File:Hôtel_de_Sens_1.jpg"
     },
@@ -75,9 +75,9 @@
       "lat": 48.85284,
       "lng": 2.35738,
       "arrival": "Achevé en 1635, c'est l'un des plus anciens ponts de Paris. Christophe Marie a aussi loti l'île devant vous, née de la réunion de deux îlots : l'île aux Vaches et l'île Notre-Dame. Des maisons se dressaient alors sur le pont ; une crue en emporta une partie en 1658.",
-      "riddle": "Gagnez la rue qui traverse l'île dans sa longueur. Au numéro 19 bis, une horloge en fer forgé dépasse au-dessus du trottoir : elle appartient à un sanctuaire baroque dédié au roi canonisé qui partit en croisade. Placez-vous sous l'horloge.",
+      "riddle": "Descendez vers le sud la rue qui relie deux franchissements de la Seine, puis tournez à droite dans la grand-rue de l'île. Au numéro 19 bis, à quelque 350 pas, une horloge en fer forgé dépasse au-dessus du trottoir : elle appartient à un sanctuaire baroque dédié au roi canonisé qui partit en croisade.",
       "hints": [
-        "La rue porte le même nom que l'île.",
+        "La rue des Deux-Ponts relie le pont Marie et le pont de la Tournelle.",
         "Le roi croisé est le petit-fils de Philippe Auguste.",
         "L'église Saint-Louis-en-l'Île, 19 bis rue Saint-Louis-en-l'Île."
       ],
@@ -89,10 +89,10 @@
       "lng": 2.35758,
       "address": "19 bis, rue Saint-Louis-en-l'Île",
       "arrival": "Commencée en 1664 sur des plans de Louis Le Vau, qui habitait l'île, l'église fut achevée en 1726. Son horloge en saillie est l'un des repères de la rue.",
-      "riddle": "Remontez la rue vers l'ouest jusqu'au bout de l'île. Une passerelle piétonne la relie à sa voisine ; vous y aurez une vue sur le chevet d'une cathédrale rouverte en décembre 2024. Arrêtez-vous en son milieu.",
+      "riddle": "Remontez vers le nord-ouest la grand-rue de l'île, qui porte le même nom qu'elle, jusqu'à sa pointe. Une passerelle piétonne la relie à sa voisine ; vous y aurez une vue sur le chevet d'une cathédrale rouverte en décembre 2024. Arrêtez-vous en son milieu, à environ 800 pas.",
       "hints": [
-        "Des musiciens de rue s'y installent souvent.",
-        "Elle relie les deux îles de la Seine.",
+        "La grand-rue s'appelle rue Saint-Louis-en-l'Île, comme l'île elle-même.",
+        "La passerelle relie les deux îles de la Seine ; des musiciens s'y installent souvent.",
         "Le pont Saint-Louis, entre l'île Saint-Louis et l'île de la Cité."
       ],
       "photo": "File:Eglise_saint_louis_en_l'ile.jpg"

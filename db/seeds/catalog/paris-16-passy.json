@@ -23,10 +23,10 @@
       "title": "Parvis des Droits-de-l'Homme",
       "lat": 48.86215,
       "lng": 2.28859,
-      "riddle": "Quittez le parvis vers l'ouest et longez la place. Dans un petit square, un savant américain vous attend sur son socle : imprimeur, inventeur du paratonnerre, il vécut tout près pendant la guerre d'Indépendance pour obtenir l'aide de la France.",
+      "riddle": "Quittez le parvis vers l'ouest et longez la place qui célèbre la prise d'un fort espagnol, près de Cadix, en 1823. À environ 350 pas, dans un petit square, un savant américain vous attend sur son socle : imprimeur, inventeur du paratonnerre, il vécut tout près pendant la guerre d'Indépendance pour obtenir l'aide de la France.",
       "hints": [
-        "Son portrait figure sur le billet de 100 dollars.",
-        "Le square porte le nom d'une victoire franco-américaine de 1781.",
+        "Le fort du Trocadéro a donné son nom à la place du Trocadéro.",
+        "Son portrait figure sur le billet de 100 dollars ; le square porte le nom d'une victoire de 1781.",
         "La statue de Benjamin Franklin, square de Yorktown."
       ],
       "photo": "File:View_of_Trocadéro_from_Eiffel_Tower.jpg"
@@ -36,10 +36,10 @@
       "lat": 48.86172,
       "lng": 2.28641,
       "arrival": "Ambassadeur des insurgés américains, Benjamin Franklin vécut à Passy de 1777 à 1785 et y obtint l'alliance de la France. Le square porte le nom de la victoire franco-américaine de Yorktown, en 1781.",
-      "riddle": "Juste à côté, derrière un haut mur, un petit enclos funéraire perché abrite le peintre de l'Olympia, le compositeur de La Mer et l'acteur de Don Camillo. Rendez-vous devant son portail.",
+      "riddle": "Continuez vers l'ouest par l'avenue d'un président de la République assassiné en 1932. À moins de 200 pas, derrière un haut mur, un petit enclos funéraire perché abrite le peintre de l'Olympia, le compositeur de La Mer et l'acteur de Don Camillo. Rendez-vous devant son portail.",
       "hints": [
+        "Le président est Paul Doumer : longez l'avenue Paul-Doumer, puis la rue du Commandant-Schloesing.",
         "Le peintre est Manet, le compositeur Debussy, l'acteur Fernandel.",
-        "Le portail donne sur la rue du Commandant-Schloesing.",
         "Le cimetière de Passy, 2 rue du Commandant-Schloesing."
       ],
       "photo": "File:Statue_de_Benjamin_Franklin,_square_de_Yorktown,_Paris_16e_4.jpg"
@@ -50,9 +50,9 @@
       "lng": 2.28516,
       "address": "2, rue du Commandant-Schloesing",
       "arrival": "Ouvert en 1820, le cimetière de Passy accueille notamment Édouard Manet, Claude Debussy et Fernandel. Depuis certaines allées, la tour Eiffel apparaît au-dessus des tombes.",
-      "riddle": "Partez vers le sud-ouest jusqu'à une rue en corniche au-dessus de la Seine. Au numéro 47, un romancier criblé de dettes loua en 1840 un pavillon sous un faux nom ; il y corrigea l'ensemble de La Comédie humaine.",
+      "riddle": "Partez vers le sud-ouest et gagnez la rue en corniche d'un savant qui étudia la langue des troubadours. Au numéro 47, après une vingtaine de minutes de marche, un romancier criblé de dettes loua en 1840 un pavillon sous un faux nom ; il y corrigea l'ensemble de La Comédie humaine.",
       "hints": [
-        "La rue s'appelle Raynouard.",
+        "Le savant est François Raynouard : suivez la rue Raynouard.",
         "L'écrivain buvait des quantités de café pour tenir ses nuits de travail.",
         "La maison de Balzac, 47 rue Raynouard."
       ],
@@ -64,10 +64,10 @@
       "lng": 2.2809,
       "address": "47, rue Raynouard",
       "arrival": "Honoré de Balzac loua ce pavillon de 1840 à 1847 sous le nom de sa gouvernante, Mme de Brugnol, pour échapper à ses créanciers. Il y corrigea toute La Comédie humaine. La maison est aujourd'hui un musée de la Ville de Paris.",
-      "riddle": "La maison avait une seconde issue, en contrebas, pour filer quand un huissier sonnait à la porte d'en haut. Rejoignez cette ruelle pavée bordée de vieux murs, qui semble sortie d'un village.",
+      "riddle": "La demeure avait une seconde issue, en contrebas, pour filer quand un huissier sonnait à la porte d'en haut. Longez vers le sud-ouest la rue du savant des troubadours, puis descendez : à une centaine de pas, une ruelle pavée bordée de vieux murs semble sortie d'un village.",
       "hints": [
-        "Elle passe au pied de la maison, côté Seine.",
-        "Elle est en contrebas, à quelques dizaines de mètres.",
+        "Quittez la rue Raynouard par le sud-ouest ; la ruelle est en contrebas, côté Seine.",
+        "Elle passe au pied de la demeure.",
         "La rue Berton, en contrebas de la maison de Balzac."
       ],
       "photo": "File:Maison_de_Balzac,_Paris_16e_5.jpg"
@@ -77,10 +77,10 @@
       "lat": 48.85495,
       "lng": 2.2805,
       "arrival": "Par la porte de la rue Berton, Balzac pouvait s'esquiver quand un créancier se présentait rue Raynouard. La ruelle pavée, avec ses hauts murs, garde l'atmosphère de l'ancien village de Passy, rattaché à Paris en 1860.",
-      "riddle": "Descendez vers la Seine. Un immense bâtiment circulaire, inauguré en décembre 1963 par le général de Gaulle, abrite les studios de France Inter et de France Culture. Rendez-vous devant son entrée, côté fleuve.",
+      "riddle": "Descendez vers le sud par l'avenue de l'amie de Marie-Antoinette massacrée en septembre 1792. À environ 500 pas, un immense bâtiment circulaire, inauguré en décembre 1963 par le général de Gaulle, abrite les studios de France Inter et de France Culture. Rendez-vous devant son entrée, côté fleuve.",
       "hints": [
-        "Les Parisiens l'ont surnommé le « camembert ».",
-        "Il se trouve avenue du Président-Kennedy.",
+        "L'amie de la reine est la princesse de Lamballe : prenez l'avenue de Lamballe.",
+        "Les Parisiens l'ont surnommé le « camembert » ; il se trouve avenue du Président-Kennedy.",
         "La Maison de la Radio, 116 avenue du Président-Kennedy."
       ]
     },

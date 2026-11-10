@@ -23,9 +23,9 @@
       "title": "Place des Victoires",
       "lat": 48.86575,
       "lng": 2.34117,
-      "riddle": "Quittez la place par la rue des Petits-Champs, vers l'ouest. Au numéro 4, une entrée à colonnes s'ouvre sur un couloir couvert de 1823, au sol de mosaïque et au plafond de verre. Arrêtez-vous sur le seuil.",
+      "riddle": "Quittez la place vers l'ouest et prenez la rue qui évoque de modestes parcelles cultivées. Au numéro 4, à peine plus de 200 pas plus loin, une entrée à colonnes s'ouvre sur un couloir couvert de 1823, au sol de mosaïque et au plafond de verre. Arrêtez-vous sur le seuil.",
       "hints": [
-        "C'est à moins de 200 m de la statue.",
+        "Les petites parcelles cultivées : la rue des Petits-Champs.",
         "Une verrière, des boutiques, un sol de mosaïque.",
         "La galerie Vivienne, entrée au 4 rue des Petits-Champs."
       ],
@@ -36,10 +36,10 @@
       "lat": 48.8665,
       "lng": 2.34005,
       "arrival": "Construite à partir de 1823 et ouverte en 1826, cette galerie est l'une des plus élégantes de Paris. Regardez au sol : la mosaïque guide le promeneur jusqu'à la rotonde.",
-      "riddle": "Rejoignez la rue de Richelieu, juste à l'ouest. Face à l'ancienne Bibliothèque nationale, dans un petit square, quatre femmes de bronze personnifient quatre grands cours d'eau de France. Retrouvez-les.",
+      "riddle": "Repartez vers l'ouest jusqu'à la rue du cardinal-ministre de Louis XIII, et remontez-la vers le nord. Face à l'ancienne Bibliothèque nationale, dans un petit square, quatre femmes de bronze personnifient quatre grands cours d'eau de France. Environ 500 pas en tout.",
       "hints": [
+        "Le cardinal-ministre est Richelieu : suivez la rue de Richelieu vers le nord.",
         "Les cours d'eau : la Seine, la Loire, la Saône et la Garonne.",
-        "Le square est à deux rues au nord-ouest.",
         "La fontaine Louvois, square Louvois, rue de Richelieu."
       ],
       "photo": "File:Vivienne.jpg"
@@ -49,10 +49,10 @@
       "lat": 48.86797,
       "lng": 2.3376,
       "arrival": "Le square occupe l'emplacement de l'Opéra de la rue de Richelieu : le duc de Berry, neveu de Louis XVIII, y fut assassiné en sortant d'une représentation en février 1820, et la salle fut démolie. La fontaine de Visconti date de 1844.",
-      "riddle": "Partez vers l'est. Un bâtiment en forme de temple antique, cerné de colonnes, a été voulu par Napoléon pour y loger les agents de change ; pendant plus d'un siècle et demi, on y a acheté et vendu des actions à la criée. Rendez-vous devant sa façade.",
+      "riddle": "Partez vers le nord-est par la rue de religieuses dominicaines dont le couvent occupait l'emplacement de votre prochaine étape. Un bâtiment en forme de temple antique, cerné de colonnes, a été voulu par Napoléon pour y loger les agents de change ; on y a longtemps acheté et vendu des actions à la criée. Rendez-vous devant sa façade, à quelque 500 pas.",
       "hints": [
+        "Les religieuses : les Filles-Saint-Thomas, qui ont laissé leur nom à la rue.",
         "Il porte le nom de son architecte, Alexandre-Théodore Brongniart.",
-        "Il se dresse au milieu de la place de la Bourse.",
         "Le palais Brongniart, ancienne Bourse de Paris."
       ],
       "photo": "File:FontaineLouvois09.jpg"
@@ -62,10 +62,10 @@
       "lat": 48.86905,
       "lng": 2.34065,
       "arrival": "Napoléon en décida la construction en 1807 ; Brongniart mourut en 1813 et le bâtiment fut achevé en 1826. La Bourse de Paris y siégea jusqu'à la fin des années 1980, avant l'ère de la cotation électronique.",
-      "riddle": "Remontez jusqu'aux Grands Boulevards. Au 11 du boulevard Montmartre s'ouvre la plus ancienne galerie couverte de Paris encore debout. Son nom vient de deux rotondes où l'on exposait d'immenses peintures circulaires de villes et de batailles.",
+      "riddle": "Remontez vers le nord jusqu'au boulevard qui porte le nom de la butte des martyrs, et suivez-le vers l'est jusqu'au numéro 11. Là s'ouvre la plus ancienne galerie couverte de Paris encore debout ; son nom vient de deux rotondes où l'on exposait d'immenses peintures circulaires. Environ 550 pas.",
       "hints": [
-        "Elle a ouvert en 1799.",
-        "Son entrée est presque en face du musée Grévin.",
+        "La butte des martyrs a donné son nom au boulevard Montmartre.",
+        "La galerie a ouvert en 1799, presque en face du musée Grévin.",
         "Le passage des Panoramas, 11 boulevard Montmartre."
       ],
       "photo": "File:Palais_Brongniart_Facade.jpg"
@@ -75,10 +75,10 @@
       "lat": 48.8714,
       "lng": 2.3416,
       "arrival": "Ouvert en 1799, c'est le plus ancien passage couvert de Paris. Deux rotondes, à son entrée, montraient des panoramas : des toiles géantes peintes sur les murs d'une salle ronde. En 1817, il fut l'un des premiers lieux de Paris éclairés au gaz.",
-      "riddle": "Traversez-le jusqu'au bout, côté sud, et rejoignez la rue dont le nom évoque une viennoiserie en forme de lune. À son angle avec la rue Montmartre, une plaque rappelle qu'un grand pacifiste y fut abattu le 31 juillet 1914, alors qu'il dînait.",
+      "riddle": "Traversez la galerie jusqu'au bout, vers le sud, et suivez vers l'est l'évangéliste au lion ailé. Rejoignez ensuite la rue dont le nom évoque une viennoiserie en forme de lune : à son angle avec la rue Montmartre, une plaque rappelle qu'un grand pacifiste y fut abattu le 31 juillet 1914, alors qu'il dînait. Environ 550 pas.",
       "hints": [
-        "Le pacifiste dirigeait le journal L'Humanité, installé tout près.",
-        "Il s'appelait Jean Jaurès.",
+        "L'évangéliste au lion est saint Marc : prenez la rue Saint-Marc.",
+        "Le pacifiste dirigeait le journal L'Humanité ; il s'appelait Jean Jaurès.",
         "146, rue Montmartre, à l'angle de la rue du Croissant."
       ],
       "photo": "File:Passage_Panoramas_-_Paris_II_(FR75)_-_2022-05-27_-_1.jpg"
@@ -89,11 +89,11 @@
       "lng": 2.34323,
       "address": "146, rue Montmartre",
       "arrival": "C'est ici que Jean Jaurès fut tué de deux balles par Raoul Villain, le 31 juillet 1914. Trois jours plus tard, l'Allemagne déclarait la guerre à la France.",
-      "riddle": "Descendez la rue Montmartre puis prenez à gauche la rue Étienne-Marcel. Un donjon gothique s'y dresse : dernier vestige du palais d'un duc de Bourgogne qui fit assassiner son cousin, le duc d'Orléans, en 1407.",
+      "riddle": "Descendez la rue Montmartre vers le sud, puis tournez vers l'est dans la rue du prévôt des marchands qui tint tête au dauphin et fut tué en 1358. Une douzaine de minutes à pied plus loin, un donjon gothique s'y dresse : dernier vestige du palais d'un duc de Bourgogne qui fit assassiner son cousin, le duc d'Orléans, en 1407.",
       "hints": [
+        "Le prévôt des marchands est Étienne Marcel ; sa rue file vers l'est.",
         "Le duc se faisait appeler du nom de son courage.",
-        "La tour est au numéro 20 de la rue Étienne-Marcel.",
-        "La tour Jean-sans-Peur."
+        "La tour Jean-sans-Peur, 20 rue Étienne-Marcel."
       ],
       "photo": "File:Café_du_Croissant.jpg"
     },
@@ -103,10 +103,10 @@
       "lng": 2.34805,
       "address": "20, rue Étienne-Marcel",
       "arrival": "Jean sans Peur, duc de Bourgogne, fit bâtir cette tour vers 1409-1411, peu après avoir commandité l'assassinat de Louis d'Orléans. À l'intérieur, la voûte de l'escalier est sculptée de branches de chêne, d'aubépine et de houblon.",
-      "riddle": "Gagnez la rue piétonne voisine, au nord-est, célèbre pour ses commerces de bouche. Au numéro 51 se trouve la plus ancienne pâtisserie de la ville, fondée en 1730 par le pâtissier d'une reine venue de Pologne.",
+      "riddle": "Gagnez à moins de 300 pas, vers le nord-ouest, la rue piétonne de la « colline orgueilleuse », célèbre pour ses commerces de bouche. Au numéro 51 se trouve la plus ancienne pâtisserie de la ville, fondée en 1730 par le pâtissier d'une reine venue de Pologne.",
       "hints": [
+        "La colline orgueilleuse : c'est le sens ancien du nom Montorgueil.",
         "La reine est Marie Leszczynska, épouse de Louis XV.",
-        "La rue est celle du marché, côté Halles.",
         "Stohrer, 51 rue Montorgueil."
       ],
       "photo": "File:Tour_Jean_Sans_Peur.jpg"

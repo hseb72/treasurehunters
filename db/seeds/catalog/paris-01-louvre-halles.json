@@ -23,11 +23,11 @@
       "title": "Place Dauphine",
       "lat": 48.85645,
       "lng": 2.3425,
-      "riddle": "Cette place en triangle porte le titre du fils aîné du roi qui l'a voulue en 1607. Sortez par sa pointe et allez saluer ce père : il vous attend à cheval, au milieu du plus vieux pont de Paris encore debout.",
+      "riddle": "Cette place en triangle porte le titre du fils aîné du roi qui l'a voulue en 1607. Sortez par sa pointe, vers le nord-ouest, en suivant un avocat qui fut bâtonnier de Paris et académicien. À moins de 300 pas, le père du dauphin vous attend à cheval, au milieu du plus vieux pont de Paris encore debout.",
       "hints": [
+        "L'avocat est Henri-Robert : sa rue relie la place au Pont-Neuf.",
         "Le pont qu'il faut rejoindre s'appelle « neuf » alors qu'il est le plus ancien de la ville.",
-        "Le cavalier est le premier roi Bourbon, surnommé le Vert-Galant.",
-        "La statue équestre d'Henri IV, sur le terre-plein du Pont-Neuf, à 150 m."
+        "La statue équestre d'Henri IV, sur le terre-plein du Pont-Neuf."
       ],
       "photo": "File:Paris_Place_Dauphine_r_P8040092.JPG"
     },
@@ -36,10 +36,10 @@
       "lat": 48.85714,
       "lng": 2.34097,
       "arrival": "Voici Henri IV. La première statue, inaugurée en 1614, fut fondue à la Révolution ; celle-ci, de François-Frédéric Lemot, a été installée en 1818. Le square en contrebas porte le surnom du roi : le Vert-Galant.",
-      "riddle": "Tournez le dos au roi et regardez vers l'aval. Une passerelle de métal réservée aux piétons relie la coupole de l'Institut de France au palais d'en face. Rejoignez-la et arrêtez-vous en son milieu.",
+      "riddle": "Tournez le dos au roi, gagnez la rive gauche par le pont, puis partez vers l'ouest en longeant le quai de princes du sang, cousins des Condé, dont l'hôtel s'élevait là où l'on frappe aujourd'hui la monnaie. Environ 600 pas plus loin, une passerelle de métal réservée aux piétons relie la coupole de l'Institut au palais d'en face : arrêtez-vous en son milieu.",
       "hints": [
-        "Elle est à quelques centaines de mètres, en aval, vers l'ouest.",
-        "Elle a longtemps croulé sous les cadenas d'amoureux, retirés en 2015.",
+        "Le quai de Conti, du nom des princes de Conti, longe l'Institut de France.",
+        "La passerelle a longtemps croulé sous les cadenas d'amoureux, retirés en 2015.",
         "Le pont des Arts, entre l'Institut et le Louvre."
       ],
       "photo": "File:Equestrian_monument_to_Henri_IV_of_France_2009-06-02.jpg"
@@ -49,10 +49,10 @@
       "lat": 48.85845,
       "lng": 2.33757,
       "arrival": "Premier pont métallique de Paris, construit entre 1801 et 1804, il doit son nom au Louvre, appelé alors « palais des Arts ». Fragilisé, il a été reconstruit dans les années 1980 avec sept arches au lieu de neuf.",
-      "riddle": "Côté rive droite, traversez le quai aux feux et franchissez le passage voûté qui fait face au pont. Vous voici dans un vaste espace fermé sur ses quatre côtés, dont le nom dit la forme. Avancez jusqu'à son centre.",
+      "riddle": "Continuez vers le nord-est jusqu'à la rive droite et traversez, aux feux, le quai qui porte le nom du président bâtisseur de la Pyramide. Franchissez le passage voûté qui fait face au pont : vous voici dans un vaste espace fermé sur ses quatre côtés, dont le nom dit la forme. Avancez jusqu'à son centre, à quelque 500 pas du milieu du pont.",
       "hints": [
-        "Le passage s'ouvre juste en face du débouché du pont.",
-        "Au centre de la cour, une fontaine ronde.",
+        "Le quai François-Mitterrand : c'est sous sa présidence que fut construite la Pyramide du Louvre.",
+        "Au centre de l'espace, une fontaine ronde.",
         "La cour Carrée du Louvre."
       ],
       "photo": "File:Pont_des_Arts_and_the_Palais_du_Louvre,_Paris_July_2013.jpg"
@@ -62,9 +62,9 @@
       "lat": 48.86037,
       "lng": 2.33906,
       "arrival": "Sous vos pieds se trouvent les fondations du château fort de Philippe Auguste, élevé vers 1200 et visibles dans le musée. L'aile ouest de la cour, commencée en 1546 par Pierre Lescot pour François Iᵉʳ, est la plus ancienne façade Renaissance du palais.",
-      "riddle": "Ressortez par le grand portail de l'est, sous la longue colonnade. En face, de l'autre côté de la rue, se dresse un sanctuaire gothique précédé d'un porche : selon la tradition, sa cloche donna le signal d'un massacre dans la nuit du 23 au 24 août 1572. Rendez-vous devant ce porche.",
+      "riddle": "Ressortez par le grand portail de l'est, sous la longue colonnade, et suivez vers le sud-est l'amiral protestant qui fut la première victime d'une nuit sanglante. En face se dresse un sanctuaire gothique précédé d'un porche : selon la tradition, sa cloche donna le signal du massacre dans la nuit du 23 au 24 août 1572. Rendez-vous devant ce porche.",
       "hints": [
-        "Traversez la rue qui longe la colonnade de Perrault.",
+        "L'amiral de Coligny a sa rue le long de la colonnade de Perrault.",
         "Le massacre est celui de la Saint-Barthélemy.",
         "L'église Saint-Germain-l'Auxerrois, place du Louvre."
       ],
@@ -75,11 +75,11 @@
       "lat": 48.85955,
       "lng": 2.34085,
       "arrival": "C'était la paroisse des rois quand ils vivaient au Louvre. La tradition veut que sa cloche ait sonné le début du massacre de la Saint-Barthélemy, en 1572. Levez les yeux vers le porche du XVᵉ siècle et ses voûtes.",
-      "riddle": "Partez vers le nord-est, vers le quartier des anciennes Halles. Cherchez une fontaine Renaissance à quatre faces : c'est la seule rescapée d'un grand cimetière que l'on vida de ses ossements à la fin du XVIIIᵉ siècle.",
+      "riddle": "Remontez vers le nord jusqu'à la grande rue qui célèbre une victoire de Bonaparte en Italie, en janvier 1797, et suivez-la vers l'est. Une dizaine de minutes de marche plus loin, vers les anciennes Halles, cherchez une fontaine Renaissance à quatre faces : c'est la seule rescapée d'un grand cimetière que l'on vida de ses ossements à la fin du XVIIIᵉ siècle.",
       "hints": [
+        "La rue de Rivoli, du nom de la bataille de Rivoli, gagnée sur les Autrichiens.",
         "Les ossements de ce cimetière ont fini dans les Catacombes.",
-        "Elle se dresse sur la place Joachim-du-Bellay.",
-        "La fontaine des Innocents, entre la rue Saint-Denis et le Forum des Halles."
+        "La fontaine des Innocents, place Joachim-du-Bellay, entre la rue Saint-Denis et le Forum des Halles."
       ],
       "photo": "File:Saint-Germain_l'Auxerrois_edit.jpg"
     },
@@ -88,10 +88,10 @@
       "lat": 48.86064,
       "lng": 2.34802,
       "arrival": "Sculptée vers 1549 par Jean Goujon, la fontaine était adossée à l'angle d'une rue et n'avait que trois faces. Quand on la déplaça au centre de la place, à la fin du XVIIIᵉ siècle, Augustin Pajou lui sculpta la quatrième. Le cimetière des Innocents, tout autour, avait été fermé en 1780.",
-      "riddle": "Traversez le jardin vers la grande église dont la façade classique ne ressemble pas au reste. Sur la place, au sud de celle-ci, une tête de pierre géante, posée sur la joue, tend l'oreille. Allez lui parler.",
+      "riddle": "Suivez le gardien de troupeaux vers l'ouest, puis traversez le jardin vers le nord, vers la grande église dont la façade classique ne ressemble pas au reste. Sur la place, au sud de celle-ci, une tête de pierre géante, posée sur la joue, tend l'oreille. Environ 700 pas : allez lui parler.",
       "hints": [
-        "L'église est Saint-Eustache, la paroisse des Halles.",
-        "La sculpture d'Henri de Miller date de 1986 ; une main lui soutient le visage.",
+        "Le gardien de troupeaux, c'est la rue Berger, qui longe le sud du jardin des Halles.",
+        "L'église est Saint-Eustache ; la sculpture d'Henri de Miller date de 1986.",
         "Place René-Cassin, au flanc sud de Saint-Eustache."
       ],
       "photo": "File:Fontaine_des_Innocents,_2011.JPG"

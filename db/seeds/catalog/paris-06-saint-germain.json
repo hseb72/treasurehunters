@@ -23,9 +23,9 @@
       "title": "Église Saint-Germain-des-Prés",
       "lat": 48.854,
       "lng": 2.33363,
-      "riddle": "Contournez l'abbatiale par le nord et prenez la rue de l'Abbaye. Vous débouchez sur une minuscule place ronde, plantée de paulownias et éclairée par un lampadaire à cinq globes. Un peintre romantique y passa ses dernières années.",
+      "riddle": "Contournez l'abbatiale par le nord et partez vers l'est dans la rue qui rappelle le monastère bénédictin. À environ 350 pas, vous débouchez sur une minuscule place ronde, plantée de paulownias et éclairée par un lampadaire à cinq globes. Un peintre romantique y passa ses dernières années.",
       "hints": [
-        "Le lampadaire a cinq globes blancs.",
+        "Le monastère bénédictin a laissé son nom à la rue de l'Abbaye.",
         "Le peintre est Eugène Delacroix ; son atelier est devenu un musée.",
         "La place de Furstenberg, au bout de la rue de Furstenberg."
       ],
@@ -36,10 +36,10 @@
       "lat": 48.8544,
       "lng": 2.3359,
       "arrival": "La place occupe l'ancienne cour des écuries du palais abbatial, bâti à la fin du XVIIᵉ siècle par le cardinal de Furstenberg. Eugène Delacroix s'installa au numéro 6 en 1857, pour être près de Saint-Sulpice où il peignait une chapelle ; il y mourut en 1863.",
-      "riddle": "Rejoignez le boulevard Saint-Germain et marchez vers l'est. À un carrefour, au-dessus d'une bouche de métro, un tribun de bronze tend le bras vers la foule. Il est célèbre pour avoir réclamé « de l'audace, encore de l'audace, toujours de l'audace ».",
+      "riddle": "Gagnez au sud le grand boulevard qui porte le nom d'un évêque de Paris du VIᵉ siècle, et suivez-le vers l'est. À un carrefour, au-dessus d'une bouche de métro, un tribun de bronze tend le bras vers la foule ; il réclamait « de l'audace, encore de l'audace, toujours de l'audace ». Environ 700 pas.",
       "hints": [
-        "Il fut guillotiné en avril 1794.",
-        "Le carrefour est celui de l'Odéon.",
+        "L'évêque est saint Germain : suivez le boulevard Saint-Germain vers l'est.",
+        "Le tribun fut guillotiné en avril 1794 ; le carrefour est celui de l'Odéon.",
         "La statue de Danton, place Henri-Mondor, boulevard Saint-Germain."
       ]
     },
@@ -48,10 +48,10 @@
       "lat": 48.8522,
       "lng": 2.3393,
       "arrival": "La statue d'Auguste Paris a été inaugurée en 1891, près de l'endroit où se trouvait la maison de Danton, démolie lors du percement du boulevard Saint-Germain.",
-      "riddle": "Partez vers le sud-ouest jusqu'à une vaste place dominée par une église aux deux tours dépareillées. Au centre, une fontaine montre quatre prélats assis. Aucun ne devint cardinal, d'où un surnom plein d'humour.",
+      "riddle": "Partez vers l'ouest par la rue qui souffle des quatre points de l'horizon. Une dizaine de minutes plus loin, une vaste place est dominée par une église aux deux tours dépareillées. Au centre, une fontaine montre quatre prélats assis. Aucun ne devint cardinal, d'où un surnom plein d'humour.",
       "hints": [
+        "La rue des Quatre-Vents mène vers la rue Saint-Sulpice.",
         "Les quatre prélats : Bossuet, Fénelon, Massillon et Fléchier.",
-        "On l'appelle la fontaine des « quatre points cardinaux ».",
         "La fontaine Saint-Sulpice, place Saint-Sulpice."
       ]
     },
@@ -60,10 +60,10 @@
       "lat": 48.85087,
       "lng": 2.33328,
       "arrival": "Œuvre de Louis Visconti (1844-1848), la fontaine représente quatre grands évêques prédicateurs du siècle de Louis XIV. Aucun ne fut cardinal : ce sont les quatre « points cardinaux », car ils ne le furent point.",
-      "riddle": "Partez vers l'est par la rue Saint-Sulpice. Une place en demi-cercle s'ouvre devant une salle de spectacle à colonnes, inaugurée en 1782 en présence de Marie-Antoinette. Beaumarchais y fit jouer Le Mariage de Figaro deux ans plus tard.",
+      "riddle": "Repartez vers l'est, puis prenez vers le sud la rue du prince vainqueur de Rocroi. Elle mène, à quelque 800 pas, à une place en demi-cercle ouverte devant une salle de spectacle à colonnes, inaugurée en 1782 en présence de Marie-Antoinette. Beaumarchais y fit jouer Le Mariage de Figaro deux ans plus tard.",
       "hints": [
-        "La salle a été bâtie pour la Comédie-Française.",
-        "On l'appelle aujourd'hui le théâtre de l'Europe.",
+        "Le vainqueur de Rocroi est le Grand Condé : suivez la rue de Condé.",
+        "La salle a été bâtie pour la Comédie-Française ; on l'appelle aujourd'hui le théâtre de l'Europe.",
         "La place de l'Odéon, devant le théâtre."
       ],
       "photo": "File:Fontaine_Saint-Sulpice_Paris_2008-03-14.jpg"
@@ -73,9 +73,9 @@
       "lat": 48.84984,
       "lng": 2.33872,
       "arrival": "Construit par Marie-Joseph Peyre et Charles De Wailly pour la Comédie-Française, il fut inauguré en 1782. Le Mariage de Figaro y fut créé le 27 avril 1784. En mai 1968, des étudiants occupèrent le théâtre pendant un mois.",
-      "riddle": "Entrez dans le jardin du Sénat tout proche, côté est. Avancez jusqu'à un long bassin ombragé de platanes : au fond d'une grotte, un cyclope de bronze guette deux amoureux de marbre.",
+      "riddle": "Longez la salle vers le sud par la rue de l'auteur du Cid, puis entrez dans le jardin du Sénat. Avancez jusqu'à un long bassin ombragé de platanes : au fond d'une grotte, un cyclope de bronze guette deux amoureux de marbre. Environ 400 pas.",
       "hints": [
-        "Le jardin est celui du Luxembourg.",
+        "La rue Corneille longe le théâtre et mène au jardin du Luxembourg.",
         "Le cyclope s'appelle Polyphème ; les amoureux, Acis et Galatée.",
         "La fontaine Médicis, dans le jardin du Luxembourg."
       ],
@@ -86,9 +86,9 @@
       "lat": 48.84806,
       "lng": 2.33929,
       "arrival": "Construite vers 1630 pour Marie de Médicis, qui fit bâtir le palais du Luxembourg, la fontaine fut déplacée de quelques mètres sous le Second Empire. C'est alors qu'elle reçut le groupe d'Auguste Ottin : Polyphème surprenant Acis et Galatée.",
-      "riddle": "Traversez le jardin vers le sud et suivez la longue allée plantée jusqu'au bout. Quatre femmes de bronze y soutiennent une sphère : chacune figure une partie du monde. Comptez-les et cherchez celle qui manque.",
+      "riddle": "Traversez le jardin vers le sud, puis suivez jusqu'au bout l'avenue plantée des astronomes, qui file vers leur coupole. Après une bonne quinzaine de minutes de marche, quatre femmes de bronze y soutiennent une sphère : chacune figure une partie du monde. Comptez-les et cherchez celle qui manque.",
       "hints": [
-        "L'allée descend vers la coupole des astronomes.",
+        "L'avenue de l'Observatoire, prolongée par le jardin Marco-Polo.",
         "Le sculpteur est Carpeaux ; l'Océanie n'est pas là.",
         "La fontaine de l'Observatoire, au bout du jardin Marco-Polo."
       ],

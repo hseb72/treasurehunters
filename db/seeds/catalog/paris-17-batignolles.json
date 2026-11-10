@@ -23,10 +23,10 @@
       "title": "Les Fers, place du Général-Catroux",
       "lat": 48.8822,
       "lng": 2.31075,
-      "riddle": "Ces fers brisés honorent le général Dumas, fils d'une esclave de Saint-Domingue et père du romancier. Partez maintenant par la rue de Lévis, bordée de commerces, vers l'ancien village annexé à Paris en 1860. Sur sa place, un sanctuaire en forme de temple antique, dédié à la mère du Christ, vous attend.",
+      "riddle": "Ces fers brisés honorent le général Dumas, fils d'une esclave de Saint-Domingue et père du romancier. Partez vers le nord-est et suivez jusqu'au bout la rue d'un mathématicien qui a laissé son nom à des polynômes. Elle vous mène, après environ 1 400 pas, dans l'ancien village annexé à Paris en 1860 : sur sa place, un sanctuaire en forme de temple antique, dédié à la mère du Christ, vous attend.",
       "hints": [
-        "Le village s'appelait les Batignolles.",
-        "Sa façade à colonnes donne sur la place du Docteur-Félix-Lobligeois.",
+        "Le mathématicien est Adrien-Marie Legendre : suivez la rue Legendre.",
+        "Le village s'appelait les Batignolles ; sa façade à colonnes donne sur la place du Docteur-Félix-Lobligeois.",
         "L'église Sainte-Marie-des-Batignolles."
       ]
     },
@@ -35,10 +35,10 @@
       "lat": 48.8865,
       "lng": 2.318,
       "arrival": "Les Batignolles étaient un village indépendant jusqu'à leur rattachement à Paris en 1860. Cette église en forme de temple antique, construite à la fin des années 1820, en était la paroisse.",
-      "riddle": "Passez derrière elle : un jardin à l'anglaise, créé sous Napoléon III, y déroule pelouses, cascade et étang à canards. Arrêtez-vous à son entrée.",
+      "riddle": "Contournez le sanctuaire par le nord-ouest, depuis la place qui honore un médecin du quartier. À moins de 200 pas, un jardin à l'anglaise, créé sous Napoléon III, déroule pelouses, cascade et étang à canards. Arrêtez-vous à son entrée.",
       "hints": [
+        "La place du Docteur-Félix-Lobligeois entoure le sanctuaire ; le jardin s'ouvre juste derrière.",
         "Il a été dessiné par Jean-Charles Alphand, le jardinier d'Haussmann.",
-        "Son entrée principale est juste derrière l'église.",
         "Le square des Batignolles."
       ],
       "photo": "File:P1160969_Paris_XVII_eglise_ste-Marie_des_Batignolles_rwk.jpg"
@@ -48,10 +48,10 @@
       "lat": 48.8871,
       "lng": 2.3172,
       "arrival": "Aménagé au début des années 1860 par Jean-Charles Alphand dans le style anglais, le square possède un étang, une cascade et des arbres remarquables. Il est fermé la nuit.",
-      "riddle": "Longez le jardin par l'est. Au numéro 6 de la rue qui le borde, une inscription rappelle qu'une grande chanteuse à la voix grave, toujours vêtue de noir, est née là en juin 1930.",
+      "riddle": "Longez le jardin vers le nord par la rue d'un minéralogiste qui dressa la carte géologique de la France. Au numéro 6, à environ 250 pas, une inscription rappelle qu'une grande chanteuse à la voix grave, toujours vêtue de noir, est née là en juin 1930.",
       "hints": [
-        "Elle a chanté « Göttingen » et « L'Aigle noir ».",
-        "Son vrai nom était Monique Serf.",
+        "Le minéralogiste est André Brochant de Villiers : suivez la rue Brochant.",
+        "Elle a chanté « Göttingen » et « L'Aigle noir » ; son vrai nom était Monique Serf.",
         "Le 6, rue Brochant, maison natale de Barbara."
       ],
       "photo": "File:Square_des_Batignolles_20060815_05.jpg"
@@ -62,10 +62,10 @@
       "lng": 2.31719,
       "address": "6, rue Brochant",
       "arrival": "Barbara, de son vrai nom Monique Serf, est née ici le 9 juin 1930. La « dame en noir » a chanté « Nantes », « Göttingen » et « L'Aigle noir ».",
-      "riddle": "Remontez vers le nord-est jusqu'à l'avenue de Clichy. Au numéro 154, s'ouvre une voie privée bordée de maisons et de jardins, tracée en 1847 : chaque propriétaire devait y planter des arbres devant sa maison.",
+      "riddle": "Partez vers le nord-est jusqu'à l'avenue qui menait au village dont saint Vincent de Paul fut le curé, et remontez-la. Au numéro 154, à environ 850 pas, s'ouvre une voie privée bordée de maisons et de jardins, tracée en 1847 : chaque propriétaire devait y planter des arbres devant sa maison.",
       "hints": [
-        "L'autre entrée donne sur la rue de la Jonquière.",
-        "Son nom est un bouquet.",
+        "Vincent de Paul fut curé de Clichy en 1612 : suivez l'avenue de Clichy.",
+        "L'autre entrée donne sur la rue de la Jonquière ; son nom est un bouquet.",
         "La Cité des Fleurs."
       ]
     },
@@ -74,10 +74,10 @@
       "lat": 48.89175,
       "lng": 2.3196,
       "arrival": "Tracée à partir de 1847, cette voie privée imposait à ses propriétaires de planter des arbres dans leur jardin. Elle est ouverte au public en journée : respectez la tranquillité des riverains.",
-      "riddle": "Gagnez vers l'ouest un grand parc récent, créé sur d'anciennes emprises ferroviaires. Il porte le nom d'un pasteur américain, prix Nobel de la paix en 1964.",
+      "riddle": "Ressortez par l'avenue du village du bon saint Vincent et partez vers le sud-ouest. À environ 850 pas, un grand parc récent a été créé sur d'anciennes emprises ferroviaires. Il porte le nom d'un pasteur américain, prix Nobel de la paix en 1964.",
       "hints": [
-        "Le pasteur a prononcé le discours « I have a dream ».",
-        "Des cerisiers japonais y fleurissent au printemps.",
+        "Redescendez l'avenue de Clichy, puis prenez la rue Cardinet vers l'ouest.",
+        "Le pasteur a prononcé le discours « I have a dream » ; des cerisiers y fleurissent au printemps.",
         "Le parc Clichy-Batignolles Martin-Luther-King."
       ]
     },
@@ -86,10 +86,10 @@
       "lat": 48.889,
       "lng": 2.3155,
       "arrival": "Aménagé à partir de 2007 sur une ancienne friche ferroviaire, le parc récupère ses eaux de pluie pour arroser ses jardins. Il porte le nom de Martin Luther King, assassiné en 1968.",
-      "riddle": "Au nord du parc, une tour de verre en gradins, comme une pile de grandes boîtes posées les unes sur les autres, domine le quartier : la justice y siège depuis 2018. Rendez-vous sur son parvis.",
+      "riddle": "Traversez le parc vers le nord-ouest jusqu'au boulevard du maréchal qui fut le chef d'état-major de Napoléon. Une tour de verre en gradins, comme une pile de grandes boîtes posées les unes sur les autres, domine le quartier : la justice y siège depuis 2018. Rendez-vous sur son parvis, à environ 1 500 pas.",
       "hints": [
-        "Son architecte est Renzo Piano, l'auteur du Centre Pompidou.",
-        "Le parvis porte le nom d'un garde des Sceaux.",
+        "Le maréchal est Louis-Alexandre Berthier : le boulevard Berthier longe le parvis.",
+        "Son architecte est Renzo Piano ; le parvis porte le nom d'un garde des Sceaux.",
         "Le Tribunal de Paris, parvis Robert-Badinter."
       ],
       "photo": "File:Cerisiers_en_fleur_au_Parc_Martin_Luther_King_(Clichy-Batignolles).jpg"
