@@ -148,6 +148,9 @@ export const EN: Record<string, string> = {
   'Temps à battre :': 'Time to beat:',
   'Voir le classement': 'See the leaderboard',
   'Signalé récemment par des joueurs': 'Recently reported by players',
+  "Parcours d'initialisation, pas encore éprouvé sur place": 'Launch trail, not yet tested on site',
+  "L'équipe SecretTracks l'a écrit pour lancer la plateforme, à partir des cartes et des photos libres. Si un lieu a changé ou qu'une énigme coince, signalez-le depuis votre carnet de route : il sera corrigé.":
+    'The SecretTracks team wrote it to launch the platform, from maps and free photos. If a place has changed or a riddle gets stuck, report it from your roadbook: it will be fixed.',
   "L'auteur a été prévenu. Sur place, contournez ou signalez à votre tour depuis votre carnet de route.":
     'The author has been told. On site, go around it or report it too from your logbook.',
   "Seul ou en famille, sans organisateur ni autres équipes. Préparez-la de chez vous : une fois au point de départ, vous lancez le chrono quand vous voulez, dans l'année.":

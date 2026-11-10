@@ -53,6 +53,7 @@ const huntShape = z.object({
   practical: z.array(z.enum(PRACTICAL_IDS)),
   min_age: z.number().int().nullable(),
   next_session: z.string().nullable().describe('Start of the next organised public session (ISO date)'),
+  untested: z.boolean().describe('Launch trail written by the SecretTracks team, not yet played through by enough teams'),
 });
 
 const sessionShape = z.object({
@@ -91,6 +92,7 @@ function summary(e: CatalogEntry): z.infer<typeof huntShape> {
     practical: e.practical,
     min_age: e.minAge,
     next_session: e.nextSession,
+    untested: e.seed && e.finishers < MEASURED_MIN,
   };
 }
 

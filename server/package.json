@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "migrate": "tsx src/migrate.ts",
     "seed:demo": "tsx src/seed-demo.ts",
+    "seed:catalog": "tsx src/seed-catalog.ts",
     "test": "vitest run"
   },
   "dependencies": {

@@ -1520,6 +1520,7 @@ export class MockHuntApi extends HuntApi {
       audience: [...e.audience],
       setting: e.setting,
       nextSession: this.sessionsOf(e)[0]?.begin ?? null,
+      seed: false,
     };
   }
 
