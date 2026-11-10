@@ -1,0 +1,94 @@
+{
+  "key": "paris-11-bastille-roquette",
+  "name": "Bals, prisons et faubourg : la Roquette insoumise",
+  "location": "Paris 11e, de la Bastille à la Roquette",
+  "summary": "Une remontée de la rue de la Roquette, de la Bastille au faubourg Saint-Antoine : une cour pavée d'artisans, le bal à Jo, la place du Front populaire, les pierres où se dressait la guillotine, l'église où l'on crut enterré Louis XVII et une fontaine du temps de Louis XIV.",
+  "startText": "Rendez-vous à l'entrée de la cour Damoye, au 12 place de la Bastille, côté rue de la Roquette (métro Bastille).",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 75,
+  "audience": [
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Cour Damoye",
+      "lat": 48.8538,
+      "lng": 2.3701,
+      "address": "12, place de la Bastille",
+      "riddle": "Traversez la longue cour pavée jusqu'au bout, puis gagnez la rue parallèle, au nord, jadis peuplée d'Auvergnats et de ferrailleurs. Au numéro 9, une salle de bal à l'enseigne lumineuse a ouvert en 1936 ; on y dansait la java.",
+      "hints": [
+        "La rue est la rue de Lappe.",
+        "Son nom vient de « bal à Jo ».",
+        "Le Balajo, 9 rue de Lappe."
+      ],
+      "photo": "File:Colonne_de_Juillet_972.jpg"
+    },
+    {
+      "title": "Le Balajo",
+      "lat": 48.85402,
+      "lng": 2.37216,
+      "address": "9, rue de Lappe",
+      "arrival": "Ouvert en 1936 par Jo France, le « bal à Jo » a fait danser le Paris populaire sur la java et le musette. La rue de Lappe était alors le cœur des bals auvergnats du quartier.",
+      "riddle": "Remontez la rue de la Roquette vers l'est. Au bout, l'hôtel de ville de l'arrondissement fait face à une place qui porte le nom du chef du gouvernement du Front populaire. Les congés payés, c'est lui !",
+      "hints": [
+        "Le Front populaire arrive au pouvoir en 1936, l'année d'ouverture du bal.",
+        "Il s'appelait Léon.",
+        "La place Léon-Blum, devant la mairie du 11ᵉ."
+      ],
+      "photo": "File:Balajo,_Parijs.jpg"
+    },
+    {
+      "title": "Place Léon-Blum",
+      "lat": 48.8578,
+      "lng": 2.37954,
+      "arrival": "La place honore Léon Blum, président du Conseil du Front populaire en 1936, sous qui furent votés les premiers congés payés et la semaine de quarante heures.",
+      "riddle": "Reprenez la même rue vers l'est, en direction du grand cimetière. Juste après un portail de pierre isolé, à l'angle d'une petite rue qui part sur la droite, baissez les yeux : des pierres plates encastrées dans la chaussée portaient autrefois la machine du bourreau. Comptez-les.",
+      "hints": [
+        "En face se dressait la prison des condamnés à mort.",
+        "Il y en a cinq.",
+        "À l'angle des rues de la Roquette et de la Croix-Faubin, dans la chaussée."
+      ]
+    },
+    {
+      "title": "Les dalles de la Croix-Faubin",
+      "lat": 48.8589,
+      "lng": 2.38535,
+      "arrival": "Face au portail de la Petite-Roquette, prison pour enfants puis pour femmes démolie en 1974, se dressait la Grande-Roquette, prison des condamnés à mort. De 1851 à 1899, la guillotine fut montée ici, sur ces cinq dalles de granit encore visibles.",
+      "riddle": "Descendez vers le sud-ouest jusqu'à la rue Saint-Bernard. Un sanctuaire de faubourg, précédé d'un petit jardin, y garde l'un des rares anciens cimetières paroissiaux de Paris : on crut longtemps qu'y reposait l'enfant mort au Temple en 1795, le fils de Louis XVI.",
+      "hints": [
+        "Sa sainte patronne porte un nom de fleur.",
+        "L'enfant est Louis XVII.",
+        "L'église Sainte-Marguerite, 36 rue Saint-Bernard."
+      ]
+    },
+    {
+      "title": "Église Sainte-Marguerite",
+      "lat": 48.85296,
+      "lng": 2.38148,
+      "address": "36, rue Saint-Bernard",
+      "arrival": "Fondée en 1625 comme chapelle du faubourg Saint-Antoine, l'église a conservé une partie de son ancien cimetière. L'enfant mort au Temple en 1795, présenté comme Louis XVII, y aurait été inhumé. Son cœur, authentifié par l'ADN en 2000, repose à la basilique de Saint-Denis.",
+      "riddle": "Rejoignez au sud la grande rue des ébénistes et marchez vers la Bastille. À l'angle de la rue de Charonne, une fontaine de pierre adossée à un immeuble alimentait en eau le faubourg dès le début du XVIIIᵉ siècle.",
+      "hints": [
+        "La grande rue est la rue du Faubourg-Saint-Antoine.",
+        "Elle porte le nom d'un ancien propriétaire du terrain.",
+        "La fontaine Trogneux, à l'angle des rues de Charonne et du Faubourg-Saint-Antoine."
+      ],
+      "photo": "File:Paris_11_-_Eglise_Ste_Marguerite_(1).JPG"
+    },
+    {
+      "title": "Fontaine Trogneux",
+      "lat": 48.852,
+      "lng": 2.37373,
+      "arrival": "Bravo ! Édifiée au début du XVIIIᵉ siècle, la fontaine Trogneux distribuait l'eau aux habitants du faubourg Saint-Antoine, quartier des menuisiers et des ébénistes qui fut aux avant-postes des journées révolutionnaires.",
+      "photo": "File:Fontaine_Trogneux.jpg"
+    }
+  ]
+}

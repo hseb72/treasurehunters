@@ -1,0 +1,108 @@
+{
+  "key": "paris-18-montmartre",
+  "name": "Montmartre, des ateliers de Picasso au sommet de la Butte",
+  "location": "Paris 18e, Montmartre",
+  "summary": "Une ascension de la Butte par ses ruelles : l'entrée de métro d'Hector Guimard, l'atelier où naquirent Les Demoiselles d'Avignon, l'homme coincé dans le mur de Marcel Aymé, le dernier moulin de Renoir, le cabaret du « lapin à Gill », la place des peintres et le parvis du Sacré-Cœur.",
+  "startText": "Rendez-vous devant l'entrée de métro Guimard de la place des Abbesses (métro Abbesses). Ça grimpe : de bonnes chaussures et un peu de souffle suffisent. Plusieurs escaliers : pas de poussette.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place des Abbesses",
+      "lat": 48.8844,
+      "lng": 2.33839,
+      "riddle": "Grimpez par la rue Ravignan jusqu'à une placette en pente, ornée d'une fontaine Wallace. Au numéro 13 se trouvait un atelier d'artistes que le poète Max Jacob compara aux embarcations des lavandières sur la Seine. Un tableau qui révolutionna la peinture y fut peint en 1907.",
+      "hints": [
+        "Le tableau : Les Demoiselles d'Avignon.",
+        "La placette s'appelle Émile-Goudeau.",
+        "Le Bateau-Lavoir, 13 place Émile-Goudeau."
+      ],
+      "photo": "File:Place_des_Abbesses.JPG"
+    },
+    {
+      "title": "Le Bateau-Lavoir",
+      "lat": 48.88602,
+      "lng": 2.33764,
+      "address": "13, place Émile-Goudeau",
+      "arrival": "Picasso vécut ici de 1904 à 1909 et y peignit Les Demoiselles d'Avignon. Le bâtiment d'origine a brûlé en 1970 et a été reconstruit ; une vitrine sur la place raconte son histoire.",
+      "riddle": "Montez jusqu'à la petite place au croisement des rues Girardon et Norvins. Un homme y est resté coincé à mi-corps dans un mur : il sort d'une nouvelle écrite par un auteur qui habitait la rue voisine.",
+      "hints": [
+        "L'auteur a aussi écrit La Jument verte.",
+        "La statue a été sculptée par l'acteur Jean Marais.",
+        "Le Passe-Muraille, place Marcel-Aymé."
+      ],
+      "photo": "File:Bateau-Lavoir_face_avant.jpg"
+    },
+    {
+      "title": "Le Passe-Muraille",
+      "lat": 48.88754,
+      "lng": 2.33807,
+      "arrival": "La statue, sculptée par l'acteur Jean Marais en 1989, illustre la nouvelle Le Passe-Muraille (1943) de Marcel Aymé, qui vivait rue Norvins, à quelques pas.",
+      "riddle": "Descendez un peu la rue Girardon. À l'angle de la rue Lepic, une haute charpente de bois munie d'ailes domine un restaurant. Renoir a peint le bal populaire qui se tenait au pied des ailes de la butte.",
+      "hints": [
+        "Ce moulin s'appelle le Radet.",
+        "Le tableau de Renoir est au musée d'Orsay.",
+        "Le moulin de la Galette, à l'angle des rues Lepic et Girardon."
+      ],
+      "photo": "File:F1417_Paris_XVIII_place_Marcel-Ayme_rwk.jpg"
+    },
+    {
+      "title": "Moulin de la Galette",
+      "lat": 48.8874,
+      "lng": 2.3371,
+      "arrival": "Le Radet est l'un des deux derniers moulins à vent de Montmartre, avec le Blute-Fin, son voisin caché dans un jardin privé. Le Bal du moulin de la Galette, peint par Renoir en 1876, se tenait au pied de ces moulins.",
+      "riddle": "Rejoignez la rue des Saules, qui dégringole vers le nord. Au carrefour de la rue Saint-Vincent, un petit cabaret rose aux volets verts doit son nom à une enseigne peinte par le caricaturiste André Gill.",
+      "hints": [
+        "Sur l'enseigne, un animal s'échappe d'une casserole.",
+        "Picasso, Apollinaire et Max Jacob y venaient.",
+        "Au Lapin Agile, 22 rue des Saules."
+      ],
+      "photo": "File:Paris_18e_Moulin_Radet_220.jpg"
+    },
+    {
+      "title": "Au Lapin Agile",
+      "lat": 48.88856,
+      "lng": 2.33993,
+      "address": "22, rue des Saules",
+      "arrival": "L'enseigne d'André Gill montrait un lapin bondissant hors d'une casserole : le « lapin à Gill » devint le Lapin Agile. En face, les vignes du Clos Montmartre donnent chaque année quelques centaines de bouteilles, vendues au profit des œuvres sociales de l'arrondissement.",
+      "riddle": "Remontez la rue des Saules jusqu'au cœur de l'ancien village, sur la place où les peintres installent leurs chevalets.",
+      "hints": [
+        "En haut de la rue des Saules, prenez la rue Norvins à gauche.",
+        "On y fait faire son portrait en dix minutes.",
+        "La place du Tertre."
+      ],
+      "photo": "File:Au_Lapin_Agile,_Paris_20_May_2014.jpg"
+    },
+    {
+      "title": "Place du Tertre",
+      "lat": 48.88653,
+      "lng": 2.3408,
+      "arrival": "C'était la place du village de Montmartre, commune indépendante jusqu'en 1860. Les peintres y exposent depuis le début du XXᵉ siècle.",
+      "riddle": "Gagnez à l'est le parvis de l'édifice blanc à coupoles qui domine tout Paris. Sa pierre a une particularité : elle blanchit à la pluie.",
+      "hints": [
+        "Sa construction a commencé en 1875.",
+        "La pierre vient de Château-Landon, en Seine-et-Marne.",
+        "Le parvis du Sacré-Cœur."
+      ],
+      "photo": "File:Place_Tertre_-_Paris_XVIII_(FR75)_-_2026-04-10_-_1.jpg"
+    },
+    {
+      "title": "Basilique du Sacré-Cœur",
+      "lat": 48.88608,
+      "lng": 2.34274,
+      "arrival": "Bravo ! Commencée en 1875 et consacrée en 1919, la basilique est bâtie en pierre de Château-Landon : au contact de l'eau de pluie, cette pierre libère de la calcite qui la blanchit. À vos pieds, tout Paris."
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "key": "paris-01-louvre-halles",
+  "name": "Du Pont-Neuf aux Halles, sur les pas des rois",
+  "location": "Paris 1er, du Pont-Neuf aux Halles",
+  "summary": "Une promenade royale au cœur de Paris : la place voulue par Henri IV, le plus vieux pont de la ville, la passerelle de l'Institut, la cour du Louvre, l'église dont la cloche aurait sonné la Saint-Barthélemy, puis la fontaine Renaissance d'un cimetière disparu et une tête géante qui écoute la ville.",
+  "startText": "Rendez-vous au milieu de la place Dauphine, sur l'île de la Cité (métro Pont-Neuf ou Cité). Parcours à faire de jour : la cour Carrée du Louvre se traverse aux heures d'ouverture des passages.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Dauphine",
+      "lat": 48.85645,
+      "lng": 2.3425,
+      "riddle": "Cette place en triangle porte le titre du fils aîné du roi qui l'a voulue en 1607. Sortez par sa pointe et allez saluer ce père : il vous attend à cheval, au milieu du plus vieux pont de Paris encore debout.",
+      "hints": [
+        "Le pont qu'il faut rejoindre s'appelle « neuf » alors qu'il est le plus ancien de la ville.",
+        "Le cavalier est le premier roi Bourbon, surnommé le Vert-Galant.",
+        "La statue équestre d'Henri IV, sur le terre-plein du Pont-Neuf, à 150 m."
+      ],
+      "photo": "File:Paris_Place_Dauphine_r_P8040092.JPG"
+    },
+    {
+      "title": "Statue d'Henri IV",
+      "lat": 48.85714,
+      "lng": 2.34097,
+      "arrival": "Voici Henri IV. La première statue, inaugurée en 1614, fut fondue à la Révolution ; celle-ci, de François-Frédéric Lemot, a été installée en 1818. Le square en contrebas porte le surnom du roi : le Vert-Galant.",
+      "riddle": "Tournez le dos au roi et regardez vers l'aval. Une passerelle de métal réservée aux piétons relie la coupole de l'Institut de France au palais d'en face. Rejoignez-la et arrêtez-vous en son milieu.",
+      "hints": [
+        "Elle est à quelques centaines de mètres, en aval, vers l'ouest.",
+        "Elle a longtemps croulé sous les cadenas d'amoureux, retirés en 2015.",
+        "Le pont des Arts, entre l'Institut et le Louvre."
+      ],
+      "photo": "File:Equestrian_monument_to_Henri_IV_of_France_2009-06-02.jpg"
+    },
+    {
+      "title": "Pont des Arts",
+      "lat": 48.85845,
+      "lng": 2.33757,
+      "arrival": "Premier pont métallique de Paris, construit entre 1801 et 1804, il doit son nom au Louvre, appelé alors « palais des Arts ». Fragilisé, il a été reconstruit dans les années 1980 avec sept arches au lieu de neuf.",
+      "riddle": "Côté rive droite, traversez le quai aux feux et franchissez le passage voûté qui fait face au pont. Vous voici dans un vaste espace fermé sur ses quatre côtés, dont le nom dit la forme. Avancez jusqu'à son centre.",
+      "hints": [
+        "Le passage s'ouvre juste en face du débouché du pont.",
+        "Au centre de la cour, une fontaine ronde.",
+        "La cour Carrée du Louvre."
+      ],
+      "photo": "File:Pont_des_Arts_and_the_Palais_du_Louvre,_Paris_July_2013.jpg"
+    },
+    {
+      "title": "Cour Carrée du Louvre",
+      "lat": 48.86037,
+      "lng": 2.33906,
+      "arrival": "Sous vos pieds se trouvent les fondations du château fort de Philippe Auguste, élevé vers 1200 et visibles dans le musée. L'aile ouest de la cour, commencée en 1546 par Pierre Lescot pour François Iᵉʳ, est la plus ancienne façade Renaissance du palais.",
+      "riddle": "Ressortez par le grand portail de l'est, sous la longue colonnade. En face, de l'autre côté de la rue, se dresse un sanctuaire gothique précédé d'un porche : selon la tradition, sa cloche donna le signal d'un massacre dans la nuit du 23 au 24 août 1572. Rendez-vous devant ce porche.",
+      "hints": [
+        "Traversez la rue qui longe la colonnade de Perrault.",
+        "Le massacre est celui de la Saint-Barthélemy.",
+        "L'église Saint-Germain-l'Auxerrois, place du Louvre."
+      ],
+      "photo": "File:Louvre_Cour_Carrée_June_2010.jpg"
+    },
+    {
+      "title": "Église Saint-Germain-l'Auxerrois",
+      "lat": 48.85955,
+      "lng": 2.34085,
+      "arrival": "C'était la paroisse des rois quand ils vivaient au Louvre. La tradition veut que sa cloche ait sonné le début du massacre de la Saint-Barthélemy, en 1572. Levez les yeux vers le porche du XVᵉ siècle et ses voûtes.",
+      "riddle": "Partez vers le nord-est, vers le quartier des anciennes Halles. Cherchez une fontaine Renaissance à quatre faces : c'est la seule rescapée d'un grand cimetière que l'on vida de ses ossements à la fin du XVIIIᵉ siècle.",
+      "hints": [
+        "Les ossements de ce cimetière ont fini dans les Catacombes.",
+        "Elle se dresse sur la place Joachim-du-Bellay.",
+        "La fontaine des Innocents, entre la rue Saint-Denis et le Forum des Halles."
+      ],
+      "photo": "File:Saint-Germain_l'Auxerrois_edit.jpg"
+    },
+    {
+      "title": "Fontaine des Innocents",
+      "lat": 48.86064,
+      "lng": 2.34802,
+      "arrival": "Sculptée vers 1549 par Jean Goujon, la fontaine était adossée à l'angle d'une rue et n'avait que trois faces. Quand on la déplaça au centre de la place, à la fin du XVIIIᵉ siècle, Augustin Pajou lui sculpta la quatrième. Le cimetière des Innocents, tout autour, avait été fermé en 1780.",
+      "riddle": "Traversez le jardin vers la grande église dont la façade classique ne ressemble pas au reste. Sur la place, au sud de celle-ci, une tête de pierre géante, posée sur la joue, tend l'oreille. Allez lui parler.",
+      "hints": [
+        "L'église est Saint-Eustache, la paroisse des Halles.",
+        "La sculpture d'Henri de Miller date de 1986 ; une main lui soutient le visage.",
+        "Place René-Cassin, au flanc sud de Saint-Eustache."
+      ],
+      "photo": "File:Fontaine_des_Innocents,_2011.JPG"
+    },
+    {
+      "title": "L'Écoute, place René-Cassin",
+      "lat": 48.86303,
+      "lng": 2.34497,
+      "arrival": "Bravo ! L'Écoute, d'Henri de Miller, prête l'oreille à la ville depuis 1986. Derrière elle, Saint-Eustache : Molière y fut baptisé en 1622, et la messe d'enterrement de la mère de Mozart y fut célébrée en 1778.",
+      "photo": "File:St.-Eustache.jpg"
+    }
+  ]
+}

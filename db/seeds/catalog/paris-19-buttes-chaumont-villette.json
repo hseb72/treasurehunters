@@ -1,0 +1,92 @@
+{
+  "key": "paris-19-buttes-chaumont-villette",
+  "name": "Des Buttes-Chaumont à la Villette, carrières et abattoirs",
+  "location": "Paris 19e, des Buttes-Chaumont au parc de la Villette",
+  "summary": "Du belvédère des Buttes-Chaumont aux grands équipements de la Villette : un temple romain sur un piton d'anciennes carrières, le dernier pont levant de Paris, la halle des anciens abattoirs, une bille d'acier géante posée sur l'eau et une salle de concert couverte d'oiseaux.",
+  "startText": "Rendez-vous devant la mairie du 19ᵉ arrondissement, place Armand-Carrel (métro Laumière ou Botzaris). À faire de jour : le parc des Buttes-Chaumont ferme la nuit.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 85,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "toilets"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Mairie du 19ᵉ arrondissement",
+      "lat": 48.883,
+      "lng": 2.38217,
+      "riddle": "Entrez dans le parc d'en face et grimpez sur le piton rocheux qui surgit du lac. À son sommet, une rotonde à colonnes copie un monument romain de Tivoli.",
+      "hints": [
+        "On y accède par une passerelle suspendue ou par un pont de brique.",
+        "Le monument d'origine est dédié à une prophétesse.",
+        "Le temple de la Sibylle, au sommet de l'île des Buttes-Chaumont."
+      ],
+      "photo": "File:Paris_mairie_XIX.jpg"
+    },
+    {
+      "title": "Temple de la Sibylle",
+      "lat": 48.88109,
+      "lng": 2.38308,
+      "arrival": "Le parc des Buttes-Chaumont, inauguré en 1867 pour l'Exposition universelle, a été creusé dans d'anciennes carrières de gypse. Jean-Charles Alphand et Gabriel Davioud y ont posé ce belvédère, copie du temple de la Sibylle à Tivoli.",
+      "riddle": "Sortez du parc par le nord et suivez la longue rue qui file vers le canal. Un pont de métal s'y élève à l'horizontale, tout d'un bloc, pour laisser passer les bateaux ; il est actionné par un mécanisme hydraulique depuis 1885.",
+      "hints": [
+        "Le canal est celui de l'Ourcq, au bout du bassin de la Villette.",
+        "C'est le dernier de son espèce à Paris.",
+        "Le pont levant de la rue de Crimée."
+      ]
+    },
+    {
+      "title": "Pont levant de la rue de Crimée",
+      "lat": 48.88837,
+      "lng": 2.37941,
+      "arrival": "Construit en 1885, c'est le dernier pont levant de Paris encore en service : son tablier monte grâce au mécanisme hydraulique d'origine.",
+      "riddle": "Longez le canal vers l'est jusqu'au grand parc. Prenez vers le sud la longue galerie couverte : sur votre gauche, un immense pavillon de fer et de verre, ancien marché aux bestiaux des abattoirs de Paris, accueille aujourd'hui salons et spectacles. Arrêtez-vous devant sa façade.",
+      "hints": [
+        "Les abattoirs de la Villette ont fermé dans les années 1970.",
+        "On y vendait des bœufs et des moutons.",
+        "La Grande Halle de la Villette, le long de la galerie couverte."
+      ],
+      "photo": "File:Pont_levant_de_la_rue_de_Crimée_2008.jpg"
+    },
+    {
+      "title": "Grande Halle de la Villette",
+      "lat": 48.8912,
+      "lng": 2.3895,
+      "arrival": "Construite en 1867 par Jules de Mérindol, la Grande Halle était le marché aux bestiaux des abattoirs de la Villette. Restaurée au début des années 1980, elle accueille expositions, festivals et spectacles.",
+      "riddle": "Remontez la galerie vers le nord et traversez le canal. Une sphère d'acier poli, posée sur un bassin comme une bille géante, abrite un cinéma à écran hémisphérique.",
+      "hints": [
+        "Elle mesure 36 mètres de diamètre.",
+        "Elle reflète le ciel et les promeneurs.",
+        "La Géode, devant la Cité des sciences."
+      ],
+      "photo": "File:P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG"
+    },
+    {
+      "title": "La Géode",
+      "lat": 48.89457,
+      "lng": 2.38866,
+      "arrival": "Inaugurée en 1985, la Géode d'Adrien Fainsilber est une sphère de 36 mètres de diamètre couverte de triangles d'acier poli, qui abrite une salle de projection en forme de dôme.",
+      "riddle": "Retraversez le parc vers le sud-est. Un bâtiment gris et argent, couvert de milliers de plaques d'aluminium en forme d'oiseaux, abrite depuis 2015 une grande salle de concert dessinée par Jean Nouvel.",
+      "hints": [
+        "Le motif des oiseaux rappelle les pavages du graveur Escher.",
+        "Elle est près de la porte de Pantin.",
+        "La Philharmonie de Paris."
+      ]
+    },
+    {
+      "title": "Philharmonie de Paris",
+      "lat": 48.89192,
+      "lng": 2.39414,
+      "arrival": "Bravo ! Inaugurée en janvier 2015, la Philharmonie de Jean Nouvel abrite une grande salle où le public entoure l'orchestre. Sa façade est couverte de plaques d'aluminium en forme d'oiseaux."
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "key": "paris-05-quartier-latin",
+  "name": "Quartier latin : un arbre, des arènes et un pendule",
+  "location": "Paris 5e, Quartier latin",
+  "summary": "Du boulevard Saint-Michel aux arènes de Lutèce : le plus vieil arbre de Paris, la chapelle du cardinal de Richelieu, le temple des grands hommes et du pendule de Foucault, la place de Rabelais et d'Hemingway, un amphithéâtre romain oublié pendant des siècles et une mosquée hispano-mauresque.",
+  "startText": "Rendez-vous devant la fontaine Saint-Michel, place Saint-Michel (métro Saint-Michel). À faire de jour : les arènes de Lutèce sont un jardin public avec des horaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Fontaine Saint-Michel",
+      "lat": 48.85321,
+      "lng": 2.34373,
+      "riddle": "Marchez vers l'est en longeant la Seine. Dans un petit jardin, un vieil acacia soutenu par des béquilles passe pour le plus ancien arbre de Paris. Juste à côté se tient un sanctuaire roman, l'un des plus anciens de la ville, aujourd'hui de rite grec-catholique. Rendez-vous devant son entrée.",
+      "hints": [
+        "Le jardin s'appelle le square René-Viviani.",
+        "L'arbre fut planté vers 1601 par le botaniste Jean Robin, qui lui a donné son nom de robinier.",
+        "L'église Saint-Julien-le-Pauvre, rue Saint-Julien-le-Pauvre."
+      ],
+      "photo": "File:Fontaine_Saint-Michel,_Paris_25_June_2016.jpg"
+    },
+    {
+      "title": "Église Saint-Julien-le-Pauvre",
+      "lat": 48.85214,
+      "lng": 2.34689,
+      "arrival": "Bâtie à la fin du XIIᵉ siècle, en même temps que Notre-Dame, elle est affectée depuis 1889 au culte melkite grec-catholique. Dans le square voisin, le robinier planté vers 1601 par Jean Robin est considéré comme le plus vieil arbre de Paris.",
+      "riddle": "Remontez vers le sud jusqu'à une petite place plantée qui donne sur le boulevard Saint-Michel. Au fond, une chapelle à dôme abrite le tombeau du cardinal de Richelieu.",
+      "hints": [
+        "Le cardinal fut proviseur de l'université qui l'entoure.",
+        "La place porte le nom du collège fondé par Robert de Sorbon.",
+        "La place de la Sorbonne, devant la chapelle."
+      ],
+      "photo": "File:Saint_Julien_le_Pauvre_02.jpg"
+    },
+    {
+      "title": "Place de la Sorbonne",
+      "lat": 48.8486,
+      "lng": 2.3423,
+      "arrival": "La chapelle, achevée en 1642, abrite le tombeau de Richelieu sculpté par François Girardon. Le collège fondé au XIIIᵉ siècle par Robert de Sorbon, chapelain de Saint Louis, a donné son nom à toute l'université.",
+      "riddle": "Montez au sommet de la montagne Sainte-Geneviève. Un temple à coupole porte sur son fronton une dédicace aux grands hommes, de la part de la patrie reconnaissante. Arrêtez-vous sur la place, face à ses colonnes.",
+      "hints": [
+        "Il est au bout de la rue Soufflot.",
+        "Voltaire, Victor Hugo et Marie Curie y reposent.",
+        "La place du Panthéon."
+      ],
+      "photo": "File:P1300735_Paris_V_chapelle_La_Sorbonne_rwk.jpg"
+    },
+    {
+      "title": "Place du Panthéon",
+      "lat": 48.84645,
+      "lng": 2.34489,
+      "arrival": "Louis XV avait fait vœu de bâtir une église à sainte Geneviève ; la Révolution en fit, en 1791, le temple des grands hommes. En 1851, Léon Foucault y suspendit son pendule pour démontrer que la Terre tourne.",
+      "riddle": "Prenez la rue Descartes vers le sud. Elle débouche sur une petite place ronde, à fontaine et à terrasses : un cabaret fréquenté par Rabelais y a laissé son nom sur une plaque, et Hemingway habitait à deux pas.",
+      "hints": [
+        "Le cabaret s'appelait la Pomme de Pin.",
+        "La place est au départ de la rue Mouffetard.",
+        "La place de la Contrescarpe."
+      ],
+      "photo": "File:Paris_75005_Place_du_Panthéon_20160417_(3).jpg"
+    },
+    {
+      "title": "Place de la Contrescarpe",
+      "lat": 48.8444,
+      "lng": 2.3495,
+      "arrival": "Au numéro 1, une plaque évoque le cabaret de la Pomme de Pin, célébré par Rabelais. Ernest Hemingway vécut avec sa première épouse au 74 de la rue du Cardinal-Lemoine, toute proche, en 1922 et 1923 ; il en parle dans Paris est une fête.",
+      "riddle": "Descendez vers l'est, par les escaliers de la rue Rollin, jusqu'à la rue Monge. Au numéro 49, un passage mène à un amphithéâtre gallo-romain, redécouvert lors du percement de cette même rue au XIXᵉ siècle. Entrez jusqu'à la piste.",
+      "hints": [
+        "On y joue aujourd'hui à la pétanque.",
+        "Lutèce est l'ancien nom de Paris.",
+        "Les arènes de Lutèce, entrée au 49 rue Monge."
+      ]
+    },
+    {
+      "title": "Arènes de Lutèce",
+      "lat": 48.84506,
+      "lng": 2.35294,
+      "arrival": "Construites au Iᵉʳ siècle, les arènes accueillaient spectacles et combats. Redécouvertes en 1869 lors du percement de la rue Monge, elles furent sauvées de la démolition grâce notamment à Victor Hugo.",
+      "riddle": "Ressortez vers le sud-est. Au-delà du jardin botanique voisin, un édifice hispano-mauresque à minaret carré a été inauguré en 1926, en hommage aux soldats musulmans morts pour la France. Rendez-vous devant son entrée, place du Puits-de-l'Ermite.",
+      "hints": [
+        "Il est juste à l'ouest du Jardin des Plantes.",
+        "Son salon de thé sert du thé à la menthe.",
+        "La Grande Mosquée de Paris, place du Puits-de-l'Ermite."
+      ],
+      "photo": "File:Anfiteatro_de_París_01.jpg"
+    },
+    {
+      "title": "Grande Mosquée de Paris",
+      "lat": 48.8422,
+      "lng": 2.3543,
+      "address": "2 bis, place du Puits-de-l'Ermite",
+      "arrival": "Bravo ! Inaugurée en 1926, la Grande Mosquée rend hommage aux soldats musulmans tombés pendant la Première Guerre mondiale.",
+      "photo": "File:Grande_Mosquée_de_Paris.JPG"
+    }
+  ]
+}

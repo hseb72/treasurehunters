@@ -1,0 +1,107 @@
+{
+  "key": "paris-08-champs-elysees",
+  "name": "De la Madeleine à l'Alma, la rive des grands hommes",
+  "location": "Paris 8e, de la Madeleine à l'avenue Montaigne",
+  "summary": "Du temple de la Madeleine à l'avenue Montaigne : l'hôtel où furent volés les joyaux de la Couronne, Clemenceau et Churchill en marche, le pont offert à l'alliance russe, la flamme devenue mémorial d'une princesse et le théâtre du scandale du Sacre du printemps.",
+  "startText": "Rendez-vous en haut des marches de l'église de la Madeleine, côté rue Royale (métro Madeleine). Plusieurs grandes places à traverser : utilisez toujours les passages piétons.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Église de la Madeleine",
+      "lat": 48.8696,
+      "lng": 2.3245,
+      "riddle": "Descendez la rue Royale vers le sud. Sur la gauche, à l'entrée de la grande place octogonale, un palais à colonnade a abrité pendant plus de deux siècles l'état-major des navires de guerre français. Arrêtez-vous sous ses arcades.",
+      "hints": [
+        "Il forme une paire avec l'hôtel de Crillon, de l'autre côté de la rue.",
+        "Il fut d'abord le Garde-Meuble de la Couronne.",
+        "L'hôtel de la Marine, place de la Concorde."
+      ],
+      "photo": "File:Eglise_de_la_Madeleine_2024.jpg"
+    },
+    {
+      "title": "Hôtel de la Marine",
+      "lat": 48.8666,
+      "lng": 2.32345,
+      "arrival": "Construit par Ange-Jacques Gabriel au milieu du XVIIIᵉ siècle, il fut le Garde-Meuble de la Couronne : les diamants royaux y furent volés en septembre 1792. Le ministère de la Marine l'occupa de 1789 à 2015.",
+      "riddle": "Traversez la place par les passages piétons et entrez dans les jardins de la plus célèbre avenue de Paris. Marchez vers l'ouest : sur une petite place, un homme en manteau, le pas décidé, semble partir au front. On le surnomma le Père la Victoire.",
+      "hints": [
+        "Il présidait le gouvernement en 1918.",
+        "Une station de métro voisine porte son nom.",
+        "La statue de Clemenceau, place Clemenceau, au bas des Champs-Élysées."
+      ],
+      "photo": "File:Hôtel_de_la_Marine_en_février_2014_4.jpg"
+    },
+    {
+      "title": "Statue de Georges Clemenceau",
+      "lat": 48.8671,
+      "lng": 2.3144,
+      "arrival": "La statue de François Cogné, inaugurée en 1932, montre Clemenceau tel qu'il visitait les tranchées pendant la Grande Guerre, emmitouflé dans son manteau.",
+      "riddle": "Faites quelques pas vers la Seine. Devant un palais des beaux-arts bâti pour l'Exposition de 1900, un autre homme d'État, britannique celui-là, avance lui aussi d'un pas lourd. Il dirigea son pays pendant la Seconde Guerre mondiale.",
+      "hints": [
+        "Il fit le V de la victoire avec ses doigts.",
+        "Le palais derrière lui est le Petit Palais.",
+        "La statue de Winston Churchill, avenue Winston-Churchill."
+      ],
+      "photo": "File:Statue_Clemenceau_Petit_Palais_Paris_3.jpg"
+    },
+    {
+      "title": "Statue de Winston Churchill",
+      "lat": 48.86528,
+      "lng": 2.314,
+      "arrival": "La statue de Jean Cardot a été installée en 1998. Elle fait face au Grand Palais, tandis que le Petit Palais se dresse derrière elle : tous deux ont été construits pour l'Exposition universelle de 1900.",
+      "riddle": "Continuez jusqu'au fleuve. Le pont devant vous, aux lampadaires dorés et aux chevaux ailés, porte le nom d'un tsar ; son fils en posa la première pierre en 1896. Arrêtez-vous en son milieu.",
+      "hints": [
+        "Il relie les Champs-Élysées aux Invalides.",
+        "Le fils du tsar est Nicolas II.",
+        "Le pont Alexandre-III, en son milieu."
+      ]
+    },
+    {
+      "title": "Pont Alexandre-III",
+      "lat": 48.86362,
+      "lng": 2.31352,
+      "arrival": "Inauguré pour l'Exposition universelle de 1900, le pont célèbre l'alliance franco-russe. Il franchit la Seine d'une seule arche d'acier, sans pile dans le fleuve, pour ne pas gêner la navigation.",
+      "riddle": "Revenez sur la rive droite et longez la Seine vers l'aval, par le cours la Reine puis le cours Albert-Iᵉʳ. Sur une place, une torche dorée géante, copie de celle que brandit la statue de New York, est devenue un mémorial improvisé à une princesse morte dans le tunnel en contrebas, en 1997.",
+      "hints": [
+        "La princesse est Diana.",
+        "La place est celle de l'Alma.",
+        "La flamme de la Liberté, place de l'Alma."
+      ],
+      "photo": "File:Pont_Alexandre_III_from_pont_de_la_Concorde,_Paris_17_May_2012.jpg"
+    },
+    {
+      "title": "Flamme de la Liberté",
+      "lat": 48.86418,
+      "lng": 2.30088,
+      "arrival": "Offerte en 1989 par l'International Herald Tribune pour son centenaire, la flamme célèbre l'amitié franco-américaine. Après la mort de la princesse Diana dans le tunnel de l'Alma, le 31 août 1997, elle devint son mémorial officieux.",
+      "riddle": "Remontez l'avenue des grands couturiers. Au numéro 15, une salle à la façade de marbre blanc, ornée de bas-reliefs de Bourdelle, connut en 1913 un chahut mémorable : la création d'un ballet de Stravinsky.",
+      "hints": [
+        "L'avenue est l'avenue Montaigne.",
+        "Le ballet est Le Sacre du printemps.",
+        "Le théâtre des Champs-Élysées, 15 avenue Montaigne."
+      ],
+      "photo": "File:Paris_Flamme_de_la_Liberté_1.jpg"
+    },
+    {
+      "title": "Théâtre des Champs-Élysées",
+      "lat": 48.86582,
+      "lng": 2.3029,
+      "address": "15, avenue Montaigne",
+      "arrival": "Bravo ! Inauguré en 1913, ce théâtre d'Auguste Perret est l'un des premiers grands édifices parisiens en béton armé. Le 29 mai 1913, la création du Sacre du printemps par les Ballets russes y déclencha un chahut resté légendaire.",
+      "photo": "File:Le_théâtre_des_Champs-Élysées_à_Paris,_2022.jpg"
+    }
+  ]
+}

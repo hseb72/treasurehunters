@@ -1,0 +1,106 @@
+{
+  "key": "paris-12-bercy",
+  "name": "Sous les arches, jusqu'aux chais de Bercy",
+  "location": "Paris 12e, de la Bastille à Bercy",
+  "summary": "De l'Opéra Bastille à la Seine : les ateliers sous les arches du viaduc, une rangée d'esclaves de Michel-Ange au-dessus d'un commissariat, la tour de l'horloge de la gare de Lyon, la salle aux pentes de gazon, la Cinémathèque de Frank Gehry et la passerelle qui ondule jusqu'à la Bibliothèque nationale.",
+  "startText": "Rendez-vous sur les marches de l'Opéra Bastille, place de la Bastille (métro Bastille).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Opéra Bastille",
+      "lat": 48.85215,
+      "lng": 2.36995,
+      "riddle": "Descendez l'avenue Daumesnil vers l'est. Sous un ancien pont ferroviaire de brique, chaque arche abrite un atelier d'artisan ; au-dessus, une promenade plantée a remplacé les rails. Arrêtez-vous au pied des premières arches.",
+      "hints": [
+        "Les trains allaient vers Vincennes jusqu'en 1969.",
+        "La promenade plantée s'appelle la coulée verte René-Dumont.",
+        "Le viaduc des Arts, au début de l'avenue Daumesnil."
+      ]
+    },
+    {
+      "title": "Viaduc des Arts",
+      "lat": 48.84945,
+      "lng": 2.3714,
+      "address": "1, avenue Daumesnil",
+      "arrival": "Le viaduc portait la ligne de la Bastille à Vincennes, fermée en 1969. Rénové au début des années 1990, il accueille des artisans d'art sous ses arches ; au-dessus, la coulée verte fut l'une des toutes premières promenades plantées sur un viaduc.",
+      "riddle": "Longez les arches jusqu'au numéro 85. Levez les yeux vers le haut de l'hôtel de police : une rangée de géants de pierre, tous identiques, reproduit un captif sculpté par Michel-Ange.",
+      "hints": [
+        "L'original est au Louvre.",
+        "Ce sont des copies de l'Esclave mourant.",
+        "Au-dessus du commissariat du 12ᵉ, 85 avenue Daumesnil."
+      ]
+    },
+    {
+      "title": "Commissariat de l'avenue Daumesnil",
+      "lat": 48.84584,
+      "lng": 2.37874,
+      "address": "85, avenue Daumesnil",
+      "arrival": "Les statues reproduisent l'Esclave mourant de Michel-Ange, conservé au Louvre. Ce clin d'œil inattendu couronne un hôtel de police construit au début des années 1990.",
+      "riddle": "Marchez vers le sud-ouest jusqu'au grand beffroi à quatre cadrans qui domine un terminus ferroviaire construit pour l'Exposition de 1900. Rendez-vous sur le parvis, au pied de la tour.",
+      "hints": [
+        "Ses trains partent vers la Méditerranée.",
+        "Son restaurant s'appelle Le Train bleu.",
+        "La tour de l'Horloge de la gare de Lyon, place Louis-Armand."
+      ]
+    },
+    {
+      "title": "Gare de Lyon, tour de l'Horloge",
+      "lat": 48.84468,
+      "lng": 2.37377,
+      "arrival": "La gare actuelle a été construite pour l'Exposition universelle de 1900. Son buffet, devenu Le Train bleu, est décoré de peintures des villes desservies par la compagnie du PLM, de Paris à la Méditerranée.",
+      "riddle": "Descendez vers la Seine. Une salle en pyramide tronquée, aux flancs couverts de gazon, accueille concerts et matchs depuis 1984. Rendez-vous au pied de ses pentes vertes, côté boulevard.",
+      "hints": [
+        "On l'appelait le Palais omnisports.",
+        "Ses murs inclinés sont recouverts de pelouse.",
+        "L'Accor Arena, boulevard de Bercy."
+      ],
+      "photo": "File:P1210896_Paris_XII_gare_de_Lyon_rwk.jpg"
+    },
+    {
+      "title": "Accor Arena",
+      "lat": 48.8392,
+      "lng": 2.378,
+      "arrival": "Inauguré en 1984 sous le nom de Palais omnisports de Paris-Bercy, le bâtiment est célèbre pour ses pentes engazonnées. Il a accueilli la gymnastique et les finales de basket des Jeux olympiques de 2024.",
+      "riddle": "Longez le parc vers l'est. Un bâtiment de pierre aux volumes qui semblent glisser les uns sur les autres, signé de l'architecte du musée Guggenheim de Bilbao, abrite les trésors du septième art.",
+      "hints": [
+        "L'architecte est Frank Gehry.",
+        "Le bâtiment fut d'abord un centre culturel américain.",
+        "La Cinémathèque française, 51 rue de Bercy."
+      ],
+      "photo": "File:Palais_Omnisports_de_Paris-Bercy_2007.jpg"
+    },
+    {
+      "title": "Cinémathèque française",
+      "lat": 48.837,
+      "lng": 2.38264,
+      "address": "51, rue de Bercy",
+      "arrival": "Conçu par Frank Gehry pour l'American Center, ouvert en 1994 et fermé peu après, le bâtiment accueille depuis 2005 la Cinémathèque fondée en 1936 par Henri Langlois.",
+      "riddle": "Traversez le parc jusqu'au fleuve. Un pont piéton en forme de lentille, dont les deux tabliers ondulent et se croisent, relie la rive à une bibliothèque dont les quatre tours figurent des livres ouverts. Rendez-vous à son départ, côté parc.",
+      "hints": [
+        "Il a ouvert en 2006.",
+        "Il porte le nom d'une philosophe, autrice du Deuxième Sexe.",
+        "La passerelle Simone-de-Beauvoir."
+      ]
+    },
+    {
+      "title": "Passerelle Simone-de-Beauvoir",
+      "lat": 48.83545,
+      "lng": 2.37845,
+      "arrival": "Bravo ! Inaugurée en 2006, la passerelle de l'architecte Dietmar Feichtinger relie le parc de Bercy à la Bibliothèque nationale de France, dont les quatre tours ont la forme de livres ouverts.",
+      "photo": "File:Passerelle_Simone-de-Beauvoir.jpg"
+    }
+  ]
+}
