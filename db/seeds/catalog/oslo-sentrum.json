@@ -1,0 +1,107 @@
+{
+  "key": "oslo-sentrum",
+  "name": "Oslo, de l'hôtel de ville au palais royal",
+  "location": "Oslo, centre",
+  "summary": "Oslo, l'ancienne Christiania : l'hôtel de ville du prix Nobel de la paix, la forteresse d'Akershus, l'Opéra sur lequel on marche, la cathédrale, le Storting, le Théâtre national d'Ibsen et le palais du roi né à Pau, Bernadotte. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la façade de l'hôtel de ville, côté port, place Rådhusplassen (tram Aker brygge).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Hôtel de ville d'Oslo",
+      "lat": 59.9114,
+      "lng": 10.7339,
+      "riddle": "Partez vers le sud le long du port, par le quai de la grève. À environ 1 100 pas, une citadelle médiévale, devenue château Renaissance, garde l'entrée du port.",
+      "hints": [
+        "L'Akershusstranda longe les remparts.",
+        "Elle a été construite vers 1300 par le roi Haakon V.",
+        "La forteresse d'Akershus."
+      ]
+    },
+    {
+      "title": "Forteresse d'Akershus",
+      "lat": 59.90661,
+      "lng": 10.73625,
+      "arrival": "Le prix Nobel de la paix est remis chaque 10 décembre dans l'hôtel de ville d'Oslo, inauguré en 1950. La forteresse d'Akershus a été élevée vers 1300 par le roi Haakon V. Après l'incendie de 1624, le roi Christian IV rebâtit la ville à ses pieds et lui donna son nom, Christiania : elle ne redevint Oslo qu'en 1925.",
+      "riddle": "Partez vers l'est par la rue du roi, puis par la rue de la monnaie, et longez la promenade du port. À environ 1 800 pas, un édifice blanc incliné semble glisser dans le fjord ; on peut marcher sur son toit.",
+      "hints": [
+        "Kongens gate, « rue du Roi », puis Myntgata, « rue de la Monnaie », et la promenade du port.",
+        "Il a été inauguré en 2008 ; ses architectes sont ceux de l'agence Snøhetta.",
+        "L'Opéra d'Oslo."
+      ],
+      "photo": "File:OSLO-NO-02_05_ubt.jpeg"
+    },
+    {
+      "title": "Opéra d'Oslo",
+      "lat": 59.90752,
+      "lng": 10.75268,
+      "arrival": "L'Opéra d'Oslo, de l'agence Snøhetta, a été inauguré en 2008. Son toit de marbre blanc, en pente douce, est ouvert à tous : on peut monter jusqu'au sommet et contempler le fjord.",
+      "riddle": "Remontez vers le nord-ouest par la rue d'une reine du Moyen Âge, puis par la « rue de la Reine ». À environ 1 300 pas, un sanctuaire de la fin du XVIIᵉ siècle, au clocher vert, se dresse sur la place du grand marché.",
+      "hints": [
+        "Dronning Eufemias gate, puis Dronningens gate, « rue de la Reine ».",
+        "La place s'appelle Stortorvet, « la grande place du marché ».",
+        "La cathédrale d'Oslo."
+      ],
+      "photo": "File:Full_Opera_by_night.jpg"
+    },
+    {
+      "title": "Cathédrale d'Oslo",
+      "lat": 59.91251,
+      "lng": 10.74701,
+      "arrival": "La cathédrale d'Oslo, consacrée en 1697, est la troisième de la ville. Elle accueille les grandes cérémonies de la famille royale.",
+      "riddle": "Partez vers l'ouest par la grande avenue d'un roi né à Pau. À environ 800 pas, un édifice de brique jaune en arc de cercle accueille les députés de la nation.",
+      "hints": [
+        "Karl Johans gate, du nom de Charles XIV Jean.",
+        "Ce roi était un ancien maréchal de Napoléon, Bernadotte.",
+        "Le Storting, le Parlement."
+      ],
+      "photo": "File:2012.11.09.Oslodomkirke.jpg"
+    },
+    {
+      "title": "Storting",
+      "lat": 59.91306,
+      "lng": 10.74,
+      "arrival": "Le Storting, le Parlement norvégien, siège dans ce bâtiment depuis 1866. L'avenue Karl Johan porte le nom de Charles XIV Jean, roi de Suède et de Norvège de 1818 à 1844 : il était né Jean-Baptiste Bernadotte, à Pau.",
+      "riddle": "Continuez vers le nord-ouest par la rue du parlement, le long du parc. À environ 700 pas, une salle de spectacle de 1899 est gardée par les statues de deux dramaturges norvégiens, dont l'auteur de Maison de poupée.",
+      "hints": [
+        "Stortingsgata longe le parc Studenterlunden.",
+        "Les statues représentent Henrik Ibsen et Bjørnstjerne Bjørnson.",
+        "Le Théâtre national."
+      ],
+      "photo": "File:Storting_building.jpg"
+    },
+    {
+      "title": "Théâtre national",
+      "lat": 59.91437,
+      "lng": 10.73435,
+      "arrival": "Le Théâtre national, inauguré en 1899, est gardé par les statues d'Henrik Ibsen et de Bjørnstjerne Bjørnson, l'auteur de l'hymne national. Ibsen, qui vécut ses dernières années à Oslo, venait chaque jour au Grand Café, sur l'avenue Karl Johan.",
+      "riddle": "Montez vers le nord-ouest par la rue de l'auteur de Peer Gynt, jusqu'à la place du château. À environ 800 pas, devant le palais royal, un roi à cheval venu de France regarde l'avenue qui porte son nom.",
+      "hints": [
+        "Henrik Ibsens gate, puis Slottsplassen, « la place du Château ».",
+        "Il était né à Pau en 1763.",
+        "La statue de Charles XIV Jean."
+      ],
+      "photo": "File:NOR-2016-Oslo-National_Theatre.jpg"
+    },
+    {
+      "title": "Statue de Charles XIV Jean",
+      "lat": 59.91669,
+      "lng": 10.72899,
+      "arrival": "Bravo ! La statue équestre de Charles XIV Jean, inaugurée en 1875, fait face à l'avenue qui porte son nom. Le palais royal, construit pour lui, n'a été achevé qu'en 1849, cinq ans après sa mort. Ses descendants règnent toujours en Suède.",
+      "photo": "File:Karl_johan_statue_2.jpg"
+    }
+  ]
+}
