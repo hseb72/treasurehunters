@@ -1,0 +1,94 @@
+{
+  "key": "nantes-theme-ducs-de-bretagne",
+  "name": "Nantes et les ducs de Bretagne",
+  "location": "Nantes, quartiers du château et du Bouffay",
+  "summary": "La Nantes des ducs de Bretagne et d'Anne, deux fois reine de France : le château de François II, la statue de la duchesse, le tombeau de ses parents dans la cathédrale, la porte Saint-Pierre, la place du premier château et le beffroi de Sainte-Croix.",
+  "startText": "Rendez-vous devant l'entrée du château des ducs de Bretagne, près du pont-levis, place Marc-Elder (tram Duchesse Anne-Château). Le château et ses remparts ont des horaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Château des ducs de Bretagne",
+      "lat": 47.21652,
+      "lng": -1.55044,
+      "riddle": "Partez vers le nord-est et remontez le cours de l'apôtre porte-clés. À environ 400 pas, la statue de la duchesse deux fois reine de France se dresse sur un haut piédestal.",
+      "hints": [
+        "Le cours Saint-Pierre.",
+        "Elle épousa Charles VIII puis Louis XII.",
+        "La statue d'Anne de Bretagne, cours Saint-Pierre."
+      ],
+      "photo": "File:NantesChateau_01.jpg"
+    },
+    {
+      "title": "Statue d'Anne de Bretagne",
+      "lat": 47.21745,
+      "lng": -1.54804,
+      "arrival": "Anne de Bretagne est née en 1477 au château que vous venez de quitter, agrandi par son père, le duc François II. Duchesse de Bretagne, elle fut deux fois reine de France, épouse de Charles VIII puis de Louis XII. Cette statue de Dominique Molknecht date de 1822.",
+      "riddle": "Partez vers le nord-ouest par l'impasse de l'ancienne école des chantres. À environ 400 pas, un grand sanctuaire gothique, commencé en 1434, abrite le tombeau de marbre que la duchesse fit sculpter pour ses parents.",
+      "hints": [
+        "L'impasse de la Psalette.",
+        "Le sculpteur s'appelait Michel Colombe.",
+        "La cathédrale Saint-Pierre-et-Saint-Paul."
+      ],
+      "photo": "File:Nantes_-_cours_Saint-Pierre_(03).JPG"
+    },
+    {
+      "title": "Cathédrale Saint-Pierre-et-Saint-Paul",
+      "lat": 47.21837,
+      "lng": -1.55018,
+      "arrival": "Commencée en 1434, la cathédrale n'a été achevée qu'à la fin du XIXᵉ siècle. Elle abrite le tombeau de François II et de Marguerite de Foix, sculpté par Michel Colombe au début du XVIᵉ siècle, à la demande d'Anne de Bretagne.",
+      "riddle": "Faites quelques pas vers le nord par la rue de la résidence de l'évêque : une porte fortifiée du XVᵉ siècle, bâtie sur l'enceinte gallo-romaine, enjambe le passage.",
+      "hints": [
+        "La rue de l'Évêché.",
+        "Elle servait aussi de logis à l'évêque.",
+        "La porte Saint-Pierre."
+      ],
+      "photo": "File:Cathédrale_Saint-Pierre_de_Nantes_-_façade.jpg"
+    },
+    {
+      "title": "Porte Saint-Pierre",
+      "lat": 47.21888,
+      "lng": -1.5503,
+      "arrival": "La porte Saint-Pierre, du XVᵉ siècle, s'appuie sur les restes de l'enceinte gallo-romaine. C'est l'un des rares vestiges des remparts de Nantes.",
+      "riddle": "Descendez vers le sud-ouest par la rue du château, puis par la rue de l'ancien quartier juif. À environ 1 000 pas, une place animée occupe l'emplacement du premier château des ducs, devenu ensuite prison et tribunal.",
+      "hints": [
+        "La rue du Château, puis la rue de la Juiverie.",
+        "Sous la Terreur, la guillotine s'y dressait.",
+        "La place du Bouffay."
+      ],
+      "photo": "File:Nantes_-_Porte_Saint-Pierre_02.jpg"
+    },
+    {
+      "title": "Place du Bouffay",
+      "lat": 47.21477,
+      "lng": -1.55342,
+      "arrival": "Le château du Bouffay, plus ancien que celui des ducs, fut la première résidence des comtes et ducs de Nantes. Devenu prison et tribunal, il fut démoli au XIXᵉ siècle. Sous la Terreur, la guillotine se dressait sur cette place.",
+      "riddle": "Faites quelques pas vers le nord-ouest par la rue qui porte le même nom que la place. Un sanctuaire est coiffé d'un beffroi où des anges sonnent de la trompette.",
+      "hints": [
+        "La rue du Bouffay.",
+        "L'horloge de ce beffroi vient de l'ancien château voisin.",
+        "L'église Sainte-Croix."
+      ],
+      "photo": "File:Place_du_Bouffay.2.JPG"
+    },
+    {
+      "title": "Église Sainte-Croix",
+      "lat": 47.21537,
+      "lng": -1.55396,
+      "arrival": "Bravo ! Le beffroi de l'église Sainte-Croix, surmonté d'anges sonnant de la trompette, abrite l'horloge qui ornait autrefois la tour du Bouffay, le premier château des ducs.",
+      "photo": "File:Nantes_eglise_sainte_croix.JPG"
+    }
+  ]
+}

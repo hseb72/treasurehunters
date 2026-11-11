@@ -1,0 +1,92 @@
+{
+  "key": "lyon-08-monplaisir",
+  "name": "Monplaisir, berceau du cinématographe",
+  "location": "Lyon 8e, Monplaisir et États-Unis",
+  "summary": "Dans le quartier où les frères Lumière avaient leurs usines : la villa familiale devenue musée, le hangar où fut tourné le premier film, le monument du service de santé militaire, la mairie du 8ᵉ et la cité de Tony Garnier, dont les murs peints racontent la ville idéale.",
+  "startText": "Rendez-vous place Ambroise-Courtois, à Monplaisir (métro Monplaisir-Lumière).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Ambroise-Courtois",
+      "lat": 45.74458,
+      "lng": 4.87162,
+      "riddle": "Partez vers le nord-ouest et entrez dans la rue qui porte le titre du tout premier film de l'histoire. À une centaine de pas, une grande demeure bourgeoise de 1900 était la maison du père de deux inventeurs.",
+      "hints": [
+        "La rue du Premier-Film.",
+        "Le père s'appelait Antoine Lumière.",
+        "La villa Lumière, Institut Lumière, rue du Premier-Film."
+      ]
+    },
+    {
+      "title": "Villa Lumière",
+      "lat": 45.74509,
+      "lng": 4.87062,
+      "arrival": "Antoine Lumière, le père d'Auguste et Louis, fit construire cette villa au tout début du XXᵉ siècle, à côté des usines familiales de plaques photographiques. Elle abrite aujourd'hui le musée de l'Institut Lumière.",
+      "riddle": "Continuez dans la même rue, à quelques dizaines de pas vers l'ouest. Le dernier vestige des usines se dresse là : c'est devant sa porte qu'en 1895 la caméra des deux frères enregistra les ouvriers sortant du travail, la scène que l'on tient pour la naissance du cinéma.",
+      "hints": [
+        "Toujours la rue du Premier-Film.",
+        "Le film s'appelle La Sortie de l'usine Lumière.",
+        "Le hangar du Premier-Film, rue du Premier-Film."
+      ],
+      "photo": "File:Institut_Lumière_Lyon.jpg"
+    },
+    {
+      "title": "Hangar du Premier-Film",
+      "lat": 45.74535,
+      "lng": 4.86968,
+      "arrival": "Le 19 mars 1895, Louis Lumière filma ici les ouvriers et ouvrières qui sortaient de l'usine familiale : La Sortie de l'usine Lumière est considéré comme le premier film. Le hangar, dernier vestige des usines, est devenu une salle de cinéma.",
+      "riddle": "Partez vers le sud-est par l'avenue qui honore les deux frères inventeurs. À environ 1 400 pas, sur un petit square, une stèle rend hommage aux médecins des armées, dont l'école fut fondée à Lyon à la fin du XIXᵉ siècle.",
+      "hints": [
+        "L'avenue des Frères-Lumière.",
+        "Le square porte le même nom que le service.",
+        "Le monument du service de santé militaire, square de la Santé."
+      ],
+      "photo": "File:Lyon_institut_lumière_cinema.JPG"
+    },
+    {
+      "title": "Monument au service de santé militaire",
+      "lat": 45.74264,
+      "lng": 4.87771,
+      "arrival": "L'École du service de santé militaire, qui forme les médecins des armées, a été créée à Lyon à la fin du XIXᵉ siècle. Ce monument rend hommage au service de santé militaire.",
+      "riddle": "Partez vers le sud jusqu'à l'avenue du pilote de l'Aéropostale disparu en mer en 1936. Au bout d'environ 1 900 pas, l'hôtel de ville de ce secteur de Lyon s'élève au carrefour du Bachut.",
+      "hints": [
+        "Le pilote est Jean Mermoz : suivez l'avenue Jean-Mermoz.",
+        "Le carrefour porte le nom du Bachut.",
+        "La mairie du 8ᵉ arrondissement."
+      ]
+    },
+    {
+      "title": "Mairie du 8ᵉ arrondissement",
+      "lat": 45.73465,
+      "lng": 4.87305,
+      "arrival": "Le 8ᵉ arrondissement n'a été créé qu'en 1959, en détachant une partie du 3ᵉ ; seul le 9ᵉ, créé en 1964, est plus récent.",
+      "riddle": "Partez vers l'ouest et suivez le boulevard qui porte le nom d'un grand pays allié d'outre-Atlantique. À environ 1 600 pas, une cité ouvrière des années 1920 a couvert ses pignons de grandes fresques qui racontent la ville idéale imaginée par son architecte.",
+      "hints": [
+        "Le boulevard des États-Unis.",
+        "L'architecte s'appelle Tony Garnier.",
+        "Le musée urbain Tony-Garnier, rue des Serpollières."
+      ],
+      "photo": "File:Mairie_du_8e_arrondissement_de_Lyon_(2018)_-_1.jpg"
+    },
+    {
+      "title": "Musée urbain Tony-Garnier",
+      "lat": 45.73351,
+      "lng": 4.86298,
+      "arrival": "Bravo ! La cité des États-Unis a été construite dans les années 1920 et 1930 d'après les plans de Tony Garnier. Depuis la fin des années 1980, ses habitants ont fait peindre sur les pignons de grandes fresques : c'est un musée à ciel ouvert, gratuit et visible à toute heure.",
+      "photo": "File:FR_lyon_musee-tony-garnier_01.jpg"
+    }
+  ]
+}

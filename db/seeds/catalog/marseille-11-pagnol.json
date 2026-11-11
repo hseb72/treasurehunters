@@ -1,0 +1,90 @@
+{
+  "key": "marseille-11-pagnol",
+  "name": "Sur les pas de Marcel Pagnol, de la Buzine à La Treille",
+  "location": "Marseille 11e, Saint-Menet, les Camoins et La Treille",
+  "summary": "Une randonnée urbaine au pied du Garlaban, dans les paysages de l'enfance de Marcel Pagnol : le château de la Buzine, « le château de ma mère », le village des Camoins, puis La Treille, où l'écrivain passait ses vacances et où il repose.",
+  "startText": "Rendez-vous devant l'église de Saint-Menet (bus 240 ou train jusqu'à Saint-Menet). Parcours long et en montée : prévoyez de l'eau et de bonnes chaussures. Le cimetière de La Treille a des horaires.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 120,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Église de Saint-Menet",
+      "lat": 43.28775,
+      "lng": 5.49743,
+      "riddle": "Partez vers le nord-est par l'ancien chemin qui reliait le village aux Camoins. Après une vingtaine de minutes de marche, une demeure domine un parc : l'écrivain d'Aubagne y a vu le domaine qu'il traversait enfant avec sa mère.",
+      "hints": [
+        "L'ancien chemin de Saint-Menet aux Camoins, puis la traverse de la Buzine.",
+        "L'écrivain est Marcel Pagnol.",
+        "Le château de la Buzine, traverse de la Buzine."
+      ],
+      "photo": "File:Saint-Menet-église38.JPG"
+    },
+    {
+      "title": "Château de la Buzine",
+      "lat": 43.29536,
+      "lng": 5.50248,
+      "arrival": "Dans Le Château de ma mère, Marcel Pagnol raconte comment sa famille traversait en cachette le parc d'un château pour rejoindre La Treille. Devenu célèbre, il acheta la Buzine en 1941 pour y créer des studios de cinéma. Le château accueille aujourd'hui la Maison des cinématographies de la Méditerranée.",
+      "riddle": "Partez vers le nord-est et grimpez par la montée qui porte le nom du village voisin, jusqu'à la rue d'un cadran qui sonne les heures. Comptez une petite demi-heure. Le sanctuaire du village y est dédié à une martyre de Sicile.",
+      "hints": [
+        "La montée des Camoins, puis la rue de l'Horloge.",
+        "La martyre est Agathe de Catane.",
+        "L'église Sainte-Agathe des Camoins."
+      ],
+      "photo": "File:Marseille-Buzine78.JPG"
+    },
+    {
+      "title": "Église Sainte-Agathe des Camoins",
+      "lat": 43.30212,
+      "lng": 5.51391,
+      "arrival": "Le village des Camoins, au pied du Garlaban, était connu pour sa source d'eau soufrée et son établissement de bains. Son église est dédiée à sainte Agathe de Catane.",
+      "riddle": "Redescendez vers l'ouest par la rue principale du village, à environ 600 pas, jusqu'à la place qui porte le nom de ce qu'elle abrite : la mémoire des enfants du village tombés à la guerre.",
+      "hints": [
+        "La rue Centrale, puis la montée des Camoins.",
+        "La place s'appelle place du Monument.",
+        "Le monument aux morts des Camoins."
+      ]
+    },
+    {
+      "title": "Monument aux morts des Camoins",
+      "lat": 43.30124,
+      "lng": 5.51046,
+      "arrival": "Comme chaque village de Provence, les Camoins ont dressé leur monument aux enfants du quartier tombés pendant la Grande Guerre.",
+      "riddle": "Partez vers le nord par la route qui porte le nom du village de vacances de l'écrivain, puis par la promenade qui porte son nom et celui de sa femme. Après une demi-heure de montée, il repose là, face aux collines de son enfance.",
+      "hints": [
+        "La route de la Treille, puis la promenade Jacqueline-et-Marcel-Pagnol.",
+        "Sa tombe porte une inscription en latin.",
+        "Le cimetière de La Treille."
+      ]
+    },
+    {
+      "title": "Cimetière de La Treille",
+      "lat": 43.31186,
+      "lng": 5.51245,
+      "arrival": "Marcel Pagnol, mort en 1974, repose ici, face aux collines de son enfance. Sur sa tombe, une phrase latine résume sa vie : « Fontes, amicos, uxorem dilexit » — il aima les sources, ses amis, sa femme.",
+      "riddle": "Montez vers le nord par la même route, à environ 500 pas, jusqu'au cœur du village, autour de son sanctuaire.",
+      "hints": [
+        "Toujours la route de la Treille.",
+        "Il donne sur la place Maurice-Thouvenin.",
+        "L'église de La Treille."
+      ],
+      "photo": "File:Cimetière_de_la_Treille.JPG"
+    },
+    {
+      "title": "Église de La Treille",
+      "lat": 43.31409,
+      "lng": 5.51217,
+      "arrival": "Bravo ! C'est à La Treille que la famille Pagnol passait ses vacances, dans la bastide racontée dans La Gloire de mon père. Pagnol y tourna aussi Manon des sources, en 1952. Du village, le regard porte vers le Garlaban.",
+      "photo": "File:Marseille-LaTreille86.jpg"
+    }
+  ]
+}

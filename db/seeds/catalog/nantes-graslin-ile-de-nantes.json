@@ -1,0 +1,106 @@
+{
+  "key": "nantes-graslin-ile-de-nantes",
+  "name": "Nantes, des passages couverts à l'éléphant",
+  "location": "Nantes, quartier Graslin et île de Nantes",
+  "summary": "De la place Royale à l'île de Nantes : un passage couvert à trois étages, le théâtre du financier Graslin, le cours du général du « mot de Cambronne », le mémorial qui rappelle le rôle du port dans la traite des Noirs, et les Machines de l'île, avec leur grand éléphant.",
+  "startText": "Rendez-vous près de la fontaine de la place Royale (tram Commerce). Le passage Pommeraye a des horaires d'ouverture.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Royale",
+      "lat": 47.2145,
+      "lng": -1.55873,
+      "riddle": "Partez vers le sud-ouest par la rue d'une cité du sel, à moins de 300 pas. Une galerie couverte de 1843 descend sur trois niveaux, entre escaliers, statues et verrière.",
+      "hints": [
+        "La rue de Guérande, du nom de la ville des marais salants.",
+        "Elle relie la rue de la Fosse à la rue Santeuil.",
+        "Le passage Pommeraye."
+      ],
+      "photo": "File:Nantes_-_fontaine_de_la_Place_Royale.jpg"
+    },
+    {
+      "title": "Passage Pommeraye",
+      "lat": 47.21347,
+      "lng": -1.55944,
+      "arrival": "Inauguré en 1843 et financé par Louis Pommeraye, ce passage relie deux rues situées à des hauteurs différentes : il descend sur trois niveaux. Jacques Demy y a tourné des scènes de son film Lola, en 1961.",
+      "riddle": "Partez vers l'ouest par la rue d'un auteur de tragédies du XVIIIᵉ siècle. À environ 400 pas, une salle de spectacle à colonnade, inaugurée en 1788, porte le nom du financier qui fit bâtir ce quartier.",
+      "hints": [
+        "L'auteur est Crébillon : la rue Crébillon.",
+        "La place devant elle porte le même nom que le financier.",
+        "Le théâtre Graslin, place Graslin."
+      ],
+      "photo": "File:Passage_Pommeraye,_Nantes_(France).JPG"
+    },
+    {
+      "title": "Théâtre Graslin",
+      "lat": 47.21365,
+      "lng": -1.56223,
+      "arrival": "Dessiné par Mathurin Crucy et inauguré en 1788, le théâtre porte le nom de Jean-Joseph-Louis Graslin, financier qui lotit le quartier au XVIIIᵉ siècle. Ses huit colonnes corinthiennes portent les statues de muses.",
+      "riddle": "Descendez vers le sud par la rue des grands échassiers gris, à environ 400 pas. Un long jardin bordé d'immeubles du XIXᵉ siècle porte le nom d'un général nantais à qui l'on attribue un mot célèbre, lancé aux Anglais à Waterloo.",
+      "hints": [
+        "Le héron a donné son nom à la rue de l'Héronnière.",
+        "Le « mot de Cambronne » tient en cinq lettres.",
+        "Le cours Cambronne."
+      ],
+      "photo": "File:Théâtre_Graslin_-_Place_Graslin,_Nantes.jpg"
+    },
+    {
+      "title": "Cours Cambronne",
+      "lat": 47.21195,
+      "lng": -1.56315,
+      "arrival": "Pierre Cambronne, né à Nantes en 1770, commandait un carré de la Vieille Garde à Waterloo. Sommé de se rendre, il aurait répondu par le mot qui porte désormais son nom. Sa statue se dresse au milieu du cours.",
+      "riddle": "Descendez vers le sud jusqu'au quai qui porte le nom du lieu où l'on creusait autrefois le port. À environ 600 pas, au bord de la Loire, une longue promenade souterraine rappelle que Nantes fut le premier port négrier de France.",
+      "hints": [
+        "Le quai de la Fosse longe la Loire.",
+        "Il a été inauguré en 2012.",
+        "Le mémorial de l'abolition de l'esclavage, quai de la Fosse."
+      ],
+      "photo": "File:Cours_Cambronne.jpg"
+    },
+    {
+      "title": "Mémorial de l'abolition de l'esclavage",
+      "lat": 47.20948,
+      "lng": -1.56453,
+      "arrival": "Au XVIIIᵉ siècle, Nantes fut le premier port négrier de France : plus de 1 700 expéditions de traite en partirent. Inauguré en 2012, le mémorial rappelle cette histoire et la lutte pour l'abolition ; un parcours souterrain se visite au bord de la Loire.",
+      "riddle": "Partez vers le sud-ouest et engagez-vous sur le pont qui porte le nom de la duchesse deux fois reine de France. Arrêtez-vous en son milieu, à environ 350 pas.",
+      "hints": [
+        "Elle épousa Charles VIII puis Louis XII.",
+        "Il relie le centre à l'île de Nantes.",
+        "Le pont Anne-de-Bretagne."
+      ],
+      "photo": "File:Mémorial_de_l'abolition_de_l'esclavage.jpg"
+    },
+    {
+      "title": "Pont Anne-de-Bretagne",
+      "lat": 47.20818,
+      "lng": -1.5661,
+      "arrival": "Anne de Bretagne, née au château de Nantes en 1477, fut duchesse de Bretagne et deux fois reine de France, en épousant Charles VIII puis Louis XII. Le pont relie le centre à l'île de Nantes, ancien quartier des chantiers navals.",
+      "riddle": "Traversez jusqu'à l'île, puis partez vers le sud-est, à environ 550 pas. Sous les grandes halles où l'on construisait des navires, un éléphant de bois et d'acier de douze mètres de haut promène ses passagers.",
+      "hints": [
+        "Les halles s'appellent les Nefs.",
+        "On y découvre aussi un carrousel des mondes marins.",
+        "Les Machines de l'île, parvis des Nefs."
+      ],
+      "photo": "File:Nantes_ponts_ab20080316.jpg"
+    },
+    {
+      "title": "Machines de l'île",
+      "lat": 47.206,
+      "lng": -1.56434,
+      "arrival": "Bravo ! Les Machines de l'île sont nées en 2007 dans les anciennes nefs des chantiers navals, sur une idée de François Delarozière et Pierre Orefice, inspirés par Jules Verne, né à Nantes, et Léonard de Vinci. Le grand éléphant, haut de douze mètres, promène ses passagers sur l'île."
+    }
+  ]
+}

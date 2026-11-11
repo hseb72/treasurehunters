@@ -1,0 +1,106 @@
+{
+  "key": "paris-12-bercy",
+  "name": "Sous les arches, jusqu'à la passerelle de Bercy",
+  "location": "Paris 12e, de la Bastille à Bercy",
+  "summary": "De l'Opéra Bastille à la Seine : les ateliers sous les arches du viaduc, une rangée d'esclaves de Michel-Ange au-dessus d'un commissariat, la tour de l'horloge de la gare de Lyon, la salle aux pentes de gazon, la Cinémathèque de Frank Gehry et la passerelle qui ondule jusqu'à la Bibliothèque nationale.",
+  "startText": "Rendez-vous sur les marches de l'Opéra Bastille, place de la Bastille (métro Bastille).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Opéra Bastille",
+      "lat": 48.85215,
+      "lng": 2.36995,
+      "riddle": "Partez vers le sud et prenez l'avenue du général à la jambe de bois qui refusa de rendre Vincennes aux coalisés. Sous un ancien pont ferroviaire de brique, chaque arche abrite un atelier d'artisan ; au-dessus, une promenade plantée a remplacé les rails. Arrêtez-vous au pied des premières arches, à environ 650 pas.",
+      "hints": [
+        "Le général Daumesnil : « Je rendrai Vincennes quand on me rendra ma jambe. » Suivez l'avenue Daumesnil.",
+        "La promenade plantée s'appelle la coulée verte René-Dumont.",
+        "Le viaduc des Arts, au début de l'avenue Daumesnil."
+      ]
+    },
+    {
+      "title": "Viaduc des Arts",
+      "lat": 48.84945,
+      "lng": 2.3714,
+      "address": "1, avenue Daumesnil",
+      "arrival": "Le viaduc portait la ligne de la Bastille à Vincennes, fermée en 1969. Rénové au début des années 1990, il accueille des artisans d'art sous ses arches ; au-dessus, la coulée verte fut l'une des toutes premières promenades plantées sur un viaduc.",
+      "riddle": "Longez les arches vers le sud-est, en restant sur la voie du général à la jambe de bois, jusqu'au numéro 85, à environ 1 300 pas. Levez les yeux vers le haut de l'hôtel de police : une rangée de géants de pierre, tous identiques, reproduit un captif sculpté par Michel-Ange.",
+      "hints": [
+        "Toujours l'avenue Daumesnil, en suivant le viaduc.",
+        "Ce sont des copies de l'Esclave mourant, dont l'original est au Louvre.",
+        "Au-dessus du commissariat du 12ᵉ, 85 avenue Daumesnil."
+      ]
+    },
+    {
+      "title": "Commissariat de l'avenue Daumesnil",
+      "lat": 48.84584,
+      "lng": 2.37874,
+      "address": "85, avenue Daumesnil",
+      "arrival": "Les statues reproduisent l'Esclave mourant de Michel-Ange, conservé au Louvre. Ce clin d'œil inattendu couronne un hôtel de police construit au début des années 1990.",
+      "riddle": "Marchez vers l'ouest et suivez la rue d'une ville de Bourgogne baignée par la Saône. À environ 750 pas, un grand beffroi à quatre cadrans domine un terminus ferroviaire construit pour l'Exposition de 1900. Rendez-vous sur le parvis, au pied de la tour.",
+      "hints": [
+        "La ville est Chalon-sur-Saône : suivez la rue de Chalon.",
+        "Ses trains partent vers la Méditerranée ; son restaurant s'appelle Le Train bleu.",
+        "La tour de l'Horloge de la gare de Lyon, place Louis-Armand."
+      ]
+    },
+    {
+      "title": "Gare de Lyon, tour de l'Horloge",
+      "lat": 48.84468,
+      "lng": 2.37377,
+      "arrival": "La gare actuelle a été construite pour l'Exposition universelle de 1900. Son buffet, devenu Le Train bleu, est décoré de peintures des villes desservies par la compagnie du PLM, de Paris à la Méditerranée.",
+      "riddle": "Descendez vers le sud-est la rue de l'ancien village des négociants en vin. Après environ 1 400 pas, une salle en pyramide tronquée, aux flancs couverts de gazon, accueille concerts et matchs depuis 1984. Rendez-vous au pied de ses pentes vertes, côté boulevard.",
+      "hints": [
+        "Le village des négociants en vin, c'est Bercy : suivez la rue de Bercy.",
+        "On l'appelait le Palais omnisports.",
+        "L'Accor Arena, boulevard de Bercy."
+      ],
+      "photo": "File:P1210896_Paris_XII_gare_de_Lyon_rwk.jpg"
+    },
+    {
+      "title": "Accor Arena",
+      "lat": 48.8392,
+      "lng": 2.378,
+      "arrival": "Inauguré en 1984 sous le nom de Palais omnisports de Paris-Bercy, le bâtiment est célèbre pour ses pentes engazonnées. Il a accueilli la gymnastique et les finales de basket des Jeux olympiques de 2024.",
+      "riddle": "Poursuivez vers le sud-est la rue de l'ancien entrepôt à vin, le long du parc. À environ 850 pas, un bâtiment de pierre aux volumes qui semblent glisser les uns sur les autres, signé de l'architecte du musée Guggenheim de Bilbao, abrite les trésors du septième art.",
+      "hints": [
+        "Toujours la rue de Bercy, vers le sud-est.",
+        "L'architecte est Frank Gehry ; le bâtiment fut d'abord un centre culturel américain.",
+        "La Cinémathèque française, 51 rue de Bercy."
+      ],
+      "photo": "File:Palais_Omnisports_de_Paris-Bercy_2007.jpg"
+    },
+    {
+      "title": "Cinémathèque française",
+      "lat": 48.837,
+      "lng": 2.38264,
+      "address": "51, rue de Bercy",
+      "arrival": "Conçu par Frank Gehry pour l'American Center, ouvert en 1994 et fermé peu après, le bâtiment accueille depuis 2005 la Cinémathèque fondée en 1936 par Henri Langlois.",
+      "riddle": "Partez vers le sud-ouest par la rue d'un sculpteur, père d'un acteur célèbre, puis traversez le parc jusqu'au fleuve. Un pont piéton en forme de lentille, dont les deux tabliers ondulent et se croisent, relie la rive à une bibliothèque dont les quatre tours figurent des livres ouverts. Rendez-vous à son départ, côté parc, à environ 700 pas.",
+      "hints": [
+        "Le sculpteur est Paul Belmondo, père de Jean-Paul : prenez la rue Paul-Belmondo.",
+        "Le pont a ouvert en 2006 ; il porte le nom d'une philosophe, autrice du Deuxième Sexe.",
+        "La passerelle Simone-de-Beauvoir."
+      ]
+    },
+    {
+      "title": "Passerelle Simone-de-Beauvoir",
+      "lat": 48.83545,
+      "lng": 2.37845,
+      "arrival": "Bravo ! Inaugurée en 2006, la passerelle de l'architecte Dietmar Feichtinger relie le parc de Bercy à la Bibliothèque nationale de France, dont les quatre tours ont la forme de livres ouverts.",
+      "photo": "File:Passerelle_Simone-de-Beauvoir.jpg"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "key": "marseille-02-panier",
+  "name": "Le Panier, des diamants de pierre au fort Saint-Jean",
+  "location": "Marseille 2e, Le Panier",
+  "summary": "Le plus vieux quartier de Marseille : l'hôtel de ville épargné en 1943, la maison aux pierres taillées en pointes de diamant, la place de l'ancienne agora, l'hospice de Pierre Puget, la cathédrale de la Major et le fort de Louis XIV relié au MuCEM par une passerelle.",
+  "startText": "Rendez-vous devant l'hôtel de ville, quai du Port (métro Vieux-Port). Le Panier monte et descend par des escaliers.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Hôtel de ville de Marseille",
+      "lat": 43.29653,
+      "lng": 5.36984,
+      "riddle": "Passez derrière le bâtiment, vers le nord-ouest, par la rue de l'ancienne geôle. À quelques dizaines de pas, une demeure de la Renaissance montre une façade toute hérissée de pierres taillées en pointe.",
+      "hints": [
+        "La rue de la Prison longe l'arrière de l'hôtel de ville.",
+        "Les pierres sont taillées en pointes de diamant.",
+        "La Maison Diamantée, rue de la Prison."
+      ],
+      "photo": "File:Marseille_hotel_de_ville.jpg"
+    },
+    {
+      "title": "Maison Diamantée",
+      "lat": 43.29698,
+      "lng": 5.36938,
+      "arrival": "Bâtie à la fin du XVIᵉ siècle, la Maison Diamantée doit son nom à sa façade taillée en pointes de diamant. Avec l'hôtel de ville, elle fait partie des rares bâtiments épargnés lorsque l'occupant allemand dynamita le quartier du Vieux-Port, en février 1943.",
+      "riddle": "Partez vers l'ouest par la rue des fabricants de caisses. À environ 600 pas, une petite place en terrasse, ouverte sur la mer, occuperait selon la tradition l'emplacement de l'agora de la cité grecque.",
+      "hints": [
+        "Prenez la rue Caisserie, vers l'ouest.",
+        "Elle porte le nom d'une famille de marchands d'origine corse de la Renaissance.",
+        "La place de Lenche."
+      ],
+      "photo": "File:Maison_Diamantée_(3x2_crop).jpg"
+    },
+    {
+      "title": "Place de Lenche",
+      "lat": 43.29757,
+      "lng": 5.3657,
+      "arrival": "Selon la tradition, l'agora de Massalia se trouvait près d'ici. La place porte le nom de la famille Lenche, de riches marchands d'origine corse qui y avaient leur hôtel à la Renaissance.",
+      "riddle": "Grimpez vers le nord-est dans les ruelles du quartier jusqu'à la rue qui porte le nom d'un petit trou d'eau. Au sommet du quartier, à environ 750 pas, un hospice de pierre rose, dessiné par le sculpteur et architecte Pierre Puget, entoure une chapelle à coupole ovale.",
+      "hints": [
+        "Le petit trou d'eau : la rue du Petit-Puits.",
+        "On y enfermait autrefois les mendiants.",
+        "La Vieille Charité, rue de la Charité."
+      ]
+    },
+    {
+      "title": "Vieille Charité",
+      "lat": 43.30052,
+      "lng": 5.36791,
+      "arrival": "Construite à partir de 1671 sur les plans de Pierre Puget, la Vieille Charité accueillait les pauvres et les mendiants, que l'on y enfermait. Ses trois étages de galeries entourent une chapelle à coupole ovale ; elle abrite aujourd'hui des musées.",
+      "riddle": "Descendez vers l'ouest par la rue de l'ancien palais de l'évêque. À environ 500 pas, un immense sanctuaire à rayures, de pierre verte et blanche, se dresse face au port de commerce.",
+      "hints": [
+        "Prenez la rue de l'Évêché.",
+        "Les Marseillais l'appellent simplement la Major.",
+        "La cathédrale de la Major, parvis Saint-Laurent."
+      ],
+      "photo": "File:La_Vieille_Charité.jpg"
+    },
+    {
+      "title": "Cathédrale de la Major",
+      "lat": 43.29979,
+      "lng": 5.36494,
+      "arrival": "Construite de 1852 à 1893 sur les plans de Léon Vaudoyer puis d'Henri-Jacques Espérandieu, la Major est l'une des plus grandes cathédrales bâties en France depuis le Moyen Âge. Ses rayures alternent pierre verte et pierre blanche.",
+      "riddle": "Longez la mer vers le sud-ouest par l'avenue qui porte le nom du premier architecte du sanctuaire que vous quittez. À environ 1 100 pas, une citadelle de Louis XIV garde l'entrée du Vieux-Port ; une passerelle de béton la relie à un cube de dentelle noire.",
+      "hints": [
+        "L'architecte est Léon Vaudoyer : suivez l'avenue Vaudoyer.",
+        "Le cube de dentelle noire est le MuCEM, ouvert en 2013.",
+        "Le fort Saint-Jean, à l'entrée du Vieux-Port."
+      ],
+      "photo": "File:Cathédrale_Sainte-Marie-Majeure_de_Marseille._Vue_générale..JPG"
+    },
+    {
+      "title": "Fort Saint-Jean",
+      "lat": 43.29545,
+      "lng": 5.36181,
+      "arrival": "Bravo ! Louis XIV fit renforcer le fort Saint-Jean à partir de 1660, après une révolte des Marseillais : ses canons visaient autant la ville que la mer. Depuis 2013, une passerelle le relie au MuCEM, le musée des civilisations de l'Europe et de la Méditerranée de Rudy Ricciotti.",
+      "photo": "File:Marseille-Fort_Saint-Jean.JPG"
+    }
+  ]
+}

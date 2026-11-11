@@ -1,0 +1,91 @@
+{
+  "key": "marseille-05-la-plaine",
+  "name": "La Plaine et le Camas, de la place du marché à la Conception",
+  "location": "Marseille 5e, La Plaine, Camas et Conception",
+  "summary": "Un quartier de vie marseillaise, entre la grande place du marché de la Plaine, ses églises de quartier, une stèle sculptée de croix arméniennes et l'hôpital de la Conception. Un parcours court, pour découvrir le Marseille des habitants.",
+  "startText": "Rendez-vous au centre de la place Jean-Jaurès, que les Marseillais appellent « la Plaine » (métro Notre-Dame-du-Mont). Le marché s'y tient plusieurs matins par semaine.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Jean-Jaurès, la Plaine",
+      "lat": 43.29509,
+      "lng": 5.38656,
+      "riddle": "Quittez la place vers l'ouest, à quelques dizaines de pas. Un sanctuaire de la communauté venue du Caucase est dédié au saint qui convertit son pays au christianisme, au début du IVᵉ siècle.",
+      "hints": [
+        "Le saint s'appelle Grégoire, dit l'Illuminateur.",
+        "Le pays fut le premier royaume chrétien : l'Arménie.",
+        "L'église arménienne Saint-Grégoire-l'Illuminateur, en bordure de la place."
+      ],
+      "photo": "File:Place_Jean_Jaurès_Marseille.JPG"
+    },
+    {
+      "title": "Église arménienne Saint-Grégoire",
+      "lat": 43.29521,
+      "lng": 5.38562,
+      "arrival": "Saint Grégoire l'Illuminateur convertit le roi d'Arménie au christianisme au début du IVᵉ siècle : l'Arménie devint le premier royaume chrétien. Marseille accueille l'une des plus grandes communautés arméniennes de France, arrivée en grande partie par le port après le génocide de 1915.",
+      "riddle": "Partez vers l'est et remontez vers le quartier voisin. À environ 1 400 pas, un sanctuaire porte le nom de l'archange qui terrassa le dragon ; il donne sur une place qui porte aussi son nom.",
+      "hints": [
+        "L'archange chef des armées célestes est Michel.",
+        "La place s'appelle place de l'Archange.",
+        "L'église Saint-Michel du Camas, 1 place de l'Archange."
+      ]
+    },
+    {
+      "title": "Église Saint-Michel du Camas",
+      "lat": 43.2965,
+      "lng": 5.39427,
+      "arrival": "L'église Saint-Michel-l'Archange est la paroisse du Camas, un quartier qui s'est construit au XIXᵉ siècle sur les pentes au-dessus de la Plaine.",
+      "riddle": "Continuez vers l'est par la rue de la grande bataille de 1916, à environ 750 pas. Une stèle de pierre sculptée d'une grande croix entrelacée a été dressée pour les cent ans du génocide des Arméniens.",
+      "hints": [
+        "La bataille de 1916 : la rue de Verdun.",
+        "Cet anniversaire a été commémoré en 2015.",
+        "Le khatchkar du centenaire, dans le quartier du Camas."
+      ],
+      "photo": "File:Eglise_Saint-Michel,_quartier_le_Camas..jpg"
+    },
+    {
+      "title": "Khatchkar du centenaire",
+      "lat": 43.29749,
+      "lng": 5.39876,
+      "arrival": "Le khatchkar, littéralement « pierre-croix », est une stèle typique de l'art arménien : une croix sculptée entourée d'entrelacs. Celui-ci a été dressé pour le centenaire du génocide des Arméniens, commencé en 1915.",
+      "riddle": "Descendez vers le sud par la rue de l'apôtre pêcheur. À environ 1 700 pas, un grand établissement de soins porte le nom d'un mystère de la Vierge.",
+      "hints": [
+        "La rue Saint-Pierre.",
+        "Le mystère est celui de l'Immaculée Conception.",
+        "L'hôpital de la Conception, rue Saint-Pierre."
+      ]
+    },
+    {
+      "title": "Hôpital de la Conception",
+      "lat": 43.29039,
+      "lng": 5.39565,
+      "arrival": "L'hôpital de la Conception est l'un des grands hôpitaux publics de Marseille, au cœur du 5ᵉ arrondissement.",
+      "riddle": "Continuez vers l'est jusqu'au boulevard de la Pucelle d'Orléans. À environ 2 300 pas, son sanctuaire a donné son nom au quartier et au plus grand cimetière de la ville.",
+      "hints": [
+        "La Pucelle d'Orléans : le boulevard Jeanne-d'Arc.",
+        "Le cimetière voisin est le plus vaste de Marseille.",
+        "L'église Saint-Pierre, place Pol-Lapeyre."
+      ],
+      "photo": "File:Hôpital_de_la_conception_à_Marseille_27_mars_2024.jpg"
+    },
+    {
+      "title": "Église Saint-Pierre",
+      "lat": 43.29275,
+      "lng": 5.40945,
+      "arrival": "Bravo ! L'église Saint-Pierre a donné son nom au quartier et au grand cimetière voisin, le plus vaste de Marseille. Saint Pierre, le pêcheur de Galilée, est aussi le patron des pêcheurs."
+    }
+  ]
+}

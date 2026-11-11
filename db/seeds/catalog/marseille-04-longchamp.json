@@ -1,0 +1,92 @@
+{
+  "key": "marseille-04-longchamp",
+  "name": "Longchamp, le palais de l'eau et l'observatoire",
+  "location": "Marseille 4e, Longchamp et Chartreux",
+  "summary": "Le palais Longchamp, château d'eau monumental élevé pour fêter l'arrivée de l'eau de la Durance, ses musées, l'ancien observatoire où fut découvert un célèbre groupe de galaxies, le carrefour des Cinq-Avenues, l'église d'une ancienne chartreuse et le « vaisseau bleu » du Département.",
+  "startText": "Rendez-vous devant le musée Grobet-Labadié, boulevard Longchamp, face au palais (métro et tram Cinq-Avenues – Longchamp). Le jardin du palais ferme le soir.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "toilets"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Musée Grobet-Labadié",
+      "lat": 43.30333,
+      "lng": 5.39278,
+      "riddle": "Remontez vers l'est le grand boulevard planté qui porte déjà le nom de votre destination. À environ 350 pas, une colonnade en demi-cercle encadre une fontaine monumentale où trois femmes trônent sur un char tiré par des taureaux : elles célèbrent l'arrivée d'une rivière alpine à Marseille.",
+      "hints": [
+        "Le boulevard Longchamp mène tout droit au palais.",
+        "La rivière est la Durance, amenée par un canal ; les deux ailes abritent deux musées.",
+        "Le palais Longchamp, au bout du boulevard Longchamp."
+      ],
+      "photo": "File:Musée-Grobet-Labadié.JPG"
+    },
+    {
+      "title": "Palais Longchamp",
+      "lat": 43.30424,
+      "lng": 5.39461,
+      "arrival": "Inauguré en 1869 et dessiné par Henri-Jacques Espérandieu, le palais Longchamp est un château d'eau monumental : il célèbre l'arrivée de l'eau de la Durance par le canal de Marseille. Ses ailes abritent le musée des Beaux-Arts et le muséum d'histoire naturelle.",
+      "riddle": "Montez dans le jardin, vers le nord, en suivant la rue de l'astronome qui découvrit ici un célèbre groupe de galaxies. À environ 350 pas, les anciennes coupoles des astronomes de la ville se dressent dans la verdure.",
+      "hints": [
+        "L'astronome s'appelait Édouard Stephan : la rue Édouard-Stephan longe le jardin.",
+        "Le groupe de galaxies porte le nom de « quintette de Stephan ».",
+        "Le jardin de l'Observatoire, derrière le palais."
+      ],
+      "photo": "File:Palais_Longchamp_2.jpg"
+    },
+    {
+      "title": "Jardin de l'Observatoire",
+      "lat": 43.30586,
+      "lng": 5.39497,
+      "arrival": "En 1877, Édouard Stephan, directeur de l'observatoire de Marseille, découvrit ici le « quintette de Stephan », un groupe de cinq galaxies. L'observatoire s'était installé sur ce plateau quelques années plus tôt.",
+      "riddle": "Ressortez vers l'est par le boulevard qui rappelle l'ancien zoo du parc, et rejoignez, à environ 950 pas, le grand carrefour où se rejoignent autant de voies que de doigts à la main.",
+      "hints": [
+        "Le boulevard du Jardin-Zoologique, puis l'avenue des Chartreux.",
+        "La place porte aussi le nom d'un résistant, Pierre Brossolette.",
+        "Le carrefour des Cinq-Avenues."
+      ]
+    },
+    {
+      "title": "Les Cinq-Avenues",
+      "lat": 43.30665,
+      "lng": 5.40068,
+      "arrival": "Le carrefour des Cinq-Avenues, où convergent cinq voies, a donné son nom au quartier. La place qui l'occupe honore Pierre Brossolette, héros de la Résistance mort en 1944.",
+      "riddle": "Partez vers le nord par le boulevard d'une ville du Nord libérée en 1944, à environ 750 pas. Un sanctuaire du début du XVIIIᵉ siècle est le dernier grand vestige d'un monastère de moines blancs qui vivaient dans le silence.",
+      "hints": [
+        "La ville est Arras : prenez le boulevard d'Arras.",
+        "Les moines blancs du silence sont les Chartreux.",
+        "L'église des Chartreux."
+      ]
+    },
+    {
+      "title": "Église des Chartreux",
+      "lat": 43.30999,
+      "lng": 5.40186,
+      "arrival": "Les Chartreux s'installèrent ici au XVIIᵉ siècle. Leur église, achevée au début du XVIIIᵉ siècle, est le principal vestige du monastère, qui a laissé son nom au quartier.",
+      "riddle": "Continuez vers le nord-est par l'avenue du médecin britannique qui découvrit la pénicilline, à environ 1 300 pas. Un immense bâtiment bleu, posé sur des piliers comme un navire, abrite depuis 1994 le conseil départemental des Bouches-du-Rhône.",
+      "hints": [
+        "Le médecin est Alexander Fleming : l'avenue Alexandre-Fleming.",
+        "Son architecte est le Britannique William Alsop.",
+        "L'hôtel du Département, boulevard Lambert."
+      ],
+      "photo": "File:Les_chartreux,_façade..jpg"
+    },
+    {
+      "title": "Hôtel du Département",
+      "lat": 43.31502,
+      "lng": 5.40591,
+      "arrival": "Bravo ! Inauguré en 1994, l'hôtel du Département des Bouches-du-Rhône, de l'architecte britannique William Alsop, est surnommé le « Vaisseau bleu » pour sa couleur et sa silhouette de paquebot."
+    }
+  ]
+}

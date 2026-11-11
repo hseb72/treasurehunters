@@ -1,0 +1,93 @@
+{
+  "key": "lyon-02-presquile",
+  "name": "La Presqu'île, de la belle cordière au Petit Prince",
+  "location": "Lyon 2e, Presqu'île",
+  "summary": "Entre Rhône et Saône, une promenade de la Presqu'île : l'église de Philibert Delorme, la fontaine des artistes lyonnais, le théâtre à l'italienne des Célestins, l'aviateur et son Petit Prince, le roi de bronze de Bellecour et l'hôpital où Rabelais soigna les Lyonnais.",
+  "startText": "Rendez-vous sur le parvis de l'église Saint-Nizier, rue Saint-Nizier (métro Cordeliers).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Église Saint-Nizier",
+      "lat": 45.76471,
+      "lng": 4.8336,
+      "riddle": "Partez vers le sud par la rue qui porte le nom d'un grand port breton. Au bout, à environ 950 pas, une fontaine ronde est entourée de quatre artistes nés à Lyon. Rendez-vous près d'elle.",
+      "hints": [
+        "Le port breton est Brest : suivez la rue de Brest vers le sud.",
+        "Parmi les artistes : l'architecte Philibert Delorme et le sculpteur Coustou.",
+        "La place des Jacobins."
+      ],
+      "photo": "File:Église_St_Nizier_Lyon_5.jpg"
+    },
+    {
+      "title": "Place des Jacobins",
+      "lat": 45.7605,
+      "lng": 4.83355,
+      "arrival": "La place doit son nom au couvent des Dominicains, qu'on appelait les Jacobins. La fontaine, dessinée par Gaspard André à la fin du XIXᵉ siècle, honore quatre artistes lyonnais, dont Philibert Delorme et Guillaume Coustou.",
+      "riddle": "Filez vers l'ouest par la rue d'une province alpine rattachée à la France en 1860. À moins de 400 pas, sur une place carrée, se dresse une salle à l'italienne dessinée par l'architecte de la fontaine que vous quittez.",
+      "hints": [
+        "La province alpine est la Savoie : prenez la rue de Savoie.",
+        "La salle porte le nom d'un ancien couvent d'une branche des Bénédictins.",
+        "Le théâtre des Célestins, place des Célestins."
+      ],
+      "photo": "File:Place_des_Jacobins_(Lyon,_2025).jpg"
+    },
+    {
+      "title": "Théâtre des Célestins",
+      "lat": 45.7599,
+      "lng": 4.8313,
+      "arrival": "Comme la fontaine des Jacobins, le théâtre est l'œuvre de Gaspard André. Il occupe l'emplacement du couvent des Célestins, et sa salle est un théâtre à l'italienne.",
+      "riddle": "Descendez vers le sud par la rue des moines-soldats du Moyen Âge, jusqu'à la plus vaste place de la ville. Dans son angle ouest, en haut d'une colonne, un aviateur né à Lyon en 1900 est assis, son Petit Prince à côté de lui. Environ 600 pas.",
+      "hints": [
+        "Les moines-soldats sont les Templiers : la rue des Templiers mène à la place Bellecour.",
+        "L'aviateur a écrit Vol de nuit.",
+        "La statue de Saint-Exupéry et du Petit Prince, angle ouest de la place Bellecour."
+      ],
+      "photo": "File:Lyon_2e_-_Place_des_Célestins_-_Théâtre_des_Célestins.jpg"
+    },
+    {
+      "title": "Statue de Saint-Exupéry",
+      "lat": 45.75743,
+      "lng": 4.82991,
+      "arrival": "Antoine de Saint-Exupéry est né à Lyon le 29 juin 1900, à quelques rues d'ici. La statue a été inaugurée en 2000, pour le centenaire de sa naissance. L'aéroport de Lyon porte aussi son nom.",
+      "riddle": "Traversez la place vers l'est, jusqu'à son centre. Un roi de bronze à cheval, vêtu à la romaine, y trône au-dessus de deux grandes figures couchées : un fleuve et une rivière, ceux qui enserrent la Presqu'île.",
+      "hints": [
+        "Le roi est le Roi-Soleil.",
+        "Les deux figures couchées sont le Rhône et la Saône.",
+        "La statue équestre de Louis XIV, au centre de la place Bellecour."
+      ]
+    },
+    {
+      "title": "Statue équestre de Louis XIV",
+      "lat": 45.7578,
+      "lng": 4.83218,
+      "arrival": "La première statue, de Martin Desjardins, fut fondue à la Révolution. Celle-ci, de François-Frédéric Lemot, a été installée en 1825. Les figures du Rhône et de la Saône, au pied du socle, sont l'œuvre des frères Coustou.",
+      "riddle": "Partez vers le nord-est et suivez la rue d'une poétesse de la Renaissance, fille et femme de cordiers, qu'on surnommait la Belle Cordière. Elle longe, à environ 700 pas, un immense hôpital à dôme, bâti au bord du Rhône. Rendez-vous sur la petite place, devant son entrée.",
+      "hints": [
+        "La poétesse est Louise Labé : prenez la rue Bellecordière.",
+        "Le médecin écrivain Rabelais y soigna les malades.",
+        "Le Grand Hôtel-Dieu, place de l'Hôpital."
+      ],
+      "photo": "File:Lyon_2e_-_Place_Bellecour_-_Statue_équestre_de_Louis_XIV,_après_restauration_02.jpg"
+    },
+    {
+      "title": "Grand Hôtel-Dieu",
+      "lat": 45.75941,
+      "lng": 4.83606,
+      "arrival": "Bravo ! L'Hôtel-Dieu a soigné les Lyonnais pendant plus de huit siècles. François Rabelais y fut médecin en 1532, l'année où il publia Pantagruel. Sa façade sur le Rhône et son dôme sont de Soufflot, l'architecte du Panthéon de Paris. L'hôpital a fermé en 2010 ; il abrite aujourd'hui un hôtel, des boutiques et des restaurants.",
+      "photo": "File:Lyon_(52164665586).jpg"
+    }
+  ]
+}

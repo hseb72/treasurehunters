@@ -1,0 +1,88 @@
+{
+  "key": "marseille-12-caillols-saint-julien",
+  "name": "Des Caillols à Saint-Julien, les villages de l'est",
+  "location": "Marseille 12e, les Caillols et Saint-Julien",
+  "summary": "Marseille est une mosaïque d'anciens villages. Ce parcours relie deux d'entre eux : les Caillols, avec le parc et le château de la Mirabelle, et Saint-Julien, avec sa chapelle et son église, en passant par le parc Bonniot.",
+  "startText": "Rendez-vous devant la mairie des 11ᵉ et 12ᵉ arrondissements, boulevard Bouyala-d'Arnaud (bus depuis La Fourragère). Les parcs ferment le soir.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Mairie des 11ᵉ et 12ᵉ",
+      "lat": 43.29766,
+      "lng": 5.44319,
+      "riddle": "Partez vers l'est, à environ 450 pas, dans le parc voisin. Une ancienne bastide y domine un amphithéâtre de plein air ; son nom est celui d'une petite prune jaune.",
+      "hints": [
+        "La mirabelle est une petite prune jaune.",
+        "L'amphithéâtre accueille des spectacles l'été.",
+        "Le château de la Mirabelle, dans le parc de la Mirabelle."
+      ]
+    },
+    {
+      "title": "Château de la Mirabelle",
+      "lat": 43.29752,
+      "lng": 5.44586,
+      "arrival": "Le parc de la Mirabelle entoure une ancienne bastide, le château de la Mirabelle. Un amphithéâtre de plein air y accueille des spectacles l'été.",
+      "riddle": "Partez vers le nord-est jusqu'à la grand-rue de l'ancien village, à environ 1 600 pas. Son sanctuaire est dédié à la mère de la Vierge Marie.",
+      "hints": [
+        "La Grand'Rue des Caillols.",
+        "La mère de Marie s'appelle Anne.",
+        "L'église Sainte-Anne des Caillols."
+      ]
+    },
+    {
+      "title": "Église Sainte-Anne des Caillols",
+      "lat": 43.30339,
+      "lng": 5.45165,
+      "arrival": "L'église Sainte-Anne est la paroisse du village des Caillols. Sainte Anne, mère de la Vierge Marie, est très honorée en Provence.",
+      "riddle": "Partez vers le nord par le chemin qui suit le canal, puis par l'avenue de l'acteur de Don Camillo. Après une vingtaine de minutes de marche, un parc public porte le même nom que le boulevard qui le longe.",
+      "hints": [
+        "La promenade du Canal-de-Saint-Julien, puis l'avenue Fernandel.",
+        "Le boulevard s'appelle boulevard Bonniot.",
+        "Le parc Bonniot."
+      ],
+      "photo": "File:Marseille-les-Caillols16.jpg"
+    },
+    {
+      "title": "Parc Bonniot",
+      "lat": 43.31549,
+      "lng": 5.45053,
+      "arrival": "Le parc Bonniot est l'un des espaces verts de l'est marseillais, entre les anciens villages de Saint-Julien et des Caillols.",
+      "riddle": "Descendez vers le sud-ouest par le boulevard d'une dame titrée, à environ 900 pas. Un petit sanctuaire du village de Saint-Julien porte le nom d'une famille du quartier.",
+      "hints": [
+        "Le boulevard de la Comtesse.",
+        "Elle est près de l'école du village.",
+        "La chapelle Marcorelles, rue du Groupe-Scolaire."
+      ]
+    },
+    {
+      "title": "Chapelle Marcorelles",
+      "lat": 43.31267,
+      "lng": 5.44639,
+      "arrival": "La chapelle Marcorelles est l'un des petits sanctuaires du village de Saint-Julien, dont le cœur ancien a gardé ses rues étroites.",
+      "riddle": "Faites quelques pas vers le sud-est, à environ 350 pas, jusqu'à la place qui porte le nom du sanctuaire du village.",
+      "hints": [
+        "La place de l'Église.",
+        "Il porte le nom du village.",
+        "L'église Saint-Julien."
+      ]
+    },
+    {
+      "title": "Église Saint-Julien",
+      "lat": 43.3113,
+      "lng": 5.44726,
+      "arrival": "Bravo ! L'église Saint-Julien est la paroisse du village qui porte son nom. Comme la plupart des noyaux villageois de Marseille, Saint-Julien s'est formé autour de son église.",
+      "photo": "File:Église_Saint-Julien_(Marseille)-05.JPG"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "key": "montpellier-ecusson",
+  "name": "Montpellier, l'Écusson de la Comédie au Peyrou",
+  "location": "Montpellier, Écusson",
+  "summary": "Une traversée de l'Écusson : la place de la Comédie et ses Trois Grâces, l'opéra, la place de la Canourgue et sa fontaine aux licornes, la cathédrale aux deux colonnes géantes, le plus ancien jardin botanique de France, la promenade royale du Peyrou et son château d'eau, puis l'arc de triomphe de Louis XIV.",
+  "startText": "Rendez-vous au pied de la fontaine des Trois Grâces, place de la Comédie (tram Comédie). Le jardin des plantes a des horaires d'ouverture.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Fontaine des Trois Grâces",
+      "lat": 43.60868,
+      "lng": 3.87992,
+      "riddle": "Tournez-vous vers le sud-ouest. À moins de 300 pas, la grande salle de spectacle de la fin du XIXᵉ siècle ferme la place et lui a donné son nom.",
+      "hints": [
+        "Son architecte est Joseph Cassien-Bernard.",
+        "On y donne opéras et concerts.",
+        "L'Opéra Comédie, place de la Comédie."
+      ],
+      "photo": "File:Montpellier_-_Opéra_Comédie.jpg"
+    },
+    {
+      "title": "Opéra Comédie",
+      "lat": 43.60785,
+      "lng": 3.87873,
+      "arrival": "Après l'incendie du théâtre précédent, l'Opéra Comédie a été reconstruit sur les plans de Joseph Cassien-Bernard, élève de Charles Garnier, et inauguré en 1888. La place lui doit son nom : la Comédie.",
+      "riddle": "Remontez vers le nord-ouest par la rue de la loge où se réunissaient les marchands, à travers le cœur de l'Écusson. À environ 1 100 pas, une petite place ombragée, où se trouvait la cathédrale avant les guerres de Religion, garde une fontaine aux licornes.",
+      "hints": [
+        "La rue de la Loge monte vers l'ouest.",
+        "Son nom vient des chanoines, les canonges.",
+        "La place de la Canourgue."
+      ],
+      "photo": "File:L'opéra_Comédie_à_Montpellier.jpg"
+    },
+    {
+      "title": "Place de la Canourgue",
+      "lat": 43.61181,
+      "lng": 3.87443,
+      "arrival": "La place de la Canourgue doit son nom aux chanoines. On y avait commencé une nouvelle cathédrale au XVIIᵉ siècle, jamais achevée. Sa fontaine aux licornes, du XVIIIᵉ siècle, est l'une des plus jolies de la ville.",
+      "riddle": "Partez vers le nord par la rue qui porte le nom de l'apôtre porte-clés. À environ 350 pas, un sanctuaire-forteresse s'ouvre par un porche soutenu par deux colonnes géantes, terminées en cônes.",
+      "hints": [
+        "L'apôtre porte-clés est Pierre.",
+        "Les Montpelliérains appellent ces colonnes les « fusées ».",
+        "La cathédrale Saint-Pierre."
+      ]
+    },
+    {
+      "title": "Cathédrale Saint-Pierre",
+      "lat": 43.61331,
+      "lng": 3.87405,
+      "arrival": "La cathédrale était à l'origine la chapelle d'un monastère fondé en 1364 par le pape Urbain V. Son porche, porté par deux énormes piliers coniques, lui donne l'allure d'une forteresse.",
+      "riddle": "Partez vers l'ouest jusqu'au boulevard qui porte le nom du roi qui créa le jardin voisin. À environ 350 pas, le plus ancien jardin botanique de France, fondé en 1593 pour les étudiants en médecine, s'ouvre au public.",
+      "hints": [
+        "Le roi est Henri IV : le boulevard Henri-IV.",
+        "Il dépend de la faculté de médecine.",
+        "Le jardin des plantes de Montpellier, boulevard Henri-IV."
+      ]
+    },
+    {
+      "title": "Jardin des plantes",
+      "lat": 43.61398,
+      "lng": 3.87201,
+      "arrival": "Fondé en 1593 par Pierre Richer de Belleval, sur ordre d'Henri IV, le jardin des plantes de Montpellier est le plus ancien jardin botanique de France. Il servait à enseigner les plantes médicinales aux étudiants de la faculté de médecine.",
+      "riddle": "Descendez vers le sud-ouest par la rue du faubourg de saint Jacques, dit en occitan, à environ 650 pas, jusqu'à la grande esplanade royale qui domine la ville. Au bout, un château d'eau à colonnes reçoit l'eau d'un aqueduc à deux étages d'arches.",
+      "hints": [
+        "La rue du Faubourg-Saint-Jaumes, puis la rue Pitot.",
+        "Un roi à cheval se dresse au milieu de l'esplanade.",
+        "La promenade du Peyrou."
+      ],
+      "photo": "File:File_by_Alexander_Baranov_-_(19421412971).jpg"
+    },
+    {
+      "title": "Promenade du Peyrou",
+      "lat": 43.61147,
+      "lng": 3.87008,
+      "arrival": "La promenade du Peyrou a été aménagée à partir de la fin du XVIIᵉ siècle pour accueillir la statue équestre de Louis XIV. Au bout, le château d'eau reçoit l'eau de l'aqueduc Saint-Clément, construit au XVIIIᵉ siècle.",
+      "riddle": "Revenez vers l'est, à environ 400 pas. Une porte monumentale, élevée à la gloire de Louis XIV à la fin du XVIIᵉ siècle, ouvre l'Écusson sur la promenade.",
+      "hints": [
+        "Elle ressemble à une petite sœur d'un monument parisien.",
+        "On peut parfois monter à son sommet.",
+        "L'arc de triomphe de Montpellier, rue Foch."
+      ],
+      "photo": "File:Promenade_du_Peyrou_Montpellier.jpg"
+    },
+    {
+      "title": "Arc de triomphe",
+      "lat": 43.61113,
+      "lng": 3.87241,
+      "arrival": "Bravo ! Élevé à partir de 1691 sur les plans d'Augustin-Charles d'Aviler, l'arc de triomphe célèbre Louis XIV : ses bas-reliefs évoquent le canal du Midi, la révocation de l'édit de Nantes et les victoires du roi.",
+      "photo": "File:Arc_triomphe_de_Montpellier.jpg"
+    }
+  ]
+}

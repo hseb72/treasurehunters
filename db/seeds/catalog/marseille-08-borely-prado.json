@@ -1,0 +1,94 @@
+{
+  "key": "marseille-08-borely-prado",
+  "name": "Du David du Prado au Vélodrome",
+  "location": "Marseille 8e, plages du Prado, parc Borély et Vélodrome",
+  "summary": "Une balade du bord de mer au temple du football : la copie du David de Michel-Ange, les plages gagnées sur la mer, le château d'un négociant du XVIIIᵉ siècle, le lac et le jardin botanique du parc Borély, puis le stade Vélodrome.",
+  "startText": "Rendez-vous au pied de la statue de David, au rond-point du Prado, face à la mer (bus 19 ou 83). Le parc Borély ferme le soir.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "toilets",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Statue de David",
+      "lat": 43.26186,
+      "lng": 5.37474,
+      "riddle": "Longez la mer vers le sud par l'avenue d'un président du Conseil de la IVᵉ République, qui fit la paix en Indochine. À environ 1 600 pas, une esplanade de bars et de restaurants s'avance au bord des plages.",
+      "hints": [
+        "Le président du Conseil est Pierre Mendès France : l'avenue Pierre-Mendès-France.",
+        "Son nom évoque un arrêt de navire.",
+        "L'Escale Borély, sur le front de mer."
+      ],
+      "photo": "File:Statue_de_David_à_Marseille.jpg"
+    },
+    {
+      "title": "Escale Borély",
+      "lat": 43.25462,
+      "lng": 5.37503,
+      "arrival": "Les plages du Prado ont été créées dans les années 1970, en partie avec les déblais du creusement du métro. L'Escale Borély, avec ses restaurants, ouvre sur ces plages artificielles.",
+      "riddle": "Traversez vers le nord-est par l'avenue qui porte le nom du quartier, Bonneveine, et entrez dans le grand parc. À environ 1 300 pas, une demeure blanche du XVIIIᵉ siècle a été construite pour une famille de négociants marseillais.",
+      "hints": [
+        "L'avenue de Bonneveine.",
+        "Elle abrite un musée des arts décoratifs et de la mode.",
+        "Le château Borély."
+      ]
+    },
+    {
+      "title": "Château Borély",
+      "lat": 43.25742,
+      "lng": 5.38196,
+      "arrival": "Achevé à la fin du XVIIIᵉ siècle pour la famille Borély, riches négociants, le château est l'œuvre de l'architecte Charles-Louis Clérisseau. Il abrite le musée des arts décoratifs, de la faïence et de la mode.",
+      "riddle": "Partez vers le nord-ouest, à environ 550 pas, jusqu'au grand bassin du parc où glissent les cygnes et les canards.",
+      "hints": [
+        "Il est au milieu du jardin à l'anglaise.",
+        "On peut en faire le tour en quelques minutes.",
+        "Le lac du parc Borély."
+      ],
+      "photo": "File:Marseille-Château_Borély(11).jpg"
+    },
+    {
+      "title": "Lac du parc Borély",
+      "lat": 43.25944,
+      "lng": 5.38028,
+      "arrival": "Le parc Borély mêle un jardin à la française devant le château et un jardin à l'anglaise autour du lac. C'est l'un des parcs les plus fréquentés de Marseille.",
+      "riddle": "Partez vers l'est par l'avenue du médecin formé à Marseille et devenu bey en Égypte, à environ 800 pas, jusqu'au jardin des plantes qui porte le nom d'un pharmacien et naturaliste marseillais.",
+      "hints": [
+        "Le médecin est Antoine Clot, dit Clot-Bey : l'avenue Clot-Bey.",
+        "On y trouve des serres et des plantes du monde entier.",
+        "Le jardin botanique Édouard-Marie-Heckel."
+      ],
+      "photo": "File:Château_Borély.JPG"
+    },
+    {
+      "title": "Jardin botanique Heckel",
+      "lat": 43.25961,
+      "lng": 5.38513,
+      "arrival": "Le jardin botanique de Marseille porte le nom d'Édouard-Marie Heckel, médecin, pharmacien et botaniste marseillais de la fin du XIXᵉ siècle. On y découvre des plantes méditerranéennes et des quatre coins du monde.",
+      "riddle": "Partez vers le nord-est par l'avenue de l'auteur des Trois Mousquetaires, puis par le boulevard de l'historien de la Révolution française. À environ 2 700 pas, une immense enceinte sportive à la toiture ondulée est le temple du football marseillais.",
+      "hints": [
+        "L'avenue Alexandre-Dumas, puis le boulevard Michelet.",
+        "L'Olympique de Marseille y joue.",
+        "Le stade Vélodrome, boulevard Michelet."
+      ]
+    },
+    {
+      "title": "Stade Vélodrome",
+      "lat": 43.26924,
+      "lng": 5.39491,
+      "arrival": "Bravo ! Ouvert en 1937, le Vélodrome devait accueillir des courses cyclistes, d'où son nom. Il a reçu des matchs de la Coupe du monde dès 1938, et sa grande toiture ondulée a été ajoutée lors de la rénovation des années 2010. C'est le stade de l'Olympique de Marseille.",
+      "photo": "File:Stade_Vélodrome_closeup.jpg"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "key": "rouen-theme-jeanne-d-arc",
+  "name": "Rouen, sur les pas de Jeanne d'Arc",
+  "location": "Rouen, centre historique",
+  "summary": "Les derniers mois de Jeanne d'Arc à Rouen : le donjon où on la menaça de la torture, la place du Vieux-Marché où elle fut brûlée, le Gros-Horloge, la cathédrale peinte par Monet, l'Historial installé dans le palais des archevêques et l'abbatiale Saint-Ouen, où elle abjura.",
+  "startText": "Rendez-vous au pied de la tour Jeanne-d'Arc, rue du Donjon (près de la gare Rouen-Rive-Droite).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Tour Jeanne-d'Arc",
+      "lat": 49.44647,
+      "lng": 1.0944,
+      "riddle": "Descendez vers le sud-ouest par la grande rue qui porte le nom de la prisonnière, puis par la rue des marchands de fourrures dédiée à la sainte Croix. À environ 1 100 pas, sur une grande place, une croix marque l'endroit du bûcher, au pied d'une église moderne au toit en forme de flamme.",
+      "hints": [
+        "La rue Jeanne-d'Arc, puis la rue Sainte-Croix-des-Pelletiers.",
+        "On y vendait jadis toutes sortes de denrées.",
+        "La place du Vieux-Marché."
+      ],
+      "photo": "File:Flickr_-_Edhral_-_Rouen_011_Tour-Jeanne-d'Arc.jpg"
+    },
+    {
+      "title": "Place du Vieux-Marché",
+      "lat": 49.4431,
+      "lng": 1.08845,
+      "arrival": "La tour Jeanne-d'Arc est le donjon du château construit par Philippe Auguste au début du XIIIᵉ siècle ; Jeanne, prisonnière des Anglais, y fut menacée de la torture en mai 1431. Le 30 mai 1431, elle fut brûlée vive ici, sur la place du Vieux-Marché. L'église Sainte-Jeanne-d'Arc, de Louis Arretche, a été inaugurée en 1979.",
+      "riddle": "Partez vers le sud-est par la rue des écuyers, puis par la grande rue piétonne. À environ 500 pas, un cadran doré à une seule aiguille, posé sur une arche Renaissance, enjambe la rue.",
+      "hints": [
+        "La rue Écuyère, puis la rue du Gros-Horloge.",
+        "Son mécanisme compte parmi les plus anciens de France.",
+        "Le Gros-Horloge."
+      ]
+    },
+    {
+      "title": "Gros-Horloge",
+      "lat": 49.44155,
+      "lng": 1.09118,
+      "arrival": "Le Gros-Horloge est l'une des plus anciennes horloges de France : son mécanisme date du XIVᵉ siècle et son arche Renaissance de 1529. Son cadran n'a qu'une aiguille, celle des heures.",
+      "riddle": "Continuez vers le sud-est jusqu'au bout de la même rue, puis par la rue du petit salut. À environ 450 pas, une façade gothique, peinte une trentaine de fois par Claude Monet, se dresse au-dessus du parvis.",
+      "hints": [
+        "La rue du Petit-Salut débouche sur le parvis.",
+        "Sa flèche de fonte est la plus haute de France.",
+        "La cathédrale Notre-Dame de Rouen."
+      ],
+      "photo": "File:Gros-Horloge,_Rouen,_West_View_140215_2.jpg"
+    },
+    {
+      "title": "Cathédrale Notre-Dame de Rouen",
+      "lat": 49.44045,
+      "lng": 1.0938,
+      "arrival": "Claude Monet a peint la façade de la cathédrale une trentaine de fois, à toutes les heures du jour. Sa flèche de fonte, haute de 151 mètres, est la plus haute de France. Le cœur de Richard Cœur de Lion y repose.",
+      "riddle": "Contournez le flanc nord par la cour des marchands de livres, puis par la rue d'un évêque qui, selon la légende, vainquit un dragon. À environ 300 pas, l'ancienne résidence des archevêques raconte en images le procès de la Pucelle.",
+      "hints": [
+        "La cour des Libraires, puis la rue Saint-Romain.",
+        "Le dragon de saint Romain s'appelait la Gargouille.",
+        "L'Historial Jeanne d'Arc, 7 rue Saint-Romain."
+      ],
+      "photo": "File:Cathédrale_de_Rouen.jpg"
+    },
+    {
+      "title": "Historial Jeanne d'Arc",
+      "lat": 49.44047,
+      "lng": 1.0959,
+      "address": "7, rue Saint-Romain",
+      "arrival": "L'Historial Jeanne d'Arc occupe le palais des archevêques de Rouen. C'est là qu'en juillet 1456 fut proclamée la sentence qui annulait la condamnation de Jeanne d'Arc, vingt-cinq ans après sa mort.",
+      "riddle": "Partez vers le nord-est par la rue des fossés d'un roi Louis, puis par la rue de l'hôpital. À environ 550 pas, un immense sanctuaire monastique gothique, presque aussi grand qu'une cathédrale, est bordé d'un jardin.",
+      "hints": [
+        "La rue des Fossés-Louis-VIII, puis la rue de l'Hôpital.",
+        "Il est dédié à un évêque de Rouen du VIIᵉ siècle.",
+        "L'abbatiale Saint-Ouen."
+      ],
+      "photo": "File:Historial_de_Rouen.jpg"
+    },
+    {
+      "title": "Abbatiale Saint-Ouen",
+      "lat": 49.44247,
+      "lng": 1.09836,
+      "arrival": "Bravo ! Le 24 mai 1431, dans le cimetière de l'abbaye Saint-Ouen, Jeanne, menacée du bûcher, signa une abjuration. Elle se rétracta quelques jours plus tard et fut condamnée comme relapse. L'abbatiale gothique a été commencée en 1318.",
+      "photo": "File:Abbatiale_Saint-Ouen_vue_depuis_la_cathédrale_Notre-Dame_de_Rouen.jpg"
+    }
+  ]
+}

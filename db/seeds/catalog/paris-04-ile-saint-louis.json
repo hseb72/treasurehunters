@@ -1,0 +1,108 @@
+{
+  "key": "paris-04-ile-saint-louis",
+  "name": "Un boulet, un orme et deux îles : le 4ᵉ secret",
+  "location": "Paris 4e, de la tour Saint-Jacques à l'île Saint-Louis",
+  "summary": "De la tour Saint-Jacques à la pointe de l'île Saint-Louis : la place où l'on « faisait grève », l'orme des mauvais payeurs, un boulet de 1830 resté dans un mur, le pont d'un entrepreneur et l'horloge qui dépasse au-dessus de la rue. On termine face au chevet de Notre-Dame.",
+  "startText": "Rendez-vous sur le trottoir de la rue de Rivoli, au pied de la tour Saint-Jacques (métro Châtelet). Une énigme demande un petit calcul : prévoyez de quoi noter.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Tour Saint-Jacques",
+      "lat": 48.8583,
+      "lng": 2.34885,
+      "riddle": "Marchez vers l'est le long de la rue qui célèbre une victoire de Bonaparte près du lac de Garde. À environ 450 pas, le grand palais néo-Renaissance que vous découvrez a été rebâti après avoir brûlé pendant la Commune, en 1871. Rendez-vous sur la vaste place piétonne devant sa façade.",
+      "hints": [
+        "La victoire est celle de Rivoli, en 1797 : suivez la rue de Rivoli vers l'est.",
+        "Le palais abrite la mairie de Paris.",
+        "La place de l'Hôtel-de-Ville."
+      ],
+      "photo": "File:P1000625_Paris_IV_Tour_Saint-Jacques_resultwk.JPG"
+    },
+    {
+      "title": "Place de l'Hôtel-de-Ville",
+      "lat": 48.857,
+      "lng": 2.35115,
+      "arrival": "Cette place s'appelait la place de Grève : une berge de sable où accostaient les bateaux. Les ouvriers sans travail venaient y attendre l'embauche, d'où l'expression « faire grève ». On y exécuta aussi les condamnés jusqu'en 1830.",
+      "riddle": "Passez derrière le palais, vers le sud-est, par la rue d'un maréchal dont Napoléon disait : « Mon mouton est un lion. » Devant une église à la façade classique pousse un arbre : depuis le Moyen Âge, un arbre de la même espèce a toujours été planté ici, et l'on s'y donnait rendez-vous pour régler ses dettes. Environ 500 pas.",
+      "hints": [
+        "Le maréchal Mouton, comte de Lobau, a donné son nom à la rue de Lobau.",
+        "L'expression « Attendez-moi sous l'… » vient de là.",
+        "L'orme de Saint-Gervais, place Saint-Gervais."
+      ]
+    },
+    {
+      "title": "Orme de Saint-Gervais",
+      "lat": 48.85576,
+      "lng": 2.35399,
+      "arrival": "On venait sous l'orme de Saint-Gervais rendre la justice et payer ses dettes ; le créancier qui attendait en vain « attendait sous l'orme ». Levez les yeux vers les balcons des maisons voisines : l'arbre y est dessiné dans le fer forgé.",
+      "riddle": "Suivez vers l'est la rue d'un prévôt des marchands du temps d'Henri IV, puis descendez vers la Seine. Une demeure médiévale à tourelles, où vécut la reine Margot, garde dans sa façade un boulet de canon. Notez la date gravée sous lui : vous en aurez besoin. Une dizaine de minutes à pied.",
+      "hints": [
+        "Le prévôt est François Miron : prenez la rue François-Miron vers l'est.",
+        "Le boulet date de la révolution des Trois Glorieuses ; la demeure abrite la bibliothèque Forney.",
+        "L'hôtel de Sens, à l'angle de la rue du Figuier."
+      ],
+      "photo": "File:P1380770_Paris_IV_orme_St-Gervais_rwk.jpg"
+    },
+    {
+      "title": "Hôtel de Sens",
+      "lat": 48.85337,
+      "lng": 2.35921,
+      "address": "1, rue du Figuier",
+      "arrival": "Bâti à la fin du XVᵉ siècle pour les archevêques dont dépendait alors Paris, c'est l'une des rares demeures médiévales de la ville. Le boulet de la façade porte la date du 28 juillet 1830, au cœur des Trois Glorieuses.",
+      "riddle": "Prenez l'année gravée sous le boulet et retirez-lui 195 : vous obtenez l'année où fut achevé le pont de pierre tout proche, qui porte le nom de son entrepreneur. Pour l'atteindre, partez vers le sud-ouest et rejoignez le quai des moines d'un ordre fondé par le pape Célestin V. Arrêtez-vous au milieu du pont, à environ 300 pas.",
+      "hints": [
+        "Le quai des Célestins ; et 1830 − 195 = 1635.",
+        "L'entrepreneur s'appelait Christophe Marie.",
+        "Le pont Marie, vers l'île Saint-Louis."
+      ],
+      "photo": "File:Hôtel_de_Sens_1.jpg"
+    },
+    {
+      "title": "Pont Marie",
+      "lat": 48.85284,
+      "lng": 2.35738,
+      "arrival": "Achevé en 1635, c'est l'un des plus anciens ponts de Paris. Christophe Marie a aussi loti l'île devant vous, née de la réunion de deux îlots : l'île aux Vaches et l'île Notre-Dame. Des maisons se dressaient alors sur le pont ; une crue en emporta une partie en 1658.",
+      "riddle": "Descendez vers le sud la rue qui relie deux franchissements de la Seine, puis tournez à droite dans la grand-rue de l'île. Au numéro 19 bis, à quelque 350 pas, une horloge en fer forgé dépasse au-dessus du trottoir : elle appartient à un sanctuaire baroque dédié au roi canonisé qui partit en croisade.",
+      "hints": [
+        "La rue des Deux-Ponts relie le pont Marie et le pont de la Tournelle.",
+        "Le roi croisé est le petit-fils de Philippe Auguste.",
+        "L'église Saint-Louis-en-l'Île, 19 bis rue Saint-Louis-en-l'Île."
+      ],
+      "photo": "File:Pont_Marie_2009-06-02_Paris_01.jpg"
+    },
+    {
+      "title": "Église Saint-Louis-en-l'Île",
+      "lat": 48.85128,
+      "lng": 2.35758,
+      "address": "19 bis, rue Saint-Louis-en-l'Île",
+      "arrival": "Commencée en 1664 sur des plans de Louis Le Vau, qui habitait l'île, l'église fut achevée en 1726. Son horloge en saillie est l'un des repères de la rue.",
+      "riddle": "Remontez vers le nord-ouest la grand-rue de l'île, qui porte le même nom qu'elle, jusqu'à sa pointe. Une passerelle piétonne la relie à sa voisine ; vous y aurez une vue sur le chevet d'une cathédrale rouverte en décembre 2024. Arrêtez-vous en son milieu, à environ 800 pas.",
+      "hints": [
+        "La grand-rue s'appelle rue Saint-Louis-en-l'Île, comme l'île elle-même.",
+        "La passerelle relie les deux îles de la Seine ; des musiciens s'y installent souvent.",
+        "Le pont Saint-Louis, entre l'île Saint-Louis et l'île de la Cité."
+      ],
+      "photo": "File:Eglise_saint_louis_en_l'ile.jpg"
+    },
+    {
+      "title": "Pont Saint-Louis",
+      "lat": 48.85276,
+      "lng": 2.35277,
+      "arrival": "Bravo ! Le pont Saint-Louis est réservé aux piétons. Devant vous, le chevet de Notre-Dame, rouverte le 7 décembre 2024, cinq ans après l'incendie d'avril 2019.",
+      "photo": "File:Pont_Saint-Louis_Paris_FRA_001.JPG"
+    }
+  ]
+}

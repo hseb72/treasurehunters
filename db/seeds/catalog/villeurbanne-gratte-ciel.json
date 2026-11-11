@@ -1,0 +1,90 @@
+{
+  "key": "villeurbanne-gratte-ciel",
+  "name": "Villeurbanne, les Gratte-Ciel et l'utopie des années 1930",
+  "location": "Villeurbanne, quartier des Gratte-Ciel",
+  "summary": "Le quartier des Gratte-Ciel, centre-ville construit d'un seul geste au début des années 1930 : l'hôtel de ville, le palais du Travail devenu Théâtre national populaire, les tours de l'avenue Henri-Barbusse, puis la place Albert-Thomas, l'Institut d'art contemporain et le Rize, lieu de mémoire de la ville.",
+  "startText": "Rendez-vous devant l'hôtel de ville, place Lazare-Goujon (métro Gratte-Ciel).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Hôtel de ville de Villeurbanne",
+      "lat": 45.76652,
+      "lng": 4.87961,
+      "riddle": "Juste en face, vers le sud, de l'autre côté de la place du maire bâtisseur, un édifice élevé au début des années 1930 pour les syndicats, la santé et les loisirs ouvriers abrite depuis 1972 un théâtre national.",
+      "hints": [
+        "La place Lazare-Goujon.",
+        "Il abritait aussi une piscine et un dispensaire.",
+        "Le palais du Travail, qui accueille le Théâtre national populaire."
+      ],
+      "photo": "File:Villeurbanne_city_hall.jpg"
+    },
+    {
+      "title": "Palais du Travail",
+      "lat": 45.76554,
+      "lng": 4.87965,
+      "arrival": "Conçu par Môrice Leroux et inauguré en 1934, le palais du Travail réunissait des salles syndicales, un dispensaire, une piscine et une salle de spectacle. Le Théâtre national populaire s'y est installé en 1972, avec Roger Planchon.",
+      "riddle": "Remontez vers le nord l'avenue qui porte le nom de l'auteur du Feu, prix Goncourt 1916. À environ 850 pas, à son extrémité, deux immeubles à gradins dominent tout le quartier.",
+      "hints": [
+        "L'avenue Henri-Barbusse.",
+        "Ils ont donné leur nom au quartier et à la station de métro.",
+        "Les tours des Gratte-Ciel, au bout de l'avenue Henri-Barbusse."
+      ]
+    },
+    {
+      "title": "Tours des Gratte-Ciel",
+      "lat": 45.76938,
+      "lng": 4.87937,
+      "arrival": "Voulus par le maire Lazare Goujon pour loger les ouvriers dans des appartements modernes, avec chauffage central et salle de bains, les Gratte-Ciel ont été construits de 1927 à 1934 sur des plans de Môrice Leroux. Les deux tours à gradins culminent à dix-neuf étages.",
+      "riddle": "Partez vers le sud-ouest et prenez la rue de la nuit où furent abolis les privilèges, à environ 1 500 pas, jusqu'à une place qui porte le nom du premier directeur du Bureau international du travail, ancien ministre de l'Armement pendant la Grande Guerre.",
+      "hints": [
+        "La rue du 4-Août-1789.",
+        "Il dirigea l'Organisation internationale du travail de 1919 à 1932.",
+        "La place Albert-Thomas."
+      ]
+    },
+    {
+      "title": "Place Albert-Thomas",
+      "lat": 45.76366,
+      "lng": 4.87404,
+      "arrival": "Albert Thomas, socialiste, fut ministre de l'Armement pendant la Première Guerre mondiale puis le premier directeur du Bureau international du travail, à Genève, de 1920 à sa mort en 1932.",
+      "riddle": "Partez vers le sud-ouest par le cours de l'auteur de Guerre et Paix, à moins de 350 pas. Un centre consacré aux créations d'aujourd'hui, héritier du « Nouveau Musée » fondé à Villeurbanne à la fin des années 1970, présente des expositions temporaires.",
+      "hints": [
+        "Le cours Tolstoï, puis la rue du Docteur-Dolard.",
+        "On l'appelle par ses trois initiales.",
+        "L'Institut d'art contemporain."
+      ]
+    },
+    {
+      "title": "Institut d'art contemporain",
+      "lat": 45.76254,
+      "lng": 4.87276,
+      "arrival": "L'Institut d'art contemporain est né en 1998 du rapprochement du Nouveau Musée, fondé à Villeurbanne en 1978, et du Fonds régional d'art contemporain. Il présente des expositions temporaires d'artistes d'aujourd'hui.",
+      "riddle": "Partez vers l'est par la rue du fabuliste, à environ 1 800 pas. Un centre consacré à la mémoire de la ville réunit archives municipales, médiathèque et expositions ; il porte le nom d'une rivière disparue qui traversait Villeurbanne.",
+      "hints": [
+        "La rue Lafontaine, puis la rue Valentin-Haüy.",
+        "Son nom tient en quatre lettres.",
+        "Le Rize."
+      ]
+    },
+    {
+      "title": "Le Rize",
+      "lat": 45.75977,
+      "lng": 4.884,
+      "arrival": "Bravo ! Le Rize réunit les archives municipales, une médiathèque et des expositions sur l'histoire et les mémoires de Villeurbanne, ville ouvrière qui a accueilli des vagues successives d'immigrants. Son nom rappelle la Rize, un ancien cours d'eau qui traversait la commune."
+    }
+  ]
+}

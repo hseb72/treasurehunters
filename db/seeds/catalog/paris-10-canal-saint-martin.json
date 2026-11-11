@@ -1,0 +1,107 @@
+{
+  "key": "paris-10-canal-saint-martin",
+  "name": "Des portes du Roi-Soleil au canal Saint-Martin",
+  "location": "Paris 10e, des Grands Boulevards au canal Saint-Martin",
+  "summary": "Deux arcs de triomphe de Louis XIV, une église au saint martyrisé sur un gril, la gare des départs de 1914, l'hôtel d'« Atmosphère, atmosphère », l'hôpital qu'Henri IV bâtit contre la peste et la rotonde de Ledoux où l'on taxait les marchandises entrant dans Paris.",
+  "startText": "Rendez-vous sous la porte Saint-Denis, boulevard Saint-Denis (métro Strasbourg-Saint-Denis). À faire de jour : la cour de l'hôpital Saint-Louis est ouverte aux promeneurs en journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte Saint-Denis",
+      "lat": 48.8699,
+      "lng": 2.3526,
+      "riddle": "Suivez vers l'est le boulevard du premier évêque de Paris, celui qui, dit-on, marcha sa tête entre les mains. Un second arc de triomphe, un peu plus petit, célèbre lui aussi Louis XIV, représenté en Hercule presque nu… mais coiffé de sa perruque. Environ 500 pas.",
+      "hints": [
+        "L'évêque décapité est saint Denis : suivez le boulevard Saint-Denis.",
+        "L'arc célèbre la conquête de la Franche-Comté.",
+        "La porte Saint-Martin, boulevard Saint-Martin."
+      ],
+      "photo": "File:Porte_Saint_Denis_-_Paris_X_(FR75)_-_2023-06-14_-_2.jpg"
+    },
+    {
+      "title": "Porte Saint-Martin",
+      "lat": 48.86915,
+      "lng": 2.35565,
+      "arrival": "Élevée en 1674 par Pierre Bullet, elle célèbre les victoires de Louis XIV, dont la prise de Besançon. Comme sa voisine la porte Saint-Denis (1672), elle remplace une porte de l'ancienne enceinte de la ville.",
+      "riddle": "Remontez vers le nord le faubourg du saint qui partagea son manteau avec un pauvre. À environ 1 300 pas, au carrefour du boulevard de Magenta, un sanctuaire gothique dédié à un diacre martyrisé sur un gril vous attend.",
+      "hints": [
+        "Saint Martin partagea son manteau : suivez la rue du Faubourg-Saint-Martin.",
+        "Le saint martyr se prénomme comme un fleuve du Québec.",
+        "L'église Saint-Laurent, boulevard de Magenta."
+      ],
+      "photo": "File:Porte_Saint_Martin_-_Paris_X_(FR75)_-_2024-06-03_-_4.jpg"
+    },
+    {
+      "title": "Église Saint-Laurent",
+      "lat": 48.87463,
+      "lng": 2.3578,
+      "arrival": "Église très ancienne, plusieurs fois reconstruite, Saint-Laurent date pour l'essentiel des XVᵉ et XVIIᵉ siècles. Sa façade néo-gothique a été refaite au XIXᵉ siècle, lors du percement du boulevard de Strasbourg.",
+      "riddle": "Remontez vers le nord le boulevard qui porte le nom de la capitale alsacienne. Au bout, à environ 400 pas, un terminus ferroviaire a vu partir les mobilisés d'août 1914 vers le front. Rendez-vous sur la place qui s'étend devant sa façade.",
+      "hints": [
+        "La capitale alsacienne est Strasbourg : suivez le boulevard de Strasbourg.",
+        "La place devant le terminus porte la date de l'armistice de 1918.",
+        "La gare de l'Est, place du 11-Novembre-1918."
+      ],
+      "photo": "File:P1300867_Paris_X_eglise_St-Laurent_rwk.jpg"
+    },
+    {
+      "title": "Gare de l'Est",
+      "lat": 48.8764,
+      "lng": 2.3588,
+      "arrival": "Ouverte en 1849, la gare de l'Est vit partir de nombreux soldats en août 1914. Dans le hall, la grande toile d'Albert Herter, Le Départ des poilus (1926), garde le souvenir de ces adieux.",
+      "riddle": "Gagnez le canal vers le sud-est par la rue d'un couvent de franciscains réformés. Au 102 du quai de Jemmapes, à environ 1 000 pas, une façade a été rendue célèbre par un film de Marcel Carné et une réplique d'Arletty : « Atmosphère, atmosphère… »",
+      "hints": [
+        "Les franciscains réformés sont les Récollets : prenez la rue des Récollets.",
+        "Le film date de 1938 ; une passerelle en fer enjambe le canal juste devant.",
+        "L'Hôtel du Nord, 102 quai de Jemmapes."
+      ],
+      "photo": "File:Paris-Gare_de_l'Est-2009.jpg"
+    },
+    {
+      "title": "Hôtel du Nord",
+      "lat": 48.87355,
+      "lng": 2.36405,
+      "address": "102, quai de Jemmapes",
+      "arrival": "Le film Hôtel du Nord (1938) de Marcel Carné a été tourné en studio, dans un décor d'Alexandre Trauner qui reproduisait le quai et l'écluse. La façade réelle, menacée de démolition dans les années 1980, a été sauvée.",
+      "riddle": "Partez vers l'est et suivez la rue d'un anatomiste mort à trente ans, père de l'étude des tissus. Au bout, à environ 650 pas, vous trouverez un grand quadrilatère de brique et de pierre, voulu par Henri IV en 1607 pour soigner, hors de la ville, les victimes de la peste. Sa cour centrale est ouverte aux promeneurs.",
+      "hints": [
+        "L'anatomiste est Xavier Bichat : la rue Bichat part du quai, juste devant vous.",
+        "Son style rappelle la place des Vosges ; c'est toujours un hôpital : soyez discrets.",
+        "La cour historique de l'hôpital Saint-Louis."
+      ]
+    },
+    {
+      "title": "Hôpital Saint-Louis",
+      "lat": 48.8747,
+      "lng": 2.3683,
+      "arrival": "Henri IV fit bâtir cet hôpital à partir de 1607, après une épidémie de peste, à l'écart de la ville pour isoler les malades. Le quadrilatère de brique et de pierre est contemporain de la place des Vosges.",
+      "riddle": "Retrouvez le canal et remontez vers le nord le quai d'une victoire révolutionnaire remportée en Belgique en novembre 1792. Après une vingtaine de minutes de marche, là où le canal s'élargit en bassin, un pavillon circulaire à colonnes dessiné par Claude-Nicolas Ledoux servait à taxer les marchandises qui entraient dans Paris.",
+      "hints": [
+        "La victoire de Jemmapes : suivez le quai de Jemmapes vers le nord.",
+        "La place porte le nom d'une bataille de 1942-1943 ; le mur de l'octroi s'appelait le mur des Fermiers généraux.",
+        "La rotonde de la Villette, place de la Bataille-de-Stalingrad."
+      ],
+      "photo": "File:Paris_11e_Hôpital_Saint-Louis_Carré3.JPG"
+    },
+    {
+      "title": "Rotonde de la Villette",
+      "lat": 48.88365,
+      "lng": 2.36958,
+      "arrival": "Bravo ! Bâtie dans les années 1780 par Claude-Nicolas Ledoux, la rotonde faisait partie du mur des Fermiers généraux, où l'on percevait l'octroi sur les marchandises. C'est l'un des rares pavillons de ce mur encore debout.",
+      "photo": "File:2012_Rotonde_de_la_Villette.jpg"
+    }
+  ]
+}

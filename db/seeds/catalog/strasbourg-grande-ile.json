@@ -1,0 +1,107 @@
+{
+  "key": "strasbourg-grande-ile",
+  "name": "Strasbourg, de la cathédrale à la Petite France",
+  "location": "Strasbourg, Grande Île",
+  "summary": "La Grande Île, inscrite au patrimoine mondial : la cathédrale qui fut longtemps le plus haut édifice du monde, la maison Kammerzell et ses bois sculptés, la place de l'imprimeur Gutenberg, la place Kléber, puis la Petite France, ses ponts couverts et le barrage de Vauban.",
+  "startText": "Rendez-vous sur le parvis de la cathédrale, face au grand portail (tram Langstross-Grand'Rue).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Cathédrale Notre-Dame de Strasbourg",
+      "lat": 48.5817,
+      "lng": 7.7506,
+      "riddle": "Faites quelques pas vers le nord-ouest, sur la même place. Une demeure de la fin du Moyen Âge, aux étages de bois entièrement sculptés de personnages, de signes du zodiaque et de musiciens, est l'une des plus célèbres de la ville.",
+      "hints": [
+        "Elle est à l'angle nord de la place de la Cathédrale.",
+        "Elle porte le nom d'un épicier du XIXᵉ siècle.",
+        "La maison Kammerzell, 16 place de la Cathédrale."
+      ],
+      "photo": "File:Strasbourg_Cathedral_Exterior_-_Diliff.jpg"
+    },
+    {
+      "title": "Maison Kammerzell",
+      "lat": 48.58197,
+      "lng": 7.74975,
+      "address": "16, place de la Cathédrale",
+      "arrival": "Le rez-de-chaussée de pierre date de 1467, les étages de bois sculpté de 1589. La maison porte le nom de Philippe-François Kammerzell, épicier qui l'acheta au XIXᵉ siècle. En face, la flèche de la cathédrale, haute de 142 mètres, fit de celle-ci le plus haut édifice du monde de 1647 à 1874.",
+      "riddle": "Partez vers le sud-ouest par la rue des couturiers et de leur ancien fossé. À environ 250 pas, une place porte le nom de l'inventeur de l'imprimerie à caractères mobiles, qui travailla à Strasbourg.",
+      "hints": [
+        "La rue du Fossé-des-Tailleurs.",
+        "Sa statue est de David d'Angers.",
+        "La place Gutenberg."
+      ],
+      "photo": "File:16_Place_de_la_Chathédrale_Strasbourg_20200124_002.jpg"
+    },
+    {
+      "title": "Place Gutenberg",
+      "lat": 48.58119,
+      "lng": 7.74854,
+      "arrival": "Johannes Gutenberg vécut à Strasbourg vers 1434-1444, où il mit au point ses premières recherches sur l'imprimerie. Sa statue, par David d'Angers, a été inaugurée en 1840.",
+      "riddle": "Partez vers le nord-ouest par la rue de l'ancien marché aux grains, puis celle d'un poisson qui remonte les rivières. À environ 600 pas, la plus grande place de la ville porte le nom d'un général de la Révolution né à Strasbourg ; il repose sous sa statue.",
+      "hints": [
+        "La rue du Vieux-Marché-aux-Grains, puis la rue du Saumon.",
+        "Le général fut assassiné au Caire en 1800.",
+        "La place Kléber."
+      ],
+      "photo": "File:Strasbourg_place_Gutenberg_novembre_2013_04.jpg"
+    },
+    {
+      "title": "Place Kléber",
+      "lat": 48.58331,
+      "lng": 7.74596,
+      "arrival": "Jean-Baptiste Kléber, né à Strasbourg en 1753, commanda l'armée d'Orient après le départ de Bonaparte et fut assassiné au Caire en 1800. Ses restes reposent sous la statue, au centre de la place.",
+      "riddle": "Partez vers le sud-ouest par la rue d'un retour de novembre, quand les troupes françaises entrèrent dans la ville en 1918. À environ 700 pas, dans le quartier des tanneurs et des meuniers, une petite place au bord de l'eau porte le nom d'un dessinateur strasbourgeois qui suivit les campagnes de Napoléon.",
+      "hints": [
+        "La rue du 22-Novembre, puis la rue Sainte-Hélène et la petite rue des Dentelles.",
+        "Le quartier s'appelle la Petite France.",
+        "La place Benjamin-Zix."
+      ]
+    },
+    {
+      "title": "Place Benjamin-Zix",
+      "lat": 48.58132,
+      "lng": 7.74241,
+      "arrival": "La Petite France, quartier des tanneurs, des pêcheurs et des meuniers, doit son nom à un hospice où l'on soignait au XVIᵉ siècle les malades de la syphilis, appelée alors le « mal français ». Benjamin Zix, né à Strasbourg, dessina les campagnes de Napoléon.",
+      "riddle": "Continuez vers le sud-ouest par le quai des meuniers, à environ 550 pas, jusqu'aux passages sur l'Ill gardés par des tours carrées médiévales ; un toit de bois les abritait autrefois.",
+      "hints": [
+        "Le quai des Moulins, puis le quai de la Petite-France.",
+        "Les toits ont disparu au XVIIIᵉ siècle, mais le nom est resté.",
+        "Les Ponts couverts."
+      ],
+      "photo": "File:Place_Benjamin_Zix_vue_depuis_le_Pont_du_Faisan.jpg"
+    },
+    {
+      "title": "Ponts couverts",
+      "lat": 48.58005,
+      "lng": 7.73937,
+      "arrival": "Construits au XIIIᵉ siècle, les Ponts couverts faisaient partie des fortifications de la ville. Leurs toits de bois ont été démolis au XVIIIᵉ siècle, mais ils ont gardé leur nom et trois de leurs tours.",
+      "riddle": "Juste en aval, vers le sud-ouest, à environ 250 pas, un long ouvrage fortifié à arcades enjambe l'Ill. Il porte le nom de l'ingénieur militaire de Louis XIV ; sa terrasse offre une vue sur toute la Petite France.",
+      "hints": [
+        "Ses vannes permettaient d'inonder le sud de la ville en cas d'attaque.",
+        "L'ingénieur a fortifié les frontières du royaume.",
+        "Le barrage Vauban."
+      ]
+    },
+    {
+      "title": "Barrage Vauban",
+      "lat": 48.5796,
+      "lng": 7.738,
+      "arrival": "Bravo ! Construit à la fin du XVIIᵉ siècle d'après les plans de Vauban, le barrage pouvait, en fermant ses vannes, inonder les terres au sud de la ville pour la protéger. Sa terrasse panoramique offre l'une des plus belles vues sur les Ponts couverts et la cathédrale.",
+      "photo": "File:Strasbourg_Barrage_Vauban_après_restauration_2012-01.jpg"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "key": "grenoble-stendhal",
+  "name": "Grenoble, sur les pas de Stendhal",
+  "location": "Grenoble, centre historique",
+  "summary": "Le vieux Grenoble de l'enfance de Stendhal : la place Grenette, sa maison natale, l'appartement de son grand-père, la place Saint-André et le palais du Parlement du Dauphiné, la place aux Herbes, l'Ancien Évêché et le musée de Grenoble au bord de l'Isère.",
+  "startText": "Rendez-vous au centre de la place Grenette (tram Hubert-Dubedout ou Victor-Hugo).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 45,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Grenette",
+      "lat": 45.191,
+      "lng": 5.72752,
+      "riddle": "Partez vers l'est par la rue qui porte le nom de l'auteur des Confessions. À environ 250 pas, un futur écrivain y naquit en 1783 sous le nom d'Henri Beyle.",
+      "hints": [
+        "La rue Jean-Jacques-Rousseau.",
+        "Il a écrit Le Rouge et le Noir.",
+        "La maison natale de Stendhal, 14 rue Jean-Jacques-Rousseau."
+      ],
+      "photo": "File:Place_Grenette_en_avril_2019.jpg"
+    },
+    {
+      "title": "Maison natale de Stendhal",
+      "lat": 45.19139,
+      "lng": 5.72889,
+      "address": "14, rue Jean-Jacques-Rousseau",
+      "arrival": "Henri Beyle, qui prit le nom de plume de Stendhal, est né ici le 23 janvier 1783. Dans Vie de Henry Brulard, il raconte son enfance à Grenoble, qu'il n'aimait guère.",
+      "riddle": "Revenez vers l'ouest jusqu'à la grande rue. Au numéro 20, à moins de 150 pas, se trouve le logis de son grand-père médecin, où il passa son enfance après la mort de sa mère.",
+      "hints": [
+        "La Grande-Rue.",
+        "Le grand-père s'appelait Henri Gagnon.",
+        "L'appartement du docteur Gagnon, 20 Grande-Rue."
+      ]
+    },
+    {
+      "title": "Appartement du docteur Gagnon",
+      "lat": 45.19158,
+      "lng": 5.72815,
+      "address": "20, Grande-Rue",
+      "arrival": "Henri Gagnon, médecin et homme des Lumières, grand-père maternel de Stendhal, recueillit l'enfant après la mort de sa mère en 1790. Sa terrasse donne sur le jardin de ville.",
+      "riddle": "Remontez vers le nord la grande rue, à environ 300 pas, jusqu'à une place bordée par l'ancien parlement du Dauphiné ; au centre se dresse la statue du chevalier sans peur et sans reproche.",
+      "hints": [
+        "Le chevalier s'appelait Bayard.",
+        "Un des plus anciens cafés de France la borde.",
+        "La place Saint-André."
+      ]
+    },
+    {
+      "title": "Place Saint-André",
+      "lat": 45.19301,
+      "lng": 5.72827,
+      "arrival": "Le palais du Parlement du Dauphiné borde la place. Le café de la Table ronde, ouvert en 1739, compte parmi les plus anciens cafés de France ; Stendhal le fréquenta. La statue de Bayard, né près de Grenoble, date de 1823.",
+      "riddle": "Faites quelques pas vers l'est par la rue de l'ancien parlement, à environ 200 pas, jusqu'à la plus ancienne place de la ville, où se tient encore un marché.",
+      "hints": [
+        "La rue du Palais.",
+        "Son nom évoque les légumes et les plantes qu'on y vendait.",
+        "La place aux Herbes."
+      ],
+      "photo": "File:Place_Saint-André_Grenoble_001.jpg"
+    },
+    {
+      "title": "Place aux Herbes",
+      "lat": 45.19291,
+      "lng": 5.72961,
+      "arrival": "La place aux Herbes, la plus ancienne de Grenoble, accueille un marché depuis le Moyen Âge.",
+      "riddle": "Partez vers l'est par la rue des broches de métal, traversez la place de la Vierge, à environ 400 pas. La résidence des évêques, près de la cathédrale, est devenue un musée d'histoire ; sous le parvis, on peut voir un baptistère des premiers chrétiens.",
+      "hints": [
+        "La rue Brocherie, puis la place Notre-Dame.",
+        "Le baptistère date du IVᵉ ou du Vᵉ siècle.",
+        "L'Ancien Évêché."
+      ],
+      "photo": "File:Place_aux_herbes-Grenoble.jpg"
+    },
+    {
+      "title": "Ancien Évêché",
+      "lat": 45.19282,
+      "lng": 5.73222,
+      "arrival": "Le musée de l'Ancien Évêché, installé dans la résidence des évêques de Grenoble, présente l'histoire de l'Isère. Sous la place Notre-Dame, un baptistère paléochrétien a été mis au jour à la fin des années 1980.",
+      "riddle": "Remontez vers le nord par la rue aux trois cloîtres, à environ 500 pas, jusqu'au bord de l'Isère. Un vaste bâtiment moderne, ouvert en 1994 au pied d'une tour médiévale, abrite l'une des plus riches collections d'art de France.",
+      "hints": [
+        "La rue Très-Cloîtres, puis la place Lavalette.",
+        "La tour s'appelle la tour de l'Isle.",
+        "Le musée de Grenoble, place Lavalette."
+      ],
+      "photo": "File:At_Musée_de_l'Ancien_Évêché,_Grenoble_2025_011.jpg"
+    },
+    {
+      "title": "Musée de Grenoble",
+      "lat": 45.19497,
+      "lng": 5.73225,
+      "arrival": "Bravo ! Le musée de Grenoble s'est installé en 1994 dans ce bâtiment moderne, au bord de l'Isère, à côté de la tour de l'Isle, du XIVᵉ siècle. Il fut l'un des premiers musées français à collectionner l'art moderne."
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "key": "paris-02-passages-bourse",
+  "name": "Galeries, Bourse et Croissant : les secrets du 2ᵉ",
+  "location": "Paris 2e, de la place des Victoires à Montorgueil",
+  "summary": "Un circuit entre galeries couvertes et vieilles rues : le roi Soleil à cheval, une galerie à mosaïques, la fontaine des quatre fleuves, le temple de l'argent, le plus ancien des passages parisiens, le café où tomba Jaurès, un donjon médiéval et la plus vieille pâtisserie de la ville.",
+  "startText": "Rendez-vous devant la statue équestre de Louis XIV, au centre de la place des Victoires (métro Bourse ou Sentier). Les galeries couvertes ont des horaires : faites le parcours en journée.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 80,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Place des Victoires",
+      "lat": 48.86575,
+      "lng": 2.34117,
+      "riddle": "Quittez la place vers l'ouest et prenez la rue qui évoque de modestes parcelles cultivées. Au numéro 4, à peine plus de 200 pas plus loin, une entrée à colonnes s'ouvre sur un couloir couvert de 1823, au sol de mosaïque et au plafond de verre. Arrêtez-vous sur le seuil.",
+      "hints": [
+        "Les petites parcelles cultivées : la rue des Petits-Champs.",
+        "Une verrière, des boutiques, un sol de mosaïque.",
+        "La galerie Vivienne, entrée au 4 rue des Petits-Champs."
+      ],
+      "photo": "File:Paris_1er_-_Place_des_Victoires_-_Statue_de_Louis_XIV.jpg"
+    },
+    {
+      "title": "Galerie Vivienne",
+      "lat": 48.8665,
+      "lng": 2.34005,
+      "arrival": "Construite à partir de 1823 et ouverte en 1826, cette galerie est l'une des plus élégantes de Paris. Regardez au sol : la mosaïque guide le promeneur jusqu'à la rotonde.",
+      "riddle": "Repartez vers l'ouest jusqu'à la rue du cardinal-ministre de Louis XIII, et remontez-la vers le nord. Face à l'ancienne Bibliothèque nationale, dans un petit square, quatre femmes de bronze personnifient quatre grands cours d'eau de France. Environ 500 pas en tout.",
+      "hints": [
+        "Le cardinal-ministre est Richelieu : suivez la rue de Richelieu vers le nord.",
+        "Les cours d'eau : la Seine, la Loire, la Saône et la Garonne.",
+        "La fontaine Louvois, square Louvois, rue de Richelieu."
+      ],
+      "photo": "File:Vivienne.jpg"
+    },
+    {
+      "title": "Fontaine Louvois",
+      "lat": 48.86797,
+      "lng": 2.3376,
+      "arrival": "Le square occupe l'emplacement de l'Opéra de la rue de Richelieu : le duc de Berry, neveu de Louis XVIII, y fut assassiné en sortant d'une représentation en février 1820, et la salle fut démolie. La fontaine de Visconti date de 1844.",
+      "riddle": "Partez vers le nord-est par la rue de religieuses dominicaines dont le couvent occupait l'emplacement de votre prochaine étape. Un bâtiment en forme de temple antique, cerné de colonnes, a été voulu par Napoléon pour y loger les agents de change ; on y a longtemps acheté et vendu des actions à la criée. Rendez-vous devant sa façade, à quelque 500 pas.",
+      "hints": [
+        "Les religieuses : les Filles-Saint-Thomas, qui ont laissé leur nom à la rue.",
+        "Il porte le nom de son architecte, Alexandre-Théodore Brongniart.",
+        "Le palais Brongniart, ancienne Bourse de Paris."
+      ],
+      "photo": "File:FontaineLouvois09.jpg"
+    },
+    {
+      "title": "Palais Brongniart",
+      "lat": 48.86905,
+      "lng": 2.34065,
+      "arrival": "Napoléon en décida la construction en 1807 ; Brongniart mourut en 1813 et le bâtiment fut achevé en 1826. La Bourse de Paris y siégea jusqu'à la fin des années 1980, avant l'ère de la cotation électronique.",
+      "riddle": "Remontez vers le nord jusqu'au boulevard qui porte le nom de la butte des martyrs, et suivez-le vers l'est jusqu'au numéro 11. Là s'ouvre la plus ancienne galerie couverte de Paris encore debout ; son nom vient de deux rotondes où l'on exposait d'immenses peintures circulaires. Environ 550 pas.",
+      "hints": [
+        "La butte des martyrs a donné son nom au boulevard Montmartre.",
+        "La galerie a ouvert en 1799, presque en face du musée Grévin.",
+        "Le passage des Panoramas, 11 boulevard Montmartre."
+      ],
+      "photo": "File:Palais_Brongniart_Facade.jpg"
+    },
+    {
+      "title": "Passage des Panoramas",
+      "lat": 48.8714,
+      "lng": 2.3416,
+      "arrival": "Ouvert en 1799, c'est le plus ancien passage couvert de Paris. Deux rotondes, à son entrée, montraient des panoramas : des toiles géantes peintes sur les murs d'une salle ronde. En 1817, il fut l'un des premiers lieux de Paris éclairés au gaz.",
+      "riddle": "Traversez la galerie jusqu'au bout, vers le sud, et suivez vers l'est l'évangéliste au lion ailé. Rejoignez ensuite la rue dont le nom évoque une viennoiserie en forme de lune : à son angle avec la rue Montmartre, une plaque rappelle qu'un grand pacifiste y fut abattu le 31 juillet 1914, alors qu'il dînait. Environ 550 pas.",
+      "hints": [
+        "L'évangéliste au lion est saint Marc : prenez la rue Saint-Marc.",
+        "Le pacifiste dirigeait le journal L'Humanité ; il s'appelait Jean Jaurès.",
+        "146, rue Montmartre, à l'angle de la rue du Croissant."
+      ],
+      "photo": "File:Passage_Panoramas_-_Paris_II_(FR75)_-_2022-05-27_-_1.jpg"
+    },
+    {
+      "title": "Café du Croissant",
+      "lat": 48.86925,
+      "lng": 2.34323,
+      "address": "146, rue Montmartre",
+      "arrival": "C'est ici que Jean Jaurès fut tué de deux balles par Raoul Villain, le 31 juillet 1914. Trois jours plus tard, l'Allemagne déclarait la guerre à la France.",
+      "riddle": "Descendez la rue Montmartre vers le sud, puis tournez vers l'est dans la rue du prévôt des marchands qui tint tête au dauphin et fut tué en 1358. Une douzaine de minutes à pied plus loin, un donjon gothique s'y dresse : dernier vestige du palais d'un duc de Bourgogne qui fit assassiner son cousin, le duc d'Orléans, en 1407.",
+      "hints": [
+        "Le prévôt des marchands est Étienne Marcel ; sa rue file vers l'est.",
+        "Le duc se faisait appeler du nom de son courage.",
+        "La tour Jean-sans-Peur, 20 rue Étienne-Marcel."
+      ],
+      "photo": "File:Café_du_Croissant.jpg"
+    },
+    {
+      "title": "Tour Jean-sans-Peur",
+      "lat": 48.8643,
+      "lng": 2.34805,
+      "address": "20, rue Étienne-Marcel",
+      "arrival": "Jean sans Peur, duc de Bourgogne, fit bâtir cette tour vers 1409-1411, peu après avoir commandité l'assassinat de Louis d'Orléans. À l'intérieur, la voûte de l'escalier est sculptée de branches de chêne, d'aubépine et de houblon.",
+      "riddle": "Gagnez à moins de 300 pas, vers le nord-ouest, la rue piétonne de la « colline orgueilleuse », célèbre pour ses commerces de bouche. Au numéro 51 se trouve la plus ancienne pâtisserie de la ville, fondée en 1730 par le pâtissier d'une reine venue de Pologne.",
+      "hints": [
+        "La colline orgueilleuse : c'est le sens ancien du nom Montorgueil.",
+        "La reine est Marie Leszczynska, épouse de Louis XV.",
+        "Stohrer, 51 rue Montorgueil."
+      ],
+      "photo": "File:Tour_Jean_Sans_Peur.jpg"
+    },
+    {
+      "title": "Stohrer, rue Montorgueil",
+      "lat": 48.86525,
+      "lng": 2.34682,
+      "address": "51, rue Montorgueil",
+      "arrival": "Vous êtes arrivés ! Nicolas Stohrer, pâtissier de Marie Leszczynska, s'installa ici en 1730. On lui attribue l'invention du baba au rhum. Le décor peint de la boutique est de Paul Baudry, qui a aussi peint le grand foyer de l'Opéra Garnier."
+    }
+  ]
+}

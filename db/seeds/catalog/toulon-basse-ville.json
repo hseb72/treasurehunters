@@ -1,0 +1,105 @@
+{
+  "key": "toulon-basse-ville",
+  "name": "Toulon, de la rade au marché de Provence",
+  "location": "Toulon, Basse Ville",
+  "summary": "Une promenade dans la Basse Ville de Toulon : la statue du Génie de la navigation face à la rade, la porte monumentale de l'Arsenal, l'opéra, la fontaine où pousse un figuier, la cathédrale, le marché du cours Lafayette et la porte d'Italie, où le jeune Bonaparte se distingua.",
+  "startText": "Rendez-vous au pied de la statue du Génie de la navigation, sur le port, face à la rade (bus Port).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Génie de la navigation",
+      "lat": 43.12006,
+      "lng": 5.93171,
+      "riddle": "Longez le port vers l'ouest par le quai d'un port russe, en souvenir de la visite de la flotte du tsar en 1893. À environ 650 pas, une porte monumentale du XVIIIᵉ siècle, encadrée de colonnes et de statues de Mars et de Bellone, ouvrait l'arsenal ; elle ouvre aujourd'hui sur des collections consacrées à la mer.",
+      "hints": [
+        "Le quai Cronstadt.",
+        "L'arsenal est la grande base de la marine de guerre.",
+        "Le musée national de la Marine, place Monsenergue."
+      ],
+      "photo": "File:Génie_de_la_navigation.JPG"
+    },
+    {
+      "title": "Musée national de la Marine",
+      "lat": 43.12182,
+      "lng": 5.92836,
+      "arrival": "La porte monumentale de l'Arsenal, élevée en 1738, ouvre aujourd'hui sur le musée national de la Marine. Toulon est depuis Louis XIV le grand port de la flotte française de Méditerranée.",
+      "riddle": "Remontez vers le nord-est jusqu'à la rue de l'auteur de Phèdre. À environ 900 pas, une grande salle de spectacle du Second Empire, dessinée par Léon Feuchère, compte parmi les plus vastes théâtres de France.",
+      "hints": [
+        "La rue Racine, près de la place Victor-Hugo.",
+        "On y donne opéras et ballets.",
+        "L'opéra de Toulon."
+      ],
+      "photo": "File:Toulon_Naval_Museum.jpg"
+    },
+    {
+      "title": "Opéra de Toulon",
+      "lat": 43.12448,
+      "lng": 5.93254,
+      "arrival": "Inauguré en 1862, l'opéra de Toulon, de l'architecte Léon Feuchère, est l'un des plus grands théâtres de province. Son acoustique est réputée.",
+      "riddle": "Descendez vers le sud, à environ 250 pas. Sur une petite place qui porte le nom d'un sculpteur provençal, une fontaine du XVIIIᵉ siècle, ornée de cétacés, est couverte de végétation : un figuier y pousse.",
+      "hints": [
+        "Le sculpteur est Pierre Puget : la place Puget.",
+        "Les cétacés sont des dauphins.",
+        "La fontaine des Trois Dauphins."
+      ],
+      "photo": "File:Opéra-Toulon.jpg"
+    },
+    {
+      "title": "Fontaine des Trois Dauphins",
+      "lat": 43.12338,
+      "lng": 5.93277,
+      "arrival": "Construite en 1780, la fontaine des Trois Dauphins s'est peu à peu couverte de calcaire et de plantes : un figuier et d'autres végétaux ont poussé au sommet, lui donnant son allure de rocher.",
+      "riddle": "Partez vers le sud-est par la place d'un grand couvent, à environ 450 pas. Le siège de l'évêque, dont la façade classique cache une nef bien plus ancienne, est dédié à la Vierge.",
+      "hints": [
+        "La place du Grand-Couvent, puis la place Vincent-Raspail.",
+        "Son nom complet évoque le siège de l'évêque.",
+        "La cathédrale Notre-Dame-de-la-Seds."
+      ]
+    },
+    {
+      "title": "Cathédrale Notre-Dame-de-la-Seds",
+      "lat": 43.12169,
+      "lng": 5.93403,
+      "arrival": "La cathédrale Notre-Dame-de-la-Seds mêle une nef romane, des ajouts gothiques et une façade du XVIIᵉ siècle. « Seds » vient du latin sedes, le siège de l'évêque.",
+      "riddle": "Faites quelques pas vers le sud-est par la traverse du sanctuaire, jusqu'à la longue rue en pente où se tient chaque matin le grand marché provençal, célébré par une chanson de Gilbert Bécaud.",
+      "hints": [
+        "La traverse de la Cathédrale.",
+        "La chanson s'appelle Le Marché de Provence.",
+        "Le cours Lafayette."
+      ],
+      "photo": "File:Cathédrale_Notre-Dame-de-la-Seds_de_Toulon-7975.jpg"
+    },
+    {
+      "title": "Cours Lafayette",
+      "lat": 43.12093,
+      "lng": 5.93452,
+      "arrival": "Chaque matin, le cours Lafayette accueille le marché provençal de Toulon. Gilbert Bécaud l'a chanté dans Le Marché de Provence.",
+      "riddle": "Partez vers l'est, à environ 450 pas, et franchissez le pont-levis. Une porte fortifiée, percée dans les remparts, ouvrait la route vers Nice et Gênes ; lors du siège de 1793, un jeune capitaine d'artillerie s'illustra devant la ville.",
+      "hints": [
+        "Passez par la place Armand-Vallé, au bout des remparts.",
+        "Le capitaine s'appelait Bonaparte.",
+        "La porte d'Italie."
+      ]
+    },
+    {
+      "title": "Porte d'Italie",
+      "lat": 43.12131,
+      "lng": 5.93725,
+      "arrival": "Bravo ! La porte d'Italie, dans les remparts de la ville, ouvrait la route vers l'Italie. En 1793, lors du siège de Toulon tenu par les Anglais, le jeune Bonaparte se fit remarquer en commandant l'artillerie : il y gagna ses galons de général.",
+      "photo": "File:Toulon_095.jpg"
+    }
+  ]
+}

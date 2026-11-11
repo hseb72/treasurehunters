@@ -1,0 +1,91 @@
+{
+  "key": "lyon-07-guillotiere",
+  "name": "La Guillotière, de la place du Pont à la Résistance",
+  "location": "Lyon 7e, Guillotière",
+  "summary": "Le quartier populaire et cosmopolite de la rive gauche : le pont du plus ancien passage sur le Rhône, la « place du Pont » des Lyonnais, une église du début du XXᵉ siècle, les facultés des bords du Rhône, le centre consacré à la Résistance dans l'ancien siège de la Gestapo et la place de Jean Macé.",
+  "startText": "Rendez-vous à l'extrémité est du pont de la Guillotière, côté 7ᵉ arrondissement (métro Guillotière).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Pont de la Guillotière",
+      "lat": 45.75685,
+      "lng": 4.8401,
+      "riddle": "Partez vers l'est par le cours d'un avocat républicain qui quitta Paris en ballon pendant le siège de 1870. À environ 600 pas, une place triangulaire très animée porte le nom d'un journaliste fusillé par les nazis en 1941 ; les Lyonnais l'appellent encore la place du Pont.",
+      "hints": [
+        "L'avocat est Léon Gambetta : prenez le cours Gambetta.",
+        "Le journaliste s'appelait Gabriel.",
+        "La place Gabriel-Péri."
+      ]
+    },
+    {
+      "title": "Place Gabriel-Péri",
+      "lat": 45.75481,
+      "lng": 4.84255,
+      "arrival": "Gabriel Péri, journaliste et député communiste, fut fusillé comme otage par les nazis en décembre 1941. Pour les Lyonnais, la place reste la « place du Pont », car elle s'ouvre au bout du pont de la Guillotière, longtemps le seul pont sur le Rhône.",
+      "riddle": "Partez vers le sud par la rue d'un chancelier de Louis XV, à environ 500 pas. Un sanctuaire du tout début du XXᵉ siècle, construit par deux frères architectes, porte le nom du frère de saint Pierre, pêcheur comme lui.",
+      "hints": [
+        "Le chancelier est Henri François d'Aguesseau : prenez la rue d'Aguesseau.",
+        "Les architectes s'appelaient Desjardins.",
+        "L'église Saint-André, rue de Marseille."
+      ]
+    },
+    {
+      "title": "Église Saint-André",
+      "lat": 45.75272,
+      "lng": 4.84146,
+      "arrival": "L'église Saint-André a été construite au tout début du XXᵉ siècle par les architectes Tony et Paul Desjardins, pour accueillir la population nombreuse du quartier.",
+      "riddle": "Partez vers l'ouest par la rue qui porte le nom de l'institution que vous cherchez, jusqu'au quai du physiologiste qui a fondé la médecine expérimentale. Là, à environ 800 pas, de grands bâtiments du XIXᵉ siècle accueillent toujours les étudiants.",
+      "hints": [
+        "Prenez la rue de l'Université, jusqu'au quai Claude-Bernard.",
+        "L'université porte le nom des inventeurs du cinématographe.",
+        "L'université Lumière Lyon 2, quai Claude-Bernard."
+      ],
+      "photo": "File:Église_Saint-André_(Lyon)_by_night.jpg"
+    },
+    {
+      "title": "Université Lumière Lyon 2",
+      "lat": 45.75062,
+      "lng": 4.83715,
+      "arrival": "Les grands bâtiments du quai Claude-Bernard ont été construits à la fin du XIXᵉ siècle pour les facultés de Lyon. L'université Lyon 2 porte le nom des frères Lumière, et le quai celui du physiologiste Claude Bernard.",
+      "riddle": "Partez vers le sud par l'avenue d'un chimiste qui fut aussi ministre, Marcellin. À environ 950 pas, l'ancienne école de santé militaire, où la Gestapo de Klaus Barbie s'installa en 1943, abrite un lieu de mémoire consacré à la lutte clandestine et aux déportés.",
+      "hints": [
+        "Le chimiste est Marcellin Berthelot : l'avenue Berthelot.",
+        "Jean Moulin aurait été interrogé dans ce bâtiment.",
+        "Le Centre d'histoire de la Résistance et de la Déportation, 14 avenue Berthelot."
+      ]
+    },
+    {
+      "title": "Centre d'histoire de la Résistance",
+      "lat": 45.74645,
+      "lng": 4.83592,
+      "address": "14, avenue Berthelot",
+      "arrival": "En 1943 et 1944, la Gestapo dirigée par Klaus Barbie occupait ce bâtiment de l'École du service de santé militaire. Le Centre d'histoire de la Résistance et de la Déportation y a ouvert en 1992 : Lyon fut surnommée « capitale de la Résistance ».",
+      "riddle": "Partez vers l'est, toujours dans l'avenue du chimiste. À environ 1 000 pas, une place carrée porte le nom du fondateur de la Ligue de l'enseignement, défenseur de l'école gratuite et laïque.",
+      "hints": [
+        "Toujours l'avenue Berthelot, vers l'est.",
+        "Il a fondé la Ligue de l'enseignement en 1866.",
+        "La place Jean-Macé."
+      ],
+      "photo": "File:Centre_d'histoire_de_la_résistance_et_de_la_déportation_(2018).JPG"
+    },
+    {
+      "title": "Place Jean-Macé",
+      "lat": 45.74562,
+      "lng": 4.8421,
+      "arrival": "Bravo ! Jean Macé fonda en 1866 la Ligue de l'enseignement, qui milita pour l'école gratuite, obligatoire et laïque. La place est aujourd'hui un carrefour très animé du 7ᵉ arrondissement."
+    }
+  ]
+}

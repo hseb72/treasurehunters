@@ -1,0 +1,104 @@
+{
+  "key": "le-havre-ville-perret",
+  "name": "Le Havre, la ville d'Auguste Perret",
+  "location": "Le Havre, centre reconstruit",
+  "summary": "Le centre du Havre rebâti après 1945 par Auguste Perret et inscrit au patrimoine mondial : l'hôtel de ville, l'avenue Foch et la Porte Océane, la plage, l'église Saint-Joseph et sa tour-lanterne, le MuMa et ses impressionnistes, la Catène de conteneurs et le Volcan d'Oscar Niemeyer.",
+  "startText": "Rendez-vous devant l'hôtel de ville, côté place de l'Hôtel-de-Ville (tram Hôtel de Ville).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Hôtel de ville du Havre",
+      "lat": 49.49435,
+      "lng": 0.1095,
+      "riddle": "Partez vers l'ouest par la grande avenue qui porte le nom du maréchal vainqueur de 1918. À environ 1 900 pas, deux immeubles symétriques encadrent l'avenue comme un portail ouvert sur la mer.",
+      "hints": [
+        "L'avenue Foch.",
+        "Auguste Perret les a voulus comme une entrée monumentale de la ville, côté large.",
+        "La Porte Océane, au bout de l'avenue Foch."
+      ],
+      "photo": "File:Le_Havre,_Normandie,_France_(45478490075).jpg"
+    },
+    {
+      "title": "Porte Océane",
+      "lat": 49.49349,
+      "lng": 0.09661,
+      "arrival": "Le centre du Havre a été presque entièrement détruit par les bombardements de septembre 1944. Auguste Perret et son atelier l'ont reconstruit en béton de 1945 à 1964, sur une trame régulière. L'ensemble est inscrit au patrimoine mondial de l'UNESCO depuis 2005.",
+      "riddle": "Continuez vers le nord-ouest par le boulevard du roi chevalier des Belges, à environ 950 pas, jusqu'au rivage de galets où s'alignent, à la belle saison, des cabanes colorées.",
+      "hints": [
+        "Le boulevard Albert-Iᵉʳ.",
+        "On y voit l'entrée du port à gauche.",
+        "La plage du Havre."
+      ]
+    },
+    {
+      "title": "Plage du Havre",
+      "lat": 49.49606,
+      "lng": 0.09141,
+      "arrival": "Le Havre est né en 1517, quand François Iᵉʳ ordonna la création d'un port à l'embouchure de la Seine. Depuis la plage, on voit les navires entrer dans l'un des plus grands ports de France.",
+      "riddle": "Repartez vers le sud-est par le boulevard du Tigre, à environ 1 800 pas. Un clocher de béton haut de 107 mètres, visible depuis la mer, s'élève au-dessus d'un sanctuaire dont l'intérieur est éclairé par des milliers de verres colorés.",
+      "hints": [
+        "Le Tigre, c'est Clemenceau : le boulevard Clemenceau, puis le boulevard François-Iᵉʳ.",
+        "Il est dédié au père nourricier de Jésus.",
+        "L'église Saint-Joseph, boulevard François-Iᵉʳ."
+      ]
+    },
+    {
+      "title": "Église Saint-Joseph",
+      "lat": 49.49095,
+      "lng": 0.10123,
+      "arrival": "Construite de 1951 à 1957 d'après les plans d'Auguste Perret, l'église Saint-Joseph est un mémorial aux victimes des bombardements de 1944. Sa tour-lanterne de 107 mètres est éclairée de l'intérieur par plus de douze mille verres colorés de Marguerite Huré.",
+      "riddle": "Descendez vers le sud par le boulevard qui porte le nom du roi fondateur de la ville. À environ 1 300 pas, à l'entrée du port, un bâtiment de verre et d'acier abrite l'une des plus riches collections impressionnistes de France.",
+      "hints": [
+        "Le boulevard François-Iᵉʳ.",
+        "Il a été inauguré en 1961 par un ministre écrivain.",
+        "Le MuMa, musée d'art moderne André-Malraux."
+      ],
+      "photo": "File:Église_Saint-Joseph_du_Havre_(49832991847).jpg"
+    },
+    {
+      "title": "MuMa",
+      "lat": 49.48503,
+      "lng": 0.10264,
+      "address": "2, boulevard Clemenceau",
+      "arrival": "Inauguré en 1961 par André Malraux, le MuMa abrite une grande collection de peintures impressionnistes, dont de nombreuses œuvres d'Eugène Boudin. C'est au Havre que Claude Monet peignit en 1872 Impression, soleil levant, le tableau qui donna son nom au mouvement.",
+      "riddle": "Longez le bassin vers l'est par le quai d'un port anglais d'en face, à environ 650 pas. Deux arches géantes, faites des grandes boîtes d'acier qu'empilent les cargos, se croisent au bord de l'eau depuis 2017.",
+      "hints": [
+        "Le quai de Southampton.",
+        "Elles célèbrent les cinq cents ans de la ville.",
+        "La Catène de conteneurs, quai de Southampton."
+      ]
+    },
+    {
+      "title": "Catène de conteneurs",
+      "lat": 49.48485,
+      "lng": 0.10719,
+      "arrival": "Œuvre de Vincent Ganivet installée en 2017 pour les cinq cents ans du Havre, la Catène est faite de conteneurs maritimes colorés posés en deux arches, comme les pierres d'une voûte. Le port du Havre est l'un des premiers ports à conteneurs de France.",
+      "riddle": "Remontez vers le nord par la rue qui porte le nom de la capitale, à environ 1 200 pas. Un architecte brésilien a posé au bord d'un bassin deux édifices blancs en forme de cône tronqué ; les Havrais surnomment le plus grand le « pot de yaourt ».",
+      "hints": [
+        "La rue de Paris.",
+        "L'architecte a dessiné les grands édifices de Brasília.",
+        "Le Volcan d'Oscar Niemeyer, espace Oscar-Niemeyer."
+      ]
+    },
+    {
+      "title": "Le Volcan",
+      "lat": 49.49034,
+      "lng": 0.10697,
+      "arrival": "Bravo ! Le Volcan, scène nationale, a été inauguré en 1982. Il est l'œuvre d'Oscar Niemeyer, l'architecte de Brasília. Le « petit volcan » voisin abrite depuis 2015 une grande bibliothèque."
+    }
+  ]
+}

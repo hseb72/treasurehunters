@@ -1,0 +1,107 @@
+{
+  "key": "toulouse-capitole-saint-sernin",
+  "name": "Toulouse, du Capitole au Pont-Neuf, la ville rose",
+  "location": "Toulouse, centre historique",
+  "summary": "Une boucle dans la ville rose : la grande place du Capitole, la basilique du premier évêque traîné par un taureau, le couvent des Jacobins et son palmier de briques, l'église dorée de la Daurade, l'hôtel d'un marchand de pastel, le plus vieux pont de la ville et le musée installé dans un couvent.",
+  "startText": "Rendez-vous au centre de la place du Capitole, sur la croix occitane dessinée au sol (métro Capitole). Les cloîtres ont des horaires : faites le parcours en journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place du Capitole",
+      "lat": 43.6044,
+      "lng": 1.44335,
+      "riddle": "Partez vers le nord par la rue qui porte le nom de l'animal qui, selon la légende, traîna jusqu'à la mort le premier évêque de la ville. Au bout, à environ 850 pas, un immense sanctuaire roman de briques dresse son clocher à étages.",
+      "hints": [
+        "Le taureau se dit « taur » en occitan : prenez la rue du Taur.",
+        "L'évêque martyr s'appelait Saturnin, ou Sernin.",
+        "La basilique Saint-Sernin, place Saint-Sernin."
+      ],
+      "photo": "File:Toulouse_Capitole_Night_Wikimedia_Commons.jpg"
+    },
+    {
+      "title": "Basilique Saint-Sernin",
+      "lat": 43.608,
+      "lng": 1.442,
+      "arrival": "Saint-Sernin est la plus grande église romane conservée d'Europe, et une étape majeure du chemin de Saint-Jacques. Elle honore Saturnin, premier évêque de Toulouse, qui selon la tradition fut attaché à un taureau et traîné dans les rues vers 250.",
+      "riddle": "Redescendez vers le sud par la rue des trois goupils, à environ 950 pas. Un ensemble de briques du XIIIᵉ siècle, berceau d'un ordre de frères prêcheurs fondé à Toulouse, cache une voûte dont la colonne centrale s'épanouit comme un palmier.",
+      "hints": [
+        "Le goupil, c'est le renard : la rue des Trois-Renards.",
+        "L'ordre a été fondé par saint Dominique.",
+        "Le couvent des Jacobins."
+      ],
+      "photo": "File:Basilique_Saint-Sernin_de_Toulouse_-_exposition_ouest-1-.jpg"
+    },
+    {
+      "title": "Couvent des Jacobins",
+      "lat": 43.6039,
+      "lng": 1.44009,
+      "arrival": "Les Dominicains, ordre fondé à Toulouse par saint Dominique en 1215, construisirent ce couvent à partir de 1230. Dans l'église, la dernière colonne déploie ses nervures comme les branches d'un palmier ; les reliques de saint Thomas d'Aquin y reposent depuis 1369.",
+      "riddle": "Descendez vers le sud, vers la Garonne, à environ 650 pas. Une église à colonnade, face au fleuve, doit son nom aux mosaïques d'or qui couvraient son ancêtre ; elle abrite une Vierge noire.",
+      "hints": [
+        "Son nom vient du latin deaurata, « dorée ».",
+        "Elle donne sur le quai, au bord de la Garonne.",
+        "La basilique de la Daurade."
+      ],
+      "photo": "File:Couvent_des_Jacobins_de_Toulouse.jpg"
+    },
+    {
+      "title": "Basilique de la Daurade",
+      "lat": 43.601,
+      "lng": 1.43992,
+      "arrival": "La Daurade tient son nom de l'église qui la précédait, couverte de mosaïques à fond d'or, l'ecclesia deaurata. Le bâtiment actuel date des XVIIIᵉ et XIXᵉ siècles ; on y vénère une Vierge noire.",
+      "riddle": "Partez vers le sud-est par la rue des chaudronniers, à environ 350 pas. Une demeure de la Renaissance, construite en 1555 par l'architecte Nicolas Bachelier, fut bâtie pour un marchand enrichi par le commerce d'une plante tinctoriale qui donnait du bleu.",
+      "hints": [
+        "Peyrolièr veut dire chaudronnier en occitan : la rue Peyrolières.",
+        "La plante est le pastel, l'« or bleu » de Toulouse.",
+        "L'hôtel d'Assézat."
+      ],
+      "photo": "File:31_-_Toulouse_-_Basilique_de_la_Daurade_-_Façade.jpg"
+    },
+    {
+      "title": "Hôtel d'Assézat",
+      "lat": 43.60038,
+      "lng": 1.44188,
+      "arrival": "Pierre d'Assézat fit fortune grâce au pastel, la plante qui donnait le bleu des teinturiers et fit la richesse de Toulouse au XVIᵉ siècle. Son hôtel, construit à partir de 1555 par Nicolas Bachelier, abrite aujourd'hui la fondation Bemberg.",
+      "riddle": "Rejoignez la Garonne par le quai de la dorée, à environ 400 pas vers le sud-ouest. Un pont de briques aux arches percées d'ouvertures rondes porte, paradoxalement, un nom de jeunesse : il est pourtant le plus ancien de la ville.",
+      "hints": [
+        "Le quai de la Daurade.",
+        "Ses ouvertures rondes laissent passer l'eau des crues.",
+        "Le Pont-Neuf."
+      ],
+      "photo": "File:Bachelier_-_Hôtel_d'Assézat_-_Toulouse.jpg"
+    },
+    {
+      "title": "Pont-Neuf",
+      "lat": 43.59947,
+      "lng": 1.43968,
+      "arrival": "Commencé au XVIᵉ siècle et achevé en 1632, le Pont-Neuf est le plus ancien pont de Toulouse encore debout. Les ouvertures rondes au-dessus des piles, les « dégueulis », laissent passer l'eau lors des grandes crues de la Garonne.",
+      "riddle": "Partez vers l'est par la rue d'une ville de Lorraine. À environ 1 100 pas, un ancien monastère d'ermites, avec son cloître gothique, est devenu l'un des plus anciens musées de France.",
+      "hints": [
+        "La ville lorraine est Metz : suivez la rue de Metz.",
+        "Le musée a ouvert à la fin du XVIIIᵉ siècle.",
+        "Le musée des Augustins, rue de Metz."
+      ],
+      "photo": "File:Le_Pont-Neuf_de_Toulouse.jpg"
+    },
+    {
+      "title": "Musée des Augustins",
+      "lat": 43.60094,
+      "lng": 1.44634,
+      "arrival": "Bravo ! Le couvent des Augustins, élevé à partir du XIVᵉ siècle, a été transformé en musée dès 1795. C'est l'un des plus anciens musées de France ; son cloître gothique abrite des sculptures romanes.",
+      "photo": "File:Augustins_-_Grand_cloître_et_clocher_des_Augustins_de_Toulouse.jpg"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "key": "marseille-09-michelet-mazargues",
+  "name": "Le long du boulevard Michelet, jusqu'à Mazargues",
+  "location": "Marseille 9e et 8e, Sainte-Marguerite, Cité radieuse et Mazargues",
+  "summary": "Sur l'ancien chemin de Mazargues : l'église du village de Sainte-Marguerite, la bastide de la Magalone, la Cité radieuse de Le Corbusier, inscrite au patrimoine mondial, l'obélisque de Mazargues, le cimetière militaire du Commonwealth et l'église du vieux village.",
+  "startText": "Rendez-vous devant l'église Sainte-Marguerite, place Antide-Boyer (métro Sainte-Marguerite Dromel). Le cimetière militaire a des horaires d'ouverture.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 90,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Église Sainte-Marguerite",
+      "lat": 43.26566,
+      "lng": 5.40999,
+      "riddle": "Partez vers l'ouest jusqu'au grand boulevard qui porte le nom de l'historien de la Révolution française. À environ 2 000 pas, une bastide marseillaise a gardé son jardin à la française, au bord du boulevard.",
+      "hints": [
+        "L'historien est Jules Michelet : le boulevard Michelet.",
+        "Les bastides étaient les maisons de campagne des Marseillais aisés.",
+        "La bastide et le jardin de la Magalone, boulevard Michelet."
+      ]
+    },
+    {
+      "title": "Jardin de la Magalone",
+      "lat": 43.26165,
+      "lng": 5.3986,
+      "arrival": "Les bastides étaient les maisons de campagne des familles marseillaises aisées. La Magalone a conservé son jardin à la française au bord du boulevard Michelet.",
+      "riddle": "Suivez le même boulevard de l'historien vers l'ouest, à environ 400 pas. Un immeuble de béton sur pilotis, dessiné par un architecte suisse, est une véritable ville verticale, avec rue commerçante et école sur le toit.",
+      "hints": [
+        "L'architecte est Le Corbusier.",
+        "Les Marseillais l'appelaient « la Maison du Fada ».",
+        "La Cité radieuse, 280 boulevard Michelet."
+      ],
+      "photo": "File:Villa-Magalone.JPG"
+    },
+    {
+      "title": "Cité radieuse",
+      "lat": 43.26146,
+      "lng": 5.39628,
+      "address": "280, boulevard Michelet",
+      "arrival": "Inaugurée en 1952, l'Unité d'habitation de Le Corbusier compte plus de trois cents logements, une rue commerçante à mi-hauteur et une école sur le toit. Les Marseillais l'ont d'abord surnommée « la Maison du Fada ». Elle est inscrite au patrimoine mondial de l'UNESCO depuis 2016.",
+      "riddle": "Descendez vers le sud-est le boulevard de l'historien jusqu'au bout. À environ 2 700 pas, au milieu d'un rond-point, une haute aiguille de pierre marque l'entrée de l'ancien village.",
+      "hints": [
+        "Toujours le boulevard Michelet, jusqu'à son extrémité.",
+        "Le village s'appelle Mazargues.",
+        "L'obélisque de Mazargues, rond-point de Mazargues."
+      ]
+    },
+    {
+      "title": "Obélisque de Mazargues",
+      "lat": 43.25073,
+      "lng": 5.40361,
+      "arrival": "L'obélisque marque le grand carrefour de l'ancien village de Mazargues, longtemps séparé de Marseille par la campagne et ses bastides.",
+      "riddle": "Partez vers le sud-est par l'avenue du maréchal qui débarqua en Provence avec la 1ʳᵉ armée française en août 1944. À environ 450 pas, des soldats britanniques, indiens et d'autres pays du Commonwealth reposent dans un enclos entretenu avec soin, avec un mémorial aux soldats indiens.",
+      "hints": [
+        "Le maréchal est Jean de Lattre de Tassigny : l'avenue de Lattre-de-Tassigny.",
+        "Il porte le nom du quartier.",
+        "Le cimetière militaire de Mazargues."
+      ]
+    },
+    {
+      "title": "Cimetière militaire de Mazargues",
+      "lat": 43.24887,
+      "lng": 5.40477,
+      "arrival": "Marseille fut un grand port de débarquement des troupes indiennes et britanniques pendant la Première Guerre mondiale. Le cimetière militaire de Mazargues, entretenu par la commission des sépultures du Commonwealth, garde leur mémoire, avec un mémorial dédié aux soldats indiens.",
+      "riddle": "Partez vers le sud, à environ 700 pas, jusqu'à la rue d'un certain Raoux. Le sanctuaire du vieux village y est dédié au saint que l'on invoquait contre la peste, souvent représenté avec un chien.",
+      "hints": [
+        "La rue Raoux.",
+        "Le saint s'appelle Roch.",
+        "L'église Saint-Roch de Mazargues."
+      ],
+      "photo": "File:Mazargues-cimetière-tombes.JPG"
+    },
+    {
+      "title": "Église Saint-Roch de Mazargues",
+      "lat": 43.24576,
+      "lng": 5.40447,
+      "arrival": "Bravo ! Saint Roch, pèlerin du XIVᵉ siècle, était invoqué contre la peste ; on le représente souvent montrant une plaie à la jambe, accompagné d'un chien qui lui apportait du pain. Son culte était très vivant en Provence, si souvent frappée par les épidémies."
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "key": "paris-14-montparnasse",
+  "name": "Lion, méridien et Années folles à Montparnasse",
+  "location": "Paris 14e, de Denfert-Rochereau à Montparnasse",
+  "summary": "De l'entrée des Catacombes à la rue Daguerre : le lion de Bartholdi, l'Observatoire coupé en deux par le méridien de Paris, le cimetière de Baudelaire et de Sartre, la brasserie des Années folles et la maison où Agnès Varda vécut près de soixante-dix ans.",
+  "startText": "Rendez-vous devant le pavillon d'entrée des Catacombes, place Denfert-Rochereau (métro et RER Denfert-Rochereau). Le cimetière a des horaires : faites le parcours en journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Entrée des Catacombes",
+      "lat": 48.83375,
+      "lng": 2.33229,
+      "address": "1, avenue du Colonel-Henri-Rol-Tanguy",
+      "riddle": "À moins de 150 pas, vers le nord, au centre de la place du colonel qui défendit une ville de l'Est assiégée en 1870-1871, veille un grand fauve de cuivre martelé, réduction d'un monument taillé dans la roche de cette ville. Rejoignez-le par les passages piétons.",
+      "hints": [
+        "Le colonel est Denfert-Rochereau, qui a donné son nom à la place.",
+        "Son sculpteur est aussi l'auteur de la statue de la Liberté ; la ville assiégée est Belfort.",
+        "Le Lion de Belfort, au centre de la place Denfert-Rochereau."
+      ],
+      "photo": "File:Catacumbas,_París,_Francia,_2022-11-01,_DD_117-119_HDR.jpg"
+    },
+    {
+      "title": "Lion de Belfort",
+      "lat": 48.83433,
+      "lng": 2.33247,
+      "arrival": "Cette réduction au tiers du lion de Belfort, d'Auguste Bartholdi, honore la résistance de la ville pendant le siège de 1870-1871, conduite par le colonel Denfert-Rochereau, qui a donné son nom à la place.",
+      "riddle": "Prenez vers le nord-est l'avenue qui porte, elle aussi, le nom du colonel de Belfort. À environ 850 pas, rejoignez les grilles d'une institution scientifique fondée par Louis XIV en 1667 : le méridien de la capitale la coupe exactement en deux. Rendez-vous devant son entrée principale, au bout de l'avenue qui porte son nom.",
+      "hints": [
+        "Suivez l'avenue Denfert-Rochereau vers le nord-est.",
+        "Une coupole d'astronome coiffe l'un de ses bâtiments ; le méridien qui la traverse a servi à définir le mètre.",
+        "L'Observatoire de Paris, 61 avenue de l'Observatoire."
+      ],
+      "photo": "File:Lion_de_Belfort,_Paris_7_September_2020.jpg"
+    },
+    {
+      "title": "Observatoire de Paris",
+      "lat": 48.837,
+      "lng": 2.33666,
+      "address": "61, avenue de l'Observatoire",
+      "arrival": "Fondé en 1667 sous Louis XIV, c'est l'un des plus anciens observatoires encore en activité. Le méridien de Paris traverse son bâtiment principal ; à travers la ville, des médaillons de bronze au nom d'Arago le jalonnent.",
+      "riddle": "Partez vers l'ouest par la rue de la dynastie d'astronomes italiens qui dirigea ces lieux pendant quatre générations, puis remontez vers le nord-ouest jusqu'au boulevard d'un historien républicain, Edgar. L'entrée principale d'une grande nécropole s'y ouvre : Baudelaire, Sartre et Beauvoir ou Serge Gainsbourg y reposent. Comptez environ 1 500 pas.",
+      "hints": [
+        "La dynastie des Cassini : prenez la rue Cassini, puis le boulevard Raspail jusqu'au boulevard Edgar-Quinet.",
+        "La nécropole a ouvert en 1824 ; on dépose des tickets de métro sur la tombe du chanteur.",
+        "Le cimetière du Montparnasse, boulevard Edgar-Quinet."
+      ],
+      "photo": "File:Obs-Paris-coupole-Arago.jpg"
+    },
+    {
+      "title": "Cimetière du Montparnasse",
+      "lat": 48.83999,
+      "lng": 2.32763,
+      "address": "3, boulevard Edgar-Quinet",
+      "arrival": "Ouvert en 1824, le cimetière du Montparnasse accueille notamment Charles Baudelaire, Jean-Paul Sartre et Simone de Beauvoir, réunis dans la même tombe, et Serge Gainsbourg.",
+      "riddle": "Remontez vers le nord par la rue de l'astronome qui mesura le méridien de Dunkerque à Rodez. Elle débouche, à environ 500 pas, sur le carrefour des peintres des Années folles : au 102 du boulevard qui le traverse, une brasserie Art déco ouverte en 1927 porte un nom qui évoque un toit arrondi.",
+      "hints": [
+        "L'astronome est Jean-Baptiste Delambre : suivez la rue Delambre.",
+        "Ses piliers intérieurs ont été peints par des artistes du quartier.",
+        "La Coupole, 102 boulevard du Montparnasse."
+      ]
+    },
+    {
+      "title": "La Coupole",
+      "lat": 48.84228,
+      "lng": 2.32809,
+      "address": "102, boulevard du Montparnasse",
+      "arrival": "Ouverte en décembre 1927, La Coupole est l'une des grandes brasseries des Années folles à Montparnasse, avec ses piliers décorés par des artistes du quartier.",
+      "riddle": "Redescendez vers le sud et prenez la rue de la bonne humeur, bordée de théâtres, jusqu'à l'avenue du Maine, que vous suivez vers le sud-est : la rue voisine, en partie piétonne, porte le nom de l'inventeur d'un procédé photographique. Au numéro 86, une cinéaste vécut de 1951 jusqu'à sa mort ; en 1975, elle filma les commerçants de sa rue. Environ 1 500 pas.",
+      "hints": [
+        "La bonne humeur : la rue de la Gaîté ; le procédé photographique, le daguerréotype.",
+        "La cinéaste a réalisé Cléo de 5 à 7.",
+        "Le 86, rue Daguerre, où vivait Agnès Varda."
+      ],
+      "photo": "File:La_Coupole_-_Paris.JPG"
+    },
+    {
+      "title": "Rue Daguerre, chez Agnès Varda",
+      "lat": 48.83583,
+      "lng": 2.3247,
+      "address": "86, rue Daguerre",
+      "arrival": "Bravo ! Agnès Varda s'installa au 86 rue Daguerre en 1951 et y vécut jusqu'à sa mort, en 2019. Dans Daguerréotypes (1975), elle filma les commerçants de sa rue. Elle repose au cimetière du Montparnasse, que vous avez croisé."
+    }
+  ]
+}

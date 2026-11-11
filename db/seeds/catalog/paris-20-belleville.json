@@ -1,0 +1,107 @@
+{
+  "key": "paris-20-belleville",
+  "name": "Belleville et Ménilmontant, de la Môme aux Fédérés",
+  "location": "Paris 20e, Belleville, Ménilmontant et Père-Lachaise",
+  "summary": "Du plus beau belvédère de Paris au mur des Fédérés : les marches où Édith Piaf serait née, l'église de l'architecte homonyme de son saint, une ruelle qui garde le souvenir des sources, l'église de Ménilmontant et le plus célèbre cimetière de Paris, où la Commune livra son dernier combat.",
+  "startText": "Rendez-vous au belvédère Willy-Ronis, en haut du parc de Belleville, rue Piat (métro Pyrénées). Le cimetière du Père-Lachaise a des horaires (ouvert de 8 h ou 9 h à 17 h 30 ou 18 h selon la saison) : partez au plus tard en début d'après-midi.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 100,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Belvédère Willy-Ronis",
+      "lat": 48.87157,
+      "lng": 2.3854,
+      "riddle": "Descendez vers le nord-ouest jusqu'à la grande rue commerçante qui doit son nom à la « jolie cité » de la colline. Au numéro 72, à environ 500 pas, une inscription affirme qu'une chanteuse surnommée « la Môme » naquit sur les marches de cet immeuble, en décembre 1915.",
+      "hints": [
+        "La jolie cité, c'est Belleville : descendez la rue Piat jusqu'à la rue de Belleville.",
+        "Elle a chanté « La Vie en rose ».",
+        "Le 72, rue de Belleville."
+      ],
+      "photo": "File:Belvédère_Willy_Ronis_-_Paris_XX_(FR75)_-_2024-08-13_-_2.jpg"
+    },
+    {
+      "title": "72, rue de Belleville",
+      "lat": 48.87351,
+      "lng": 2.38379,
+      "arrival": "La plaque affirme qu'Édith Piaf est née « sur les marches de cette maison » le 19 décembre 1915. Son acte de naissance indique pourtant l'hôpital Tenon, dans le même arrondissement. La légende a gagné.",
+      "riddle": "Remontez vers le nord-est la même rue de la « jolie cité ». À environ 900 pas, un sanctuaire néo-gothique à deux flèches, bâti sous le Second Empire, était la paroisse du village avant son rattachement à la capitale en 1860. Son architecte portait le même prénom que le saint patron.",
+      "hints": [
+        "Toujours la rue de Belleville, en montant.",
+        "Le saint patron baptisa le Christ dans le Jourdain ; c'est au numéro 139.",
+        "L'église Saint-Jean-Baptiste de Belleville."
+      ]
+    },
+    {
+      "title": "Église Saint-Jean-Baptiste de Belleville",
+      "lat": 48.87533,
+      "lng": 2.38937,
+      "address": "139, rue de Belleville",
+      "arrival": "Construite de 1854 à 1859 par Jean-Baptiste Lassus, homonyme de son saint patron, elle compte parmi les premières églises néo-gothiques de Paris.",
+      "riddle": "Descendez vers le sud par la rue du fleuve où fut baptisé le Christ, puis par celle des petits canaux qui recueillaient l'eau des sources. À environ 700 pas, une ruelle en pente porte un nom qui évoque l'eau dévalant la colline : les sources des hauteurs alimentaient jadis des fontaines de Paris.",
+      "hints": [
+        "Le fleuve est le Jourdain (rue du Jourdain), les petits canaux, les rigoles (rue des Rigoles).",
+        "Son nom est au pluriel et évoque des chutes d'eau.",
+        "La rue des Cascades."
+      ],
+      "photo": "File:Église_Saint-Jean-Baptiste_de_Belleville1.JPG"
+    },
+    {
+      "title": "Rue des Cascades",
+      "lat": 48.87219,
+      "lng": 2.39047,
+      "arrival": "Les sources de Belleville et de Ménilmontant ont alimenté des fontaines de Paris dès le Moyen Âge, grâce à des aqueducs. Sur ces pentes, de petits édifices de pierre, les « regards », permettaient d'en surveiller l'écoulement.",
+      "riddle": "Descendez la ruelle vers le sud, puis suivez vers l'ouest la grande rue de l'ancien hameau perché, le « mesnil montant ». À environ 1 100 pas, un immense sanctuaire se dresse au sommet d'un large escalier, sur une place en pente. En 1871, des communards y tenaient leurs réunions.",
+      "hints": [
+        "Le mesnil montant a donné son nom à la rue de Ménilmontant.",
+        "La place porte le nom du quartier ; le clocher domine tout le bas de la colline.",
+        "L'église Notre-Dame-de-la-Croix, place de Ménilmontant."
+      ]
+    },
+    {
+      "title": "Église Notre-Dame-de-la-Croix",
+      "lat": 48.86823,
+      "lng": 2.38648,
+      "arrival": "Construite de 1863 à 1880, Notre-Dame-de-la-Croix est l'une des plus grandes églises de Paris. Pendant la Commune, en 1871, elle accueillit les réunions d'un club révolutionnaire.",
+      "riddle": "Descendez vers le sud-est la grande rue du hameau montant jusqu'au boulevard qui porte le même nom, puis suivez-le vers le sud. Une vingtaine de minutes plus loin, face à la rue de la Roquette, s'ouvre le portail monumental de la plus célèbre nécropole parisienne.",
+      "hints": [
+        "Rue de Ménilmontant, puis boulevard de Ménilmontant vers le sud.",
+        "Elle porte le nom du confesseur de Louis XIV ; l'adresse est le 8, boulevard de Ménilmontant.",
+        "L'entrée principale du cimetière du Père-Lachaise."
+      ],
+      "photo": "File:P1010045_Paris_XX_Église_Notre-Dame-de-la-Croix_de_Ménilmontant_reductwk.JPG"
+    },
+    {
+      "title": "Cimetière du Père-Lachaise, entrée principale",
+      "lat": 48.85985,
+      "lng": 2.3924,
+      "address": "8, boulevard de Ménilmontant",
+      "arrival": "Ouvert en 1804, le cimetière porte le surnom du père François de La Chaise, confesseur de Louis XIV, qui possédait une maison sur cette colline. Molière, Chopin ou Oscar Wilde y reposent, comme Édith Piaf, croisée plus haut dans la rue de Belleville.",
+      "riddle": "Partez vers l'est par l'allée maîtresse qui monte depuis le portail, puis gagnez l'angle sud-est de l'enceinte en suivant les plans. Après environ 1 100 pas, contre le mur, une simple plaque honore les derniers combattants de la Commune, fusillés là le 28 mai 1871.",
+      "hints": [
+        "L'allée maîtresse s'appelle l'avenue Principale ; ensuite, direction l'angle sud-est.",
+        "Les combattants de la Commune s'appelaient les communards.",
+        "Le mur des Fédérés, à l'angle sud-est du Père-Lachaise."
+      ],
+      "photo": "File:Main_gate_of_the_Père-Lachaise_Cemetery,_Paris_13_June_2014.jpg"
+    },
+    {
+      "title": "Mur des Fédérés",
+      "lat": 48.85968,
+      "lng": 2.40008,
+      "arrival": "Vous êtes arrivés. Le 28 mai 1871, au dernier jour de la Semaine sanglante, 147 fédérés furent fusillés contre ce mur et jetés dans une fosse commune. Chaque année, des milliers de personnes viennent s'y recueillir.",
+      "photo": "File:Commune2011.jpg"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "key": "marseille-03-belle-de-mai",
+  "name": "De la porte d'Aix à la Friche, la Belle de Mai",
+  "location": "Marseille 3e, Saint-Lazare et Belle de Mai",
+  "summary": "Un quartier populaire du nord du centre : l'arc de triomphe de la porte d'Aix, le monument au général qui libéra Paris, les églises de Saint-Lazare et de la Belle de Mai, et l'ancienne manufacture de tabac devenue la Friche, avec son toit-terrasse ouvert sur la ville.",
+  "startText": "Rendez-vous au pied de l'arc de triomphe de la porte d'Aix, place Jules-Guesde (métro Jules-Guesde). La Friche la Belle de Mai a des horaires d'ouverture.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte d'Aix",
+      "lat": 43.30185,
+      "lng": 5.37475,
+      "riddle": "Partez vers le nord par l'avenue qui porte le nom d'un général de la France libre, mort en 1947. À environ 550 pas, une stèle lui rend hommage.",
+      "hints": [
+        "Le général de la 2ᵉ division blindée : l'avenue du Général-Leclerc.",
+        "Il libéra Paris puis Strasbourg en 1944, et fut fait maréchal à titre posthume.",
+        "Le monument au maréchal Leclerc, avenue du Général-Leclerc."
+      ],
+      "photo": "File:Porte_d'Aix_03.jpg"
+    },
+    {
+      "title": "Monument au maréchal Leclerc",
+      "lat": 43.30424,
+      "lng": 5.37562,
+      "arrival": "Philippe Leclerc de Hauteclocque, à la tête de la 2ᵉ division blindée, libéra Paris en août 1944 puis Strasbourg en novembre. Mort dans un accident d'avion en 1947, il fut fait maréchal de France à titre posthume.",
+      "riddle": "Continuez vers le nord-ouest, à environ 250 pas, jusqu'à la rue d'une ville d'Algérie, Blida. Un sanctuaire de la fin des années 1830 y porte le nom de l'ami du Christ qu'il ramena à la vie, et qui a donné son nom au quartier.",
+      "hints": [
+        "La rue de Blidah.",
+        "L'ami ressuscité, dans l'Évangile, s'appelle Lazare.",
+        "L'église Saint-Lazare, rue de Blidah."
+      ]
+    },
+    {
+      "title": "Église Saint-Lazare",
+      "lat": 43.30514,
+      "lng": 5.37451,
+      "arrival": "L'église Saint-Lazare a été construite à la fin des années 1830. Selon une tradition provençale, Lazare, l'ami du Christ, aurait débarqué en Provence avec ses sœurs Marthe et Marie-Madeleine et serait devenu le premier évêque de Marseille.",
+      "riddle": "Partez vers l'est et grimpez vers le plateau du quartier par la rue qui porte le nom d'un point cardinal. À environ 1 200 pas, un sanctuaire est dédié au Christ représenté en berger qui porte une brebis sur ses épaules.",
+      "hints": [
+        "La rue du Sud.",
+        "Le Bon Pasteur, dans l'Évangile, donne sa vie pour ses brebis.",
+        "L'église Notre-Dame-du-Bon-Pasteur, rue du Sud."
+      ],
+      "photo": "File:Saint_Lazare_intérieur.jpg"
+    },
+    {
+      "title": "Notre-Dame-du-Bon-Pasteur",
+      "lat": 43.30826,
+      "lng": 5.38062,
+      "arrival": "La Belle de Mai s'est peuplée au XIXᵉ siècle d'ouvriers venus travailler dans les usines du quartier, dont la grande manufacture de tabac. L'église Notre-Dame-du-Bon-Pasteur est l'une de leurs paroisses.",
+      "riddle": "Continuez vers le nord-est, à environ 1 300 pas, jusqu'au boulevard qui porte le nom de 1789. Le grand sanctuaire du cœur du quartier y est dédié à un archevêque de Milan qui se dévoua pendant la peste de 1576.",
+      "hints": [
+        "Le boulevard de la Révolution.",
+        "L'archevêque est saint Charles Borromée.",
+        "L'église Saint-Charles de la Belle de Mai, boulevard de la Révolution."
+      ],
+      "photo": "File:Marseille_-_Église_Notre-Dame-du-Bon-Pasteur_de_la_Belle_de_Mai_-_1.jpg"
+    },
+    {
+      "title": "Église Saint-Charles de la Belle de Mai",
+      "lat": 43.31326,
+      "lng": 5.38482,
+      "arrival": "Saint Charles Borromée, archevêque de Milan, resta auprès des malades pendant la peste de 1576. À Marseille, ville elle-même ravagée par la peste de 1720, son culte était très populaire.",
+      "riddle": "Partez vers le sud-est par la rue d'un peintre provençal du XIXᵉ siècle, Émile, à environ 1 300 pas. Une immense ancienne usine où l'on roulait cigares et cigarettes est devenue, depuis les années 1990, un lieu de création, avec un grand toit-terrasse ouvert sur la ville.",
+      "hints": [
+        "Le peintre est Émile Loubon : prenez la rue Loubon.",
+        "Son nom évoque une usine abandonnée.",
+        "La Friche la Belle de Mai, rue Jobin."
+      ]
+    },
+    {
+      "title": "La Friche la Belle de Mai",
+      "lat": 43.31104,
+      "lng": 5.39206,
+      "arrival": "Bravo ! Cette ancienne manufacture de tabac de la Seita est devenue, à partir de 1992, la Friche la Belle de Mai : ateliers d'artistes, salles de spectacle, expositions, et un toit-terrasse d'où l'on voit toute la ville."
+    }
+  ]
+}

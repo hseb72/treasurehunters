@@ -1,0 +1,105 @@
+{
+  "key": "paris-06-saint-germain",
+  "name": "Saint-Germain-des-Prés, d'une fontaine à l'autre",
+  "location": "Paris 6e, Saint-Germain-des-Prés et Luxembourg",
+  "summary": "De la plus vieille église de Paris aux jardins du Luxembourg : la place secrète de Delacroix, le tribun Danton, la fontaine des « points cardinaux », le théâtre où fut créé Le Mariage de Figaro, le cyclope de la fontaine Médicis et les quatre parties du monde de Carpeaux… dont une manque à l'appel.",
+  "startText": "Rendez-vous sur le parvis de l'église Saint-Germain-des-Prés, place Saint-Germain-des-Prés (métro Saint-Germain-des-Prés). À faire de jour : le parcours traverse le jardin du Luxembourg, ouvert de l'aube au crépuscule.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Église Saint-Germain-des-Prés",
+      "lat": 48.854,
+      "lng": 2.33363,
+      "riddle": "Contournez l'abbatiale par le nord et partez vers l'est dans la rue qui rappelle le monastère bénédictin. À environ 350 pas, vous débouchez sur une minuscule place ronde, plantée de paulownias et éclairée par un lampadaire à cinq globes. Un peintre romantique y passa ses dernières années.",
+      "hints": [
+        "Le monastère bénédictin a laissé son nom à la rue de l'Abbaye.",
+        "Le peintre est Eugène Delacroix ; son atelier est devenu un musée.",
+        "La place de Furstenberg, au bout de la rue de Furstenberg."
+      ],
+      "photo": "File:St_Germain_des_Pres.jpg"
+    },
+    {
+      "title": "Place de Furstenberg",
+      "lat": 48.8544,
+      "lng": 2.3359,
+      "arrival": "La place occupe l'ancienne cour des écuries du palais abbatial, bâti à la fin du XVIIᵉ siècle par le cardinal de Furstenberg. Eugène Delacroix s'installa au numéro 6 en 1857, pour être près de Saint-Sulpice où il peignait une chapelle ; il y mourut en 1863.",
+      "riddle": "Gagnez au sud le grand boulevard qui porte le nom d'un évêque de Paris du VIᵉ siècle, et suivez-le vers l'est. À un carrefour, au-dessus d'une bouche de métro, un tribun de bronze tend le bras vers la foule ; il réclamait « de l'audace, encore de l'audace, toujours de l'audace ». Environ 700 pas.",
+      "hints": [
+        "L'évêque est saint Germain : suivez le boulevard Saint-Germain vers l'est.",
+        "Le tribun fut guillotiné en avril 1794 ; le carrefour est celui de l'Odéon.",
+        "La statue de Danton, place Henri-Mondor, boulevard Saint-Germain."
+      ]
+    },
+    {
+      "title": "Statue de Danton",
+      "lat": 48.8522,
+      "lng": 2.3393,
+      "arrival": "La statue d'Auguste Paris a été inaugurée en 1891, près de l'endroit où se trouvait la maison de Danton, démolie lors du percement du boulevard Saint-Germain.",
+      "riddle": "Partez vers l'ouest par la rue qui souffle des quatre points de l'horizon. Une dizaine de minutes plus loin, une vaste place est dominée par une église aux deux tours dépareillées. Au centre, une fontaine montre quatre prélats assis. Aucun ne devint cardinal, d'où un surnom plein d'humour.",
+      "hints": [
+        "La rue des Quatre-Vents mène vers la rue Saint-Sulpice.",
+        "Les quatre prélats : Bossuet, Fénelon, Massillon et Fléchier.",
+        "La fontaine Saint-Sulpice, place Saint-Sulpice."
+      ]
+    },
+    {
+      "title": "Fontaine Saint-Sulpice",
+      "lat": 48.85087,
+      "lng": 2.33328,
+      "arrival": "Œuvre de Louis Visconti (1844-1848), la fontaine représente quatre grands évêques prédicateurs du siècle de Louis XIV. Aucun ne fut cardinal : ce sont les quatre « points cardinaux », car ils ne le furent point.",
+      "riddle": "Repartez vers l'est, puis prenez vers le sud la rue du prince vainqueur de Rocroi. Elle mène, à quelque 850 pas, à une place en demi-cercle ouverte devant une salle de spectacle à colonnes, inaugurée en 1782 en présence de Marie-Antoinette. Beaumarchais y fit jouer Le Mariage de Figaro deux ans plus tard.",
+      "hints": [
+        "Le vainqueur de Rocroi est le Grand Condé : suivez la rue de Condé.",
+        "La salle a été bâtie pour la Comédie-Française ; on l'appelle aujourd'hui le théâtre de l'Europe.",
+        "La place de l'Odéon, devant le théâtre."
+      ],
+      "photo": "File:Fontaine_Saint-Sulpice_Paris_2008-03-14.jpg"
+    },
+    {
+      "title": "Théâtre de l'Odéon",
+      "lat": 48.84984,
+      "lng": 2.33872,
+      "arrival": "Construit par Marie-Joseph Peyre et Charles De Wailly pour la Comédie-Française, il fut inauguré en 1782. Le Mariage de Figaro y fut créé le 27 avril 1784. En mai 1968, des étudiants occupèrent le théâtre pendant un mois.",
+      "riddle": "Longez la salle vers le sud par la rue de l'auteur du Cid, puis entrez dans le jardin du Sénat. Avancez jusqu'à un long bassin ombragé de platanes : au fond d'une grotte, un cyclope de bronze guette deux amoureux de marbre. Environ 400 pas.",
+      "hints": [
+        "La rue Corneille longe le théâtre et mène au jardin du Luxembourg.",
+        "Le cyclope s'appelle Polyphème ; les amoureux, Acis et Galatée.",
+        "La fontaine Médicis, dans le jardin du Luxembourg."
+      ],
+      "photo": "File:Place_de_l'Odéon_Paris.jpg"
+    },
+    {
+      "title": "Fontaine Médicis",
+      "lat": 48.84806,
+      "lng": 2.33929,
+      "arrival": "Construite vers 1630 pour Marie de Médicis, qui fit bâtir le palais du Luxembourg, la fontaine fut déplacée de quelques mètres sous le Second Empire. C'est alors qu'elle reçut le groupe d'Auguste Ottin : Polyphème surprenant Acis et Galatée.",
+      "riddle": "Traversez le jardin vers le sud, puis suivez jusqu'au bout l'avenue plantée des astronomes, qui file vers leur coupole. Après une bonne quinzaine de minutes de marche, quatre femmes de bronze y soutiennent une sphère : chacune figure une partie du monde. Comptez-les et cherchez celle qui manque.",
+      "hints": [
+        "L'avenue de l'Observatoire, prolongée par le jardin Marco-Polo.",
+        "Le sculpteur est Carpeaux ; l'Océanie n'est pas là.",
+        "La fontaine de l'Observatoire, au bout du jardin Marco-Polo."
+      ],
+      "photo": "File:Monument_a_coté_du_palais.jpg"
+    },
+    {
+      "title": "Fontaine de l'Observatoire",
+      "lat": 48.84109,
+      "lng": 2.33682,
+      "arrival": "Bravo ! Les quatre femmes de Jean-Baptiste Carpeaux figurent l'Europe, l'Asie, l'Afrique et l'Amérique. L'Océanie a été écartée pour garder la symétrie. La fontaine a été inaugurée en 1874 ; au loin, vers le sud, l'Observatoire de Paris.",
+      "photo": "File:FontaineQuatrePartiesDuMonde02.jpg"
+    }
+  ]
+}

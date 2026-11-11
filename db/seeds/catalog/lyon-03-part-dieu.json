@@ -1,0 +1,94 @@
+{
+  "key": "lyon-03-part-dieu",
+  "name": "Part-Dieu, du pont La Fayette au ventre de Lyon",
+  "location": "Lyon 3e, Préfecture et Part-Dieu",
+  "summary": "Une traversée du 3ᵉ arrondissement, des quais du Rhône au quartier d'affaires : la préfecture, la Bourse du travail, le « Crayon » qui domine la ville, le souvenir des cavaliers de l'ancienne caserne et les halles qui portent le nom du plus célèbre des chefs lyonnais.",
+  "startText": "Rendez-vous à l'extrémité du pont Lafayette côté rive gauche, sur le quai Victor-Augagneur (métro Foch, de l'autre côté du pont). Les halles ont des horaires : finissez le parcours avant leur fermeture.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "toilets"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Pont Lafayette",
+      "lat": 45.7636,
+      "lng": 4.8414,
+      "riddle": "Partez vers l'est, puis descendez vers le sud le cours qui porte le premier mot de la devise républicaine. À environ 750 pas, un grand palais de la fin du XIXᵉ siècle abrite les services de l'État dans le département.",
+      "hints": [
+        "Liberté, égalité, fraternité : suivez le cours de la Liberté.",
+        "Le préfet y a son bureau.",
+        "La préfecture du Rhône."
+      ],
+      "photo": "File:Pont_Lafayette_(Lyon,_2026).jpg"
+    },
+    {
+      "title": "Préfecture du Rhône",
+      "lat": 45.76044,
+      "lng": 4.84332,
+      "arrival": "Le palais de la préfecture du Rhône a été construit à la fin du XIXᵉ siècle. Derrière ses façades se trouvent les bureaux du préfet du Rhône et de la région.",
+      "riddle": "Continuez vers l'est par l'avenue du maréchal vainqueur de Fontenoy. À environ 700 pas, une place bordée par la Bourse du travail, dessinée par l'architecte Charles Meysson, accueille aujourd'hui concerts et spectacles dans sa grande salle.",
+      "hints": [
+        "Le maréchal est Maurice de Saxe : prenez l'avenue Maréchal-de-Saxe vers le sud-est.",
+        "La place porte le nom d'un certain Claudius.",
+        "La place Guichard, devant la Bourse du travail."
+      ]
+    },
+    {
+      "title": "Place Guichard",
+      "lat": 45.75917,
+      "lng": 4.84738,
+      "arrival": "La Bourse du travail qui borde la place a été voulue pour les syndicats ouvriers ; sa grande salle est devenue l'une des scènes de spectacle de Lyon.",
+      "riddle": "Partez vers le nord-est par la rue du héros de l'unité italienne, qui vint aussi combattre pour la France en 1870. Après environ 1 100 pas, une tour de 165 mètres, coiffée d'une pointe, domine tout le quartier d'affaires ; les Lyonnais lui ont donné le surnom d'un objet d'écolier.",
+      "hints": [
+        "Le héros italien est Giuseppe Garibaldi : suivez la rue Garibaldi.",
+        "Son surnom : le Crayon.",
+        "La tour Part-Dieu, rue Servient."
+      ],
+      "photo": "File:Place_Guichard_(2022).jpg"
+    },
+    {
+      "title": "Tour Part-Dieu",
+      "lat": 45.76107,
+      "lng": 4.85376,
+      "arrival": "Achevée en 1977 sur des plans de l'architecte Araldo Cossutta, la tour Part-Dieu mesure 165 mètres. Sa forme lui a valu le surnom de « Crayon ». Un hôtel occupe ses derniers étages.",
+      "riddle": "Partez vers le sud jusqu'à la rue qui porte le nom d'une étendue d'eau, à environ 550 pas. Sur une petite place, une stèle aux morts honore des cavaliers cuirassés : le quartier où vous êtes était autrefois occupé par une grande caserne de cavalerie.",
+      "hints": [
+        "Suivez la rue du Lac.",
+        "Les cuirassiers portaient une cuirasse de métal.",
+        "Le monument aux cuirassiers, place du Lac."
+      ],
+      "photo": "File:Esplanade_Charles-de-Gaulle_(Lyon)_-_entrée_de_la_Tour_Part-Dieu.jpg"
+    },
+    {
+      "title": "Monument aux cuirassiers",
+      "lat": 45.7586,
+      "lng": 4.85392,
+      "arrival": "Avant les tours et la gare, la Part-Dieu était un vaste terrain militaire : la caserne de la Part-Dieu accueillait des régiments de cavalerie. Ce monument aux morts rappelle les cuirassiers tombés au combat.",
+      "riddle": "Remontez vers le nord par la rue du héros italien, jusqu'au cours qui porte le nom du marquis qui combattit aux côtés des insurgés américains. Au numéro 102, à environ 1 200 pas, s'ouvre le grand marché couvert qui porte le nom du plus célèbre des chefs lyonnais.",
+      "hints": [
+        "Rue Garibaldi, puis le cours Lafayette.",
+        "Le chef a reçu trois étoiles au guide Michelin en 1965.",
+        "Les Halles de Lyon Paul Bocuse, 102 cours Lafayette."
+      ],
+      "photo": "File:Monument_à_la_cavalerie_(Place_du_Lac).jpg"
+    },
+    {
+      "title": "Halles de Lyon Paul Bocuse",
+      "lat": 45.7634,
+      "lng": 4.85042,
+      "address": "102, cours Lafayette",
+      "arrival": "Bravo ! Les halles de la Part-Dieu ont ouvert en 1971. En 2006, elles ont pris le nom de Paul Bocuse, le grand chef de Collonges-au-Mont-d'Or. On y trouve quenelles, saucissons et fromages de la région."
+    }
+  ]
+}

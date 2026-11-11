@@ -1,0 +1,92 @@
+{
+  "key": "reims-theme-sacres",
+  "name": "Reims et les sacres, de saint Remi à Jeanne d'Arc",
+  "location": "Reims, de Saint-Remi à la cathédrale",
+  "summary": "Le chemin des sacres des rois de France : la basilique de saint Remi, qui baptisa Clovis, l'abbaye où l'on gardait la sainte ampoule, le collège des Jésuites, le palais du Tau, l'Ange au sourire de la cathédrale et la statue de Jeanne d'Arc.",
+  "startText": "Rendez-vous devant la basilique Saint-Remi, place du Chanoine-Ladame (bus Saint-Remi). Le musée Saint-Remi et le palais du Tau ont des horaires ; on les voit depuis l'extérieur.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Basilique Saint-Remi",
+      "lat": 49.24307,
+      "lng": 4.04191,
+      "riddle": "Faites quelques pas vers le nord-ouest sur la place d'un chanoine : l'ancienne abbaye royale voisine, où l'on gardait la sainte ampoule, accueille aujourd'hui des collections d'archéologie et d'histoire de la ville.",
+      "hints": [
+        "La place du Chanoine-Ladame.",
+        "Ses bâtiments du XVIIIᵉ siècle entourent un cloître.",
+        "Le musée Saint-Remi."
+      ],
+      "photo": "File:St_remi_1007580.jpg"
+    },
+    {
+      "title": "Musée Saint-Remi",
+      "lat": 49.24346,
+      "lng": 4.04108,
+      "arrival": "Saint Remi, évêque de Reims, baptisa Clovis vers la fin du Vᵉ siècle ; son tombeau est dans la basilique. Selon la légende, une colombe apporta pour ce baptême la sainte ampoule, dont l'huile servit ensuite à oindre les rois. Elle était gardée dans cette abbaye et portée en procession à la cathédrale le jour du sacre.",
+      "riddle": "Partez vers le nord par la rue du grand cervidé. À environ 700 pas, un ensemble du XVIIᵉ siècle, où un ordre fondé par Ignace de Loyola tenait une école, borde une petite place.",
+      "hints": [
+        "La rue du Grand-Cerf, puis la place Museux.",
+        "Son fondateur, Ignace de Loyola, était basque.",
+        "L'ancien collège des Jésuites, place Museux."
+      ]
+    },
+    {
+      "title": "Ancien collège des Jésuites",
+      "lat": 49.24647,
+      "lng": 4.04043,
+      "arrival": "Les jésuites s'installèrent à Reims au début du XVIIᵉ siècle et y construisirent ce collège, l'un des grands établissements d'enseignement de la ville.",
+      "riddle": "Remontez vers le nord-ouest par la rue du Barbâtre, puis par la rue de l'auteur de Candide. À environ 1 700 pas, à côté de la cathédrale, la résidence des archevêques, en forme de T, accueillait le roi la veille de son sacre et le grand festin qui le suivait.",
+      "hints": [
+        "La rue du Barbâtre, puis la rue Voltaire.",
+        "Son nom vient de la lettre grecque en forme de T.",
+        "Le palais du Tau."
+      ],
+      "photo": "File:Ancien_Collège_des_Jésuites_006.JPG"
+    },
+    {
+      "title": "Palais du Tau",
+      "lat": 49.25326,
+      "lng": 4.03454,
+      "arrival": "Le palais du Tau, résidence des archevêques, doit son nom à son plan en forme de T. Le roi y logeait avant son sacre et le banquet du couronnement s'y tenait. Il abrite aujourd'hui le trésor de la cathédrale. Avec la cathédrale et Saint-Remi, il est inscrit au patrimoine mondial depuis 1991.",
+      "riddle": "Longez le flanc de la cathédrale vers le nord-ouest par la rue d'un de ses architectes, jusqu'au parvis. À environ 300 pas, à l'entrée de gauche de la façade, une statue ailée sourit aux passants.",
+      "hints": [
+        "La rue Robert-de-Coucy.",
+        "Elle a perdu sa tête en 1914 sous les obus.",
+        "L'Ange au sourire, au portail nord de la façade."
+      ],
+      "photo": "File:Palais_du_Tau_in_Reims_(7).jpg"
+    },
+    {
+      "title": "Portail de l'Ange au sourire",
+      "lat": 49.2538,
+      "lng": 4.0327,
+      "arrival": "Le célèbre Ange au sourire orne le portail nord de la façade. En septembre 1914, des obus allemands incendièrent la cathédrale ; la statue perdit sa tête, retrouvée en morceaux et remise en place en 1926. La plupart des rois de France, de Louis VIII à Charles X, ont été sacrés ici.",
+      "riddle": "Faites quelques pas vers le sud-ouest, sur le parvis qui porte le nom d'un cardinal : une statue équestre en bronze rappelle la jeune femme qui conduisit Charles VII à son sacre, en 1429.",
+      "hints": [
+        "La place du Cardinal-Luçon.",
+        "La statue est de Paul Dubois.",
+        "La statue de Jeanne d'Arc."
+      ]
+    },
+    {
+      "title": "Statue de Jeanne d'Arc",
+      "lat": 49.25364,
+      "lng": 4.03226,
+      "arrival": "Bravo ! Le 17 juillet 1429, Jeanne d'Arc assista dans la cathédrale au sacre de Charles VII, qu'elle avait conduit jusqu'à Reims à travers un pays tenu par les Anglais et les Bourguignons. Cette statue de Paul Dubois a été inaugurée en 1896.",
+      "photo": "File:Joan_of_Arc,_Place_du_Parvis,_Reims(1).jpg"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "key": "lyon-09-ile-barbe",
+  "name": "Saint-Rambert et l'île Barbe, le Lyon des bords de Saône",
+  "location": "Lyon 9e, Saint-Rambert et île Barbe",
+  "summary": "Une balade au bord de la Saône, au nord de Lyon : l'ancien village de Saint-Rambert, la maison d'un peintre lyonnais devenue musée, le plus ancien pont de Lyon, l'île Barbe et son abbaye, puis, sur l'autre rive, la maison de Caluire où Jean Moulin fut arrêté en 1943.",
+  "startText": "Rendez-vous au square Sédallian, quai Paul-Sédallian (bus depuis Vaise). L'île Barbe est en grande partie privée : seules ses rues et sa place sont accessibles. La fin du parcours monte à Caluire-et-Cuire.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Square Sédallian",
+      "lat": 45.79416,
+      "lng": 4.82264,
+      "riddle": "Remontez la Saône vers le nord-est par le quai qui porte le nom du square. À environ 1 400 pas, au cœur de l'ancien village de Saint-Rambert, la maison d'un peintre lyonnais du XXᵉ siècle, ouverte au public en 2017, montre ses toiles de Lyon et de ses quais.",
+      "hints": [
+        "Le quai Paul-Sédallian longe la Saône jusqu'au village.",
+        "Le peintre s'appelait Jean Couty.",
+        "Le musée Jean-Couty, à Saint-Rambert."
+      ],
+      "photo": "File:Lyon_9e_-_Square_Sédaillan_1_(fév_2019).jpg"
+    },
+    {
+      "title": "Musée Jean-Couty",
+      "lat": 45.79832,
+      "lng": 4.82938,
+      "arrival": "Le peintre lyonnais Jean Couty a beaucoup peint Lyon, ses églises et ses quais. Sa maison-atelier de Saint-Rambert est devenue un musée en 2017.",
+      "riddle": "Partez vers le nord-est par la grande rue de l'ancien village, à environ 400 pas. Le sanctuaire du village, reconstruit au milieu du XIXᵉ siècle par l'architecte Claude-Anthelme Benoit, porte le nom d'un saint martyr du VIIᵉ siècle qui a donné son nom au quartier.",
+      "hints": [
+        "Suivez la Grande-Rue de Saint-Rambert.",
+        "Le quartier s'appelle Saint-Rambert-l'Île-Barbe.",
+        "L'église Saint-Rambert, rue du Général-Girodon."
+      ],
+      "photo": "File:Lyon_9e_-_Cour_du_musée_Jean_Couty.jpg"
+    },
+    {
+      "title": "Église Saint-Rambert",
+      "lat": 45.79922,
+      "lng": 4.83144,
+      "arrival": "L'église a été reconstruite à partir de 1843 sur les plans de Claude-Anthelme Benoit. Saint-Rambert était un village indépendant, rattaché à Lyon en 1963.",
+      "riddle": "Descendez vers le sud jusqu'au bord de l'eau par le chemin du port d'en bas. À environ 600 pas, un pont suspendu de la première moitié du XIXᵉ siècle enjambe la Saône en prenant appui sur une île boisée. Arrêtez-vous à son entrée, côté Saint-Rambert.",
+      "hints": [
+        "Le chemin du Bas-Port longe la Saône.",
+        "C'est le plus ancien pont de Lyon encore en service.",
+        "Le pont de l'Île-Barbe, côté quai."
+      ],
+      "photo": "File:Église_Saint-Rambert_-_Côté_ouest.jpg"
+    },
+    {
+      "title": "Pont de l'Île-Barbe",
+      "lat": 45.79654,
+      "lng": 4.83145,
+      "arrival": "Achevé en 1827, le pont suspendu de l'Île-Barbe est le plus ancien pont de Lyon encore en service. Il relie Saint-Rambert à Caluire en faisant étape sur l'île.",
+      "riddle": "Avancez sur le pont jusqu'à l'île et rejoignez sa petite place. Une église romane, vestige d'une abbaye fondée aux premiers siècles du christianisme, y dresse son clocher. Environ 300 pas.",
+      "hints": [
+        "L'île est en grande partie privée : restez sur la place.",
+        "L'église est dédiée à la Vierge.",
+        "L'église Notre-Dame, place Notre-Dame, sur l'île Barbe."
+      ],
+      "photo": "File:Pont-S01-Ile-Barbe-RG-06.JPG"
+    },
+    {
+      "title": "Notre-Dame de l'Île-Barbe",
+      "lat": 45.79744,
+      "lng": 4.83369,
+      "arrival": "L'île Barbe abrita l'une des plus anciennes abbayes de la région, fondée dès le haut Moyen Âge. L'église romane Notre-Dame est l'un des derniers témoins de ce monastère.",
+      "riddle": "Reprenez le pont vers l'est jusqu'à l'autre rive, puis suivez vers le sud le quai du « Tigre » avant de grimper à Caluire : une vingtaine de minutes de marche. Dans une maison de médecin, le 21 juin 1943, le chef de la Résistance unifiée fut arrêté par la Gestapo de Klaus Barbie. Un lieu de souvenir lui est consacré.",
+      "hints": [
+        "Le Tigre, c'est Clemenceau : longez le quai Clemenceau, puis montez la montée Castellane.",
+        "Le résistant est Jean Moulin.",
+        "Le mémorial Jean Moulin, montée Castellane, à Caluire-et-Cuire."
+      ],
+      "photo": "File:Ile_Barbe_-_Lyon.jpg"
+    },
+    {
+      "title": "Mémorial Jean Moulin",
+      "lat": 45.79938,
+      "lng": 4.84611,
+      "arrival": "Vous êtes arrivés. Le 21 juin 1943, Jean Moulin et plusieurs chefs de la Résistance furent arrêtés ici, dans la maison du docteur Dugoujon, par la Gestapo de Klaus Barbie. Torturé, Jean Moulin mourut quelques semaines plus tard. Ses cendres reposent au Panthéon depuis 1964."
+    }
+  ]
+}

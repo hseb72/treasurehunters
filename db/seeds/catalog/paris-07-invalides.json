@@ -1,0 +1,92 @@
+{
+  "key": "paris-07-invalides",
+  "name": "Du musée-gare au tombeau de l'Empereur",
+  "location": "Paris 7e, d'Orsay aux Invalides",
+  "summary": "Une traversée du 7ᵉ arrondissement le long des grandes perspectives : l'ancienne gare d'Orsay, le palais des députés, l'esplanade des Invalides, l'hôtel des soldats de Louis XIV, le Dôme où repose Napoléon et l'École militaire d'où sortit un jeune lieutenant corse.",
+  "startText": "Rendez-vous sur le parvis du musée d'Orsay, rue de la Légion-d'Honneur, près des statues d'animaux (RER Musée d'Orsay).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Musée d'Orsay",
+      "lat": 48.8599,
+      "lng": 2.3259,
+      "riddle": "Longez vers l'ouest le quai d'un écrivain prix Nobel de littérature en 1921, jusqu'au bâtiment où siègent les députés. Sa colonnade regarde la Concorde, mais contournez-le : rendez-vous sur la petite place qui s'étend au sud, devant son entrée d'honneur. Comptez environ 1 100 pas.",
+      "hints": [
+        "L'écrivain est Anatole France : suivez le quai Anatole-France.",
+        "C'est le siège de l'Assemblée nationale ; la place porte le nom du bâtiment.",
+        "La place du Palais-Bourbon."
+      ],
+      "photo": "File:Gare_d'Orsay_(49570190081).jpg"
+    },
+    {
+      "title": "Palais Bourbon",
+      "lat": 48.86056,
+      "lng": 2.31846,
+      "arrival": "Le palais fut construit à partir de 1722 pour Louise-Françoise de Bourbon, fille de Louis XIV et de Madame de Montespan. La colonnade côté Seine fut ajoutée sous Napoléon pour répondre à celle de la Madeleine, de l'autre côté du fleuve.",
+      "riddle": "Continuez vers l'ouest par la rue qui rappelle les terres de l'alma mater parisienne, le Pré-aux-Clercs. Elle vous mène, à quelque 750 pas, à une immense pelouse qui s'étire entre la Seine et un dôme doré. Rejoignez son extrémité côté fleuve, face au pont le plus orné de Paris.",
+      "hints": [
+        "La rue de l'Université doit son nom aux terres de l'Université de Paris.",
+        "Le pont est le pont Alexandre-III.",
+        "L'esplanade des Invalides, côté quai d'Orsay."
+      ]
+    },
+    {
+      "title": "Esplanade des Invalides",
+      "lat": 48.8623,
+      "lng": 2.3142,
+      "arrival": "Tracée au début du XVIIIᵉ siècle par Robert de Cotte, l'esplanade relie l'hôtel des Invalides à la Seine. Elle a accueilli les épreuves de tir à l'arc des Jeux olympiques de 2024.",
+      "riddle": "Remontez la pelouse vers le sud par la rue d'une ville algérienne prise par l'armée française en 1837, qui la longe à l'est. Au bout, derrière un fossé, une batterie de vieux canons de bronze garde une façade immense, percée d'un portail coiffé d'un roi à cheval. Arrêtez-vous devant la grille centrale, après environ 1 000 pas.",
+      "hints": [
+        "La ville algérienne est Constantine : suivez la rue de Constantine.",
+        "Le roi à cheval est Louis XIV, le fondateur ; les canons sont des trophées.",
+        "L'entrée nord de l'hôtel des Invalides."
+      ],
+      "photo": "File:Pont_Alexandre_III_from_pont_de_la_Concorde,_Paris_17_May_2012.jpg"
+    },
+    {
+      "title": "Hôtel des Invalides",
+      "lat": 48.8577,
+      "lng": 2.3133,
+      "arrival": "Louis XIV fonda l'hôtel en 1670 pour loger ses soldats blessés ou trop âgés. Le 14 juillet 1789 au matin, les émeutiers y prirent des dizaines de milliers de fusils avant de marcher sur la Bastille.",
+      "riddle": "Faites le tour de l'édifice vers le sud par le boulevard d'un général qui perdit une jambe à Leipzig et devint gouverneur de ces lieux. Sous la coupole dorée repose l'empereur dont les cendres revinrent de Sainte-Hélène en 1840. Rendez-vous devant elle, du côté de la place qui porte le nom d'un ingénieur militaire du Roi-Soleil. Environ 900 pas.",
+      "hints": [
+        "Le général est La Tour-Maubourg : suivez le boulevard de La Tour-Maubourg, puis l'avenue de Tourville vers l'est.",
+        "L'ingénieur a fortifié les frontières du royaume.",
+        "Le Dôme des Invalides, côté place Vauban."
+      ],
+      "photo": "File:Hôtel_des_Invalides_-_20150801_16h09_(10630).jpg"
+    },
+    {
+      "title": "Dôme des Invalides, place Vauban",
+      "lat": 48.8541,
+      "lng": 2.31255,
+      "arrival": "Chef-d'œuvre de Jules Hardouin-Mansart, le Dôme fut achevé en 1706. Les cendres de Napoléon, rapportées de Sainte-Hélène en 1840, reposent depuis 1861 dans un tombeau de quartzite rouge, sous la coupole.",
+      "riddle": "Prenez vers l'ouest l'avenue de l'amiral de Louis XIV battu à la Hougue en 1692. Au bout, à environ 1 400 pas, Louis XV fonda un établissement pour former des officiers sans fortune ; un jeune Corse en sortit lieutenant d'artillerie en 1785. Devant sa façade, un maréchal à cheval regarde le Champ-de-Mars.",
+      "hints": [
+        "L'amiral est Tourville : suivez l'avenue de Tourville vers l'ouest.",
+        "Le jeune Corse est Napoléon Bonaparte ; le maréchal, le vainqueur de la Marne.",
+        "La place Joffre, devant l'École militaire."
+      ]
+    },
+    {
+      "title": "École militaire, place Joffre",
+      "lat": 48.85285,
+      "lng": 2.3029,
+      "arrival": "Vous êtes arrivés ! Fondée en 1751 par Louis XV, à l'instigation de Madame de Pompadour et du financier Joseph Pâris-Duverney, l'École militaire formait de jeunes officiers. Napoléon Bonaparte en sortit lieutenant en 1785, à seize ans. Devant vous, le Champ-de-Mars et la tour Eiffel.",
+      "photo": "File:Place_Joffre_Paris.jpg"
+    }
+  ]
+}

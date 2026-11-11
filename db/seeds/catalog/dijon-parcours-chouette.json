@@ -1,0 +1,92 @@
+{
+  "key": "dijon-parcours-chouette",
+  "name": "Dijon, de la chouette au jardin Darcy",
+  "location": "Dijon, centre historique",
+  "summary": "Le cœur de l'ancienne capitale des ducs de Bourgogne : la place de la Libération dessinée par Hardouin-Mansart, l'église Notre-Dame, son Jacquemart et sa chouette porte-bonheur, l'hôtel de Vogüé, la cathédrale Saint-Bénigne aux tuiles vernissées, la porte Guillaume et le jardin Darcy.",
+  "startText": "Rendez-vous au centre de la place de la Libération, face au palais des ducs (bus Théâtre).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place de la Libération",
+      "lat": 47.32127,
+      "lng": 5.04142,
+      "riddle": "Partez vers le nord par la rue des forgerons, à environ 300 pas. Un sanctuaire gothique du XIIIᵉ siècle présente une façade hérissée de rangées de fausses gargouilles ; sur sa tour, une famille d'automates de métal sonne les heures.",
+      "hints": [
+        "La rue des Forges.",
+        "Le père de cette famille a été rapporté de Flandre par un duc de Bourgogne en 1382.",
+        "L'église Notre-Dame, place Notre-Dame."
+      ],
+      "photo": "File:Palais_des_Ducs_Dijon01.jpg"
+    },
+    {
+      "title": "Notre-Dame de Dijon",
+      "lat": 47.32265,
+      "lng": 5.0415,
+      "arrival": "Le Jacquemart a été rapporté de Courtrai par le duc Philippe le Hardi en 1382. On lui a donné une femme, Jacqueline, en 1651, puis un fils, Jacquelinet, en 1714, et une fille, Jacquelinette, en 1881.",
+      "riddle": "Faites le tour par le nord, dans la rue qui porte le nom de l'oiseau sculpté sur un contrefort : caressez-le de la main gauche en faisant un vœu. Quelques dizaines de pas plus loin vers l'est, une demeure aristocratique du XVIIᵉ siècle cache, derrière son portail, une cour et un toit de tuiles vernissées.",
+      "hints": [
+        "La rue de la Chouette.",
+        "Elle porte le nom d'une famille noble de l'Ardèche.",
+        "L'hôtel de Vogüé, 8 rue de la Chouette."
+      ]
+    },
+    {
+      "title": "Hôtel de Vogüé",
+      "lat": 47.32303,
+      "lng": 5.04239,
+      "address": "8, rue de la Chouette",
+      "arrival": "Construit au début du XVIIᵉ siècle pour Étienne Bouhier, conseiller au parlement de Bourgogne, l'hôtel de Vogüé est l'un des premiers hôtels particuliers de Dijon. Sa cour s'ouvre sous un portique ; son toit est couvert de tuiles vernissées. La petite chouette sculptée de l'église voisine, usée par les mains, est devenue l'emblème de la ville.",
+      "riddle": "Partez vers l'ouest : suivez les forgerons, puis un couvre-chef écarlate, à environ 1 300 pas. Un grand sanctuaire gothique, couvert de tuiles vernissées, garde sous son chœur la rotonde d'une abbaye de l'an mille.",
+      "hints": [
+        "La rue des Forges, la rue des Godrans, puis la rue du Chapeau-Rouge.",
+        "Il est dédié à l'évangélisateur de la Bourgogne, martyr du IIᵉ siècle.",
+        "La cathédrale Saint-Bénigne."
+      ]
+    },
+    {
+      "title": "Cathédrale Saint-Bénigne",
+      "lat": 47.32149,
+      "lng": 5.03439,
+      "arrival": "L'ancienne abbatiale Saint-Bénigne, devenue cathédrale en 1792, a été reconstruite au XIIIᵉ siècle. Sous le chœur subsiste le niveau inférieur de la rotonde construite au début du XIᵉ siècle par l'abbé Guillaume de Volpiano.",
+      "riddle": "Remontez vers le nord par la rue d'un médecin, à environ 400 pas. Un arc de triomphe élevé à la fin du XVIIIᵉ siècle en l'honneur du prince de Condé, gouverneur de la Bourgogne, marque l'ancienne entrée de la ville.",
+      "hints": [
+        "La rue du Docteur-Maret.",
+        "Il porte le nom de l'abbé bâtisseur de l'an mille.",
+        "La porte Guillaume."
+      ],
+      "photo": "File:Cathédrale_St_Bénigne_-_Dijon.jpg"
+    },
+    {
+      "title": "Porte Guillaume",
+      "lat": 47.32328,
+      "lng": 5.03473,
+      "arrival": "Élevée de 1786 à 1788 à l'emplacement d'une ancienne porte fortifiée, la porte Guillaume a été dédiée au prince de Condé, gouverneur de Bourgogne. Elle doit son nom à Guillaume de Volpiano, l'abbé de Saint-Bénigne.",
+      "riddle": "Traversez vers le nord-ouest la place qui porte le même nom que votre but, à environ 500 pas. Un espace vert à l'italienne, avec cascade et bassins, honore l'ingénieur qui amena l'eau potable dans la ville ; un ours blanc de pierre en garde l'entrée.",
+      "hints": [
+        "La place Darcy.",
+        "L'ours est une copie d'une œuvre de François Pompon.",
+        "Le jardin Darcy."
+      ],
+      "photo": "File:Dijon_Porte_Guillaume.JPG"
+    },
+    {
+      "title": "Jardin Darcy",
+      "lat": 47.32443,
+      "lng": 5.03201,
+      "arrival": "Bravo ! Le jardin porte le nom d'Henry Darcy, l'ingénieur qui dota Dijon d'un réseau d'eau potable dès 1840 ; ses expériences lui ont permis d'énoncer la loi de Darcy, sur l'écoulement de l'eau dans le sol. L'ours blanc de l'entrée est une copie de celui de François Pompon, sculpteur né en Côte-d'Or."
+    }
+  ]
+}

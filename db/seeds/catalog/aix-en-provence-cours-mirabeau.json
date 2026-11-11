@@ -1,0 +1,93 @@
+{
+  "key": "aix-en-provence-cours-mirabeau",
+  "name": "Aix-en-Provence, la ville aux mille fontaines",
+  "location": "Aix-en-Provence, cours Mirabeau et vieille ville",
+  "summary": "D'une fontaine à l'autre dans la ville de Cézanne : la Rotonde, le cours Mirabeau et ses fontaines d'eau tiède et des Neuf-Canons, la place d'Albertas, l'hôtel de ville et sa tour de l'Horloge, puis la cathédrale Saint-Sauveur.",
+  "startText": "Rendez-vous au pied de la fontaine de la Rotonde (bus La Rotonde).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 45,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "La Rotonde",
+      "lat": 43.52656,
+      "lng": 5.44533,
+      "riddle": "Remontez vers l'est le cours qui porte le nom de l'orateur de la Révolution, né en Provence. À environ 250 pas, au milieu de la chaussée, un bassin couvert de végétation laisse couler une eau tiède venue du sous-sol.",
+      "hints": [
+        "Le cours Mirabeau.",
+        "L'eau qui l'alimente est chaude, d'où un de ses surnoms.",
+        "La fontaine Moussue."
+      ],
+      "photo": "File:Fontaine_de_la_Rotonde_-_Aix-en-Provence.JPG"
+    },
+    {
+      "title": "Fontaine Moussue",
+      "lat": 43.52652,
+      "lng": 5.447,
+      "arrival": "La Rotonde, construite en 1860, est surmontée de trois statues : la Justice regarde le cours Mirabeau, l'Agriculture la route de Marseille et les Beaux-Arts celle d'Avignon. Plus haut sur le cours, la fontaine Moussue est alimentée par une source d'eau chaude qui a favorisé la mousse.",
+      "riddle": "Continuez vers l'est sur le même cours, à environ 250 pas. Un bassin bas du XVIIᵉ siècle, où s'abreuvaient les troupeaux de la transhumance, compte autant de bouches que de vies dans un chat.",
+      "hints": [
+        "Un chat a neuf vies, dit-on.",
+        "Il est au milieu du cours Mirabeau.",
+        "La fontaine des Neuf-Canons."
+      ],
+      "photo": "File:Aix-en-Provence_-_La_Fontaine_Moussue_10.jpg"
+    },
+    {
+      "title": "Fontaine des Neuf-Canons",
+      "lat": 43.52672,
+      "lng": 5.4486,
+      "arrival": "La fontaine des Neuf-Canons date de 1691. Elle est basse pour que les moutons de la transhumance, qui traversaient la ville, puissent y boire.",
+      "riddle": "Partez vers le nord par la rue d'une ville de Galilée, à environ 250 pas, jusqu'à une petite esplanade pavée en demi-cercle, entourée de façades classiques, au centre de laquelle chante une fontaine.",
+      "hints": [
+        "La rue Nazareth, puis la rue Espariat.",
+        "Elle a été aménagée au XVIIIᵉ siècle par un président de la Cour des comptes.",
+        "La place d'Albertas."
+      ],
+      "photo": "File:Fontaine-des-Neuf-Canons-by-Malost.jpg"
+    },
+    {
+      "title": "Place d'Albertas",
+      "lat": 43.52784,
+      "lng": 5.44874,
+      "arrival": "Jean-Baptiste d'Albertas, président de la Cour des comptes de Provence, fit aménager la place en 1745 devant son hôtel particulier. La fontaine a été ajoutée en 1912.",
+      "riddle": "Remontez vers le nord-ouest par la rue du maréchal vainqueur de 1918, à environ 500 pas, jusqu'à la maison commune du XVIIᵉ siècle, voisine d'une tour à horloge astronomique où défilent les saisons.",
+      "hints": [
+        "La rue Espariat, puis la rue du Maréchal-Foch.",
+        "L'horloge date de 1661.",
+        "L'hôtel de ville d'Aix-en-Provence."
+      ],
+      "photo": "File:Place_d'Albertas.jpg"
+    },
+    {
+      "title": "Hôtel de ville d'Aix-en-Provence",
+      "lat": 43.52983,
+      "lng": 5.44724,
+      "arrival": "L'hôtel de ville a été construit au XVIIᵉ siècle. La tour de l'Horloge voisine porte une horloge astronomique de 1661 : une statue différente, figurant chaque saison, y apparaît au fil de l'année.",
+      "riddle": "Partez vers le nord par la rue qui porte le nom d'un savant aixois, à environ 450 pas. Un sanctuaire mêlant tous les styles, du baptistère du Vᵉ siècle au gothique, est dédié au Christ rédempteur.",
+      "hints": [
+        "La rue Gaston-de-Saporta.",
+        "Il abrite le triptyque du Buisson ardent de Nicolas Froment.",
+        "La cathédrale Saint-Sauveur."
+      ]
+    },
+    {
+      "title": "Cathédrale Saint-Sauveur",
+      "lat": 43.53181,
+      "lng": 5.44722,
+      "arrival": "Bravo ! La cathédrale Saint-Sauveur réunit des parties de toutes les époques, du baptistère paléochrétien au gothique. Elle abrite le triptyque du Buisson ardent, peint par Nicolas Froment pour le roi René à la fin du XVᵉ siècle.",
+      "photo": "File:Aix-en-Provence_Cathedrale_Saint-Sauveur_1_20061227.jpg"
+    }
+  ]
+}

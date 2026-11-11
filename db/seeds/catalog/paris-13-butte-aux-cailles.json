@@ -1,0 +1,93 @@
+{
+  "key": "paris-13-butte-aux-cailles",
+  "name": "Butte-aux-Cailles, le village des tapissiers et du ballon",
+  "location": "Paris 13e, des Gobelins à la Butte-aux-Cailles",
+  "summary": "Des Gobelins à la Cité florale, une balade dans le 13ᵉ villageois : la manufacture des tapisseries royales, la demeure d'une « reine blanche », la place d'Italie, la fontaine qui puise son eau très profond sous terre, la colline où se posa le premier ballon habité et un îlot de maisons aux rues de fleurs.",
+  "startText": "Rendez-vous devant l'entrée de la manufacture des Gobelins, 42 avenue des Gobelins (métro Les Gobelins).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Manufacture des Gobelins",
+      "lat": 48.83505,
+      "lng": 2.3526,
+      "address": "42, avenue des Gobelins",
+      "riddle": "Prenez vers l'ouest la petite rue d'un critique d'art, ami et biographe de Monet, qui dirigea la manufacture que vous quittez. À peine plus de 200 pas plus loin, une vieille demeure à tourelle d'escalier garde le souvenir d'une souveraine : les reines veuves portaient autrefois le deuil d'une couleur bien inattendue.",
+      "hints": [
+        "Le critique est Gustave Geffroy : prenez la rue Gustave-Geffroy.",
+        "La couleur du deuil des reines était le blanc.",
+        "Le château de la Reine Blanche, rue Gustave-Geffroy."
+      ],
+      "photo": "File:Manufactura_de_Gobelins,_París,_Francia,_2026-04-05,_DD_95.jpg"
+    },
+    {
+      "title": "Château de la Reine Blanche",
+      "lat": 48.83538,
+      "lng": 2.35115,
+      "arrival": "Malgré son nom, ce n'est pas un château mais une demeure des XVᵉ et XVIᵉ siècles, au bord de la Bièvre, rivière aujourd'hui couverte qui faisait vivre teinturiers et tanneurs. Les reines veuves portaient le deuil en blanc : on les appelait les « reines blanches ».",
+      "riddle": "Revenez sur l'avenue de la famille de teinturiers venue de Reims et remontez-la vers le sud-est jusqu'à la grande place ronde où commençait la route vers Rome. L'hôtel de ville de l'arrondissement y fait face au rond-point : rendez-vous devant son entrée, à environ 900 pas.",
+      "hints": [
+        "La famille de teinturiers, ce sont les Gobelins : suivez l'avenue des Gobelins.",
+        "Le nom de la place évoque un pays voisin.",
+        "La mairie du 13ᵉ, place d'Italie."
+      ]
+    },
+    {
+      "title": "Mairie du 13ᵉ, place d'Italie",
+      "lat": 48.8326,
+      "lng": 2.3556,
+      "arrival": "La place était l'une des portes du mur des Fermiers généraux, la barrière d'Italie, sur la route de Fontainebleau et de l'Italie. La mairie du 13ᵉ arrondissement a été construite sous le Second Empire et les débuts de la IIIᵉ République.",
+      "riddle": "Gagnez au sud-ouest la colline voisine par la rue d'un sergent tombé au Tonkin en 1885. Sur une petite place, à environ 1 200 pas, une fontaine à boire puise son eau dans un puits artésien, à plusieurs centaines de mètres sous terre. Derrière elle, une piscine de brique des années 1920 utilise la même eau.",
+      "hints": [
+        "Le sergent est Jules Bobillot : suivez la rue Bobillot.",
+        "La place porte le nom d'un poète, auteur des Poèmes saturniens.",
+        "La place Paul-Verlaine, devant la piscine de la Butte-aux-Cailles."
+      ],
+      "photo": "File:Paris-XIIIe-mairie.jpg"
+    },
+    {
+      "title": "Place Paul-Verlaine",
+      "lat": 48.82775,
+      "lng": 2.3519,
+      "arrival": "Le puits artésien, foré à la fin du XIXᵉ siècle, alimente la fontaine de la place et la piscine de la Butte-aux-Cailles, ouverte en 1924. Les riverains viennent y remplir leurs bouteilles.",
+      "riddle": "Grimpez vers l'ouest dans la rue de bistrots et de pavés qui porte le nom de la colline d'un certain Pierre Caille, propriétaire des lieux au XVIᵉ siècle. Une toute petite place y porte le nom de l'insurrection parisienne de 1871. Rendez-vous-y, à moins de 500 pas.",
+      "hints": [
+        "La colline de Pierre Caille : la rue de la Butte-aux-Cailles.",
+        "Les insurgés de 1871 s'appelaient les communards ; la place est au carrefour de la rue Buot.",
+        "La place de la Commune-de-Paris."
+      ]
+    },
+    {
+      "title": "Place de la Commune-de-Paris",
+      "lat": 48.8275,
+      "lng": 2.3487,
+      "arrival": "Le 21 novembre 1783, le premier vol humain en ballon libre, celui de Pilâtre de Rozier et du marquis d'Arlandes, parti du château de la Muette, s'acheva sur cette butte, alors couverte de moulins et de champs.",
+      "riddle": "Descendez vers le sud-ouest par la rue d'une des trois vertus, la petite verte qui fait tenir debout. Au-delà de la rue de Tolbiac, à environ 1 200 pas, un petit triangle de maisons basses et de jardins, bâti à la fin des années 1920, cache des ruelles qui portent toutes des noms de plantes à fleurs : glycines, iris, orchidées…",
+      "hints": [
+        "La vertu est l'espérance : prenez la rue de l'Espérance.",
+        "L'entrée est près de la place de Rungis ; rue des Glycines, rue des Iris…",
+        "La Cité florale."
+      ],
+      "photo": "File:Place_de_la_Commune-de-Paris.JPG"
+    },
+    {
+      "title": "Cité florale",
+      "lat": 48.8227,
+      "lng": 2.34482,
+      "arrival": "Vous êtes arrivés ! La Cité florale a été construite à partir de 1928 sur un ancien pré de la vallée de la Bièvre. Ses maisons basses s'alignent le long des rues des Glycines, des Iris, des Orchidées ou des Volubilis. Respectez la tranquillité des habitants.",
+      "photo": "File:La_cité_fleurie_dans_le_13_ieme_arrondissement_de_Paris.jpg"
+    }
+  ]
+}

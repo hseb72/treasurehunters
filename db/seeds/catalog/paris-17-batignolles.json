@@ -1,0 +1,105 @@
+{
+  "key": "paris-17-batignolles",
+  "name": "Les Batignolles, d'un général oublié à la tour de justice",
+  "location": "Paris 17e, de la Plaine-Monceau aux Batignolles",
+  "summary": "De la place où l'on honore le général Dumas, père du romancier, jusqu'au nouveau Tribunal de Paris : le village des Batignolles et son temple antique, le square d'Alphand, la maison natale de Barbara, une cité-jardin du XIXᵉ siècle et le parc né sur d'anciennes voies ferrées.",
+  "startText": "Rendez-vous devant la grande sculpture de fers brisés, place du Général-Catroux (métro Malesherbes). À faire de jour : le square et la Cité des Fleurs ferment la nuit.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Les Fers, place du Général-Catroux",
+      "lat": 48.8822,
+      "lng": 2.31075,
+      "riddle": "Ces fers brisés honorent le général Dumas, fils d'une esclave de Saint-Domingue et père du romancier. Partez vers le nord-est et suivez jusqu'au bout la rue d'un mathématicien qui a laissé son nom à des polynômes. Elle vous mène, après environ 1 400 pas, dans l'ancien village annexé à Paris en 1860 : sur sa place, un sanctuaire en forme de temple antique, dédié à la mère du Christ, vous attend.",
+      "hints": [
+        "Le mathématicien est Adrien-Marie Legendre : suivez la rue Legendre.",
+        "Le village s'appelait les Batignolles ; sa façade à colonnes donne sur la place du Docteur-Félix-Lobligeois.",
+        "L'église Sainte-Marie-des-Batignolles."
+      ]
+    },
+    {
+      "title": "Église Sainte-Marie-des-Batignolles",
+      "lat": 48.8865,
+      "lng": 2.318,
+      "arrival": "Les Batignolles étaient un village indépendant jusqu'à leur rattachement à Paris en 1860. Cette église en forme de temple antique, construite à la fin des années 1820, en était la paroisse.",
+      "riddle": "Contournez le sanctuaire par le nord-ouest, depuis la place qui honore un médecin du quartier. À moins de 200 pas, un jardin à l'anglaise, créé sous Napoléon III, déroule pelouses, cascade et étang à canards. Arrêtez-vous à son entrée.",
+      "hints": [
+        "La place du Docteur-Félix-Lobligeois entoure le sanctuaire ; le jardin s'ouvre juste derrière.",
+        "Il a été dessiné par Jean-Charles Alphand, le jardinier d'Haussmann.",
+        "Le square des Batignolles."
+      ],
+      "photo": "File:P1160969_Paris_XVII_eglise_ste-Marie_des_Batignolles_rwk.jpg"
+    },
+    {
+      "title": "Square des Batignolles",
+      "lat": 48.8871,
+      "lng": 2.3172,
+      "arrival": "Aménagé au début des années 1860 par Jean-Charles Alphand dans le style anglais, le square possède un étang, une cascade et des arbres remarquables. Il est fermé la nuit.",
+      "riddle": "Longez le jardin vers le nord par la rue d'un minéralogiste qui dressa la carte géologique de la France. Au numéro 6, à environ 250 pas, une inscription rappelle qu'une grande chanteuse à la voix grave, toujours vêtue de noir, est née là en juin 1930.",
+      "hints": [
+        "Le minéralogiste est André Brochant de Villiers : suivez la rue Brochant.",
+        "Elle a chanté « Göttingen » et « L'Aigle noir » ; son vrai nom était Monique Serf.",
+        "Le 6, rue Brochant, maison natale de Barbara."
+      ],
+      "photo": "File:Square_des_Batignolles_20060815_05.jpg"
+    },
+    {
+      "title": "Rue Brochant, maison natale de Barbara",
+      "lat": 48.88821,
+      "lng": 2.31719,
+      "address": "6, rue Brochant",
+      "arrival": "Barbara, de son vrai nom Monique Serf, est née ici le 9 juin 1930. La « dame en noir » a chanté « Nantes », « Göttingen » et « L'Aigle noir ».",
+      "riddle": "Partez vers le nord-est jusqu'à l'avenue qui menait au village dont saint Vincent de Paul fut le curé, et remontez-la. Au numéro 154, à environ 850 pas, s'ouvre une voie privée bordée de maisons et de jardins, tracée en 1847 : chaque propriétaire devait y planter des arbres devant sa maison.",
+      "hints": [
+        "Vincent de Paul fut curé de Clichy en 1612 : suivez l'avenue de Clichy.",
+        "L'autre entrée donne sur la rue de la Jonquière ; son nom est un bouquet.",
+        "La Cité des Fleurs."
+      ]
+    },
+    {
+      "title": "Cité des Fleurs",
+      "lat": 48.89175,
+      "lng": 2.3196,
+      "arrival": "Tracée à partir de 1847, cette voie privée imposait à ses propriétaires de planter des arbres dans leur jardin. Elle est ouverte au public en journée : respectez la tranquillité des riverains.",
+      "riddle": "Ressortez par l'avenue du village du bon saint Vincent et partez vers le sud-ouest. À environ 850 pas, un grand parc récent a été créé sur d'anciennes emprises ferroviaires. Il porte le nom d'un pasteur américain, prix Nobel de la paix en 1964.",
+      "hints": [
+        "Redescendez l'avenue de Clichy, puis prenez la rue Cardinet vers l'ouest.",
+        "Le pasteur a prononcé le discours « I have a dream » ; des cerisiers y fleurissent au printemps.",
+        "Le parc Clichy-Batignolles Martin-Luther-King."
+      ]
+    },
+    {
+      "title": "Parc Martin-Luther-King",
+      "lat": 48.889,
+      "lng": 2.3155,
+      "arrival": "Aménagé à partir de 2007 sur une ancienne friche ferroviaire, le parc récupère ses eaux de pluie pour arroser ses jardins. Il porte le nom de Martin Luther King, assassiné en 1968.",
+      "riddle": "Traversez le parc vers le nord-ouest jusqu'au boulevard du maréchal qui fut le chef d'état-major de Napoléon. Une tour de verre en gradins, comme une pile de grandes boîtes posées les unes sur les autres, domine le quartier : la justice y siège depuis 2018. Rendez-vous sur son parvis, à environ 1 500 pas.",
+      "hints": [
+        "Le maréchal est Louis-Alexandre Berthier : le boulevard Berthier longe le parvis.",
+        "Son architecte est Renzo Piano ; le parvis porte le nom d'un garde des Sceaux.",
+        "Le Tribunal de Paris, parvis Robert-Badinter."
+      ],
+      "photo": "File:Cerisiers_en_fleur_au_Parc_Martin_Luther_King_(Clichy-Batignolles).jpg"
+    },
+    {
+      "title": "Tribunal de Paris",
+      "lat": 48.8951,
+      "lng": 2.3112,
+      "arrival": "Bravo ! Conçu par Renzo Piano et ouvert en 2018, le Tribunal de Paris a regroupé des juridictions jusque-là dispersées, notamment dans l'île de la Cité. Le parvis porte le nom de Robert Badinter, garde des Sceaux qui fit abolir la peine de mort en 1981.",
+      "photo": "File:Rue_du_Bastion_Paris.jpg"
+    }
+  ]
+}

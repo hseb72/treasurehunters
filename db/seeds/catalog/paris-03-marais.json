@@ -1,0 +1,112 @@
+{
+  "key": "paris-03-marais",
+  "name": "Alchimiste, archives et orphelins rouges : le Haut-Marais",
+  "location": "Paris 3e, Haut-Marais",
+  "summary": "Du musée des machines au marché des Enfants-Rouges, une boucle dans le Haut-Marais : la maison de Nicolas Flamel, l'hôtel où dorment les archives de France, l'hôtel du percepteur de l'impôt du sel, la demeure de Madame de Sévigné et l'enclos des Templiers où fut enfermé Louis XVI.",
+  "startText": "Rendez-vous devant l'entrée du musée des Arts et Métiers, 60 rue Réaumur (métro Arts et Métiers). À faire de jour : la cour de l'hôtel de Soubise et le marché ont des horaires.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 75,
+  "audience": [
+    "friends",
+    "couple",
+    "solo",
+    "family"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Musée des Arts et Métiers",
+      "lat": 48.8661,
+      "lng": 2.35541,
+      "address": "60, rue Réaumur",
+      "riddle": "Descendez vers le sud la rue du saint qui partagea son manteau avec un pauvre, puis tournez à gauche dans celle d'une grande famille de connétables. Au numéro 51, à environ 650 pas du départ, se dresse une demeure de 1407 : une inscription demande aux pensionnaires de prier pour les morts. Son bâtisseur, un libraire, passa plus tard pour alchimiste.",
+      "hints": [
+        "Le saint au manteau est saint Martin ; les connétables, les Montmorency.",
+        "Le bâtisseur apparaît dans Harry Potter, à la recherche de la pierre philosophale.",
+        "La maison de Nicolas Flamel, 51 rue de Montmorency."
+      ],
+      "photo": "File:Musée_des_Arts_et_Métiers_337.jpg"
+    },
+    {
+      "title": "Maison de Nicolas Flamel",
+      "lat": 48.86354,
+      "lng": 2.35314,
+      "address": "51, rue de Montmorency",
+      "arrival": "Nicolas Flamel, écrivain public et libraire, fit bâtir cette maison en 1407 pour loger des pauvres, en échange de prières. La légende en a fait un alchimiste qui aurait trouvé la pierre philosophale.",
+      "riddle": "Partez vers l'est jusqu'à la rue qui menait à la forteresse des moines-soldats, et descendez-la vers le sud. Rue des Francs-Bourgeois, au numéro 60, une vaste cour en fer à cheval, bordée de colonnes, précède le palais où l'on conserve les archives de la nation. Comptez près de 1 000 pas.",
+      "hints": [
+        "Les moines-soldats sont les Templiers : suivez la rue du Temple vers le sud.",
+        "On y garde des documents signés des rois de France.",
+        "L'hôtel de Soubise, 60 rue des Francs-Bourgeois."
+      ],
+      "photo": "File:Auberge_Nicolas_Flamel,_Paris_11_February_2017.jpg"
+    },
+    {
+      "title": "Hôtel de Soubise",
+      "lat": 48.85999,
+      "lng": 2.3571,
+      "address": "60, rue des Francs-Bourgeois",
+      "arrival": "Le prince et la princesse de Soubise firent transformer ce palais au début du XVIIIᵉ siècle. En 1808, Napoléon y installa les archives de l'Empire : les Archives nationales y sont toujours.",
+      "riddle": "Continuez vers l'est dans la rue qui doit son nom à une maison d'aumône, où logeaient au XVᵉ siècle des pauvres dispensés d'impôts. Gagnez la rue de Thorigny : au numéro 5, une demeure du XVIIᵉ siècle a été bâtie pour un homme qui percevait l'impôt sur le sel. Elle abrite aujourd'hui l'œuvre de l'auteur de Guernica. Environ 700 pas.",
+      "hints": [
+        "Les pauvres « francs » d'impôts ont donné son nom à la rue des Francs-Bourgeois.",
+        "Les Parisiens ont surnommé la demeure d'après l'impôt de son propriétaire ; le peintre s'appelle Pablo.",
+        "L'hôtel Salé, musée Picasso, 5 rue de Thorigny."
+      ],
+      "photo": "File:Hôtel_de_Soubise,_Paris_9_June_2017.jpg"
+    },
+    {
+      "title": "Hôtel Salé, musée Picasso",
+      "lat": 48.8598,
+      "lng": 2.36195,
+      "address": "5, rue de Thorigny",
+      "arrival": "Pierre Aubert de Fontenay, fermier de la gabelle, l'impôt sur le sel, fit bâtir cet hôtel à partir de 1656 : les Parisiens le surnommèrent aussitôt « l'hôtel Salé ». Il abrite le musée Picasso depuis 1985.",
+      "riddle": "Descendez vers le sud, puis prenez la rue qui rappelle le jardin d'une ancienne résidence royale, le palais des Tournelles. Rejoignez l'établissement qui raconte l'histoire de la ville : il occupe la demeure où une marquise écrivait des lettres à sa fille. Rendez-vous devant son entrée, à quelque 600 pas.",
+      "hints": [
+        "Le jardin royal a donné son nom à la rue du Parc-Royal ; elle mène à la rue de Sévigné.",
+        "Dans sa cour trône une statue de Louis XIV par Coysevox.",
+        "Le musée Carnavalet, 23 rue de Sévigné."
+      ],
+      "photo": "File:Paris_3e_Hôtel_Salé_640.jpg"
+    },
+    {
+      "title": "Musée Carnavalet",
+      "lat": 48.85707,
+      "lng": 2.36287,
+      "address": "23, rue de Sévigné",
+      "arrival": "Madame de Sévigné vécut ici de 1677 à 1696 et y écrivit une partie de ses célèbres lettres. Le musée de l'Histoire de Paris y a ouvert en 1880.",
+      "riddle": "Remontez vers le nord par la rue du maréchal de Louis XIV fauché par un boulet en 1675, puis prenez à gauche celle d'une province celte de l'Ouest. Au numéro 39, après environ un quart d'heure de promenade, se cachent les plus anciennes halles couvertes de Paris. Leur nom rappelle la couleur des habits des orphelins d'un hospice voisin.",
+      "hints": [
+        "Le maréchal est Turenne ; la province, la Bretagne : rue de Turenne, puis rue de Bretagne.",
+        "Les orphelins étaient habillés de rouge.",
+        "Le marché des Enfants-Rouges, 39 rue de Bretagne."
+      ],
+      "photo": "File:Carnavalet_París_10.JPG"
+    },
+    {
+      "title": "Marché des Enfants-Rouges",
+      "lat": 48.86296,
+      "lng": 2.36217,
+      "address": "39, rue de Bretagne",
+      "arrival": "Créé au début du XVIIᵉ siècle, c'est le plus ancien marché couvert de Paris. Il doit son nom aux enfants de l'hospice des Enfants-Rouges, vêtus de rouge, la couleur de la charité.",
+      "riddle": "Partez vers le nord par la rue d'une province voisine, celle d'Amiens. Moins de 300 pas plus loin, une grande halle de fer et de verre occupe une partie de l'enclos où les chevaliers du Christ avaient leur forteresse. Louis XVI et sa famille y furent emprisonnés en 1792. Rendez-vous devant la halle, rue Perrée.",
+      "hints": [
+        "La province d'Amiens est la Picardie : prenez la rue de Picardie.",
+        "Ces chevaliers sont les Templiers ; la halle a rouvert en 2014.",
+        "Le Carreau du Temple, rue Perrée."
+      ]
+    },
+    {
+      "title": "Carreau du Temple",
+      "lat": 48.8642,
+      "lng": 2.36262,
+      "arrival": "Vous avez trouvé ! Ici s'élevait la tour du Temple, où la famille royale fut enfermée en août 1792 ; Louis XVI n'en sortit que pour être jugé. Napoléon fit raser la tour en 1808. La halle actuelle, de 1863, accueillait un marché aux vêtements.",
+      "photo": "File:Carreau_du_Temple,_Paris_9_April_2014.jpg"
+    }
+  ]
+}

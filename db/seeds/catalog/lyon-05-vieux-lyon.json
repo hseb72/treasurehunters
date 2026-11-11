@@ -1,0 +1,107 @@
+{
+  "key": "lyon-05-vieux-lyon",
+  "name": "Vieux Lyon, des traboules aux théâtres romains",
+  "location": "Lyon 5e, Vieux Lyon et Fourvière",
+  "summary": "Du quartier Renaissance aux hauteurs de Fourvière : l'église Saint-Paul, la loge des banquiers redessinée par Soufflot, le palais des Gadagne, la plus longue traboule du Vieux Lyon, la cathédrale et son horloge astronomique, les théâtres romains et la basilique qui veille sur la ville.",
+  "startText": "Rendez-vous sur la place Saint-Paul, devant l'église (gare Saint-Paul). Les traboules et le parc archéologique se visitent en journée. La montée vers Fourvière est raide.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Église Saint-Paul",
+      "lat": 45.76665,
+      "lng": 4.8271,
+      "riddle": "Partez vers le sud par la rue où vivait la communauté juive de Lyon au Moyen Âge. À environ 500 pas, sur une place, un édifice à colonnes redessiné par Soufflot abritait les banquiers et changeurs des foires de Lyon ; il accueille aujourd'hui le culte protestant.",
+      "hints": [
+        "La rue Juiverie relie la place Saint-Paul à la place du Change.",
+        "Les foires de Lyon attiraient les banquiers italiens.",
+        "Le temple du Change, place du Change."
+      ],
+      "photo": "File:Église_Saint-Paul_de_Lyon.jpg"
+    },
+    {
+      "title": "Temple du Change",
+      "lat": 45.76448,
+      "lng": 4.82792,
+      "arrival": "Au XVIᵉ siècle, les changeurs des foires de Lyon se réunissaient ici. Soufflot reconstruisit la loge au milieu du XVIIIᵉ siècle ; elle est devenue un temple protestant au début du XIXᵉ siècle.",
+      "riddle": "Continuez vers le sud-ouest, à moins de 150 pas, par la rue de l'architecte qui redessina la loge. Un palais Renaissance, acheté au XVIᵉ siècle par une famille de banquiers florentins, abrite aujourd'hui le musée d'histoire de la ville et celui des marionnettes, où l'on rencontre Guignol.",
+      "hints": [
+        "L'architecte est Soufflot : prenez la rue Soufflot.",
+        "Les banquiers venaient de Florence.",
+        "Les musées Gadagne, place du Petit-Collège."
+      ],
+      "photo": "File:Temple_du_Change_(Lyon,_2026,_2).jpg"
+    },
+    {
+      "title": "Musées Gadagne",
+      "lat": 45.76405,
+      "lng": 4.82729,
+      "arrival": "Les Gadagne, banquiers venus de Florence, étaient si riches que l'on disait à Lyon « riche comme Gadagne ». Leur palais abrite le musée d'histoire de Lyon et le musée des arts de la marionnette.",
+      "riddle": "Descendez vers le sud la grande rue du saint qui baptisa le Christ. Au numéro 54, à environ 450 pas, une porte ouvre sur un passage secret qui traverse plusieurs immeubles jusqu'à la rue parallèle : le plus long du quartier.",
+      "hints": [
+        "La rue Saint-Jean traverse tout le Vieux Lyon.",
+        "À Lyon, ces passages s'appellent des traboules.",
+        "La longue traboule, au 54 rue Saint-Jean."
+      ],
+      "photo": "File:Cour-gadagne_Photo_Service-communication-Gadagne_2021_(5).jpg"
+    },
+    {
+      "title": "La longue traboule",
+      "lat": 45.76207,
+      "lng": 4.8274,
+      "address": "54, rue Saint-Jean",
+      "arrival": "La longue traboule relie le 54 rue Saint-Jean au 27 rue du Bœuf, à travers plusieurs immeubles et cours intérieures. Les traboules permettaient de passer d'une rue à l'autre à l'abri, et de transporter la soie sans la mouiller.",
+      "riddle": "Ressortez dans la grande rue et continuez vers le sud, à environ 250 pas. Au bout, la primatiale commencée à la fin du XIIᵉ siècle abrite une horloge astronomique qui fait défiler ses automates.",
+      "hints": [
+        "Elle porte le même nom que la rue.",
+        "On l'appelle la primatiale : son archevêque est primat des Gaules.",
+        "La cathédrale Saint-Jean, place Saint-Jean."
+      ]
+    },
+    {
+      "title": "Cathédrale Saint-Jean",
+      "lat": 45.76091,
+      "lng": 4.8269,
+      "arrival": "Commencée vers 1175, la primatiale Saint-Jean mêle art roman et gothique. Son horloge astronomique, l'une des plus anciennes de France, anime ses automates plusieurs fois par jour.",
+      "riddle": "Partez vers l'ouest et grimpez par la montée dont le nom dit qu'elle fut, un jour, un chemin nouveau. Après une bonne dizaine de minutes d'effort, deux théâtres romains s'ouvrent à flanc de colline.",
+      "hints": [
+        "Prenez la montée du Chemin-Neuf.",
+        "Le plus grand est le plus ancien théâtre romain de Gaule.",
+        "Les théâtres antiques de Fourvière, rue Cléberg."
+      ],
+      "photo": "File:007._Photo_prise_depuis_les_toits_de_la_Basilique_Notre-Dame_de_Fourvière.JPG"
+    },
+    {
+      "title": "Théâtre antique de Fourvière",
+      "lat": 45.75972,
+      "lng": 4.81969,
+      "arrival": "Construit vers 15 avant notre ère, sous Auguste, le grand théâtre de Lugdunum est le plus ancien théâtre romain de Gaule. Chaque été, le festival des Nuits de Fourvière y fait revivre ses gradins.",
+      "riddle": "Remontez vers le nord jusqu'à l'esplanade de l'ancien forum romain, dont le nom latin, forum vetus, a donné celui de la colline. Un sanctuaire blanc aux quatre tours y domine la ville. Environ 500 pas.",
+      "hints": [
+        "Forum vetus, le « vieux forum », est devenu Fourvière.",
+        "Les Lyonnais l'appellent parfois « l'éléphant renversé ».",
+        "La basilique Notre-Dame de Fourvière, place de Fourvière."
+      ],
+      "photo": "File:Lyon_-_Lugdunum_-_Théatre_Romain.jpg"
+    },
+    {
+      "title": "Basilique Notre-Dame de Fourvière",
+      "lat": 45.76234,
+      "lng": 4.82199,
+      "arrival": "Bravo ! La basilique a été construite à partir de 1872 sur les plans de Pierre Bossan, pour remercier la Vierge d'avoir épargné Lyon pendant la guerre de 1870. Chaque 8 décembre, la fête des Lumières rappelle l'inauguration, en 1852, de la statue dorée de la Vierge sur la chapelle voisine.",
+      "photo": "File:France-003038_-_Basilica_of_Notre-Dame_de_Fourvière_(15939822990).jpg"
+    }
+  ]
+}
