@@ -1,0 +1,107 @@
+{
+  "key": "lyon-theme-traboules-canuts",
+  "name": "Lyon, traboules et canuts sur les pentes de la Croix-Rousse",
+  "location": "Lyon, pentes de la Croix-Rousse",
+  "summary": "Sur les pentes de la Croix-Rousse, dans le quartier des ouvriers de la soie : la traboule du passage Thiaffait, la montée de la Grande-Côte, l'esplanade dédiée à l'historien de la révolte de 1831, le grand escalier de la cour des Voraces, la place Bellevue et la place de la Croix-Rousse, où veille Jacquard.",
+  "startText": "Rendez-vous sur la place Croix-Paquet (métro Croix-Paquet). Ça monte beaucoup, par des escaliers. Les traboules sont des passages privés ouverts au public en journée : traversez-les en silence.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 6,
+  "steps": [
+    {
+      "title": "Place Croix-Paquet",
+      "lat": 45.77022,
+      "lng": 4.83634,
+      "riddle": "Partez vers l'ouest par la rue d'un poète et journaliste résistant, fusillé en 1944. À environ 400 pas, un sanctuaire à façade classique, au cœur du quartier des tisseurs, porte le nom d'un évêque de Smyrne martyrisé au IIᵉ siècle.",
+      "hints": [
+        "La rue René-Leynaud.",
+        "Ce saint aurait été le disciple de l'apôtre Jean.",
+        "L'église Saint-Polycarpe."
+      ],
+      "photo": "File:Place_Croix-Paquet_(Lyon,_2026).jpg"
+    },
+    {
+      "title": "Église Saint-Polycarpe",
+      "lat": 45.77015,
+      "lng": 4.83377,
+      "arrival": "Vous êtes sur les pentes de la Croix-Rousse. Au XIXᵉ siècle, des milliers de canuts, les ouvriers de la soie, y travaillaient chez eux. Leurs immeubles ont des plafonds de près de quatre mètres, pour loger les grands métiers à tisser, et de hautes fenêtres pour la lumière.",
+      "riddle": "Faites quelques pas vers l'ouest en longeant le sanctuaire : une traboule à ciel ouvert, avec son grand escalier, relie la rue René-Leynaud à la rue Burdeau. Elle abrite aujourd'hui des ateliers de jeunes créateurs.",
+      "hints": [
+        "Longez le sanctuaire par le passage Mermet.",
+        "On l'appelle aussi le « Village des créateurs ».",
+        "Le passage Thiaffait."
+      ],
+      "photo": "File:Église_Saint-Polycarpe.jpg"
+    },
+    {
+      "title": "Passage Thiaffait",
+      "lat": 45.77,
+      "lng": 4.83311,
+      "arrival": "Le passage Thiaffait relie deux rues par un grand escalier ; restauré, il accueille des ateliers de créateurs. Les traboules, du latin trans ambulare, « passer à travers », permettent de traverser les immeubles d'une rue à l'autre. Les canuts y portaient les pièces de soie à l'abri de la pluie.",
+      "riddle": "Montez vers le nord, puis gravissez la montée dont le nom dit simplement qu'elle est grande et qu'elle grimpe. À environ 600 pas, au sommet, une terrasse panoramique porte le nom de l'historien qui raconta la révolte des canuts.",
+      "hints": [
+        "La montée de la Grande-Côte, par son jardin en terrasses.",
+        "Il a écrit La Révolte des canuts.",
+        "L'esplanade Fernand-Rude, en haut de la Grande-Côte."
+      ]
+    },
+    {
+      "title": "Esplanade Fernand-Rude",
+      "lat": 45.77262,
+      "lng": 4.83176,
+      "arrival": "En novembre 1831, les canuts, dont les salaires baissaient, se révoltèrent et tinrent la ville pendant quelques jours, sous la devise « Vivre en travaillant ou mourir en combattant ». L'historien Fernand Rude a raconté cette révolte, l'une des premières grandes insurrections ouvrières.",
+      "riddle": "Partez vers l'est par la rue d'un économiste du début du XIXᵉ siècle, puis par celle du philosophe de l'Encyclopédie. À environ 450 pas, un immeuble des années 1840 cache derrière sa porte un escalier monumental de six étages, ouvert sur un puits de lumière.",
+      "hints": [
+        "La rue Jean-Baptiste-Say, puis la rue Diderot.",
+        "Une société de canuts y aurait tenu ses réunions en 1848.",
+        "La cour des Voraces, 9 place Colbert."
+      ],
+      "photo": "File:Esplanade_Fernand-Rude_(Lyon)_en_janvier_2022.JPG"
+    },
+    {
+      "title": "Cour des Voraces",
+      "lat": 45.77196,
+      "lng": 4.83467,
+      "address": "9, place Colbert",
+      "arrival": "La cour des Voraces, traversée par une traboule, possède le plus spectaculaire escalier des pentes. La société des Voraces, des canuts, y aurait tenu ses réunions pendant la révolution de 1848.",
+      "riddle": "Grimpez vers le nord-est par la montée du martyr transpercé de flèches. À environ 550 pas, une petite place en terrasse offre, comme son nom le promet, un large panorama sur le Rhône.",
+      "hints": [
+        "La montée Saint-Sébastien, puis la rue Magneval.",
+        "Par temps clair, on y voit les Alpes.",
+        "La place Bellevue."
+      ],
+      "photo": "File:Cour_des_Voraces_-_Escalier_central_avec_vue_sur_l'escalier_monumental.jpg"
+    },
+    {
+      "title": "Place Bellevue",
+      "lat": 45.77417,
+      "lng": 4.83649,
+      "arrival": "La place Bellevue domine le Rhône et la rive gauche de Lyon ; par temps clair, on aperçoit les Alpes. Au XIXᵉ siècle, les soieries tissées dans les ateliers des pentes se vendaient dans toute l'Europe.",
+      "riddle": "Partez vers l'ouest et suivez le grand boulevard du plateau, tracé sur les anciennes fortifications. À environ 700 pas, une grande place est veillée par la statue de l'inventeur lyonnais d'un métier à tisser à cartes perforées.",
+      "hints": [
+        "Le boulevard de la Croix-Rousse.",
+        "Il s'appelait Joseph-Marie Jacquard.",
+        "La place de la Croix-Rousse."
+      ],
+      "photo": "File:Lyon_1er_-_Place_Bellevue,_depuis_la_rue_d'Austerlitz.jpg"
+    },
+    {
+      "title": "Place de la Croix-Rousse",
+      "lat": 45.77489,
+      "lng": 4.83208,
+      "arrival": "Bravo ! Joseph-Marie Jacquard, né à Lyon en 1752, mit au point au début du XIXᵉ siècle un métier à tisser commandé par des cartes perforées : il fit la fortune de la soierie lyonnaise et inspira plus tard les premiers calculateurs. La Croix-Rousse, commune indépendante jusqu'en 1852, est surnommée « la colline qui travaille », face à Fourvière, « la colline qui prie ».",
+      "photo": "File:Place_de_la_Croix-Rousse_(Lyon)_-_banc_et_manège_au_fond.jpg"
+    }
+  ]
+}
