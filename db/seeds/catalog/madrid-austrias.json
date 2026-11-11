@@ -1,0 +1,94 @@
+{
+  "key": "madrid-austrias",
+  "name": "Madrid, de la Puerta del Sol au Palais royal",
+  "location": "Madrid, quartier des Austrias",
+  "summary": "Le vieux Madrid des Habsbourg : l'ours et l'arbousier de la Puerta del Sol, le kilomètre zéro, la Plaza Mayor, la tour où l'on dit que François Iᵉʳ fut prisonnier, la cathédrale de l'Almudena face au Palais royal et le cheval cabré de Philippe IV, dont Galilée aurait calculé l'équilibre.",
+  "startText": "Rendez-vous devant la statue de l'Ours et de l'Arbousier, Puerta del Sol (métro Sol).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "L'Ours et l'Arbousier",
+      "lat": 40.41702,
+      "lng": -3.70262,
+      "riddle": "Faites quelques pas vers le sud-ouest sur la même place du « soleil », jusqu'au trottoir de l'ancien hôtel des postes à l'horloge. Une plaque scellée au sol marque le point d'où partent les routes de tout le pays.",
+      "hints": [
+        "Elle est devant la Real Casa de Correos, siège du gouvernement régional.",
+        "Les grandes routes radiales d'Espagne se comptent à partir d'ici.",
+        "Le kilomètre zéro, Puerta del Sol."
+      ],
+      "photo": "File:El_oso_y_el_madroño_-_02.jpg"
+    },
+    {
+      "title": "Kilomètre zéro",
+      "lat": 40.41663,
+      "lng": -3.70381,
+      "arrival": "L'ours qui grimpe à l'arbousier est l'emblème de Madrid ; la statue date de 1967. La plaque du kilomètre zéro marque l'origine des six grandes routes radiales d'Espagne. Le 31 décembre, les Espagnols avalent douze grains de raisin au rythme des douze coups de l'horloge de l'ancien hôtel des postes.",
+      "riddle": "Partez vers le sud-ouest par la « grande rue », puis par la rue des relais de poste. À environ 650 pas, passez sous une arcade : une immense place rectangulaire, fermée de tous côtés, entoure la statue équestre d'un roi.",
+      "hints": [
+        "La calle Mayor, puis la calle de las Postas.",
+        "Le roi est Philippe III.",
+        "La Plaza Mayor."
+      ]
+    },
+    {
+      "title": "Plaza Mayor",
+      "lat": 40.4154,
+      "lng": -3.70738,
+      "arrival": "Achevée en 1619 sous Philippe III, la Plaza Mayor a accueilli marchés, corridas, fêtes et autodafés. Elle compte plus de deux cents balcons ; sa façade la plus ornée est celle de la Casa de la Panadería, la maison de la boulangerie.",
+      "riddle": "Sortez vers l'ouest et prenez la ruelle du « coude », qui tourne à angle droit. À environ 500 pas, une petite place réunit trois époques d'architecture autour de l'ancienne mairie ; dans sa tour de brique, on raconte qu'un roi de France fut tenu prisonnier.",
+      "hints": [
+        "La calle del Codo débouche sur la place.",
+        "Le roi avait été pris à la bataille de Pavie, en 1525.",
+        "La Plaza de la Villa et la tour des Lujanes."
+      ],
+      "photo": "File:Felipe_III_-_Plaza_Mayor_de_Madrid_-_02.jpg"
+    },
+    {
+      "title": "Plaza de la Villa",
+      "lat": 40.41522,
+      "lng": -3.7104,
+      "arrival": "La Plaza de la Villa réunit la tour des Lujanes, du XVᵉ siècle, la Casa de la Villa, ancienne mairie du XVIIᵉ siècle, et la Casa de Cisneros, de style plateresque. Selon la tradition, François Iᵉʳ, battu à Pavie en 1525, fut retenu dans la tour des Lujanes.",
+      "riddle": "Continuez vers l'ouest par la rue de l'« intendant » du roi, puis par la rue d'une victoire espagnole sur les armées de Napoléon. À environ 700 pas, un grand sanctuaire blanc, commencé en 1883 et consacré seulement en 1993, fait face au palais du roi.",
+      "hints": [
+        "La calle del Factor, puis la calle de Bailén.",
+        "Il a été consacré par le pape Jean-Paul II.",
+        "La cathédrale de l'Almudena."
+      ],
+      "photo": "File:2012-04-30_Plaza_de_la_Villa_Madrid_anagoria_01.JPG"
+    },
+    {
+      "title": "Cathédrale de l'Almudena",
+      "lat": 40.4162,
+      "lng": -3.7144,
+      "arrival": "La cathédrale de l'Almudena a été commencée en 1883 et consacrée en 1993 par Jean-Paul II. En face, le Palais royal, construit au XVIIIᵉ siècle à la place de l'Alcázar incendié en 1734, compte plus de trois mille pièces. La rue de Bailén rappelle la défaite d'une armée française en juillet 1808.",
+      "riddle": "Remontez vers le nord-est par la même rue, le long du palais, jusqu'au jardin de l'« Orient ». À environ 600 pas, un roi à cheval se cabre sur les seules pattes arrière de sa monture ; un savant italien aurait aidé à calculer son équilibre.",
+      "hints": [
+        "La plaza de Oriente, entre le palais et le théâtre royal.",
+        "Le savant serait Galilée.",
+        "La statue de Philippe IV, plaza de Oriente."
+      ],
+      "photo": "File:Almudena_2022_-_overview.jpg"
+    },
+    {
+      "title": "Statue de Philippe IV",
+      "lat": 40.41833,
+      "lng": -3.7122,
+      "arrival": "Bravo ! Fondue par Pietro Tacca vers 1640, la statue de Philippe IV fut l'une des premières au monde à tenir sur les deux seules pattes arrière du cheval. Selon la tradition, Galilée conseilla de faire l'arrière plein et l'avant creux pour qu'elle tienne debout. Vélasquez avait fourni un portrait du roi pour modèle.",
+      "photo": "File:Ecuestre_de_Felipe_IV-2014_02.JPG"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "key": "budapest-danube",
+  "name": "Budapest, du Parlement au Bastion des Pêcheurs",
+  "location": "Budapest, Lipótváros et Buda",
+  "summary": "De Pest à Buda par le pont des Chaînes : le Parlement, les chaussures de fer au bord du Danube, la basilique Saint-Étienne et ses 96 mètres, la place Széchenyi, la borne du kilomètre zéro et le Bastion des Pêcheurs. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant l'entrée principale du Parlement, place Kossuth (métro Kossuth Lajos tér). La montée finale vers le château se fait par des escaliers.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Parlement hongrois",
+      "lat": 47.507,
+      "lng": 19.0476,
+      "riddle": "Partez vers le sud-ouest et longez le fleuve par le quai d'un comte réformateur, puis par celui du premier chef de gouvernement élu après la chute du communisme. À environ 800 pas, sur la rive, une soixantaine de paires de souliers de fer semblent avoir été abandonnées.",
+      "hints": [
+        "Le quai Széchenyi, puis le quai Antall-József.",
+        "Ils rappellent les Juifs fusillés au bord de l'eau en 1944 et 1945.",
+        "Les chaussures au bord du Danube."
+      ],
+      "photo": "File:Budapest-Parliament-0001.jpg"
+    },
+    {
+      "title": "Chaussures au bord du Danube",
+      "lat": 47.50397,
+      "lng": 19.04479,
+      "arrival": "Le Parlement, achevé en 1904 sur les plans d'Imre Steindl, est le plus grand bâtiment de Hongrie ; il garde la Sainte Couronne. Les chaussures de fer de Can Togay et Gyula Pauer, installées en 2005, rappellent les Juifs fusillés ici par les miliciens des Croix fléchées en 1944 et 1945 : on leur faisait ôter leurs chaussures avant de les abattre au bord du fleuve.",
+      "riddle": "Partez vers le sud-est par la rue de l'Académie, puis par la rue d'une date : le jour où treize généraux de la révolution hongroise furent exécutés à Arad, en 1849. À environ 1 400 pas, une grande église à coupole s'élève exactement à la même hauteur que le Parlement.",
+      "hints": [
+        "L'Akadémia utca, puis l'Október 6. utca.",
+        "Elle garde la main droite momifiée du premier roi de Hongrie.",
+        "La basilique Saint-Étienne."
+      ],
+      "photo": "File:Shoes_Danube_Promenade_IMGP1297.jpg"
+    },
+    {
+      "title": "Basilique Saint-Étienne",
+      "lat": 47.5008,
+      "lng": 19.053,
+      "arrival": "La basilique Saint-Étienne et la coupole du Parlement mesurent toutes deux 96 mètres, en souvenir de 896, date traditionnelle de l'arrivée des Magyars ; aucun bâtiment du centre ne doit les dépasser. La basilique garde la Sainte Dextre, la main droite momifiée de saint Étienne, premier roi de Hongrie.",
+      "riddle": "Partez vers l'ouest par la rue d'un héros qui défendit Szigetvár contre les Turcs en 1566 et mourut dans une sortie désespérée. À environ 900 pas, une place-jardin s'ouvre au pied du plus ancien pont de la ville, gardé par des lions de pierre.",
+      "hints": [
+        "La Zrínyi utca.",
+        "Le pont est le pont des Chaînes.",
+        "La place Széchenyi, au pied du pont des Chaînes."
+      ]
+    },
+    {
+      "title": "Place Széchenyi",
+      "lat": 47.49959,
+      "lng": 19.04726,
+      "arrival": "Le pont des Chaînes, premier pont permanent entre Buda et Pest, a été inauguré en 1849. Il avait été voulu par le comte István Széchenyi, qui avait dû attendre plusieurs jours, faute de pont sur le fleuve gelé, pour se rendre aux funérailles de son père.",
+      "riddle": "Traversez le fleuve vers l'ouest sur le pont aux lions. À environ 1 100 pas, sur la place qui porte le nom de l'ingénieur écossais qui construisit le pont, un chiffre géant sculpté marque le point d'où l'on compte les distances des routes du pays.",
+      "hints": [
+        "Le pont des Chaînes mène à la Clark Ádám tér.",
+        "Adam Clark n'avait aucun lien de parenté avec William Tierney Clark, l'auteur des plans du pont.",
+        "La borne du kilomètre zéro, Clark Ádám tér."
+      ],
+      "photo": "File:Hungary,_Pest.jpg"
+    },
+    {
+      "title": "Borne du kilomètre zéro",
+      "lat": 47.49788,
+      "lng": 19.04024,
+      "arrival": "La borne du kilomètre zéro marque le point d'où l'on mesure les distances des routes hongroises. La place porte le nom d'Adam Clark, l'ingénieur écossais qui dirigea la construction du pont dessiné par William Tierney Clark, son homonyme sans lien de parenté. Adam Clark resta vivre à Budapest jusqu'à sa mort.",
+      "riddle": "Grimpez vers le nord-ouest par la route d'un chef de guerre vainqueur des Turcs à Belgrade, puis par l'escalier des jésuites. À environ 1 300 pas, sur la colline du château, une terrasse néoromane aux sept tourelles domine le fleuve et le Parlement.",
+      "hints": [
+        "La Hunyadi János út, puis l'escalier des Jésuites.",
+        "Ses sept tours rappellent les sept tribus magyares.",
+        "Le Bastion des Pêcheurs."
+      ],
+      "photo": "File:0_km_monument_Budapest.JPG"
+    },
+    {
+      "title": "Bastion des Pêcheurs",
+      "lat": 47.5023,
+      "lng": 19.0347,
+      "arrival": "Bravo ! Le Bastion des Pêcheurs, achevé en 1902 par Frigyes Schulek, n'a jamais servi à la défense : c'est une terrasse panoramique. Ses sept tours évoquent les sept tribus magyares ; son nom rappelle la corporation des pêcheurs, chargée au Moyen Âge de défendre ce pan des remparts.",
+      "photo": "File:Halászbástya_épülete_díszlépcsővel_(103._számú_műemlék)_28.jpg"
+    }
+  ]
+}

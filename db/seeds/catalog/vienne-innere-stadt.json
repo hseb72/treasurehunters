@@ -1,0 +1,95 @@
+{
+  "key": "vienne-innere-stadt",
+  "name": "Vienne, de la cathédrale à l'Opéra",
+  "location": "Vienne, Innere Stadt",
+  "summary": "Le cœur impérial de Vienne : la cathédrale Saint-Étienne, le tronc hérissé de clous des compagnons, la colonne de la Peste, la Michaelerplatz entre ruines romaines et « maison sans sourcils », la Heldenplatz de la Hofburg et l'Opéra d'État. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant le grand portail de la cathédrale Saint-Étienne, Stephansplatz (métro Stephansplatz).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Cathédrale Saint-Étienne",
+      "lat": 48.20855,
+      "lng": 16.3723,
+      "riddle": "Faites quelques pas vers le sud-ouest, à l'angle de la place. Derrière une vitre, un vieux tronc d'arbre est hérissé de centaines de clous plantés par des compagnons de passage.",
+      "hints": [
+        "Il est à l'angle du Graben et de la Kärntner Straße.",
+        "Les compagnons y plantaient un clou pour porter chance.",
+        "Le Stock im Eisen."
+      ],
+      "photo": "File:Wien_-_Stephansdom_(1).JPG"
+    },
+    {
+      "title": "Stock im Eisen",
+      "lat": 48.20792,
+      "lng": 16.37167,
+      "arrival": "La grande cloche de la cathédrale, la Pummerin, avait été fondue avec le métal de canons turcs abandonnés après le siège de 1683 ; détruite en 1945, elle a été refondue. Le Stock im Eisen est un tronc d'épicéa du XVᵉ siècle, où les compagnons de passage plantaient un clou pour porter chance.",
+      "riddle": "Partez vers le nord-ouest sur la rue du « fossé », qui suit les remparts du camp romain. À environ 350 pas, une haute flèche baroque, couverte de nuages et d'anges, rappelle une épidémie qui tua des dizaines de milliers de Viennois en 1679.",
+      "hints": [
+        "Le Graben, « le fossé ».",
+        "L'empereur Léopold Iᵉʳ l'avait promise pendant l'épidémie.",
+        "La colonne de la Peste, sur le Graben."
+      ],
+      "photo": "File:Wien_01_Stock-im-Eisen-Platz_03_a.jpg"
+    },
+    {
+      "title": "Colonne de la Peste",
+      "lat": 48.20872,
+      "lng": 16.36979,
+      "arrival": "En 1679, la peste fit des dizaines de milliers de morts à Vienne. L'empereur Léopold Iᵉʳ fit alors le vœu d'élever cette colonne de la Sainte-Trinité, achevée en 1693 ; il y est représenté à genoux, en prière.",
+      "riddle": "Partez vers l'ouest et suivez la rue du marché au charbon, aujourd'hui bordée de boutiques de luxe. À environ 550 pas, une place en demi-cercle, devant le palais impérial, laisse voir des ruines romaines dans une fosse, et un immeuble moderne aux fenêtres sans ornements.",
+      "hints": [
+        "Le Kohlmarkt, « marché au charbon ».",
+        "L'empereur François-Joseph, dit-on, détestait l'immeuble d'en face.",
+        "La Michaelerplatz, devant la Hofburg."
+      ],
+      "photo": "File:Wien_Graben_Pestsäule_Ostseite.jpg"
+    },
+    {
+      "title": "Michaelerplatz",
+      "lat": 48.20799,
+      "lng": 16.36639,
+      "arrival": "Sur la Michaelerplatz, une fouille montre des vestiges de Vindobona, le camp romain. En face de la Hofburg, la maison Loos, achevée en 1911, fit scandale par sa façade nue : on la surnomma la « maison sans sourcils », et l'empereur François-Joseph, dit-on, évitait de la voir depuis ses fenêtres.",
+      "riddle": "Traversez vers le sud-ouest les cours du palais, par la porte de la cour des Suisses. À environ 550 pas, une immense place s'ouvre devant un palais en arc de cercle ; deux princes à cheval s'y font face.",
+      "hints": [
+        "Passez par la cour In der Burg, puis par la porte des Suisses.",
+        "Les statues représentent le prince Eugène et l'archiduc Charles.",
+        "La Heldenplatz, « place des Héros »."
+      ],
+      "photo": "File:13-05-24-wien-RalfR-144.jpg"
+    },
+    {
+      "title": "Heldenplatz",
+      "lat": 48.2058,
+      "lng": 16.36453,
+      "arrival": "La Heldenplatz, la place des Héros, doit son nom aux statues du prince Eugène, vainqueur des Turcs, et de l'archiduc Charles, qui battit Napoléon à Aspern en 1809. Le 15 mars 1938, Hitler y annonça l'annexion de l'Autriche depuis le balcon de la Neue Burg, devant une foule immense.",
+      "riddle": "Partez vers le sud-est en empruntant la rue de l'auteur de Faust, jusqu'au grand boulevard circulaire. À environ 900 pas, une salle de spectacle néo-Renaissance, inaugurée en 1869 avec Don Giovanni de Mozart, donne sur le Ring.",
+      "hints": [
+        "La Goethegasse, puis l'Operngasse.",
+        "Gustav Mahler la dirigea de 1897 à 1907.",
+        "L'Opéra d'État, sur le Ring."
+      ],
+      "photo": "File:Wien_-_Neue_Hofburg.JPG"
+    },
+    {
+      "title": "Opéra d'État",
+      "lat": 48.20329,
+      "lng": 16.36919,
+      "arrival": "Bravo ! L'Opéra d'État a été inauguré le 25 mai 1869 avec Don Giovanni. Les Viennois critiquèrent si durement le bâtiment que l'un de ses deux architectes, Eduard van der Nüll, se donna la mort avant l'inauguration ; l'autre, August Sicard von Sicardsburg, mourut quelques semaines plus tard.",
+      "photo": "File:Staatsoper_Wien_DSC_5273w.jpg"
+    }
+  ]
+}

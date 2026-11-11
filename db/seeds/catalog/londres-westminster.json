@@ -1,0 +1,93 @@
+{
+  "key": "londres-westminster",
+  "name": "Londres, de Westminster au Strand",
+  "location": "Londres, Westminster et Covent Garden",
+  "summary": "De l'abbaye des couronnements au « rivage » de la Tamise : Churchill face au Parlement, les cavaliers de Horse Guards et l'horloge de Charles Iᵉʳ, Nelson au sommet de sa colonne, le jardin du couvent devenu marché et la cour de Somerset House. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la façade ouest de l'abbaye de Westminster, sur Broad Sanctuary (métro Westminster). La circulation est dense : traversez aux passages piétons.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Abbaye de Westminster",
+      "lat": 51.49955,
+      "lng": -0.12855,
+      "riddle": "Sortez vers le nord-est par la rue du « grand asile » : on pouvait autrefois s'y réfugier à l'abri de la justice. À environ 400 pas, sur la place gazonnée face au Parlement, un Premier ministre de bronze, appuyé sur sa canne, regarde le palais de Westminster.",
+      "hints": [
+        "Broad Sanctuary longe l'abbaye.",
+        "Il promettait « du sang, de la peine, des larmes et de la sueur ».",
+        "La statue de Winston Churchill, Parliament Square."
+      ],
+      "photo": "File:Westminster-Abbey.JPG"
+    },
+    {
+      "title": "Statue de Churchill",
+      "lat": 51.50084,
+      "lng": -0.12643,
+      "arrival": "L'abbaye de Westminster accueille les couronnements depuis celui de Guillaume le Conquérant, le jour de Noël 1066 : un Normand venu de France. La statue de Winston Churchill, par Ivor Roberts-Jones, a été inaugurée en 1973.",
+      "riddle": "Remontez vers le nord par la rue du « palais blanc » des rois, disparu dans un incendie en 1698, en passant devant l'impasse la plus gardée du royaume. À environ 850 pas, deux cavaliers en armure montent la garde dans des guérites, devant une cour d'honneur.",
+      "hints": [
+        "Whitehall, du nom du palais de Whitehall ; Downing Street s'ouvre sur la gauche.",
+        "On y assiste chaque jour à la relève de la garde à cheval.",
+        "Horse Guards, sur Whitehall."
+      ],
+      "photo": "File:At_London_2025_487_-_Statue_of_Winston_Churchill,_Parliament_Square.jpg"
+    },
+    {
+      "title": "Horse Guards",
+      "lat": 51.50466,
+      "lng": -0.12644,
+      "arrival": "Horse Guards abrite l'état-major de la cavalerie de la garde. Sur l'horloge de la façade, une marque noire signale 14 heures : selon la tradition, l'heure de l'exécution de Charles Iᵉʳ, décapité en janvier 1649 devant la Banqueting House, juste en face.",
+      "riddle": "Continuez vers le nord sur la même rue, jusqu'au carrefour de la croix de Charing, d'où l'on mesure les distances depuis Londres. À environ 700 pas, sur une grande place, un amiral aveugle d'un œil et privé d'un bras veille du haut d'un fût de plus de cinquante mètres, gardé par quatre lions de bronze.",
+      "hints": [
+        "Charing Cross, au bout de Whitehall.",
+        "Il est mort à la bataille de Trafalgar, en 1805.",
+        "La colonne Nelson, Trafalgar Square."
+      ],
+      "photo": "File:Horse_guards_2004.jpg"
+    },
+    {
+      "title": "Colonne Nelson",
+      "lat": 51.50776,
+      "lng": -0.12793,
+      "arrival": "Horatio Nelson battit la flotte franco-espagnole à Trafalgar le 21 octobre 1805 et y trouva la mort. Sa colonne a été élevée en 1843 ; les lions d'Edwin Landseer ont été ajoutés en 1867. Le quatrième socle de la place, longtemps resté vide, accueille des œuvres contemporaines qui changent régulièrement.",
+      "riddle": "Partez vers le nord-est en longeant l'église de saint Martin « dans les champs », puis remontez la rue d'un duc à qui appartenait le quartier. À environ 1 200 pas, une halle à colonnes, ancien marché aux fruits et légumes, occupe l'ancien jardin d'un couvent.",
+      "hints": [
+        "Longez St Martin-in-the-Fields, puis prenez Chandos Place et Bedford Street.",
+        "C'est là qu'Eliza Doolittle vend ses fleurs dans Pygmalion, puis My Fair Lady.",
+        "Covent Garden, la piazza."
+      ],
+      "photo": "File:Nelson's_Column,_Trafalgar_Square,_London.JPG"
+    },
+    {
+      "title": "Covent Garden",
+      "lat": 51.51198,
+      "lng": -0.12274,
+      "arrival": "Covent Garden tient son nom du jardin d'un couvent de l'abbaye de Westminster. Inigo Jones y dessina dans les années 1630 la première place à l'italienne de Londres, pour les ducs de Bedford. Le marché aux fruits, aux légumes et aux fleurs y est resté jusqu'en 1974.",
+      "riddle": "Partez vers l'est par la rue du vainqueur de Waterloo, puis tournez sur la rue du « rivage » : la Tamise venait autrefois jusque-là. À environ 750 pas, un grand palais néoclassique entoure une cour où jaillissent des jets d'eau en été.",
+      "hints": [
+        "Wellington Street, puis le Strand.",
+        "L'hiver, sa cour devient une patinoire.",
+        "Somerset House, sur le Strand."
+      ],
+      "photo": "File:CoventGardenMarket.jpg"
+    },
+    {
+      "title": "Somerset House",
+      "lat": 51.511,
+      "lng": -0.1174,
+      "arrival": "Bravo ! Somerset House a été reconstruite à partir de 1776 à l'emplacement du palais d'un duc de Somerset, pour loger des administrations. Le Strand, « le rivage », longeait la Tamise jusqu'à la construction des quais, au XIXᵉ siècle."
+    }
+  ]
+}
