@@ -17,6 +17,13 @@ describe('contrôle des parcours d’initialisation', () => {
     expect(r.errors.join(' ')).toMatch(/key/);
   });
 
+  it('refuse un nom de plus de 50 caractères, comme pour une chasse', () => {
+    expect(checkSeed({ ...example(), name: 'x'.repeat(50) }).errors).toEqual([]);
+    const r = checkSeed({ ...example(), name: 'x'.repeat(51) });
+    expect(r.seed).toBeNull();
+    expect(r.errors.join(' ')).toMatch(/name/);
+  });
+
   it('signale ce qui rendrait le parcours injouable', () => {
     const s = example();
     s.steps[1]!.hints = ['un seul'];
