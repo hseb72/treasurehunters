@@ -1,0 +1,109 @@
+{
+  "key": "berne-vieille-ville",
+  "name": "Berne, de l'Ogre à la fosse aux ours",
+  "location": "Berne, vieille ville",
+  "summary": "La vieille ville de Berne, inscrite au patrimoine mondial, et ses six kilomètres d'arcades : le Palais fédéral, la tour de la Cage, la fontaine de l'Ogre, la Zytglogge et ses ours mécaniques, l'appartement où Einstein conçut la relativité, la collégiale et la fosse aux ours. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous sur la place fédérale, devant le Palais fédéral (tram Bärenplatz).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Palais fédéral",
+      "lat": 46.947,
+      "lng": 7.44416,
+      "riddle": "Partez vers le nord par la ruelle de la cage, jusqu'à la rue du marché. À environ 250 pas, une tour-porte à horloge, qui servit de prison jusqu'à la fin du XIXᵉ siècle, enjambe la rue.",
+      "hints": [
+        "Le Käfiggässchen, « ruelle de la Cage », puis la Marktgasse.",
+        "Son nom signifie « tour de la cage ».",
+        "Le Käfigturm."
+      ],
+      "photo": "File:Bundeshaus_Bern_2009,_Flooffy.jpg"
+    },
+    {
+      "title": "Käfigturm",
+      "lat": 46.94815,
+      "lng": 7.44394,
+      "arrival": "Le Palais fédéral, achevé en 1902, abrite le Parlement et le gouvernement suisses. Pourtant, Berne n'est pas officiellement la capitale : la Constitution n'en nomme aucune, et Berne est dite « ville fédérale ». Le Käfigturm, la tour de la Cage, du XVIIᵉ siècle, a servi de prison jusqu'en 1897.",
+      "riddle": "Partez vers l'est sous les arcades de la rue du marché, puis gagnez la place du grenier à blé. À environ 550 pas, sur une fontaine Renaissance, un géant dévore un enfant tout cru, tandis que d'autres attendent leur tour dans son sac.",
+      "hints": [
+        "La Marktgasse, puis la Kornhausplatz, « place du Grenier ».",
+        "Elle date de 1546 ; personne ne sait vraiment ce qu'elle représente.",
+        "La fontaine de l'Ogre, Kindlifresserbrunnen."
+      ],
+      "photo": "File:Bern_Kaefigturm.jpg"
+    },
+    {
+      "title": "Fontaine de l'Ogre",
+      "lat": 46.94846,
+      "lng": 7.44751,
+      "arrival": "La fontaine du Kindlifresser, « le mangeur d'enfants », date de 1546. Personne ne sait vraiment ce qu'elle représente : peut-être un croquemitaine pour faire peur aux enfants. Berne compte plus d'une centaine de fontaines, dont une dizaine ornées de statues Renaissance.",
+      "riddle": "Faites quelques pas vers le sud, sous les arcades. Une tour à horloge astronomique, ancienne porte de la ville, fait défiler un cortège d'ours mécaniques quelques minutes avant chaque heure.",
+      "hints": [
+        "Elle se dresse au bout de la Kramgasse.",
+        "Son nom signifie « la cloche du temps ».",
+        "La Zytglogge."
+      ],
+      "photo": "File:4377_-_Bern_-_Kindlifresserbrunnen_am_Kornhausplatz.JPG"
+    },
+    {
+      "title": "Zytglogge",
+      "lat": 46.94795,
+      "lng": 7.4478,
+      "arrival": "La Zytglogge, « la cloche du temps », fut la première porte de la ville. Son horloge astronomique de 1530 fait défiler, quelques minutes avant chaque heure, un coq, un bouffon et un cortège d'ours. On dit qu'Einstein, qui la voyait chaque jour, y réfléchit au temps.",
+      "riddle": "Partez vers l'est sous les arcades de la rue des merciers. Au numéro 49, à environ 350 pas, un jeune employé de l'office des brevets conçut la théorie de la relativité restreinte, en 1905.",
+      "hints": [
+        "La Kramgasse, « rue des Merciers ».",
+        "Il publia E = mc² la même année.",
+        "La maison d'Einstein, Kramgasse 49."
+      ],
+      "photo": "File:Zytglogge_01.jpg"
+    },
+    {
+      "title": "Maison d'Einstein",
+      "lat": 46.94767,
+      "lng": 7.44997,
+      "address": "Kramgasse 49",
+      "arrival": "Albert Einstein vécut ici de 1903 à 1905, quand il travaillait à l'Office fédéral des brevets. En 1905, son « année miraculeuse », il publia notamment la théorie de la relativité restreinte et la formule E = mc². L'appartement est devenu un petit musée.",
+      "riddle": "Faites quelques pas vers le sud-est par la rue du « moutier ». Un grand sanctuaire gothique, au clocher le plus haut de Suisse, montre au-dessus de son portail le Jugement dernier, avec plus de deux cents personnages sculptés.",
+      "hints": [
+        "La Münstergasse : Münster se traduit par « moutier ».",
+        "Son clocher mesure un peu plus de 100 mètres.",
+        "La collégiale de Berne, le Münster."
+      ],
+      "photo": "File:Albert_einstein_house_bern.JPG"
+    },
+    {
+      "title": "Cathédrale de Berne",
+      "lat": 46.94735,
+      "lng": 7.45095,
+      "arrival": "La collégiale Saint-Vincent, le Münster, commencée en 1421, a le plus haut clocher de Suisse, achevé seulement en 1893. Son portail du Jugement dernier compte plus de deux cents figures sculptées : les damnés y sont nus, les élus habillés.",
+      "riddle": "Descendez vers l'est par la rue des gentilshommes, puis par le quartier des tanneurs au bord de l'Aar, et franchissez le grand pont. À environ 1 300 pas, sur l'autre rive, l'animal emblème de la ville vit dans un parc en pente.",
+      "hints": [
+        "La Junkerngasse, puis la Gerberngasse et le pont de la Nydegg.",
+        "Le nom de la ville viendrait de cet animal.",
+        "La fosse aux ours, le BärenPark."
+      ],
+      "photo": "File:Berner_Muenster2.jpg"
+    },
+    {
+      "title": "Fosse aux ours",
+      "lat": 46.94768,
+      "lng": 7.45919,
+      "arrival": "Bravo ! Selon la légende, le duc Berthold V de Zähringen nomma la ville, fondée en 1191, d'après le premier animal qu'il abattrait à la chasse : un ours. Des ours vivent ici depuis le XVIᵉ siècle. En 1798, les soldats français qui prirent Berne emmenèrent les ours à Paris, au Jardin des plantes.",
+      "photo": "File:Baerenpark_Bern_01_09.jpg"
+    }
+  ]
+}
