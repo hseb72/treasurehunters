@@ -27,7 +27,7 @@ const stepSchema = z.object({
 
 export const seedSchema = z.object({
   key: z.string().regex(SEED_KEY),
-  name: text(80),
+  name: text(50), // comme une chasse (th_hunts.hun_name, varchar(50))
   location: text(120),
   summary: text(2000),
   startText: text(1000),
