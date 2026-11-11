@@ -1,0 +1,92 @@
+{
+  "key": "bucarest-centre-historique",
+  "name": "Bucarest, de l'Athénée à la Cour princière",
+  "location": "Bucarest, Calea Victoriei et Lipscani",
+  "summary": "Le « petit Paris » des Balkans : l'Athénée roumain dessiné par un Français, la place de la Révolution de 1989, le palais CEC, le monastère Stavropoleos, la Cour princière de Vlad l'Empaleur, sur la rue Française, et l'auberge de Manuc. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant l'Athénée roumain, rue Benjamin-Franklin (métro Universitate ou bus Piața Revoluției).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Athénée roumain",
+      "lat": 44.44136,
+      "lng": 26.09736,
+      "riddle": "Descendez vers le sud par la « voie de la Victoire », l'avenue la plus élégante de la ville. À environ 600 pas, sur une grande place, un balcon de l'ancien siège du parti vit le dernier discours d'un dictateur, en décembre 1989.",
+      "hints": [
+        "La Calea Victoriei, « voie de la Victoire ».",
+        "Le lendemain, le dictateur s'enfuit en hélicoptère depuis le toit.",
+        "La place de la Révolution."
+      ],
+      "photo": "File:Ateneo_Rumano,_Bucarest,_Rumanía,_2016-05-29,_DD_73.jpg"
+    },
+    {
+      "title": "Place de la Révolution",
+      "lat": 44.43866,
+      "lng": 26.0975,
+      "arrival": "L'Athénée roumain, salle de concert inaugurée en 1888, a été dessiné par le Français Albert Galleron ; il fut financé par souscription : « Donnez un leu pour l'Athénée ! » Le 21 décembre 1989, Nicolae Ceaușescu prononça son dernier discours depuis le balcon du Comité central ; il s'enfuit le lendemain et fut exécuté le 25.",
+      "riddle": "Continuez vers le sud par la même voie, à environ 1 500 pas. Un édifice à coupole de verre, construit en 1900 par un architecte français pour une caisse d'épargne, ferme l'avenue.",
+      "hints": [
+        "Toujours la Calea Victoriei.",
+        "Il a été dessiné par Paul Gottereau.",
+        "Le palais CEC, Calea Victoriei."
+      ]
+    },
+    {
+      "title": "Palais CEC",
+      "lat": 44.43201,
+      "lng": 26.09648,
+      "arrival": "Le palais de la Caisse d'épargne (CEC), achevé en 1900, est l'œuvre du Français Paul Gottereau. Avec ses avenues et ses architectes français, Bucarest était surnommée à la Belle Époque le « petit Paris ».",
+      "riddle": "Faites quelques pas vers l'est par la rue qui porte le nom de votre but. À environ 400 pas, une petite église de 1724 cache, derrière un portique sculpté, une cour où sont exposées de vieilles pierres tombales.",
+      "hints": [
+        "La rue Stavropoleos.",
+        "Il a été fondé par un moine grec.",
+        "Le monastère Stavropoleos."
+      ]
+    },
+    {
+      "title": "Monastère Stavropoleos",
+      "lat": 44.43178,
+      "lng": 26.09883,
+      "arrival": "L'église Stavropoleos a été fondée en 1724 par le moine grec Ioanichie. Son portique sculpté et sa cour, où l'on a réuni des pierres tombales anciennes, sont des joyaux du style brâncovenesc.",
+      "riddle": "Partez vers le sud-est par la rue des selliers, puis par la rue qui porte le nom de votre pays. À environ 650 pas, des ruines de brique entourent une église : c'était le palais d'un prince surnommé « l'Empaleur ».",
+      "hints": [
+        "La strada Șelari, puis la strada Franceză, « rue Française ».",
+        "Le prince est Vlad III, qui inspira Dracula.",
+        "La Cour princière, Curtea Veche."
+      ],
+      "photo": "File:4,_Strada_Stavropoleos,_Bucharest_(Romania).jpg"
+    },
+    {
+      "title": "Cour princière",
+      "lat": 44.43009,
+      "lng": 26.10206,
+      "arrival": "La Cour princière, Curtea Veche, fut la résidence des princes de Valachie. Le premier document qui mentionne Bucarest, en 1459, est signé de Vlad III l'Empaleur, dont la légende a inspiré le Dracula de Bram Stoker. L'église voisine, de 1559, est la plus ancienne de la ville.",
+      "riddle": "Juste au sud, par la rue des chaudronniers, un grand caravansérail à galeries de bois accueillait marchands et voyageurs ; on y négocia un traité en 1812.",
+      "hints": [
+        "La strada Căldărari, « rue des Chaudronniers ».",
+        "Le traité céda la Bessarabie à la Russie.",
+        "L'auberge de Manuc."
+      ],
+      "photo": "File:Bucharest_-_Biserica_Sfântul_Anton_(53700154756).jpg"
+    },
+    {
+      "title": "Auberge de Manuc",
+      "lat": 44.42952,
+      "lng": 26.10184,
+      "arrival": "Bravo ! L'auberge de Manuc a été construite en 1808 par un marchand arménien, Manuc Bei. En 1812, la Russie et l'Empire ottoman y négocièrent le traité de Bucarest. Elle accueille toujours restaurants et voyageurs.",
+      "photo": "File:RO_B_Manuc_Inn.jpg"
+    }
+  ]
+}

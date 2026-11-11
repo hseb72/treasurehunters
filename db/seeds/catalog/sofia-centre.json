@@ -1,0 +1,94 @@
+{
+  "key": "sofia-centre",
+  "name": "Sofia, de Nevski à la synagogue",
+  "location": "Sofia, centre",
+  "summary": "Le « triangle de la tolérance » de Sofia : la cathédrale Alexandre-Nevski, la basilique Sainte-Sophie qui a donné son nom à la ville, l'église russe aux bulbes dorés, la rotonde romaine Saint-Georges, la mosquée Banya Bachi et la grande synagogue séfarade. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant l'entrée principale de la cathédrale Alexandre-Nevski, place Alexandre-Nevski.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Cathédrale Alexandre-Nevski",
+      "lat": 42.69581,
+      "lng": 23.33279,
+      "riddle": "Faites quelques pas vers l'ouest, de l'autre côté de la place. À environ 400 pas, un sanctuaire de brique du VIᵉ siècle a donné son nom à la ville tout entière.",
+      "hints": [
+        "Il est à l'ouest de la place Alexandre-Nevski.",
+        "Son nom grec signifie « sagesse divine ».",
+        "La basilique Sainte-Sophie."
+      ],
+      "photo": "File:AlexanderNevskyCathedral-Sofia-6.jpg"
+    },
+    {
+      "title": "Basilique Sainte-Sophie",
+      "lat": 42.6963,
+      "lng": 23.3305,
+      "arrival": "La cathédrale Alexandre-Nevski, achevée en 1912, honore les soldats russes morts pendant la guerre de libération de la Bulgarie, en 1877-1878. La basilique Sainte-Sophie, du VIᵉ siècle, a donné son nom à la ville au XIVᵉ siècle.",
+      "riddle": "Descendez vers le sud-ouest jusqu'au boulevard du « tsar libérateur », pavé de briques jaunes. À environ 250 pas, un petit sanctuaire aux bulbes dorés et aux tuiles vertes rappelle le style de Moscou.",
+      "hints": [
+        "Le boulevard Tsar-Osvoboditel, « tsar libérateur ».",
+        "Il a été bâti pour la communauté de l'ambassade de Russie.",
+        "L'église russe Saint-Nicolas."
+      ]
+    },
+    {
+      "title": "Église russe",
+      "lat": 42.6957,
+      "lng": 23.3291,
+      "arrival": "L'église russe Saint-Nicolas, achevée en 1914, servait la communauté de l'ambassade de Russie. Le boulevard du Tsar-Libérateur, qui honore Alexandre II, est pavé de briques jaunes posées au début du XXᵉ siècle.",
+      "riddle": "Continuez vers l'ouest sur le même boulevard, puis par la rue de la cathédrale. À environ 1 100 pas, au fond de la cour d'un grand bâtiment officiel, un petit édifice romain de brique rouge, vieux de dix-sept siècles, est le plus ancien de la ville.",
+      "hints": [
+        "Le boulevard Tsar-Osvoboditel, puis la Saborna, « rue de la Cathédrale ».",
+        "Il est dans la cour de la présidence.",
+        "La rotonde Saint-Georges."
+      ],
+      "photo": "File:The_Russian_Church_in_Sofia.jpg"
+    },
+    {
+      "title": "Rotonde Saint-Georges",
+      "lat": 42.69686,
+      "lng": 23.32286,
+      "arrival": "La rotonde Saint-Georges, du IVᵉ siècle, est le plus ancien édifice de Sofia, qui s'appelait alors Serdica. Transformée en mosquée sous les Ottomans, elle a gardé des fresques du Xᵉ au XIVᵉ siècle.",
+      "riddle": "Remontez vers le nord par le boulevard d'un prince gouverneur russe. À environ 600 pas, un lieu de prière ottoman du XVIᵉ siècle, à coupole et minaret, s'élève près de sources chaudes.",
+      "hints": [
+        "Le boulevard Knyaz-Dondukov, puis le boulevard Maria-Louisa.",
+        "Son nom évoque les bains voisins.",
+        "La mosquée Banya Bachi."
+      ],
+      "photo": "File:StGeorgeRotundaSofia.JPG"
+    },
+    {
+      "title": "Mosquée Banya Bachi",
+      "lat": 42.6995,
+      "lng": 23.32257,
+      "arrival": "La mosquée Banya Bachi, achevée en 1576, est attribuée au grand architecte Mimar Sinan. Son nom évoque les bains d'eau thermale tout proches ; les Sofiotes viennent encore remplir leurs bouteilles aux fontaines d'eau chaude de la place.",
+      "riddle": "Faites quelques pas vers le nord-ouest par la rue d'un président américain. À environ 300 pas, un grand temple néo-mauresque à coupole, de 1909, est l'un des plus grands lieux de culte séfarades d'Europe.",
+      "hints": [
+        "La rue George-Washington.",
+        "Son grand lustre pèse plus de deux tonnes.",
+        "La synagogue de Sofia."
+      ],
+      "photo": "File:05158-Banyabaşı_Mosque,_Sofia_(8269331286).jpg"
+    },
+    {
+      "title": "Synagogue de Sofia",
+      "lat": 42.70022,
+      "lng": 23.32093,
+      "arrival": "Bravo ! La synagogue de Sofia, inaugurée en 1909, est l'une des plus grandes synagogues séfarades d'Europe. En 1943, sous la pression de l'opinion, de l'Église orthodoxe et de députés, la Bulgarie renonça à déporter les Juifs de son territoire d'avant-guerre.",
+      "photo": "File:Sofia_Synagogue_11c.jpg"
+    }
+  ]
+}

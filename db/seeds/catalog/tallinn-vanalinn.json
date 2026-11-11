@@ -1,0 +1,92 @@
+{
+  "key": "tallinn-vanalinn",
+  "name": "Tallinn, de la porte Viru à Toompea",
+  "location": "Tallinn, vieille ville",
+  "summary": "La ville basse des marchands et la colline du pouvoir : la porte Viru, la place de l'hôtel de ville et le Vieux Thomas, l'église du Saint-Esprit et son horloge, la « longue jambe » qui monte à Toompea, le belvédère de Kohtuotsa et les deux cathédrales de la colline. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous entre les deux tours de la porte Viru. Ça monte vers Toompea.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte Viru",
+      "lat": 59.43646,
+      "lng": 24.75025,
+      "riddle": "Passez entre les deux tours vers l'ouest et suivez la rue qui porte le nom de la porte, la plus animée du vieux quartier. À environ 600 pas, une grande place est dominée par une maison commune gothique ; sur sa flèche, un soldat de cuivre veille depuis 1530.",
+      "hints": [
+        "La rue Viru.",
+        "On l'appelle le Vieux Thomas.",
+        "La place de l'Hôtel-de-Ville, Raekoja plats."
+      ]
+    },
+    {
+      "title": "Place de l'Hôtel-de-Ville",
+      "lat": 59.43735,
+      "lng": 24.74521,
+      "arrival": "L'hôtel de ville, achevé en 1404, est le plus ancien hôtel de ville gothique d'Europe du Nord. La girouette du Vieux Thomas, un garde de la ville, veille sur sa flèche depuis 1530. Sur la place, la pharmacie de l'hôtel de ville fonctionne depuis au moins 1422.",
+      "riddle": "Faites quelques pas vers le nord-est par la ruelle qui porte le même nom que votre but. À environ 150 pas, un petit sanctuaire blanc porte sur sa façade la plus ancienne horloge publique de la ville, en bois sculpté.",
+      "hints": [
+        "La rue Pühavaimu.",
+        "L'horloge date de 1684.",
+        "L'église du Saint-Esprit."
+      ],
+      "photo": "File:Tallinn_Town_Hall_Square,_2013.jpg"
+    },
+    {
+      "title": "Église du Saint-Esprit",
+      "lat": 59.43806,
+      "lng": 24.74583,
+      "arrival": "L'église du Saint-Esprit, du XIVᵉ siècle, était la chapelle du conseil de la ville. Son horloge de bois sculpté, de 1684, est la plus ancienne horloge publique de Tallinn.",
+      "riddle": "Partez vers l'ouest par la « longue rue », puis grimpez la « longue jambe », la rampe qui monte vers la colline du pouvoir. À environ 400 pas, une terrasse offre la plus belle vue sur les toits rouges et les clochers de la ville basse.",
+      "hints": [
+        "Pikk, « la longue rue », puis Pikk jalg, « la longue jambe ».",
+        "Une autre montée s'appelle « la courte jambe ».",
+        "Le belvédère de Kohtuotsa."
+      ]
+    },
+    {
+      "title": "Belvédère de Kohtuotsa",
+      "lat": 59.43773,
+      "lng": 24.74221,
+      "arrival": "La colline de Toompea, siège du pouvoir, ne communiquait avec la ville basse des marchands que par deux montées : la « longue jambe », pour les charrettes, et la « courte jambe », pour les piétons. Le nom de Tallinn viendrait de Taani linn, « la ville des Danois », qui la conquirent en 1219.",
+      "riddle": "Partez vers le sud-ouest par la rue des chevaliers de la colline, puis par la rue de l'église. À environ 400 pas, le plus vieux sanctuaire de l'Estonie continentale est tapissé de blasons de familles nobles.",
+      "hints": [
+        "Toom-Rüütli, puis Kiriku.",
+        "Il est dédié à la Vierge.",
+        "La cathédrale Sainte-Marie, Toomkirik."
+      ],
+      "photo": "File:Tallinn,_Estonia_(7952111308).jpg"
+    },
+    {
+      "title": "Cathédrale Sainte-Marie",
+      "lat": 59.43704,
+      "lng": 24.73916,
+      "arrival": "La cathédrale Sainte-Marie, fondée par les Danois au XIIIᵉ siècle, est la plus ancienne église d'Estonie continentale. Ses murs portent les blasons funéraires des familles de la noblesse balte.",
+      "riddle": "Descendez vers le sud jusqu'à la place du château. À environ 300 pas, un grand sanctuaire orthodoxe aux bulbes noirs, bâti à l'époque des tsars, fait face au Parlement.",
+      "hints": [
+        "Lossi plats, « place du Château ».",
+        "Les Estoniens voulurent le démolir dans les années 1920.",
+        "La cathédrale Alexandre-Nevski."
+      ],
+      "photo": "File:Catedral_de_Santa_María_(Toomkirik),_Tallin,_Estonia,_2012-08-05,_DD_09.JPG"
+    },
+    {
+      "title": "Cathédrale Alexandre-Nevski",
+      "lat": 59.43575,
+      "lng": 24.73932,
+      "arrival": "Bravo ! La cathédrale Alexandre-Nevski a été bâtie en 1900, quand l'Estonie appartenait à l'Empire russe, face au château qui abrite aujourd'hui le Parlement. Jugée symbole de la domination russe, elle faillit être démolie dans les années 1920.",
+      "photo": "File:Alexander-Newski-Kathedrale_full_pc.jpg"
+    }
+  ]
+}

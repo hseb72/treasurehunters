@@ -1,0 +1,95 @@
+{
+  "key": "ljubljana-plecnik",
+  "name": "Ljubljana, des dragons à la colonne de l'Illyrie",
+  "location": "Ljubljana, vieille ville",
+  "summary": "La ville de l'architecte Jože Plečnik : le poète Prešeren et sa muse, le Triple Pont, le pont des Dragons, la cathédrale aux portes de bronze, la fontaine de Robba, le pont des Cordonniers et la colonne qui rappelle que Ljubljana fut capitale des Provinces illyriennes de Napoléon. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la statue de Prešeren, place Prešeren, près du Triple Pont.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Statue de Prešeren",
+      "lat": 46.05138,
+      "lng": 14.50631,
+      "riddle": "Partez vers l'est le long de la rivière et passez le pont des bouchers, couvert de cadenas d'amoureux. À environ 650 pas, quatre monstres ailés de cuivre gardent les extrémités d'un pont de béton de 1901.",
+      "hints": [
+        "Le quai Petkovšek, puis le pont des Bouchers, Mesarski most.",
+        "Ils sont l'emblème de la ville.",
+        "Le pont des Dragons, Zmajski most."
+      ],
+      "photo": "File:Prešeren_Monument_(Ljubljana).jpg"
+    },
+    {
+      "title": "Pont des Dragons",
+      "lat": 46.05193,
+      "lng": 14.51041,
+      "arrival": "La statue du poète France Prešeren, auteur de l'hymne slovène, regarde une façade de la place où un buste représente Julija Primic, la jeune fille qu'il aima sans retour. À côté, le Triple Pont de Jože Plečnik ajouta en 1932 deux passerelles au vieux pont. Le dragon est l'emblème de Ljubljana : selon la légende, Jason, le héros grec, en tua un ici.",
+      "riddle": "Revenez vers le sud-ouest par la place du marché qui porte le nom d'un poète des Lumières slovènes, puis par la place de deux frères qui évangélisèrent les Slaves. À environ 400 pas, un sanctuaire baroque à coupole verte raconte sur ses portes de bronze l'histoire de la ville.",
+      "hints": [
+        "Vodnikov trg, puis Ciril-Metodov trg.",
+        "Il est dédié au patron des pêcheurs et des bateliers.",
+        "La cathédrale Saint-Nicolas."
+      ],
+      "photo": "File:Laibach_-_Jubiläumsbrücke.jpg"
+    },
+    {
+      "title": "Cathédrale Saint-Nicolas",
+      "lat": 46.05076,
+      "lng": 14.50825,
+      "arrival": "La cathédrale Saint-Nicolas, baroque, date du début du XVIIIᵉ siècle. Ses deux portes de bronze, posées en 1996 pour la visite de Jean-Paul II, racontent l'histoire de la chrétienté en Slovénie et celle de la ville.",
+      "riddle": "Faites quelques pas vers le sud-ouest jusqu'à la « place de la Ville », devant la mairie. Trois dieux-fleuves de marbre y versent l'eau de leurs jarres sous un obélisque.",
+      "hints": [
+        "Mestni trg, devant l'hôtel de ville.",
+        "Ils figurent les trois rivières de la Carniole.",
+        "La fontaine de Robba."
+      ],
+      "photo": "File:StNicholas-Ljubljana.JPG"
+    },
+    {
+      "title": "Fontaine de Robba",
+      "lat": 46.0501,
+      "lng": 14.50701,
+      "arrival": "La fontaine de Francesco Robba, de 1751, représente les trois rivières de la Carniole : la Ljubljanica, la Save et la Krka. L'original est conservé à la Galerie nationale ; celle-ci est une copie.",
+      "riddle": "Partez vers le sud-ouest le long du quai de l'écrivain slovène le plus célèbre. À environ 450 pas, un pont à colonnes, dessiné par Plečnik, a remplacé la passerelle de bois où s'alignaient les échoppes d'un métier du cuir.",
+      "hints": [
+        "Le quai Cankar.",
+        "Son nom slovène est Čevljarski most.",
+        "Le pont des Cordonniers."
+      ],
+      "photo": "File:Robbafountain.jpg"
+    },
+    {
+      "title": "Pont des Cordonniers",
+      "lat": 46.04843,
+      "lng": 14.50559,
+      "arrival": "Au Moyen Âge, les cordonniers tenaient leurs échoppes sur le pont de bois qui se trouvait ici. Jože Plečnik l'a remplacé en 1931 par ce pont à colonnes. Plečnik a redessiné une grande partie de la ville : ponts, quais, marché et promenades.",
+      "riddle": "Continuez vers le sud-ouest par la « place Neuve », jusqu'à la place qui porte le nom d'une révolution française. À environ 500 pas, un monument de pierre orné d'un médaillon rappelle que la ville fut la capitale d'une province de l'Empire de Napoléon.",
+      "hints": [
+        "Novi trg, puis Trg francoske revolucije, « place de la Révolution française ».",
+        "De 1809 à 1813, Ljubljana fut la capitale des Provinces illyriennes.",
+        "La colonne de l'Illyrie, Ilirski steber."
+      ],
+      "photo": "File:Ljubljanica_near_Cobblers'_Bridge.JPG"
+    },
+    {
+      "title": "Colonne de l'Illyrie",
+      "lat": 46.0471,
+      "lng": 14.50298,
+      "arrival": "Bravo ! De 1809 à 1813, Ljubljana fut la capitale des Provinces illyriennes de Napoléon ; le français y devint langue officielle et le slovène entra à l'école. Le monument, dessiné par Plečnik, a été inauguré en 1929 ; il porte le visage de Napoléon.",
+      "photo": "File:Ilirski_steber.jpg"
+    }
+  ]
+}

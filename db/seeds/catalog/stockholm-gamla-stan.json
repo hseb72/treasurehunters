@@ -1,0 +1,94 @@
+{
+  "key": "stockholm-gamla-stan",
+  "name": "Stockholm, Gamla stan et le roi Bernadotte",
+  "location": "Stockholm, Gamla stan",
+  "summary": "La vieille ville de Stockholm, où règne une dynastie fondée par un maréchal français : le palais royal, la « grande église » et son saint Georges, la place du « bain de sang », la ruelle la plus étroite de la ville, la maison de la Noblesse et l'église des tombeaux royaux. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de l'obélisque, sur Slottsbacken, devant la façade est du palais royal (métro Gamla stan). La relève de la garde a lieu en milieu de journée.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Palais royal",
+      "lat": 59.3265,
+      "lng": 18.0724,
+      "riddle": "Descendez vers le sud-ouest par la « côte du château » et la terrasse de la garde. À environ 300 pas, la « grande église » de la ville, où l'on couronnait les rois, abrite un saint Georges terrassant le dragon, sculpté dans le bois.",
+      "hints": [
+        "Slottsbacken, puis Högvaktsterrassen.",
+        "Son nom suédois signifie « la grande église ».",
+        "Storkyrkan."
+      ],
+      "photo": "File:Stockholms_slott_(Stockholm_Palace)_(24831039126).jpg"
+    },
+    {
+      "title": "Storkyrkan",
+      "lat": 59.32576,
+      "lng": 18.07039,
+      "arrival": "Le palais royal, reconstruit après l'incendie du château des Trois Couronnes en 1697, compte plus de six cents pièces. La dynastie qui règne descend d'un maréchal de Napoléon : Jean-Baptiste Bernadotte, né à Pau, devint roi de Suède en 1818 sous le nom de Charles XIV Jean. Storkyrkan abrite un Saint Georges et le Dragon sculpté en 1489.",
+      "riddle": "Faites quelques pas vers le sud. À environ 200 pas, la « grande place » de la vieille ville est bordée de maisons colorées et de l'ancienne Bourse, qui abrite un musée consacré à un célèbre prix.",
+      "hints": [
+        "Son nom suédois signifie « la grande place ».",
+        "Un massacre s'y déroula en novembre 1520.",
+        "Stortorget."
+      ],
+      "photo": "File:Storkyrkan_2025_01.jpg"
+    },
+    {
+      "title": "Stortorget",
+      "lat": 59.325,
+      "lng": 18.07082,
+      "arrival": "En novembre 1520, le roi danois Christian II fit exécuter ici près d'une centaine de nobles et de bourgeois suédois : c'est le « bain de sang de Stockholm ». L'ancienne Bourse abrite aujourd'hui le musée Nobel.",
+      "riddle": "Partez vers le sud-est par la rue des moines noirs, puis par la rue des prêtres. À environ 500 pas, un passage en escalier est si étroit, moins d'un mètre, qu'on y touche les deux murs à la fois.",
+      "hints": [
+        "Svartmangatan, puis Prästgatan.",
+        "Elle porte le nom d'un marchand du XVIIᵉ siècle.",
+        "La ruelle Mårten Trotzig."
+      ],
+      "photo": "File:Stortorget_i_Gamla_Stan_i_Stockholm-2.JPG"
+    },
+    {
+      "title": "Ruelle Mårten Trotzig",
+      "lat": 59.32306,
+      "lng": 18.07279,
+      "arrival": "La ruelle Mårten Trotzig, du nom d'un marchand du XVIIᵉ siècle, ne mesure que 90 centimètres à son point le plus étroit : c'est la rue la plus étroite de Stockholm.",
+      "riddle": "Partez vers le nord-ouest par la « longue rue de l'ouest », puis par la « grande rue neuve ». À environ 1 000 pas, un palais baroque de 1674 réunissait les familles nobles du royaume ; leurs blasons couvrent les murs de sa grande salle.",
+      "hints": [
+        "Västerlånggatan, puis Stora Nygatan.",
+        "Plus de deux mille blasons y sont accrochés.",
+        "Riddarhuset, la maison de la Noblesse."
+      ],
+      "photo": "File:Marten-Trotzigs-Graend.jpg"
+    },
+    {
+      "title": "Maison de la Noblesse",
+      "lat": 59.32595,
+      "lng": 18.06578,
+      "arrival": "Riddarhuset, la maison de la Noblesse, achevée en 1674, accueillait l'ordre de la noblesse à la Diète. Plus de deux mille blasons de familles nobles couvrent les murs de sa grande salle.",
+      "riddle": "Traversez vers le sud-ouest le petit pont jusqu'à l'îlot des chevaliers, sur la place du fondateur légendaire de la ville. À environ 300 pas, une flèche de fonte ajourée surmonte le sanctuaire où sont enterrés les rois de Suède.",
+      "hints": [
+        "Le pont mène à Riddarholmen et à la place Birger-Jarl.",
+        "Charles XIV Jean, alias Bernadotte, y repose.",
+        "L'église de Riddarholmen."
+      ],
+      "photo": "File:Riddarhuspalatset,_2019_(04).jpg"
+    },
+    {
+      "title": "Église de Riddarholmen",
+      "lat": 59.32468,
+      "lng": 18.0646,
+      "arrival": "Bravo ! L'église de Riddarholmen est la nécropole des rois de Suède depuis le XVIIᵉ siècle. On y trouve notamment les tombeaux de Gustave II Adolphe et de Charles XIV Jean, le Français Bernadotte. Sa flèche de fonte date du milieu du XIXᵉ siècle.",
+      "photo": "File:Riddarholmskyrkan_juni_2005.jpg"
+    }
+  ]
+}

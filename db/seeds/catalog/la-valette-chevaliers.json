@@ -1,0 +1,94 @@
+{
+  "key": "la-valette-chevaliers",
+  "name": "La Valette, la cité des chevaliers",
+  "location": "La Valette, Malte",
+  "summary": "La ville fondée par le grand maître français Jean de La Valette après le Grand Siège de 1565 : la porte de Renzo Piano, les jardins d'Upper Barrakka et leur canon de midi, la co-cathédrale du Caravage, le palais des Grands Maîtres pillé par Napoléon et le fort Saint-Elme. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la fontaine des Tritons, à l'entrée de la ville (gare routière de La Valette). La co-cathédrale et le fort Saint-Elme se visitent à certaines heures ; on les voit librement de l'extérieur.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Fontaine des Tritons",
+      "lat": 35.89563,
+      "lng": 14.50827,
+      "riddle": "Faites quelques pas vers l'est : une large entrée percée dans les remparts, rebâtie par Renzo Piano, est l'unique accès terrestre de la cité fortifiée.",
+      "hints": [
+        "Elle s'ouvre sur la rue de la République.",
+        "Plusieurs portes s'y sont succédé depuis le XVIᵉ siècle.",
+        "La porte de la ville, City Gate."
+      ],
+      "photo": "File:Fuente_de_los_Tritones,_La_Valeta,_isla_de_Malta,_Malta,_2021-08-25,_DD_222-224_HDR.jpg"
+    },
+    {
+      "title": "Porte de la ville",
+      "lat": 35.89591,
+      "lng": 14.50942,
+      "arrival": "La fontaine des Tritons, de Vincent Apap, a été inaugurée en 1959. La Valette a été fondée en 1566 par Jean de La Valette, grand maître de l'ordre de Saint-Jean, un chevalier français, au lendemain du Grand Siège qui repoussa les Ottomans en 1565. La porte actuelle et le Parlement voisin sont l'œuvre de Renzo Piano.",
+      "riddle": "Partez vers le sud-est jusqu'à la place de la Castille, devant l'auberge des chevaliers castillans, aujourd'hui siège du Premier ministre. À environ 500 pas, des terrasses à arcades dominent le Grand Port ; une batterie de canons y tonne chaque jour à midi.",
+      "hints": [
+        "Misraħ Kastilja, la place de Castille, devant l'Auberge de Castille.",
+        "On y tire le canon à midi et à 16 heures.",
+        "Les jardins d'Upper Barrakka."
+      ],
+      "photo": "File:City_Gate,_Valletta_002.jpg"
+    },
+    {
+      "title": "Jardins d'Upper Barrakka",
+      "lat": 35.89496,
+      "lng": 14.51201,
+      "arrival": "Les jardins d'Upper Barrakka, aménagés par les chevaliers italiens de l'ordre, offrent la plus belle vue sur le Grand Port et les Trois Cités. La batterie des saluts y tire un coup de canon chaque jour à midi.",
+      "riddle": "Remontez vers le nord par la rue des marchands : Napoléon logea dans un palais de cette rue en 1798. À environ 600 pas, un sanctuaire à la façade austère cache un intérieur entièrement doré et le seul tableau signé du Caravage.",
+      "hints": [
+        "Triq il-Merkanti, la rue des Marchands.",
+        "Le tableau représente la décollation de saint Jean-Baptiste.",
+        "La co-cathédrale Saint-Jean."
+      ],
+      "photo": "File:Upper_barrakka_gardens-IMG_1669.jpg"
+    },
+    {
+      "title": "Co-cathédrale Saint-Jean",
+      "lat": 35.8977,
+      "lng": 14.51264,
+      "arrival": "La co-cathédrale Saint-Jean, achevée en 1578, était l'église conventuelle des chevaliers ; son sol est couvert de centaines de dalles funéraires de marbre. Elle abrite La Décollation de saint Jean-Baptiste, le seul tableau signé du Caravage, peint à Malte en 1608.",
+      "riddle": "Faites quelques pas vers le nord-est par la rue du trésor. À environ 400 pas, la résidence des chefs de l'ordre abrite aujourd'hui la présidence de la République.",
+      "hints": [
+        "Triq it-Teżorerija, la rue du Trésor.",
+        "On y voit l'armurerie des chevaliers.",
+        "Le palais des Grands Maîtres."
+      ],
+      "photo": "File:Concatedral_de_San_Juan,_La_Valeta,_isla_de_Malta,_Malta,_2021-08-25,_DD_246-248_HDR.jpg"
+    },
+    {
+      "title": "Palais des Grands Maîtres",
+      "lat": 35.89856,
+      "lng": 14.5145,
+      "arrival": "Le palais des Grands Maîtres, construit à partir de 1571, abrite aujourd'hui le bureau du président de Malte. En 1798, Napoléon s'empara de l'île et emporta vers l'Égypte une partie du trésor de l'ordre ; elle sombra avec le vaisseau L'Orient à Aboukir.",
+      "riddle": "Partez vers le nord-est par la rue de l'hôpital des chevaliers, puis par la rue du vent du nord. À environ 1 100 pas, à la pointe de la presqu'île, une forteresse en étoile résista plus d'un mois aux Ottomans en 1565.",
+      "hints": [
+        "Triq l-Isptar, « rue de l'Hôpital », puis Triq it-Tramuntana, « rue de la Tramontane ».",
+        "Elle tomba le 23 juin 1565.",
+        "Le fort Saint-Elme."
+      ],
+      "photo": "File:Valletta_St_Johns_square_Malta_2014_3.jpg"
+    },
+    {
+      "title": "Fort Saint-Elme",
+      "lat": 35.90198,
+      "lng": 14.51881,
+      "arrival": "Bravo ! Le fort Saint-Elme, en étoile, garde l'entrée des deux ports. En 1565, sa petite garnison résista plus d'un mois aux Ottomans, donnant aux secours le temps d'arriver : le Grand Siège fut levé en septembre. Le fort abrite aujourd'hui le musée national de la Guerre.",
+      "photo": "File:Fort_St._Elmo;_Valletta,_Malta.jpg"
+    }
+  ]
+}

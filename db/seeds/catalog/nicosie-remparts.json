@@ -1,0 +1,89 @@
+{
+  "key": "nicosie-remparts",
+  "name": "Nicosie, dans les remparts vénitiens",
+  "location": "Nicosie, vieille ville",
+  "summary": "La dernière capitale divisée d'Europe, dans son enceinte vénitienne en étoile : la place Eleftheria, le quartier de Laïki Yitonia, la rue Ledra et son point de passage vers le nord, la cathédrale Saint-Jean, le monument de la Liberté et la porte de Famagouste. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous sur la place Eleftheria, au-dessus des anciennes douves. Pour passer dans la partie nord, rue Ledra, il faut un passeport ou une carte d'identité ; le parcours reste au sud.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Eleftheria",
+      "lat": 35.17025,
+      "lng": 33.35947,
+      "riddle": "Partez vers l'est par la rue d'Homère, dans les ruelles au pied des remparts. À environ 500 pas, un petit quartier piéton de maisons de pierre aux balcons de bois, restauré dans les années 1980, porte un nom qui signifie « le voisinage populaire ».",
+      "hints": [
+        "Omirou, la rue d'Homère, au sud de la vieille ville.",
+        "On y trouve tavernes et artisans.",
+        "Laïki Yitonia."
+      ]
+    },
+    {
+      "title": "Laïki Yitonia",
+      "lat": 35.16985,
+      "lng": 33.36225,
+      "arrival": "La place Eleftheria, « la Liberté », a été redessinée par Zaha Hadid au-dessus des douves. Les remparts, élevés par les Vénitiens en 1567, forment une étoile à onze bastions ; ils n'empêchèrent pas la prise de la ville par les Ottomans en 1570.",
+      "riddle": "Remontez vers le nord par les rues de trois sages grecs, Solon, Aristote et Socrate, jusqu'à la grande rue commerçante. À environ 950 pas, au bout de cette rue, un poste de contrôle permet de passer dans la partie nord de la ville, de l'autre côté de la ligne verte.",
+      "hints": [
+        "Solonos, Aristotelous et Sokratous mènent à la rue commerçante.",
+        "Le point de passage a été ouvert en 2008.",
+        "La rue Ledra."
+      ]
+    },
+    {
+      "title": "Rue Ledra",
+      "lat": 35.17415,
+      "lng": 33.36142,
+      "arrival": "La rue Ledra est coupée depuis 1974 par la ligne verte, qui divise Nicosie, souvent appelée la dernière capitale divisée d'Europe. Le point de passage, ouvert en 2008, permet de rejoindre le nord avec un passeport ou une carte d'identité.",
+      "riddle": "Partez vers l'est par la rue de la « Vierge révélée », puis par celle de l'apôtre Barnabé, né à Chypre. À environ 1 200 pas, une petite église de 1662, couverte de fresques, est le siège de l'archevêque de l'île.",
+      "hints": [
+        "Faneromenis, puis Apostolou Varnava.",
+        "Elle jouxte le palais archiépiscopal.",
+        "La cathédrale Saint-Jean."
+      ],
+      "photo": "File:Nicosia_Ledra_street_afternoon_Republic_of_Cyprus.JPG"
+    },
+    {
+      "title": "Cathédrale Saint-Jean",
+      "lat": 35.17333,
+      "lng": 33.36783,
+      "arrival": "La cathédrale Saint-Jean, bâtie en 1662 par l'archevêque Nicéphore, est couverte de fresques du XVIIIᵉ siècle ; l'une raconte la découverte du tombeau de saint Barnabé. Elle jouxte le palais archiépiscopal.",
+      "riddle": "Partez vers le sud-est par la rue d'Hercule, puis par celle d'un savant grec des Lumières qui vécut à Paris. À environ 600 pas, sur un bastion des remparts, une haute figure féminine domine des prisonniers qui sortent de leur geôle.",
+      "hints": [
+        "Irakleous, puis Adamantiou Korai.",
+        "Il célèbre la libération des combattants de 1955-1959.",
+        "Le monument de la Liberté, bastion Podocataro."
+      ]
+    },
+    {
+      "title": "Monument de la Liberté",
+      "lat": 35.17159,
+      "lng": 33.37037,
+      "arrival": "Le monument de la Liberté, inauguré en 1973, représente des combattants chypriotes grecs libérés de prison à la fin de la lutte contre la domination britannique, en 1959 ; Chypre est indépendante depuis 1960. La rue voisine honore Adamantios Koraïs, savant grec qui vécut à Paris.",
+      "riddle": "Remontez vers le nord par l'avenue d'un empereur byzantin, puis par celle de la déesse protectrice d'Athènes. À environ 600 pas, une porte voûtée percée dans les remparts vénitiens était la principale entrée de la ville.",
+      "hints": [
+        "L'avenue Nikiforou Foka, puis l'avenue Athinas.",
+        "Elle menait vers le grand port de l'est de l'île.",
+        "La porte de Famagouste."
+      ]
+    },
+    {
+      "title": "Porte de Famagouste",
+      "lat": 35.1743,
+      "lng": 33.3712,
+      "arrival": "Bravo ! La porte de Famagouste, la Porta Giuliana des Vénitiens, était la principale des trois portes de la ville. Son long passage voûté accueille aujourd'hui un centre culturel."
+    }
+  ]
+}

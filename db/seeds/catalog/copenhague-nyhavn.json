@@ -1,0 +1,93 @@
+{
+  "key": "copenhague-nyhavn",
+  "name": "Copenhague, de Nyhavn à la Petite Sirène",
+  "location": "Copenhague, Frederiksstaden",
+  "summary": "Le Copenhague d'Andersen et des rois : le « nouveau port » et ses maisons colorées, les quatre palais d'Amalienborg, l'église de Marbre restée un siècle en ruine, la fontaine de Gefion et ses bœufs, et la Petite Sirène. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au centre de la place Kongens Nytorv (métro Kongens Nytorv). La relève de la garde à Amalienborg a lieu chaque jour à midi.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Kongens Nytorv",
+      "lat": 55.68042,
+      "lng": 12.58596,
+      "riddle": "Partez vers l'est jusqu'au « nouveau port ». À environ 400 pas, un canal est bordé de maisons colorées et de vieux voiliers ; un conteur de contes de fées a habité trois de ces maisons.",
+      "hints": [
+        "Nyhavn signifie « nouveau port ».",
+        "Il a écrit La Petite Sirène.",
+        "Nyhavn, côté nord du canal."
+      ]
+    },
+    {
+      "title": "Nyhavn",
+      "lat": 55.6799,
+      "lng": 12.589,
+      "arrival": "Le canal de Nyhavn a été creusé dans les années 1670. Hans Christian Andersen a vécu au numéro 20, puis aux numéros 67 et 18.",
+      "riddle": "Partez vers le nord-est par la place de sainte Anne, puis par la rue d'une reine prénommée Amélie. À environ 1 000 pas, quatre palais identiques entourent une place octogonale où montent la garde des soldats à bonnet à poil.",
+      "hints": [
+        "Sankt Annæ Plads, puis Amaliegade.",
+        "La reine y réside.",
+        "Amalienborg."
+      ],
+      "photo": "File:Nyhavn_Copenhagen_2.jpg"
+    },
+    {
+      "title": "Amalienborg",
+      "lat": 55.68397,
+      "lng": 12.59322,
+      "arrival": "Amalienborg réunit quatre palais du XVIIIᵉ siècle autour d'une place octogonale ; la famille royale y réside. La statue équestre de Frédéric V, au centre, est l'œuvre du sculpteur français Jacques Saly.",
+      "riddle": "Faites quelques pas vers le nord-ouest par la rue du roi qui fonda le quartier. À environ 500 pas, une grande coupole verte, l'une des plus larges de Scandinavie, couronne un sanctuaire commencé en 1749 et achevé seulement en 1894.",
+      "hints": [
+        "La Frederiksgade.",
+        "Faute d'argent, le chantier s'arrêta pendant plus d'un siècle.",
+        "L'église de Marbre, Frederiks Kirke."
+      ],
+      "photo": "File:Amalienborg_Slotsplads_2.jpg"
+    },
+    {
+      "title": "Église de Marbre",
+      "lat": 55.68497,
+      "lng": 12.58955,
+      "arrival": "L'église Frédéric, dite église de Marbre, commencée en 1749, fut abandonnée faute d'argent ; elle resta en ruine plus d'un siècle avant d'être achevée en 1894.",
+      "riddle": "Partez vers le nord-est par la « rue large », puis par l'esplanade. À environ 1 400 pas, une déesse fouette quatre bœufs qui labourent la terre, dans une grande fontaine de bronze.",
+      "hints": [
+        "Bredgade, « la rue large », puis Esplanaden.",
+        "Selon la légende, les bœufs étaient ses quatre fils.",
+        "La fontaine de Gefion."
+      ],
+      "photo": "File:Frederik's_Church,_Copenhagen,_20220617_0853_6680.jpg"
+    },
+    {
+      "title": "Fontaine de Gefion",
+      "lat": 55.68928,
+      "lng": 12.59759,
+      "arrival": "Selon la légende, le roi de Suède promit à la déesse Gefion autant de terre qu'elle pourrait en labourer en une nuit. Elle changea ses quatre fils en bœufs et arracha l'île de Seeland, où se trouve Copenhague. La fontaine d'Anders Bundgaard date de 1908.",
+      "riddle": "Longez la mer vers le nord par la « longue ligne », à environ 850 pas. Assise sur un rocher, une figure de bronze à queue de poisson regarde la mer ; elle est bien plus menue qu'on ne l'imagine.",
+      "hints": [
+        "La promenade Langelinie.",
+        "Elle a été offerte à la ville par le brasseur Carl Jacobsen.",
+        "La Petite Sirène."
+      ],
+      "photo": "File:Gefionspringvandet,_København_(02).jpg"
+    },
+    {
+      "title": "Petite Sirène",
+      "lat": 55.69287,
+      "lng": 12.59929,
+      "arrival": "Bravo ! La Petite Sirène d'Edvard Eriksen a été inaugurée en 1913 ; elle illustre le conte d'Andersen. Commandée par le brasseur Carl Jacobsen, elle ne mesure qu'environ 1,25 mètre. Elle a été décapitée deux fois, en 1964 et en 1998."
+    }
+  ]
+}
