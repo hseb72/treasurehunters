@@ -1,0 +1,106 @@
+{
+  "key": "amsterdam-grachtengordel",
+  "name": "Amsterdam, des canaux au marché aux fleurs",
+  "location": "Amsterdam, ceinture des canaux",
+  "summary": "Le long des canaux du Siècle d'or : la Westerkerk et la maison d'Anne Frank, la place du Dam née d'une digue, le Béguinage caché, le marché aux fleurs flottant, la tour où l'on frappa la monnaie pendant l'invasion française et la place de Rembrandt. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la tour de la Westerkerk, Westermarkt (tram Westermarkt). Le Béguinage est ouvert en journée : on y entre en silence. Attention aux vélos.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Westerkerk",
+      "lat": 52.37455,
+      "lng": 4.88399,
+      "riddle": "Faites quelques pas vers le nord, le long du canal du Prince. Au numéro 263, derrière une bibliothèque pivotante, une adolescente juive et sa famille vécurent cachées plus de deux ans ; elle entendait d'ici sonner les cloches.",
+      "hints": [
+        "Le Prinsengracht, « canal du Prince ».",
+        "Son journal est l'un des livres les plus lus au monde.",
+        "La maison d'Anne Frank, Prinsengracht 263."
+      ],
+      "photo": "File:Amsterdam_(NL),_Westerkerk_--_2015_--_7186.jpg"
+    },
+    {
+      "title": "Maison d'Anne Frank",
+      "lat": 52.37516,
+      "lng": 4.88408,
+      "arrival": "De juillet 1942 à août 1944, Anne Frank, sa famille et quatre autres personnes vécurent cachées dans l'annexe de cette maison. Dans son journal, Anne parle des cloches de la Westerkerk voisine, où Rembrandt est enterré dans une tombe dont on ignore l'emplacement exact.",
+      "riddle": "Partez vers l'est par la rue de l'hôtel de ville : le palais royal en était un. À environ 1 400 pas, sur la grande place née d'une digue, un obélisque blanc rend hommage aux victimes de la Seconde Guerre mondiale.",
+      "hints": [
+        "La Raadhuisstraat mène au Dam, derrière le palais.",
+        "La ville tire son nom de cette digue sur l'Amstel.",
+        "Le Monument national, place du Dam."
+      ],
+      "photo": "File:Amsterdam_(Paises_Bajos)_(15316045410).jpg"
+    },
+    {
+      "title": "Monument national du Dam",
+      "lat": 52.37282,
+      "lng": 4.89369,
+      "arrival": "Le Dam est la digue qui barrait l'Amstel au XIIIᵉ siècle et a donné son nom à la ville. Le palais royal, construit au XVIIᵉ siècle comme hôtel de ville, devint palais en 1808 pour Louis Bonaparte, frère de Napoléon et roi de Hollande. Le Monument national, inauguré en 1956, rend hommage aux victimes de la guerre.",
+      "riddle": "Descendez vers le sud par la rue commerçante des veaux : on y tenait le marché au bétail. À environ 950 pas, une porte discrète, côté Spui, ouvre sur une cour silencieuse entourée de maisons où vivaient des femmes pieuses, sans être religieuses.",
+      "hints": [
+        "La Kalverstraat, « rue des Veaux ».",
+        "On y voit l'une des deux plus anciennes maisons de bois de la ville.",
+        "Le Béguinage, entrée par le Spui."
+      ]
+    },
+    {
+      "title": "Béguinage",
+      "lat": 52.3692,
+      "lng": 4.8901,
+      "arrival": "Le Béguinage, fondé au XIVᵉ siècle, accueillait des béguines, femmes pieuses vivant en communauté sans prononcer de vœux. La maison de bois du numéro 34, vers 1528, est l'une des deux plus anciennes de la ville. La dernière béguine est morte en 1971.",
+      "riddle": "Partez vers le sud par la rue des archers, puis par la « voie sainte », jusqu'au canal de la ceinture. À environ 500 pas, des étals posés sur des péniches vendent tulipes et bulbes au fil de l'eau.",
+      "hints": [
+        "La Handboogstraat, puis le Heiligeweg et le Singel.",
+        "Il flotte sur le Singel depuis le XIXᵉ siècle.",
+        "Le marché aux fleurs, Singel."
+      ],
+      "photo": "File:Begijnhof_Amsterdam_P1020930.JPG"
+    },
+    {
+      "title": "Marché aux fleurs",
+      "lat": 52.36693,
+      "lng": 4.89077,
+      "arrival": "Le marché aux fleurs du Singel est installé sur des bateaux depuis 1862 : les fleuristes arrivaient autrefois par l'eau. Au XVIIᵉ siècle, la « tulipomanie » fit monter le prix d'un seul bulbe au niveau de celui d'une maison.",
+      "riddle": "Faites quelques pas vers l'est, à moins de 350 pas, au bout du canal, jusqu'à une tour médiévale à horloge coiffée d'une flèche baroque. Son nom rappelle qu'on y frappa la monnaie pendant une guerre contre la France.",
+      "hints": [
+        "Elle se dresse sur la place de la Monnaie, le Muntplein.",
+        "Louis XIV avait envahi les Provinces-Unies en 1672.",
+        "La Munttoren."
+      ],
+      "photo": "File:SingelBloemenmarkt.jpg"
+    },
+    {
+      "title": "Munttoren",
+      "lat": 52.36706,
+      "lng": 4.89321,
+      "arrival": "La tour faisait partie d'une porte de l'enceinte médiévale. En 1672, l'« année du désastre », les troupes de Louis XIV envahirent les Provinces-Unies : Amsterdam ne pouvant plus envoyer son argent aux ateliers monétaires, on frappa la monnaie dans cette tour, qui en garda le nom.",
+      "riddle": "Partez vers le sud-est par la large rue des chanoines réguliers. À environ 500 pas, une place animée de cafés est gardée par la statue d'un peintre du Siècle d'or.",
+      "hints": [
+        "La Reguliersbreestraat.",
+        "Il a peint La Ronde de nuit.",
+        "Le Rembrandtplein."
+      ],
+      "photo": "File:Munttoren_in_Amsterdam_2015.jpg"
+    },
+    {
+      "title": "Rembrandtplein",
+      "lat": 52.36599,
+      "lng": 4.89661,
+      "arrival": "Bravo ! La statue de Rembrandt, par Louis Royer, a été érigée en 1852 sur l'ancien marché au beurre, qui prit plus tard le nom du peintre.",
+      "photo": "File:NieuwRembrandtplein.JPG"
+    }
+  ]
+}

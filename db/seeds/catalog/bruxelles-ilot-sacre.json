@@ -1,0 +1,93 @@
+{
+  "key": "bruxelles-ilot-sacre",
+  "name": "Bruxelles, de la Grand-Place au Mont des Arts",
+  "location": "Bruxelles, Îlot sacré et quartier royal",
+  "summary": "De la ville basse à la ville haute : la Grand-Place rebâtie après le bombardement de 1695, le Manneken-Pis et ses costumes, les galeries royales Saint-Hubert, la cathédrale des mariages princiers, les jardins du Mont des Arts et Godefroid de Bouillon sur la place Royale.",
+  "startText": "Rendez-vous au centre de la Grand-Place (gare de Bruxelles-Central). Ça monte entre la cathédrale et la place Royale.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Grand-Place",
+      "lat": 50.84671,
+      "lng": 4.35252,
+      "riddle": "Sortez vers le sud-ouest par la rue du bourgmestre qui sauva la place, puis par la rue des anciens bains chauds. À environ 500 pas, au coin d'une rue, un tout petit garçon de bronze se soulage dans une vasque ; il possède une garde-robe de plus de mille costumes.",
+      "hints": [
+        "La rue Charles-Buls, puis la rue de l'Étuve.",
+        "Il mesure à peine plus de cinquante centimètres.",
+        "Le Manneken-Pis, rue de l'Étuve."
+      ],
+      "photo": "File:Grand-Place,_Brussels_-_panorama,_June_2018.jpg"
+    },
+    {
+      "title": "Manneken-Pis",
+      "lat": 50.84499,
+      "lng": 4.34999,
+      "arrival": "En 1695, l'armée de Louis XIV, commandée par le maréchal de Villeroy, bombarda Bruxelles et détruisit presque toute la Grand-Place ; les corporations la rebâtirent en quelques années. Le Manneken-Pis, sculpté par Jérôme Duquesnoy en 1619, est aujourd'hui une copie : l'original est conservé au musée de la Ville. Selon la tradition, Louis XV lui offrit un costume pour se faire pardonner un vol commis par des soldats français.",
+      "riddle": "Remontez vers le nord-est par la rue des brasseurs, retraversez la grande place et prenez la rue des marchands de légumes. À environ 850 pas, un passage couvert de verre, inauguré en 1847, abrite chocolatiers et librairies.",
+      "hints": [
+        "La rue des Brasseurs, puis la rue du Marché-aux-Herbes.",
+        "C'est l'un des premiers passages commerçants couverts d'Europe.",
+        "Les galeries royales Saint-Hubert."
+      ],
+      "photo": "File:Bruxelles_Manneken_Pis.jpg"
+    },
+    {
+      "title": "Galeries royales Saint-Hubert",
+      "lat": 50.8475,
+      "lng": 4.35455,
+      "arrival": "Les galeries royales Saint-Hubert, dessinées par Jean-Pierre Cluysenaar et inaugurées en 1847, comptent parmi les premières galeries commerçantes couvertes d'Europe. Victor Hugo, exilé à Bruxelles après le coup d'État de 1851, logea quelque temps tout près, sur la Grand-Place.",
+      "riddle": "Partez vers l'est et grimpez la rue de la « montagne », puis celle d'un marquis. À environ 700 pas, un grand sanctuaire gothique à deux tours blanches, où se marient les princes, domine la ville basse.",
+      "hints": [
+        "La rue de la Montagne, puis la rue du Marquis.",
+        "Il est dédié à l'archange et à une sainte patronne de la ville.",
+        "La cathédrale Saints-Michel-et-Gudule."
+      ],
+      "photo": "File:Galeries_royales_Saint-Hubert,_Bruselas,_Bélgica,_2021-12-14,_DD_04-06_HDR.jpg"
+    },
+    {
+      "title": "Cathédrale Saints-Michel-et-Gudule",
+      "lat": 50.84775,
+      "lng": 4.3595,
+      "arrival": "Construite du XIIIᵉ au XVᵉ siècle, la cathédrale est dédiée à saint Michel, patron de Bruxelles, et à sainte Gudule. Le prince Philippe et Mathilde d'Udekem d'Acoz s'y sont mariés en 1999.",
+      "riddle": "Redescendez vers le sud-ouest par la rue des puits, puis traversez la galerie d'un seigneur de la maison de Clèves. À environ 950 pas, des jardins en terrasses montent vers la ville haute ; du sommet, on voit la flèche de l'hôtel de ville.",
+      "hints": [
+        "La rue de la Putterie, puis la galerie Ravenstein.",
+        "Il relie la ville basse au quartier royal.",
+        "Le Mont des Arts."
+      ],
+      "photo": "File:(Belgium)_St._Michael_&_St._Gudula_Cathedral_Tower,_Brussels.jpg"
+    },
+    {
+      "title": "Mont des Arts",
+      "lat": 50.84386,
+      "lng": 4.35677,
+      "arrival": "Le Mont des Arts, aménagé au XXᵉ siècle, relie la ville basse au quartier royal. Son jardin offre l'une des plus belles vues sur la flèche de l'hôtel de ville, que surmonte un saint Michel terrassant le démon.",
+      "riddle": "Montez vers le sud-est par la « montagne de la cour », jusqu'à une place néoclassique. À environ 500 pas, un croisé à cheval brandit son étendard ; sous ses pieds dorment les ruines d'un palais de Charles Quint.",
+      "hints": [
+        "La rue Montagne-de-la-Cour, puis la place Royale.",
+        "Il prit Jérusalem lors de la première croisade, en 1099.",
+        "La statue de Godefroid de Bouillon, place Royale."
+      ]
+    },
+    {
+      "title": "Statue de Godefroid de Bouillon",
+      "lat": 50.84229,
+      "lng": 4.35948,
+      "arrival": "Bravo ! La statue de Godefroid de Bouillon, chef de la première croisade, date de 1848. Sous la place Royale subsistent les vestiges du palais du Coudenberg, où Charles Quint abdiqua en 1555 ; le palais avait brûlé en 1731.",
+      "photo": "File:GdeBouillon.JPG"
+    }
+  ]
+}

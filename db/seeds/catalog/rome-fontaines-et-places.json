@@ -1,0 +1,107 @@
+{
+  "key": "rome-fontaines-et-places",
+  "name": "Rome, des fontaines aux places baroques",
+  "location": "Rome, Campo Marzio et Parione",
+  "summary": "D'une fontaine à l'autre dans la Rome baroque et antique : la Barcaccia, la fontaine de Trevi, la colonne de Marc Aurèle, le Panthéon, la piazza Navona du Bernin, Giordano Bruno au Campo de' Fiori et le largo Argentina, où César fut assassiné. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la fontaine de la Barcaccia, au pied de l'escalier de la Trinité-des-Monts (métro Spagna). Il y a du monde : gardez un œil sur vos affaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Fontaine de la Barcaccia",
+      "lat": 41.9058,
+      "lng": 12.48225,
+      "riddle": "Descendez vers le sud par la rue des « fourrés », puis traversez la rue du dieu marin qui souffle dans sa conque. À environ 1 100 pas, au détour d'une ruelle, la plus grande fontaine baroque de la ville surgit contre la façade d'un palais ; on y jette une pièce par-dessus l'épaule.",
+      "hints": [
+        "La via Frattina, puis la via del Tritone.",
+        "Une pièce lancée de la main droite par-dessus l'épaule gauche promet de revenir à Rome.",
+        "La fontaine de Trevi."
+      ],
+      "photo": "File:Barcaccia_e_scalinata.jpg"
+    },
+    {
+      "title": "Fontaine de Trevi",
+      "lat": 41.9009,
+      "lng": 12.4832,
+      "arrival": "La Barcaccia, une barque à demi noyée, a été sculptée vers 1627 par Pietro Bernini, peut-être avec son fils Gian Lorenzo : la faible pression de l'eau imposait une fontaine basse. L'escalier qui la domine a été payé grâce au legs d'un diplomate français. La fontaine de Trevi, achevée en 1762, est alimentée par l'Aqua Virgo, un aqueduc de 19 avant J.-C. ; les pièces qu'on y jette vont à une œuvre de charité.",
+      "riddle": "Partez vers l'ouest par la rue des porte-croix, puis traversez la galerie d'un acteur comique romain. À environ 550 pas, un haut fût de marbre sculpté en spirale raconte les campagnes d'un empereur philosophe contre les Germains.",
+      "hints": [
+        "La via dei Crociferi, puis la galerie Alberto-Sordi.",
+        "L'empereur a écrit les Pensées pour moi-même.",
+        "La colonne de Marc Aurèle, piazza Colonna."
+      ],
+      "photo": "File:Trevi_Fountain_-_Roma.jpg"
+    },
+    {
+      "title": "Colonne de Marc Aurèle",
+      "lat": 41.90085,
+      "lng": 12.47999,
+      "arrival": "La colonne de Marc Aurèle raconte en bas-reliefs les guerres de l'empereur contre les Germains et les Sarmates. Depuis 1589, une statue de saint Paul a remplacé celle de l'empereur au sommet. Le palais Chigi, en face, est la résidence du président du Conseil italien.",
+      "riddle": "Partez vers le sud-ouest par la rue des orphelins. À environ 650 pas, un temple de tous les dieux, vieux de près de deux mille ans, garde sous sa coupole un œil ouvert sur le ciel.",
+      "hints": [
+        "La via degli Orfani mène à la piazza della Rotonda.",
+        "Sa coupole de béton est restée la plus grande du monde pendant plus de mille ans.",
+        "Le Panthéon."
+      ],
+      "photo": "File:Colonna_di_Marco_aurelio_-_Frontale.jpg"
+    },
+    {
+      "title": "Panthéon",
+      "lat": 41.8992,
+      "lng": 12.4768,
+      "arrival": "Reconstruit sous Hadrien vers 125, le Panthéon a une coupole de 43 mètres de diamètre, exactement sa hauteur : une sphère parfaite y tiendrait. L'oculus du sommet laisse entrer la pluie, qui s'écoule par de petits trous dans le sol. Raphaël y est enterré.",
+      "riddle": "Partez vers l'ouest par la montée d'une famille noble, puis longez la place de « Madame » : Marguerite, fille de Charles Quint, vécut dans le palais voisin, devenu le Sénat. À environ 600 pas, une place ovale garde la forme d'un stade antique ; au centre, des géants de marbre figurent le Danube, le Gange, le Nil et le Río de la Plata.",
+      "hints": [
+        "La salita de' Crescenzi, puis la piazza Madama.",
+        "Elle est l'œuvre du Bernin, en 1651.",
+        "La fontaine des Quatre-Fleuves, piazza Navona."
+      ],
+      "photo": "File:Pantheon_(Rome)_-_Right_side_and_front.jpg"
+    },
+    {
+      "title": "Fontaine des Quatre-Fleuves",
+      "lat": 41.89895,
+      "lng": 12.47309,
+      "arrival": "La piazza Navona suit le tracé du stade de Domitien, construit vers 86. La fontaine des Quatre-Fleuves du Bernin a été inaugurée en 1651 ; le Nil y cache son visage, car ses sources étaient alors inconnues. On raconte qu'il se voile pour ne pas voir l'église de son rival Borromini, mais l'église a été commencée après la fontaine.",
+      "riddle": "Descendez vers le sud, traversez le grand cours, puis suivez la rue des fabricants de malles. À environ 750 pas, sur une place de marché, un moine encapuchonné, tête baissée, se dresse sur le lieu de son bûcher.",
+      "hints": [
+        "La via dei Baullari mène au Campo de' Fiori.",
+        "Il fut brûlé vif en 1600 pour avoir soutenu que l'univers est infini.",
+        "La statue de Giordano Bruno, Campo de' Fiori."
+      ],
+      "photo": "File:Obelisco_Fontana_dei_Fiumi_Piazza_Navona_Roma.jpg"
+    },
+    {
+      "title": "Statue de Giordano Bruno",
+      "lat": 41.8956,
+      "lng": 12.47218,
+      "arrival": "Le philosophe Giordano Bruno, qui défendait l'infinité de l'univers et la pluralité des mondes, fut brûlé ici par l'Inquisition le 17 février 1600. Sa statue, d'Ettore Ferrari, a été inaugurée en 1889 ; elle tourne le regard vers le Vatican.",
+      "riddle": "Partez vers l'est par la rue du grand serpent, puis par celle du suaire. À environ 800 pas, en contrebas de la rue, des temples de la République romaine forment une fosse où dorment des chats ; tout près, un dictateur tomba aux ides de mars.",
+      "hints": [
+        "La via del Biscione, puis la via del Sudario.",
+        "Jules César y fut poignardé en 44 avant J.-C.",
+        "Le largo di Torre Argentina."
+      ],
+      "photo": "File:Bronze_statue_of_Giordano_Bruno_by_Ettore_Ferrari_,_Campo_de'_Fiori,_Roma.jpg"
+    },
+    {
+      "title": "Largo di Torre Argentina",
+      "lat": 41.896,
+      "lng": 12.47684,
+      "arrival": "Bravo ! Le largo di Torre Argentina conserve quatre temples républicains et une partie de la curie de Pompée, où Jules César fut assassiné le 15 mars 44 avant J.-C. Son nom vient d'Argentoratum, l'actuelle Strasbourg, ville natale d'un évêque qui habitait là au XVIᵉ siècle. Un refuge soigne les chats qui vivent parmi les ruines.",
+      "photo": "File:Largo_di_Torre_Argentina_4.jpg"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "key": "prague-chemin-royal",
+  "name": "Prague, le chemin royal",
+  "location": "Prague, Vieille Ville et Malá Strana",
+  "summary": "Sur le chemin que suivaient les rois de Bohême le jour de leur couronnement : la tour Poudrière, l'horloge astronomique de 1410, la tour du pont Charles et son secret palindrome, saint Jean Népomucène, le mur Lennon et l'église Saint-Nicolas, où joua Mozart. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la tour Poudrière, place de la République (métro Náměstí Republiky). Le pont Charles est bondé en journée : venez tôt le matin si vous pouvez.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Tour Poudrière",
+      "lat": 50.08724,
+      "lng": 14.42776,
+      "riddle": "Partez vers l'ouest par la rue des boulangers de pains tressés, la première du chemin que suivaient les rois le jour de leur couronnement. À environ 1 000 pas, sur une grande place, un cadran du XVᵉ siècle fait défiler les apôtres à chaque heure, tandis qu'un squelette sonne la cloche.",
+      "hints": [
+        "La Celetná, du nom des calty, des pains tressés.",
+        "Elle date de 1410 et fonctionne toujours.",
+        "L'horloge astronomique, place de la Vieille-Ville."
+      ],
+      "photo": "File:116_Prašná_Brána_(torre_de_la_Pólvora).jpg"
+    },
+    {
+      "title": "Horloge astronomique",
+      "lat": 50.08698,
+      "lng": 14.42071,
+      "arrival": "La tour Poudrière, du XVᵉ siècle, ouvrait le chemin royal ; on y entreposa la poudre au XVIIᵉ siècle. L'horloge astronomique, installée en 1410, est la plus ancienne horloge astronomique encore en fonctionnement. Une légende dit que son maître horloger fut aveuglé pour qu'il n'en construise jamais d'autre.",
+      "riddle": "Continuez vers l'ouest par la petite place, puis par la rue sinueuse qui porte le nom de l'empereur bâtisseur. À environ 1 000 pas, une tour gothique ouvre le plus ancien pont de Prague sur la Vltava.",
+      "hints": [
+        "La Karlova, « rue de Charles ».",
+        "Son architecte, Peter Parler, a aussi bâti la cathédrale Saint-Guy.",
+        "La tour du pont de la Vieille Ville."
+      ],
+      "photo": "File:Prague_Clock_Tower.jpg"
+    },
+    {
+      "title": "Tour du pont de la Vieille Ville",
+      "lat": 50.08618,
+      "lng": 14.41361,
+      "arrival": "La tour du pont, élevée par Peter Parler à la fin du XIVᵉ siècle, est l'une des plus belles tours gothiques d'Europe. Selon la tradition, Charles IV posa la première pierre du pont le 9 juillet 1357 à 5 h 31 : la suite 1-3-5-7-9-7-5-3-1, un nombre palindrome, devait lui porter chance.",
+      "riddle": "Avancez vers l'ouest sur le pont de l'empereur, à environ 500 pas, jusqu'à la statue d'un prêtre auréolé de cinq étoiles. Touchez la plaque de bronze usée sous la statue : on dit qu'elle porte chance.",
+      "hints": [
+        "Elle est sur le côté droit du pont, en allant vers Malá Strana.",
+        "Le prêtre fut jeté dans la rivière en 1393 sur l'ordre du roi.",
+        "La statue de saint Jean Népomucène."
+      ],
+      "photo": "File:Karlův_most_věž.jpg"
+    },
+    {
+      "title": "Statue de Jean Népomucène",
+      "lat": 50.08668,
+      "lng": 14.41025,
+      "arrival": "Saint Jean Népomucène, vicaire général de Prague, fut jeté du pont dans la Vltava en 1393 sur l'ordre du roi Venceslas IV ; la légende dit qu'il avait refusé de révéler les confessions de la reine. Sa statue de bronze, de 1683, est la plus ancienne du pont.",
+      "riddle": "Descendez l'escalier vers l'île de Kampa, puis gagnez la place du grand prieur de l'ordre de Malte. À environ 500 pas, un long mur couvert de graffitis et de paroles de chansons rend hommage à un chanteur anglais assassiné en 1980.",
+      "hints": [
+        "Na Kampě, puis la place du Grand-Prieuré.",
+        "Sous le régime communiste, la police faisait repeindre le mur, aussitôt recouvert.",
+        "Le mur Lennon."
+      ],
+      "photo": "File:Jan_Nepomucky.jpg"
+    },
+    {
+      "title": "Mur Lennon",
+      "lat": 50.08624,
+      "lng": 14.40682,
+      "arrival": "Après l'assassinat de John Lennon en 1980, de jeunes Pragois couvrirent ce mur de graffitis et de paroles des Beatles, un défi au régime communiste, qui le faisait repeindre en vain. Le mur appartient à l'ordre de Malte.",
+      "riddle": "Partez vers le nord-ouest par la rue des bains, puis par la rue des carmélites. À environ 650 pas, un grand sanctuaire baroque à coupole verte domine la place de la « petite ville » ; Mozart y joua de l'orgue.",
+      "hints": [
+        "La Lázeňská, puis la Karmelitská.",
+        "Elle est dédiée au saint patron des enfants, qui inspira le père Noël.",
+        "L'église Saint-Nicolas de Malá Strana."
+      ],
+      "photo": "File:JohnLennonWall.jpg"
+    },
+    {
+      "title": "Église Saint-Nicolas de Malá Strana",
+      "lat": 50.08798,
+      "lng": 14.40322,
+      "arrival": "Bravo ! L'église Saint-Nicolas, chef-d'œuvre baroque des Dientzenhofer au XVIIIᵉ siècle, domine Malá Strana, la « petite ville ». Mozart joua sur son orgue en 1787, lors de son séjour à Prague pour la création de Don Giovanni.",
+      "photo": "File:Malá_Strana_kostel_sv._Mikuláše_z_Petřína-3.jpg"
+    }
+  ]
+}

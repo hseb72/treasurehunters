@@ -1,0 +1,94 @@
+{
+  "key": "lisbonne-baixa-chiado",
+  "name": "Lisbonne, de la Baixa au Chiado",
+  "location": "Lisbonne, Baixa, Chiado et Bairro Alto",
+  "summary": "La Lisbonne rebâtie après le séisme de 1755 : la place du Commerce, la rue des orfèvres, l'ascenseur de Santa Justa qu'on attribue à tort à Eiffel, le couvent du Carmo et la révolution des Œillets, Pessoa à la terrasse de son café, Camões et le belvédère de São Pedro de Alcântara. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la statue équestre de Joseph Iᵉʳ, au centre de la place du Commerce (métro Terreiro do Paço). Ça monte beaucoup après la Baixa : de bonnes chaussures sont utiles sur les pavés.",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Statue de Joseph Iᵉʳ",
+      "lat": 38.70752,
+      "lng": -9.13646,
+      "riddle": "Remontez vers le nord-ouest et prenez la rue des orfèvres, la rue « dorée ». À environ 1 100 pas, une tour de fer néogothique haute de 45 mètres hisse les passants vers la ville haute.",
+      "hints": [
+        "La rua Áurea, dite rua do Ouro, puis la rua de Santa Justa.",
+        "On l'attribue souvent à Gustave Eiffel, à tort.",
+        "L'elevador de Santa Justa."
+      ],
+      "photo": "File:P3079533_(6251172955).jpg"
+    },
+    {
+      "title": "Elevador de Santa Justa",
+      "lat": 38.71212,
+      "lng": -9.13938,
+      "arrival": "Le 1ᵉʳ novembre 1755, un séisme, un raz-de-marée et des incendies détruisirent le centre de Lisbonne. Le marquis de Pombal fit reconstruire la Baixa sur un plan en damier, avec des maisons à charpente antisismique. L'ascenseur de Santa Justa, inauguré en 1902, est l'œuvre de Raoul Mesnier du Ponsard, ingénieur né à Porto de parents français.",
+      "riddle": "Grimpez vers l'ouest par la ruelle en pente, ou prenez l'ascenseur. À environ 250 pas, une petite place ombragée longe les arcs sans toit d'un couvent gothique ; c'est là que le régime tomba, un jour d'avril 1974.",
+      "hints": [
+        "La travessa Dom Pedro de Menezes monte de la rua do Carmo.",
+        "On l'appelle la révolution des Œillets.",
+        "Le largo do Carmo."
+      ],
+      "photo": "File:Elevador_de_Santa_Justa,_Lisboa,_Portugal,_2022-07-24,_DD_07.jpg"
+    },
+    {
+      "title": "Largo do Carmo",
+      "lat": 38.71193,
+      "lng": -9.14085,
+      "arrival": "Le couvent du Carmo a perdu ses voûtes lors du séisme de 1755 ; on a laissé ses arcs à ciel ouvert, en souvenir. Le 25 avril 1974, le chef du gouvernement Marcelo Caetano, réfugié dans la caserne de la place, se rendit aux militaires : c'était la révolution des Œillets.",
+      "riddle": "Descendez vers le sud-ouest par la ruelle du même couvent, puis par la rue d'un explorateur de l'Afrique. À environ 350 pas, devant un café historique, un poète de bronze en chapeau est assis à une table ; une chaise vide vous attend à côté de lui.",
+      "hints": [
+        "La travessa do Carmo, puis la rua Serpa Pinto.",
+        "Le café s'appelle A Brasileira.",
+        "La statue de Fernando Pessoa, largo do Chiado."
+      ],
+      "photo": "File:LargodoCarmo.jpg"
+    },
+    {
+      "title": "Statue de Fernando Pessoa",
+      "lat": 38.71062,
+      "lng": -9.14211,
+      "arrival": "Fernando Pessoa écrivit sous de nombreux hétéronymes, des auteurs imaginaires dotés chacun d'une biographie et d'un style : Alberto Caeiro, Ricardo Reis, Álvaro de Campos… Il fréquentait le café A Brasileira, ouvert en 1905. Sa statue, de Lagoa Henriques, date de 1988.",
+      "riddle": "Faites quelques pas vers l'ouest. Au centre de la place voisine, entouré de huit écrivains plus petits, se dresse le poète qui chanta les navigateurs portugais ; il avait perdu un œil au combat.",
+      "hints": [
+        "Il a écrit Les Lusiades.",
+        "Il perdit son œil en Afrique du Nord.",
+        "La statue de Camões, praça Luís de Camões."
+      ],
+      "photo": "File:Café_A_Brasileira_e_envolventes_8539.jpg"
+    },
+    {
+      "title": "Statue de Camões",
+      "lat": 38.71057,
+      "lng": -9.14343,
+      "arrival": "Luís de Camões, mort en 1580, a chanté dans Les Lusiades le voyage de Vasco de Gama vers les Indes. On raconte qu'il sauva son manuscrit à la nage lors d'un naufrage, au large du Mékong. Sa statue date de 1867.",
+      "riddle": "Montez vers le nord par la rue qui porte simplement le nom de la direction à suivre, dans le Bairro Alto. À environ 1 100 pas, un jardin en terrasse offre une vue sur la ville basse et sur le château Saint-Georges, en face.",
+      "hints": [
+        "La rua do Norte traverse le Bairro Alto.",
+        "Le funiculaire de la Glória arrive juste à côté.",
+        "Le miradouro de São Pedro de Alcântara."
+      ],
+      "photo": "File:Lisbon_10064_Lisboa_Praça_Luís_de_Camões_2006_Luca_Galuzzi.jpg"
+    },
+    {
+      "title": "Miradouro de São Pedro de Alcântara",
+      "lat": 38.71546,
+      "lng": -9.14404,
+      "arrival": "Bravo ! Le belvédère de São Pedro de Alcântara domine la Baixa et fait face au château Saint-Georges, sur la colline opposée. Juste à côté arrive l'ascensor da Glória, un funiculaire inauguré en 1885.",
+      "photo": "File:JardimSPedroAlcantara.JPG"
+    }
+  ]
+}

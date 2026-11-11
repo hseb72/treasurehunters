@@ -1,0 +1,94 @@
+{
+  "key": "berlin-mitte",
+  "name": "Berlin, du Reichstag à Checkpoint Charlie",
+  "location": "Berlin, Mitte",
+  "summary": "Un siècle d'histoire allemande en un après-midi : le Reichstag et sa coupole de verre, la porte de Brandebourg dont Napoléon emporta le char, le mémorial aux Juifs assassinés d'Europe, la place de l'autodafé de 1933, l'église des huguenots chassés de France et Checkpoint Charlie. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la façade ouest du Reichstag, place de la République (bus 100, arrêt Reichstag). La coupole se visite seulement sur réservation.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Reichstag",
+      "lat": 52.51862,
+      "lng": 13.3747,
+      "riddle": "Partez vers le sud-est par la rue de l'homme qui proclama la République d'une fenêtre de ce bâtiment, en 1918, puis par celle du premier président de cette République. À environ 700 pas, une porte à six colonnes, couronnée d'un char à quatre chevaux, ouvre l'avenue « sous les tilleuls ».",
+      "hints": [
+        "La Scheidemannstraße, puis l'Ebertstraße.",
+        "Napoléon emporta à Paris le char qui la couronne, en 1806.",
+        "La porte de Brandebourg, Pariser Platz."
+      ],
+      "photo": "File:Reichstagsgebäude_von_Westen.jpg"
+    },
+    {
+      "title": "Porte de Brandebourg",
+      "lat": 52.51627,
+      "lng": 13.3782,
+      "arrival": "Le Reichstag, incendié en 1933, a été rénové par Norman Foster, qui l'a coiffé d'une coupole de verre. La porte de Brandebourg date de 1791. En 1806, Napoléon fit emporter à Paris le quadrige qui la couronne ; il revint à Berlin en 1814, et la place devant la porte prit alors le nom de place de Paris.",
+      "riddle": "Descendez vers le sud par la même rue du président, à environ 550 pas. Un champ de près de trois mille blocs de béton gris, de hauteurs différentes, ondule entre les immeubles ; on s'y perd dans les allées.",
+      "hints": [
+        "L'Ebertstraße longe le Tiergarten.",
+        "Il a été inauguré en 2005 ; son architecte est Peter Eisenman.",
+        "Le mémorial aux Juifs assassinés d'Europe."
+      ],
+      "photo": "File:Brandenburger_Tor_morgens.jpg"
+    },
+    {
+      "title": "Mémorial aux Juifs assassinés d'Europe",
+      "lat": 52.5139,
+      "lng": 13.378,
+      "arrival": "Inauguré en 2005, le mémorial de Peter Eisenman compte 2 711 stèles de béton. Il n'a ni entrée ni sens de visite : chacun y éprouve le vertige et la solitude. Un centre d'information souterrain présente les victimes de la Shoah.",
+      "riddle": "Remontez vers le nord-est jusqu'à l'avenue « sous les tilleuls », puis suivez-la vers l'est. À environ 2 200 pas, sur une grande place pavée, une vitre au ras du sol laisse voir une bibliothèque aux rayonnages vides, en souvenir d'une nuit de mai 1933.",
+      "hints": [
+        "Unter den Linden, l'avenue « sous les tilleuls ».",
+        "Des étudiants nazis y brûlèrent plus de vingt mille livres.",
+        "Le Bebelplatz, en face de l'université Humboldt."
+      ],
+      "photo": "File:Berlin_Holocaust-Mahnmal_in_Mitte_1.jpg"
+    },
+    {
+      "title": "Bebelplatz",
+      "lat": 52.5165,
+      "lng": 13.39383,
+      "arrival": "Le 10 mai 1933, des étudiants nazis brûlèrent ici plus de vingt mille livres. Le mémorial de Micha Ullman, une bibliothèque souterraine aux rayonnages vides, rappelle ce bûcher. Une plaque cite Heinrich Heine, qui écrivait dès 1820 : « Là où l'on brûle des livres, on finit par brûler des hommes. »",
+      "riddle": "Descendez vers le sud par la rue des margraves. À environ 550 pas, sur l'une des plus belles places de la ville, une église à coupole a été bâtie pour les protestants chassés de France par Louis XIV.",
+      "hints": [
+        "La Markgrafenstraße mène au Gendarmenmarkt.",
+        "L'édit de Potsdam les accueillit à Berlin en 1685.",
+        "La cathédrale française, Gendarmenmarkt."
+      ]
+    },
+    {
+      "title": "Cathédrale française",
+      "lat": 52.5142,
+      "lng": 13.39229,
+      "arrival": "Après la révocation de l'édit de Nantes en 1685, l'électeur de Brandebourg accueillit des milliers de huguenots ; vers 1700, près d'un Berlinois sur cinq était français. Leur église, achevée en 1705, reçut à la fin du XVIIIᵉ siècle la tour à coupole qui lui vaut le nom de « cathédrale française ». La place doit son nom au régiment des Gens d'armes.",
+      "riddle": "Descendez vers le sud par la rue d'une reine, puis par la rue d'un roi. À environ 1 500 pas, une guérite entourée de sacs de sable marque l'ancien point de passage des Alliés entre l'Est et l'Ouest.",
+      "hints": [
+        "La Charlottenstraße, puis la Friedrichstraße.",
+        "En octobre 1961, des chars soviétiques et américains s'y firent face.",
+        "Checkpoint Charlie, sur la Friedrichstraße."
+      ],
+      "photo": "File:Berlin,_Französischer_Dom_--_2013_--_4581.jpg"
+    },
+    {
+      "title": "Checkpoint Charlie",
+      "lat": 52.50743,
+      "lng": 13.39038,
+      "arrival": "Bravo ! Checkpoint Charlie était le point de passage entre les secteurs américain et soviétique, réservé aux étrangers et aux militaires alliés. En octobre 1961, quelques semaines après la construction du Mur, des chars américains et soviétiques s'y firent face pendant seize heures. La guérite actuelle est une reconstitution.",
+      "photo": "File:Checkpoint_Charlie_Berlin.jpg"
+    }
+  ]
+}
