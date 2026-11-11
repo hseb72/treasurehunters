@@ -1,0 +1,93 @@
+{
+  "key": "nimes-theme-romaine",
+  "name": "Nîmes romaine, des Arènes à la Maison Carrée",
+  "location": "Nîmes, Écusson",
+  "summary": "Nîmes, la Rome française : la porte de France, les Arènes, la fontaine Pradier, la porte d'Auguste, le castellum où arrivait l'eau du pont du Gard et la Maison Carrée, temple presque intact inscrit au patrimoine mondial.",
+  "startText": "Rendez-vous devant la porte de France, rue de la Porte-de-France. Les Arènes et la Maison Carrée se visitent à certaines heures ; on les voit librement de l'extérieur.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 70,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte de France",
+      "lat": 43.83267,
+      "lng": 4.35777,
+      "riddle": "Remontez vers le nord-est par la rue qui porte le nom de la porte que vous quittez. À environ 650 pas, un immense ovale de pierre du Iᵉʳ siècle, l'un des mieux conservés du monde romain, accueille encore spectacles et corridas.",
+      "hints": [
+        "La rue de la Porte-de-France.",
+        "Plus de vingt mille spectateurs pouvaient y prendre place.",
+        "Les Arènes, boulevard des Arènes."
+      ],
+      "photo": "File:Porte_France_-_Nîmes_(FR30)_-_2021-07-11_-_4.jpg"
+    },
+    {
+      "title": "Arènes de Nîmes",
+      "lat": 43.8353,
+      "lng": 4.3594,
+      "arrival": "La porte de France, à une seule arche, est l'une des deux portes de l'enceinte romaine encore debout. L'amphithéâtre, construit à la fin du Iᵉʳ siècle, est l'un des mieux conservés du monde romain. Au Moyen Âge, tout un quartier, avec ses maisons et ses chapelles, s'était installé à l'intérieur.",
+      "riddle": "Partez vers l'est sur l'esplanade du général de la France libre, à environ 500 pas. Une fontaine de marbre du XIXᵉ siècle est surmontée d'une statue de femme qui représente la ville.",
+      "hints": [
+        "L'esplanade Charles-de-Gaulle.",
+        "Son sculpteur, James Pradier, était né à Genève.",
+        "La fontaine Pradier."
+      ],
+      "photo": "File:Nîmes-Arènes-20130923.jpg"
+    },
+    {
+      "title": "Fontaine Pradier",
+      "lat": 43.83491,
+      "lng": 4.36236,
+      "arrival": "La fontaine de l'esplanade, inaugurée en 1851, est l'œuvre de James Pradier. La statue du sommet représente Nîmes ; les figures du bassin évoquent les cours d'eau et les sources de la région.",
+      "riddle": "Remontez vers le nord par le boulevard d'un amiral de la conquête du Tonkin. À environ 1 000 pas, une porte romaine à quatre passages porte une inscription en l'honneur de l'empereur qui fit bâtir l'enceinte.",
+      "hints": [
+        "Le boulevard Amiral-Courbet.",
+        "Deux grands passages pour les chars, deux petits pour les piétons.",
+        "La porte d'Auguste."
+      ]
+    },
+    {
+      "title": "Porte d'Auguste",
+      "lat": 43.83944,
+      "lng": 4.36316,
+      "arrival": "La porte d'Auguste ouvrait l'enceinte construite sous Auguste, en 16-15 avant J.-C., sur la voie Domitienne qui menait vers l'Italie. Ses deux grandes arches laissaient passer les chars, les deux petites les piétons.",
+      "riddle": "Partez vers le nord-ouest par le boulevard d'un tribun de la IIIᵉ République, puis montez jusqu'à la rue de la Lampèze. À environ 1 300 pas, un bassin circulaire romain recevait l'eau d'un célèbre aqueduc et la répartissait dans la ville.",
+      "hints": [
+        "Le boulevard Gambetta, puis la rue de la Lampèze.",
+        "L'eau venait d'Uzès, par le pont du Gard.",
+        "Le castellum aquae, rue de la Lampèze."
+      ],
+      "photo": "File:Porte_d'Auguste_in_Nimes_02.jpg"
+    },
+    {
+      "title": "Castellum aquae",
+      "lat": 43.84235,
+      "lng": 4.35595,
+      "arrival": "Ce castellum divisorium, l'un des très rares conservés avec celui de Pompéi, recevait l'eau de l'aqueduc venu d'Uzès par le pont du Gard. Dix canalisations partaient de son bassin vers les quartiers de la ville.",
+      "riddle": "Redescendez vers le sud par la rue de l'empereur dont vous avez vu la porte. À environ 950 pas, un temple romain presque intact, entouré de colonnes corinthiennes, se dresse sur une place dallée.",
+      "hints": [
+        "La rue Auguste.",
+        "Il était dédié aux petits-fils d'Auguste.",
+        "La Maison Carrée."
+      ],
+      "photo": "File:Castellum_PS01.JPG"
+    },
+    {
+      "title": "Maison Carrée",
+      "lat": 43.83819,
+      "lng": 4.35613,
+      "arrival": "Bravo ! Construite au début du Iᵉʳ siècle, la Maison Carrée était dédiée à Caius et Lucius César, petits-fils d'Auguste. C'est l'un des temples romains les mieux conservés au monde ; elle est inscrite au patrimoine mondial depuis 2023. Thomas Jefferson s'en inspira pour le Capitole de Virginie.",
+      "photo": "File:Maison_carrée_01.jpg"
+    }
+  ]
+}

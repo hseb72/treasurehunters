@@ -1,0 +1,92 @@
+{
+  "key": "marseille-theme-antique",
+  "name": "Marseille antique, sur les traces de Massalia",
+  "location": "Marseille, Vieux-Port et Panier",
+  "summary": "La plus ancienne ville de France, fondée par des marins grecs vers 600 avant notre ère : le port antique du jardin des Vestiges, le fond du Lacydon, les entrepôts romains et leurs jarres, la place de l'agora, la butte Saint-Laurent et le fort Saint-Jean à l'entrée de la rade.",
+  "startText": "Rendez-vous devant le jardin des Vestiges, à côté du musée d'Histoire de Marseille, rue Henri-Barbusse (métro Vieux-Port). Le jardin, le musée des Docks romains et le fort Saint-Jean ont des horaires.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Jardin des Vestiges",
+      "lat": 43.29762,
+      "lng": 5.3749,
+      "riddle": "Descendez vers le sud par la place d'un député résistant fusillé en 1941, jusqu'au quai de la fraternité. À environ 650 pas, arrêtez-vous au bord de l'eau, au fond de la rade où des marins grecs débarquèrent vers 600 avant notre ère.",
+      "hints": [
+        "La place Gabriel-Péri, puis le quai de la Fraternité.",
+        "Les marins venaient de Phocée, en Asie Mineure.",
+        "Le quai du Vieux-Port, sous l'ombrière."
+      ],
+      "photo": "File:Le_jardin_des_vestiges_(Marseille)_(14225076473).jpg"
+    },
+    {
+      "title": "Quai du Vieux-Port",
+      "lat": 43.29464,
+      "lng": 5.37414,
+      "arrival": "Le jardin des Vestiges, découvert en 1967 lors des travaux du Centre Bourse, montre les quais du port grec et les remparts de Massalia. Vers 600 avant notre ère, des marins venus de Phocée fondèrent la ville au bord de cette calanque, le Lacydon. Selon la légende, leur chef Protis épousa Gyptis, fille du roi du pays.",
+      "riddle": "Longez vers le nord-ouest le quai qui porte le nom de ce que vous longez, puis passez derrière la mairie. À environ 1 100 pas, au rez-de-chaussée d'un immeuble d'après-guerre, de grandes jarres antiques sont restées en place depuis deux mille ans.",
+      "hints": [
+        "Le quai du Port, puis la place Vivaux, derrière l'hôtel de ville.",
+        "Ces jarres s'appellent des dolia.",
+        "Le musée des Docks romains, place Vivaux."
+      ]
+    },
+    {
+      "title": "Musée des Docks romains",
+      "lat": 43.29683,
+      "lng": 5.36804,
+      "arrival": "En 1947, lors de la reconstruction du quartier dynamité par les Allemands en 1943, on découvrit ces entrepôts romains du Iᵉʳ siècle, avec leurs grandes jarres, les dolia, où l'on conservait vin, huile et blé.",
+      "riddle": "Montez vers le nord-ouest par la rue du beau coup d'œil. À environ 400 pas, une petite place en pente, où se tenait peut-être l'agora de la ville grecque, ouvre une vue sur la mer.",
+      "hints": [
+        "La rue de Beauregard.",
+        "Elle porte le nom d'une famille de marchands d'origine corse du XVIᵉ siècle.",
+        "La place de Lenche."
+      ],
+      "photo": "File:Musée_des_docks_romains_vue_générale.jpg"
+    },
+    {
+      "title": "Place de Lenche",
+      "lat": 43.29757,
+      "lng": 5.3657,
+      "arrival": "La place de Lenche porte le nom d'une famille de marchands d'origine corse du XVIᵉ siècle. On pense qu'elle occupe l'emplacement de l'agora de Massalia, la place publique de la ville grecque.",
+      "riddle": "Descendez vers le sud-ouest par la rue qui porte le nom du sanctuaire cherché. À environ 500 pas, au bout de la butte qui domine l'entrée de la rade, un sanctuaire roman est la paroisse des pêcheurs.",
+      "hints": [
+        "La rue Saint-Laurent.",
+        "Il est dédié à un diacre romain martyrisé sur un gril.",
+        "L'église Saint-Laurent."
+      ]
+    },
+    {
+      "title": "Église Saint-Laurent",
+      "lat": 43.29595,
+      "lng": 5.36341,
+      "arrival": "La butte Saint-Laurent est l'une des trois collines sur lesquelles s'étendait Massalia. L'église, de style roman provençal, était celle des pêcheurs du quartier.",
+      "riddle": "Faites quelques pas vers le sud-ouest par le chemin de ronde. Une forteresse élevée sous Louis XIV garde l'entrée de la rade ; une passerelle la relie à un musée moderne.",
+      "hints": [
+        "Le chemin de ronde part du parvis.",
+        "Une commanderie de chevaliers hospitaliers s'élevait là au Moyen Âge.",
+        "Le fort Saint-Jean."
+      ],
+      "photo": "File:Eglise_Saint-Laurent_(Marseille)_(03).jpg"
+    },
+    {
+      "title": "Fort Saint-Jean",
+      "lat": 43.29545,
+      "lng": 5.36181,
+      "arrival": "Bravo ! Le fort Saint-Jean, construit à partir de 1660 sur ordre de Louis XIV, garde l'entrée du Lacydon, le port où débarquèrent les Grecs. Il fait aujourd'hui partie du Mucem. Son nom vient des chevaliers de Saint-Jean de Jérusalem, dont la commanderie se trouvait là.",
+      "photo": "File:Marseille-Fort_Saint-Jean.JPG"
+    }
+  ]
+}

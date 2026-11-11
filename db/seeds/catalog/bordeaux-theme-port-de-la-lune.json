@@ -1,0 +1,105 @@
+{
+  "key": "bordeaux-theme-port-de-la-lune",
+  "name": "Bordeaux, port de la Lune et quartier des Chartrons",
+  "location": "Bordeaux, quais et Chartrons",
+  "summary": "Le long du port de la Lune, inscrit au patrimoine mondial : le pont de pierre de Napoléon, la place de la Bourse, les colonnes rostrales des Quinconces, puis les Chartrons, quartier des négociants en vin, avec son église, sa halle, ses chais et ses hangars du port.",
+  "startText": "Rendez-vous au milieu du pont de pierre, sur le trottoir côté aval (tram Porte de Bourgogne). Le musée du Vin et du Négoce a des horaires ; on le voit depuis la rue.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 85,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Pont de pierre",
+      "lat": 44.83842,
+      "lng": -0.56284,
+      "riddle": "Revenez sur la rive gauche et longez la Garonne vers le nord-ouest par le quai du cardinal-ministre de Louis XIII. À environ 1 400 pas, une place royale du XVIIIᵉ siècle s'ouvre sur le fleuve ; au centre, trois déesses se tiennent par la main au-dessus d'une fontaine.",
+      "hints": [
+        "Le quai Richelieu.",
+        "Ses architectes, les Gabriel père et fils, ont aussi travaillé à Versailles.",
+        "La place de la Bourse."
+      ],
+      "photo": "File:Bordeaux_-_Pont_de_Pierre_vu_depuis_la_flèche_Saint_Michel_V2.jpg"
+    },
+    {
+      "title": "Place de la Bourse",
+      "lat": 44.84146,
+      "lng": -0.57038,
+      "arrival": "Le pont de pierre, voulu par Napoléon et achevé en 1822, fut le premier pont sur la Garonne à Bordeaux ; on dit que ses dix-sept arches rappellent les lettres de « Napoléon Bonaparte ». La place de la Bourse, aménagée de 1730 à 1775, ouvrit la ville sur son port. La fontaine des Trois Grâces y a été installée en 1869.",
+      "riddle": "Remontez vers le nord par le quai d'un roi revenu deux fois sur le trône. À environ 950 pas, deux hauts fûts de pierre ornés de proues de navires encadrent la plus vaste place de la ville, face au fleuve.",
+      "hints": [
+        "Le quai Louis-XVIII.",
+        "Ils portent les statues du Commerce et de la Navigation.",
+        "Les colonnes rostrales de l'esplanade des Quinconces."
+      ]
+    },
+    {
+      "title": "Colonnes rostrales",
+      "lat": 44.84576,
+      "lng": -0.57123,
+      "arrival": "Élevées en 1829, les colonnes rostrales sont ornées de proues de navires, à la manière antique ; elles portent les statues du Commerce et de la Navigation. L'esplanade des Quinconces compte parmi les plus grandes places d'Europe ; au fond, le monument aux Girondins rend hommage aux députés girondins de la Révolution.",
+      "riddle": "Partez vers le nord par les allées d'une ville de la Beauce, puis par le cours d'un médecin bordelais. À environ 1 300 pas, dans le quartier des négociants en vin, un sanctuaire néo-gothique à deux flèches est dédié à un roi canonisé.",
+      "hints": [
+        "Les allées de Chartres, puis le cours Xavier-Arnozan et la rue Notre-Dame.",
+        "Le roi est mort devant Tunis, pendant une croisade.",
+        "L'église Saint-Louis-des-Chartrons."
+      ],
+      "photo": "File:Le_monument_aux_Girondins_(Bordeaux).JPG"
+    },
+    {
+      "title": "Église Saint-Louis-des-Chartrons",
+      "lat": 44.85161,
+      "lng": -0.57215,
+      "arrival": "Le quartier des Chartrons doit son nom aux moines chartreux qui s'y installèrent au Moyen Âge. Aux XVIIIᵉ et XIXᵉ siècles, des négociants, souvent venus d'Europe du Nord, y faisaient le commerce du vin. L'église Saint-Louis, néo-gothique, date du XIXᵉ siècle.",
+      "riddle": "Juste au nord, sur la place du marché du quartier, à moins de 200 pas, un bâtiment de fer et de verre du Second Empire accueillait autrefois les marchands.",
+      "hints": [
+        "La place du Marché-des-Chartrons.",
+        "Elle accueille aujourd'hui expositions et marchés.",
+        "La halle des Chartrons."
+      ],
+      "photo": "File:Bordeaux_Saint-Louis.jpg"
+    },
+    {
+      "title": "Halle des Chartrons",
+      "lat": 44.8523,
+      "lng": -0.57251,
+      "arrival": "La halle des Chartrons a été construite en 1869 pour le marché du quartier. Elle accueille aujourd'hui des expositions et des marchés.",
+      "riddle": "Partez vers le nord-est par le cours d'une île des Antilles, puis par la rue Borie. À environ 700 pas, des chais voûtés du quartier racontent le commerce des vins de Bordeaux.",
+      "hints": [
+        "Le cours de la Martinique, puis la rue Borie.",
+        "On y entreposait les barriques avant de les embarquer.",
+        "Le musée du Vin et du Négoce, 41 rue Borie."
+      ]
+    },
+    {
+      "title": "Musée du Vin et du Négoce",
+      "lat": 44.85463,
+      "lng": -0.56939,
+      "address": "41, rue Borie",
+      "arrival": "Le musée occupe des chais voûtés où les négociants entreposaient les barriques avant de les expédier vers l'Europe du Nord et les colonies.",
+      "riddle": "Rejoignez le fleuve vers l'est par la rue Notre-Dame, puis le quai qui porte le nom du quartier. À environ 750 pas, un grand entrepôt numéroté, au bord de la Garonne, accueille salons et expositions.",
+      "hints": [
+        "Le quai des Chartrons.",
+        "Il porte un numéro, comme les autres entrepôts des quais.",
+        "Le Hangar 14, quai des Chartrons."
+      ]
+    },
+    {
+      "title": "Hangar 14",
+      "lat": 44.85451,
+      "lng": -0.56469,
+      "arrival": "Bravo ! Le Hangar 14 est l'un des anciens entrepôts du port de la Lune, ainsi nommé pour la courbe en croissant que dessine ici la Garonne. Depuis 2007, le port de la Lune est inscrit au patrimoine mondial de l'UNESCO."
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "key": "avignon-theme-papes",
+  "name": "Avignon, la cité des papes",
+  "location": "Avignon, centre historique",
+  "summary": "Avignon, où les papes résidèrent au XIVᵉ siècle : l'église Saint-Pierre et ses portes sculptées, la place de l'Horloge, le palais des Papes, la cathédrale des Doms et sa Vierge dorée, le jardin du rocher des Doms, le Petit Palais et le célèbre pont.",
+  "startText": "Rendez-vous devant l'église Saint-Pierre, place Saint-Pierre. Le jardin du rocher des Doms ferme le soir ; le palais, le Petit Palais et le pont Saint-Bénezet se visitent à certaines heures (le pont est payant, on le voit librement depuis le quai).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Église Saint-Pierre",
+      "lat": 43.94931,
+      "lng": 4.80784,
+      "riddle": "Partez vers l'ouest par la place d'un poète des Noëls provençaux. À environ 250 pas, une grande place de cafés et de platanes, bordée par la mairie et l'opéra, porte le nom de l'instrument qui marque les heures sur une tour gothique.",
+      "hints": [
+        "La place Nicolas-Saboly.",
+        "Des automates, Jacquemart et Jacquette, y frappent les heures.",
+        "La place de l'Horloge."
+      ]
+    },
+    {
+      "title": "Place de l'Horloge",
+      "lat": 43.94935,
+      "lng": 4.8062,
+      "arrival": "La place de l'Horloge doit son nom à la tour gothique de l'hôtel de ville, où des automates frappent les heures. Derrière vous, l'église Saint-Pierre a gardé ses portes de noyer sculptées au XVIᵉ siècle.",
+      "riddle": "Remontez vers le nord par la rue du fondateur du festival d'Avignon. À environ 300 pas, une immense forteresse gothique où sept successeurs de saint Pierre résidèrent au XIVᵉ siècle ferme la place.",
+      "hints": [
+        "La rue Jean-Vilar.",
+        "Le festival se joue chaque été dans sa cour d'honneur.",
+        "Le palais des Papes."
+      ]
+    },
+    {
+      "title": "Palais des Papes",
+      "lat": 43.9506,
+      "lng": 4.80655,
+      "arrival": "De 1309 à 1377, les papes résidèrent à Avignon. Leur palais, l'un des plus grands édifices gothiques d'Europe, a été construit en une vingtaine d'années sous Benoît XII et Clément VI. Depuis 1947, sa cour d'honneur accueille le festival d'Avignon fondé par Jean Vilar.",
+      "riddle": "Grimpez vers le nord-est par la montée qui porte le nom d'un pape du XXᵉ siècle. À environ 250 pas, un sanctuaire roman, coiffé d'une grande Vierge dorée, domine la place.",
+      "hints": [
+        "La montée Jean-XXIII.",
+        "La statue dorée a été posée au XIXᵉ siècle.",
+        "La cathédrale Notre-Dame-des-Doms."
+      ],
+      "photo": "File:Avignon,_Palais_des_Papes_by_JM_Rosier.jpg"
+    },
+    {
+      "title": "Cathédrale Notre-Dame-des-Doms",
+      "lat": 43.95156,
+      "lng": 4.8076,
+      "arrival": "La cathédrale Notre-Dame-des-Doms, romane, est plus ancienne que le palais. Elle abrite le tombeau du pape Jean XXII. La statue dorée de la Vierge couronne son clocher depuis 1859.",
+      "riddle": "Continuez à monter vers le nord par la montée des anciens moulins. À environ 250 pas, un jardin perché sur l'éperon calcaire offre une vue sur le Rhône et le mont Ventoux.",
+      "hints": [
+        "La montée des Moulins.",
+        "Il ferme à la tombée de la nuit.",
+        "Le jardin du rocher des Doms."
+      ],
+      "photo": "File:France_Avignon_Notre_Dame_des_Doms.jpg"
+    },
+    {
+      "title": "Rocher des Doms",
+      "lat": 43.95266,
+      "lng": 4.80792,
+      "arrival": "Le rocher des Doms est le berceau d'Avignon : on y a trouvé des traces d'occupation dès la préhistoire. Son jardin, aménagé au XIXᵉ siècle, domine le Rhône et le pont Saint-Bénezet.",
+      "riddle": "Redescendez vers l'ouest, à environ 250 pas, jusqu'au bout de la place : la résidence d'un cardinal, puis des archevêques, ferme la place au nord et abrite une grande collection de peintures italiennes du Moyen Âge.",
+      "hints": [
+        "Elle donne sur la rue Ferruce.",
+        "On y voit une Vierge à l'Enfant de Botticelli.",
+        "Le musée du Petit Palais."
+      ],
+      "photo": "File:Jardin_des_Doms,_rocher,_Avignon,_2026.jpg"
+    },
+    {
+      "title": "Petit Palais",
+      "lat": 43.95275,
+      "lng": 4.80634,
+      "arrival": "Le Petit Palais, construit au XIVᵉ siècle pour un cardinal, devint la résidence des archevêques. Il abrite depuis 1976 un musée de peinture italienne et provençale du Moyen Âge et de la Renaissance.",
+      "riddle": "Descendez vers le nord-ouest, passez les remparts et suivez le boulevard du quai, à environ 300 pas, jusqu'au départ d'un pont du XIIᵉ siècle dont il ne reste que quatre arches et que tout le monde connaît par une chanson.",
+      "hints": [
+        "L'entrée se trouve au pied des remparts, boulevard du Quai-de-la-Ligne.",
+        "« … l'on y danse, l'on y danse ».",
+        "Le pont Saint-Bénezet."
+      ],
+      "photo": "File:Avignon,_Musée_du_Petit_Palais_(28839943528).jpg"
+    },
+    {
+      "title": "Pont Saint-Bénezet",
+      "lat": 43.95375,
+      "lng": 4.80509,
+      "arrival": "Bravo ! Selon la légende, un jeune berger, Bénezet, reçut du ciel l'ordre de construire ce pont, commencé en 1177. Emporté à plusieurs reprises par les crues du Rhône, il a été abandonné au XVIIᵉ siècle ; il en reste quatre arches et une chapelle. On ne dansait pas sur le pont, trop étroit, mais plutôt dessous, sur l'île de la Barthelasse.",
+      "photo": "File:Le_pont_d'Avignon_depuis_l'île_de_la_Barthelasse.jpg"
+    }
+  ]
+}

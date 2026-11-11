@@ -1,0 +1,91 @@
+{
+  "key": "strasbourg-theme-europe",
+  "name": "Strasbourg et l'Europe, de la Neustadt au Parlement",
+  "location": "Strasbourg, Neustadt et quartier européen",
+  "summary": "De la ville allemande de 1871 à la capitale européenne : la place de la République et son monument aux deux fils, l'église Saint-Paul, le parc de l'Orangerie, puis le Conseil de l'Europe, la Cour européenne des droits de l'homme et le Parlement européen.",
+  "startText": "Rendez-vous au centre du jardin de la place de la République, près du monument aux morts (tram République).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 80,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": 8,
+  "steps": [
+    {
+      "title": "Place de la République",
+      "lat": 48.587,
+      "lng": 7.7535,
+      "riddle": "Suivez la liberté vers l'est, franchissez l'Ill et tournez à gauche sur le quai. À environ 950 pas, un grand sanctuaire néo-gothique à deux flèches, construit à la fin du XIXᵉ siècle pour la garnison protestante allemande, se dresse à la pointe d'une île.",
+      "hints": [
+        "L'avenue de la Liberté, puis le quai Koch.",
+        "Il est dédié à l'apôtre des Gentils.",
+        "L'église Saint-Paul."
+      ],
+      "photo": "File:Palais_Rhin_Strasbourg_6.jpg"
+    },
+    {
+      "title": "Église Saint-Paul",
+      "lat": 48.58633,
+      "lng": 7.7599,
+      "arrival": "Annexée par l'Empire allemand en 1871, Strasbourg devint capitale de l'Alsace-Lorraine allemande. Un nouveau quartier, la Neustadt, fut bâti autour du palais impérial de la place de la République ; cette église, achevée en 1897 pour la garnison protestante, en fait partie. Sur la place, le monument aux morts montre une mère tenant ses deux fils mourants : l'un est tombé pour la France, l'autre pour l'Allemagne.",
+      "riddle": "Partez vers le nord-est par le quai de l'auteur d'un chant de guerre composé à Strasbourg en 1792, puis remontez la longue allée plantée qui mène vers la Robertsau. À environ 2 600 pas, dans un grand parc à la française, un édifice porte le nom d'une impératrice.",
+      "hints": [
+        "Le quai Rouget-de-Lisle, puis l'allée de la Robertsau.",
+        "Le parc doit son nom aux orangers qu'on y abrita.",
+        "Le pavillon Joséphine, au parc de l'Orangerie."
+      ],
+      "photo": "File:Neustadt_(52297126552).jpg"
+    },
+    {
+      "title": "Pavillon Joséphine",
+      "lat": 48.59254,
+      "lng": 7.77481,
+      "arrival": "Le parc de l'Orangerie doit son nom aux orangers qu'on y installa sous le Premier Empire ; le pavillon porte le nom de l'impératrice Joséphine. Des cigognes, emblème de l'Alsace, nichent dans le parc. La Marseillaise, elle, fut composée à Strasbourg par Rouget de Lisle en avril 1792.",
+      "riddle": "Sortez vers le nord-ouest par l'avenue qui porte le nom du continent. À environ 700 pas, un vaste bâtiment aux façades brunes, inauguré en 1977, accueille une organisation fondée en 1949 pour défendre la démocratie et les libertés.",
+      "hints": [
+        "L'avenue de l'Europe.",
+        "Son architecte s'appelait Henry Bernard.",
+        "Le palais de l'Europe, siège du Conseil de l'Europe."
+      ]
+    },
+    {
+      "title": "Palais de l'Europe",
+      "lat": 48.59516,
+      "lng": 7.77189,
+      "arrival": "Le Conseil de l'Europe, fondé en 1949, a choisi Strasbourg, symbole de la réconciliation franco-allemande. Le palais de l'Europe, d'Henry Bernard, a été inauguré en 1977. Il ne faut pas le confondre avec l'Union européenne : le Conseil réunit plus de quarante États.",
+      "riddle": "Partez vers le nord-est par le quai d'un ministre britannique, l'un des fondateurs du Conseil. À environ 600 pas, au bord de l'Ill, un édifice de verre et d'acier à deux grands cylindres abrite des juges venus de tous les États membres.",
+      "hints": [
+        "Le quai Ernest-Bevin.",
+        "Son architecte, Richard Rogers, a aussi dessiné le Centre Pompidou avec Renzo Piano.",
+        "Le palais des droits de l'homme."
+      ]
+    },
+    {
+      "title": "Palais des droits de l'homme",
+      "lat": 48.59728,
+      "lng": 7.77464,
+      "arrival": "Inauguré en 1995, le palais des droits de l'homme de Richard Rogers abrite la Cour européenne des droits de l'homme. Elle juge les requêtes de personnes qui s'estiment victimes d'une violation de la Convention signée en 1950.",
+      "riddle": "Traversez l'Ill vers l'ouest et suivez la promenade d'un père de l'Europe venu d'Italie. À environ 700 pas, une tour de verre qui semble inachevée enveloppe l'hémicycle où les élus de l'Union siègent chaque mois.",
+      "hints": [
+        "La promenade Alcide-De-Gasperi.",
+        "Il porte le nom de la doyenne du premier Parlement élu, en 1979.",
+        "Le bâtiment Louise-Weiss, siège du Parlement européen."
+      ]
+    },
+    {
+      "title": "Bâtiment Louise-Weiss",
+      "lat": 48.59748,
+      "lng": 7.76989,
+      "arrival": "Bravo ! Inauguré en 1999, le bâtiment Louise-Weiss accueille les sessions plénières du Parlement européen, douze fois par an. Louise Weiss, journaliste et militante de l'Europe, présida comme doyenne la première séance du Parlement élu au suffrage universel, en 1979."
+    }
+  ]
+}

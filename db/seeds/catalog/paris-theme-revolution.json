@@ -1,0 +1,105 @@
+{
+  "key": "paris-theme-revolution",
+  "name": "Paris et la Révolution, des Tuileries à la cour du Commerce",
+  "location": "Paris, 1er et 6e arrondissements",
+  "summary": "Sur les traces de la Révolution française : la salle où fut jugé Louis XVI, le club des Jacobins, le jardin où Camille Desmoulins appela aux armes, la prison de Marie-Antoinette, la statue de Danton et le passage où Marat imprimait L'Ami du peuple.",
+  "startText": "Rendez-vous à l'entrée du jardin des Tuileries, côté place de la Concorde, sur la terrasse du Jeu-de-Paume (métro Concorde).",
+  "travel": "walk",
+  "difficulty": "medium",
+  "durationMinutes": 90,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": 10,
+  "steps": [
+    {
+      "title": "Jardin des Tuileries, côté Concorde",
+      "lat": 48.8655,
+      "lng": 2.3233,
+      "riddle": "Partez vers l'est par la terrasse qui porte le nom d'un jeu de balle royal, puis longez la grille jusqu'à la rue d'une victoire de Bonaparte en Italie. À environ 650 pas, une plaque fixée à la grille rappelle le bâtiment où siégèrent les assemblées de la Révolution et où le roi fut jugé.",
+      "hints": [
+        "La terrasse du Jeu-de-Paume, puis la rue de Rivoli.",
+        "Le bâtiment servait d'abord aux leçons d'équitation du jeune Louis XV.",
+        "La plaque de la salle du Manège, rue de Rivoli."
+      ],
+      "photo": "File:Tuileries_gardenview.jpg"
+    },
+    {
+      "title": "Salle du Manège",
+      "lat": 48.865036,
+      "lng": 2.327795,
+      "arrival": "Le manège des Tuileries, construit pour les leçons d'équitation du jeune Louis XV, accueillit l'Assemblée nationale à partir de novembre 1789, puis la Législative et la Convention. Louis XVI y fut jugé à la fin de 1792. Le bâtiment a été démoli au début du XIXᵉ siècle, lors du percement de la rue de Rivoli. Tout près, sur la place de la Concorde, alors place de la Révolution, le roi fut guillotiné le 21 janvier 1793.",
+      "riddle": "Remontez vers le nord-est, puis prenez la petite rue qui porte le même nom que l'endroit cherché. À environ 750 pas, une place moderne, avec un édifice de verre en son centre, s'étend sur l'emplacement d'un couvent de dominicains où se réunissait le club le plus célèbre de la Révolution.",
+      "hints": [
+        "La rue du Marché-Saint-Honoré part de la rue Saint-Honoré.",
+        "À Paris, on appelait ces dominicains les « jacobins ».",
+        "La place du Marché-Saint-Honoré."
+      ]
+    },
+    {
+      "title": "Place du Marché-Saint-Honoré",
+      "lat": 48.86676,
+      "lng": 2.33208,
+      "arrival": "Le club des Jacobins se réunissait à partir de 1789 dans le couvent des dominicains de la rue Saint-Honoré, que les Parisiens appelaient « jacobins ». Robespierre y prononça nombre de ses discours ; il logeait tout près, chez le menuisier Duplay. Le couvent a été démoli après la Révolution et remplacé par un marché.",
+      "riddle": "Partez vers le sud-est par la rue de l'auteur du Misanthrope, puis celle de la Grande Mademoiselle. À environ 950 pas, entrez dans le jardin bordé d'arcades que fit aménager le duc d'Orléans : le 12 juillet 1789, un jeune avocat y monta sur une table pour appeler la foule aux armes.",
+      "hints": [
+        "La rue Molière, puis la rue de Montpensier.",
+        "L'avocat s'appelait Camille Desmoulins.",
+        "Le jardin du Palais-Royal."
+      ]
+    },
+    {
+      "title": "Jardin du Palais-Royal",
+      "lat": 48.86491,
+      "lng": 2.33776,
+      "arrival": "Le 12 juillet 1789, apprenant le renvoi du ministre Necker, Camille Desmoulins harangua la foule devant le café de Foy, sous ces arcades. Deux jours plus tard, la Bastille était prise. Le duc d'Orléans avait fait construire les galeries quelques années plus tôt pour les louer à des commerçants.",
+      "riddle": "Partez vers le sud-est par la rue de l'arbre mort, puis traversez la Seine par le plus vieux pont de Paris, qui porte pourtant un nom de nouveauté, et longez à gauche le quai de l'Horloge. À environ 2 300 pas, une prison médiévale du palais de la Cité fut l'antichambre de la guillotine ; la reine y passa ses derniers jours.",
+      "hints": [
+        "La rue de l'Arbre-Sec, le Pont-Neuf, puis le quai de l'Horloge.",
+        "Ses tours rondes se reflètent dans la Seine.",
+        "La Conciergerie, 2 boulevard du Palais."
+      ],
+      "photo": "File:Jardins_du_Palais_Royal.JPG"
+    },
+    {
+      "title": "Conciergerie",
+      "lat": 48.85595,
+      "lng": 2.34603,
+      "address": "2, boulevard du Palais",
+      "arrival": "Sous la Terreur, la Conciergerie servait de prison au Tribunal révolutionnaire, qui siégeait dans le palais voisin. Marie-Antoinette y fut enfermée d'août au 16 octobre 1793, jour de son exécution. Danton, puis Robespierre, y passèrent aussi leurs dernières heures.",
+      "riddle": "Traversez le petit bras de la Seine vers le sud-ouest, puis suivez la rue de l'apôtre et des arts. À environ 1 300 pas, au carrefour, la statue de bronze d'un tribun de la Révolution, guillotiné en 1794, se dresse près de l'endroit où était sa maison.",
+      "hints": [
+        "Le pont Saint-Michel, puis la rue Saint-André-des-Arts.",
+        "Il lança : « De l'audace, encore de l'audace, toujours de l'audace ! »",
+        "La statue de Danton, carrefour de l'Odéon."
+      ],
+      "photo": "File:Paris_Conciergerie_265.jpg"
+    },
+    {
+      "title": "Statue de Danton",
+      "lat": 48.8522,
+      "lng": 2.3393,
+      "arrival": "Georges Danton, ministre de la Justice en 1792, fut guillotiné le 5 avril 1794 avec Camille Desmoulins. Sa statue, par Auguste Paris, a été élevée à la fin du XIXᵉ siècle près de l'emplacement de sa maison, détruite lors du percement du boulevard Saint-Germain.",
+      "riddle": "Juste derrière, vers le nord, un passage pavé du XVIIIᵉ siècle s'ouvre sur le boulevard ; un journaliste surnommé « l'ami du peuple » y faisait imprimer sa feuille.",
+      "hints": [
+        "Il part du boulevard Saint-Germain, face à la statue.",
+        "Le journaliste s'appelait Jean-Paul Marat.",
+        "La cour du Commerce-Saint-André."
+      ]
+    },
+    {
+      "title": "Cour du Commerce-Saint-André",
+      "lat": 48.85292,
+      "lng": 2.33915,
+      "arrival": "Bravo ! Au numéro 8 de ce passage, Jean-Paul Marat faisait imprimer son journal, L'Ami du peuple. Le café Procope, ouvert en 1686 et fréquenté par les révolutionnaires, y a une seconde entrée.",
+      "photo": "File:Le_Procope_1,_Paris_2010.jpg"
+    }
+  ]
+}

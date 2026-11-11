@@ -1,0 +1,105 @@
+{
+  "key": "lille-theme-flamande",
+  "name": "Lille flamande, de la porte de Paris au Vieux-Lille",
+  "location": "Lille, centre et Vieux-Lille",
+  "summary": "Lille entre Flandre, Bourgogne et France : la porte de Paris de Louis XIV, le beffroi de l'hôtel de ville, la Noble Tour des remparts médiévaux, l'église-halle Saint-Maurice, le palais Rihour des ducs de Bourgogne, le rang de Beauregard et la maison baroque de Gilles de la Boë.",
+  "startText": "Rendez-vous devant la porte de Paris, place Simon-Vollant (métro Mairie de Lille).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 75,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte de Paris",
+      "lat": 50.62966,
+      "lng": 3.0688,
+      "riddle": "Faites quelques pas vers le nord-est par la place d'un ministre de l'Intérieur du Front populaire, maire de Lille. À environ 250 pas, une tour de brique et de béton haute de 104 mètres, achevée en 1932, domine la maison commune.",
+      "hints": [
+        "La place Roger-Salengro.",
+        "Deux géants, Lydéric et Phinaert, en gardent la base.",
+        "Le beffroi de l'hôtel de ville."
+      ]
+    },
+    {
+      "title": "Beffroi de l'hôtel de ville",
+      "lat": 50.63062,
+      "lng": 3.06981,
+      "arrival": "La porte de Paris, arc de triomphe élevé de 1685 à 1692 par Simon Vollant, célèbre la prise de Lille par Louis XIV en 1667 : la ville flamande devenait française. Le beffroi de l'hôtel de ville, d'Émile Dubuisson, achevé en 1932, mesure 104 mètres. Il est inscrit au patrimoine mondial avec les beffrois de Belgique et de France.",
+      "riddle": "Partez vers l'est par la rue de ceux qu'on envoya dans les camps. À environ 600 pas, une grosse tour ronde du XVᵉ siècle, dernier vestige de l'enceinte médiévale, est devenue un mémorial de la Résistance.",
+      "hints": [
+        "La rue Saint-Sauveur, puis la rue des Déportés.",
+        "Son nom évoque la noblesse.",
+        "La Noble Tour."
+      ],
+      "photo": "File:Lille_beffroi_mairie.jpg"
+    },
+    {
+      "title": "Noble Tour",
+      "lat": 50.63088,
+      "lng": 3.07419,
+      "arrival": "La Noble Tour, du XVᵉ siècle, est le seul vestige des remparts médiévaux de Lille. Elle abrite un mémorial de la Résistance et de la Déportation.",
+      "riddle": "Partez vers le nord-ouest par l'avenue d'un président américain assassiné à Dallas, puis par la rue d'un ordre de moines ermites. À environ 1 500 pas, un grand sanctuaire gothique, dont les nefs ont toutes la même hauteur, à la manière flamande, se dresse au cœur des rues commerçantes.",
+      "hints": [
+        "L'avenue du Président-Kennedy, puis la rue des Augustins.",
+        "Il est dédié à un officier romain martyr de la légion thébaine.",
+        "L'église Saint-Maurice."
+      ],
+      "photo": "File:Lille_noble_tour.jpg"
+    },
+    {
+      "title": "Église Saint-Maurice",
+      "lat": 50.63588,
+      "lng": 3.0675,
+      "arrival": "L'église Saint-Maurice est une « hallekerque », une église-halle typique de la Flandre : ses nefs ont toutes la même hauteur. Elle a été construite du XIVᵉ au XIXᵉ siècle.",
+      "riddle": "Partez vers l'ouest par la rue nouvelle, à environ 800 pas. Une demeure gothique de brique et de pierre, élevée au XVᵉ siècle pour un duc de Bourgogne, accueille aujourd'hui les visiteurs de la ville.",
+      "hints": [
+        "La rue Neuve.",
+        "Le duc s'appelait Philippe le Bon.",
+        "Le palais Rihour, place Rihour."
+      ],
+      "photo": "File:Lille_st_maurice_2.jpg"
+    },
+    {
+      "title": "Palais Rihour",
+      "lat": 50.63552,
+      "lng": 3.06198,
+      "arrival": "Le palais Rihour a été construit à partir de 1453 pour Philippe le Bon, duc de Bourgogne et comte de Flandre : Lille était alors l'une des capitales des ducs. Il abrite aujourd'hui l'office de tourisme.",
+      "riddle": "Partez vers le nord-est, traversez la Grand Place jusqu'à la place qui porte le nom de l'art de la scène. À environ 550 pas, une longue suite de maisons identiques de la fin du XVIIᵉ siècle, de brique et de pierre sculptée, borde la place.",
+      "hints": [
+        "La place du Théâtre.",
+        "Son nom évoque un beau coup d'œil.",
+        "Le rang de Beauregard."
+      ],
+      "photo": "File:Lille_palais_rihour.jpg"
+    },
+    {
+      "title": "Rang de Beauregard",
+      "lat": 50.63751,
+      "lng": 3.064,
+      "arrival": "Construit en 1687, peu après la conquête française, le rang de Beauregard marie le décor flamand à la régularité voulue par le nouveau pouvoir : des maisons toutes semblables, alignées sur la place.",
+      "riddle": "Partez vers le nord par la rue de la grande chaussée, jusqu'à la place qui porte le nom d'une espionne lilloise de la Grande Guerre. À environ 800 pas, une demeure baroque flamande de 1636 est l'une des plus ornées du Vieux-Lille.",
+      "hints": [
+        "La rue de la Grande-Chaussée, puis la place Louise-de-Bettignies.",
+        "Elle a été construite pour un marchand nommé Gilles de la Boë.",
+        "La maison de Gilles de la Boë."
+      ],
+      "photo": "File:Lille_rang_du_beauregard.jpg"
+    },
+    {
+      "title": "Maison de Gilles de la Boë",
+      "lat": 50.641,
+      "lng": 3.065,
+      "arrival": "Bravo ! Construite en 1636 pour le marchand Gilles de la Boë, cette maison est l'un des plus beaux exemples du baroque flamand à Lille. La place porte le nom de Louise de Bettignies, qui dirigea un réseau de renseignement pendant la Première Guerre mondiale et mourut en captivité en 1918."
+    }
+  ]
+}
