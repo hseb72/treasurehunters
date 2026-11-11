@@ -51,7 +51,7 @@ import {
 import { sketchTrail } from '../../shared/souvenir.js';
 import { AudienceTag, PracticalTag, Setting } from '../../shared/practical.js';
 import { Lists } from './lists.js';
-import { SeedHunt } from '../../shared/seed.js';
+import { HUNT_FILE_FORMAT, HuntFile, HuntFileStep, HuntImportResult, SeedHunt } from '../../shared/seed.js';
 import { StepReliability, stepReliability } from '../../shared/gps.js';
 import { diagnoseSteps } from '../../shared/diagnosis.js';
 import { TeamRole } from '../../shared/roles.js';
@@ -136,6 +136,20 @@ function requireUser(viewer: Viewer): number {
 }
 
 /** Code d'invitation lisible : 6 caractères sans ambiguïté (ni 0/O ni 1/I). */
+/**
+ * Reprise des étapes à l'import (§ 52) : pour chaque lieu du fichier, l'étape existante qu'il
+ * réécrit (son rang), ou null pour une étape nouvelle. Départ sur départ, arrivée sur arrivée, les
+ * étapes du milieu dans l'ordre ; celles de trop sont retirées.
+ */
+export function pairSteps(existing: number, imported: number): (number | null)[] {
+  return Array.from({ length: imported }, (_, i) => {
+    if (existing === 0) return null;
+    if (i === 0) return 0;
+    if (i === imported - 1) return existing > 1 ? existing - 1 : null;
+    return i < existing - 1 ? i : null;
+  });
+}
+
 function joinCode(): string {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   return Array.from(randomToken(6), (c) => alphabet[c.charCodeAt(0) % alphabet.length]).join('');
@@ -3215,6 +3229,202 @@ export class Service {
       await this.pool.query('DELETE FROM th_hunts WHERE hun_id = $1', [hunt.id]);
       throw e;
     }
+  }
+
+  /* ================================================================ Export / import d'une chasse (§ 52) */
+
+  /**
+   * Qui peut exporter une chasse : son organisateur, ou l'hôte d'une chasse surprise une fois sa
+   * partie finie (le parcours n'est plus un secret pour lui).
+   */
+  private async transferableHunt(db: Db, viewer: Viewer, id: number): Promise<{ hunt: Hunt; owner: boolean }> {
+    const me = requireUser(viewer);
+    const hunt = await huntById(db, id);
+    if (!hunt) throw notFound('Secret Track introuvable.');
+    if (hunt.ownerId === me) return { hunt, owner: true };
+    if (hunt.surprise && hunt.hostId === me) {
+      const team = await teamOf(db, id, me);
+      if (team?.finished || ['closed', 'cancelled', 'archived'].includes(hunt.status)) return { hunt, owner: false };
+      throw forbidden('Le parcours reste secret tant que votre partie n’est pas finie.');
+    }
+    throw forbidden('Réservé à l’organisateur de la Secret Track.');
+  }
+
+  /** La chasse en JSON (HuntFile) : fiche, lieux, énigmes, jokers, messages et épreuves d'arrivée. */
+  async exportHunt(viewer: Viewer, id: number): Promise<HuntFile> {
+    const { hunt } = await this.transferableHunt(this.pool, viewer, id);
+    const steps = await stepsOf(this.pool, id);
+    const sources = await rows(this.pool, 'SELECT cod_id, cod_photosource FROM th_codes WHERE cod_hunt_hun = $1', [id]);
+    const commonsOf = (stepId: number) => {
+      const src = (sources.find((r) => r['cod_id'] === stepId)?.['cod_photosource'] as string | null) ?? '';
+      const m = /commons\.wikimedia\.org\/wiki\/(File:[^?#]+)/.exec(src);
+      if (!m) return null;
+      try {
+        return decodeURIComponent(m[1]!).replace(/_/g, ' ');
+      } catch {
+        return null;
+      }
+    };
+    const last = steps.length - 1;
+    return {
+      format: HUNT_FILE_FORMAT,
+      name: hunt.name,
+      location: hunt.location ?? '',
+      summary: hunt.description ?? '',
+      startText: hunt.startText ?? '',
+      travel: hunt.travel,
+      difficulty: hunt.difficulty ?? 'medium',
+      durationMinutes: hunt.durationMinutes ?? 60,
+      steps: steps.map((s, i) => ({
+        title: s.title,
+        lat: s.latitude,
+        lng: s.longitude,
+        address: s.address,
+        arrival: i === 0 ? null : s.arrival,
+        riddle: i === last ? null : s.instructions,
+        hints: s.hints,
+        puzzle: s.puzzle,
+        photo: s.referencePhoto ? commonsOf(s.id) : null,
+      })),
+    };
+  }
+
+  /**
+   * Réimporte une chasse exportée puis réécrite. Tant que la course n'est pas lancée, la chasse
+   * est réécrite (étapes reprises dans l'ordre, ajoutées ou retirées) ; une fois jouée, ou pour
+   * l'hôte d'une chasse surprise, une nouvelle version est créée en brouillon : les parties, avis et
+   * commentaires restent attachés à l'ancienne, et la nouvelle se partage au catalogue comme une
+   * nouvelle version de la même lignée. Les photos suivent un lieu qui n'a pas bougé de plus de 50 m.
+   */
+  async importHunt(viewer: Viewer, id: number, file: HuntFile, warnings: string[], opts: { dryRun?: boolean } = {}): Promise<HuntImportResult> {
+    const me = requireUser(viewer);
+    const { hunt, owner } = await this.transferableHunt(this.pool, viewer, id);
+    const started = await one(this.pool, 'SELECT 1 FROM th_teams WHERE tea_hunt_hun = $1 AND tea_started IS NOT NULL LIMIT 1', [id]);
+    const mode: HuntImportResult['mode'] = owner && ['draft', 'published'].includes(hunt.status) && !started ? 'replace' : 'copy';
+    const old = await stepsOf(this.pool, id);
+    const pair = pairSteps(old.length, file.steps.length);
+    const notes = [...warnings];
+    const moved = (o: Step | undefined, n: HuntFileStep) =>
+      !o || o.latitude === null || o.longitude === null || n.lat === null || n.lng === null || distanceMeters({ lat: o.latitude, lng: o.longitude }, { lat: n.lat, lng: n.lng }) > 50;
+    file.steps.forEach((n, i) => {
+      const o = pair[i] === null ? undefined : old[pair[i]!];
+      if (o?.referencePhoto && moved(o, n)) notes.push(`${n.title} : le lieu a bougé de plus de 50 m, ${mode === 'replace' ? 'vérifiez sa photo' : 'sa photo n’est pas reprise'}.`);
+    });
+    if (mode === 'copy') notes.unshift(owner ? 'Cette Secret Track a déjà été jouée : une nouvelle version est créée en brouillon, l’ancienne et ses avis restent intacts.' : 'Une copie est créée en brouillon dans votre atelier.');
+    if (opts.dryRun) return { mode, applied: false, huntId: id, steps: file.steps.length, warnings: notes };
+
+    const fiche: Partial<Hunt> = {
+      name: file.name,
+      description: file.summary,
+      location: file.location,
+      startText: file.startText,
+      travel: file.travel,
+      difficulty: file.difficulty,
+      durationMinutes: file.durationMinutes,
+    };
+    const photoJobs: { title: string; toId: number; fromId: number | null; commons: string | null }[] = [];
+    const targetId = await tx(this.pool, async (db) => {
+      await huntById(db, id, true);
+      for (const [i, n] of file.steps.entries()) {
+        if (!n.puzzle) continue;
+        const o = pair[i] === null ? undefined : old[pair[i]!];
+        await this.checkPuzzle(db, me, { ...(o ?? old[0]!), order: i, puzzle: mode === 'replace' ? (o?.puzzle ?? null) : null }, { puzzle: n.puzzle });
+      }
+      let target = id;
+      if (mode === 'copy') {
+        const keep: (keyof Hunt)[] = ['award', 'startMode', 'interval', 'hintPenalties', 'skipPenalty', 'teamGame', 'teamMin', 'teamMax', 'validation', 'geoRadius'];
+        if (owner) keep.push('skin', 'tools', 'contribution');
+        const data: Partial<Hunt> = { ...Object.fromEntries(keep.map((k) => [k, hunt[k]])), ...fiche };
+        const begin = new Date(Date.now() + 7 * 86_400_000);
+        Object.assign(data, { begin: begin.toISOString(), end: new Date(begin.getTime() + 3 * 3_600_000).toISOString(), autoStart: false, autoClose: true, isPublic: false });
+        const assignments = huntAssignments(data);
+        // Même lignée au catalogue : la dernière publication de l'ancienne chasse, sinon la version dont elle venait.
+        const lineage = owner ? ((await one(db, 'SELECT cat_id FROM th_catalog WHERE cat_hunt_hun = $1 ORDER BY cat_id DESC LIMIT 1', [id]))?.['cat_id'] ?? hunt.catalogId) : null;
+        const cols = ['hun_owner_htr', 'hun_joincode', 'hun_catalog_cat', ...assignments.map(([c]) => c)];
+        const values = [me, joinCode(), lineage, ...assignments.map(([, v]) => v)];
+        const h = await one(db, `INSERT INTO th_hunts (${cols.join(', ')}) VALUES (${cols.map((_, k) => `$${k + 1}`).join(', ')}) RETURNING hun_id`, values);
+        target = h!['hun_id'];
+      } else {
+        const assignments = huntAssignments(fiche);
+        await db.query(`UPDATE th_hunts SET ${assignments.map(([c], k) => `${c} = $${k + 2}`).join(', ')}, hun_lastupdate = now() WHERE hun_id = $1`, [id, ...assignments.map(([, v]) => v)]);
+        await db.query('SET CONSTRAINTS un_cod_2 DEFERRED');
+        const kept = new Set(pair.filter((p): p is number => p !== null));
+        for (const [k, o] of old.entries()) if (!kept.has(k)) await db.query('DELETE FROM th_codes WHERE cod_id = $1', [o.id]);
+      }
+      for (const [i, n] of file.steps.entries()) {
+        const o = mode === 'replace' && pair[i] !== null ? old[pair[i]!] : undefined;
+        const values = [
+          n.title,
+          i === 0 ? null : n.arrival,
+          i === file.steps.length - 1 ? null : n.riddle,
+          n.hints?.[0] ?? null,
+          n.hints?.[1] ?? null,
+          n.hints?.[2] ?? null,
+          n.lat,
+          n.lng,
+          n.address ?? null,
+          i === 0 || !n.puzzle ? null : JSON.stringify(n.puzzle),
+          i,
+        ];
+        let stepId: number;
+        if (o) {
+          await db.query(
+            `UPDATE th_codes SET cod_title = $2, cod_arrival = $3, cod_instructions = $4, cod_hint1 = $5, cod_hint2 = $6, cod_hint3 = $7,
+                                 cod_latitude = $8, cod_longitude = $9, cod_address = $10, cod_puzzle = $11, cod_order = $12,
+                                 cod_entrances = CASE WHEN $13 THEN NULL ELSE cod_entrances END, cod_lastupdate = now()
+             WHERE cod_id = $1`,
+            [o.id, ...values, moved(o, n)],
+          );
+          stepId = o.id;
+        } else {
+          const r = await one(
+            db,
+            `INSERT INTO th_codes (cod_title, cod_arrival, cod_instructions, cod_hint1, cod_hint2, cod_hint3, cod_latitude, cod_longitude,
+                                   cod_address, cod_puzzle, cod_order, cod_hunt_hun, cod_longid)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING cod_id`,
+            [...values, target, i === 0 ? null : randomToken()],
+          );
+          stepId = r!['cod_id'];
+        }
+        // Nouvelle version : la photo d'un lieu qui n'a pas bougé est copiée ; sinon la photo Commons du fichier.
+        const from = mode === 'copy' && pair[i] !== null ? old[pair[i]!] : undefined;
+        if (from?.referencePhoto && !moved(from, n)) photoJobs.push({ title: n.title, toId: stepId, fromId: from.id, commons: null });
+        else if (n.photo && !o?.referencePhoto) photoJobs.push({ title: n.title, toId: stepId, fromId: null, commons: n.photo });
+      }
+      await db.query('UPDATE th_hunts SET hun_lastupdate = now() WHERE hun_id = $1', [target]);
+      return target;
+    });
+
+    // Photos, hors transaction : copiées d'une version à l'autre (jamais partagées), ou reprises de Commons.
+    if (photoJobs.length && !this.photos) notes.push('Photos non reprises : le stockage des photos n’est pas configuré.');
+    for (const job of this.photos ? photoJobs : []) {
+      try {
+        if (job.fromId !== null) await this.copyStepPhoto(job.fromId, job.toId);
+        else {
+          await this.setReferencePhotoFromCommons(me, job.toId, job.commons!);
+          const step = (await stepById(this.pool, job.toId))!;
+          if (step.order > 0) await this.updateStep(me, job.toId, { photoShow: 'arrival' });
+        }
+      } catch (e) {
+        notes.push(`${job.title} : photo non reprise (${(e as Error).message}).`);
+      }
+    }
+    return { mode, applied: true, huntId: targetId, steps: file.steps.length, warnings: notes };
+  }
+
+  /** Copie la photo d'une étape sur une autre (nouvelle clé de stockage : chaque version garde la sienne). */
+  private async copyStepPhoto(fromId: number, toId: number): Promise<void> {
+    const photos = this.requirePhotos();
+    const r = (await one(this.pool, 'SELECT cod_refphoto, cod_photoshow, cod_photosource, cod_photocredit, cod_photocrediturl FROM th_codes WHERE cod_id = $1', [fromId]))!;
+    const image = await photos.store.get(r['cod_refphoto']);
+    if (!image) throw new Error('photo introuvable dans le stockage');
+    const to = (await stepById(this.pool, toId))!;
+    const key = `refs/hunt-${to.huntId}/step-${toId}-${randomToken(16)}.${image.contentType.split('/')[1]}`;
+    await photos.store.put(key, image);
+    await this.pool.query(
+      'UPDATE th_codes SET cod_refphoto = $2, cod_photoshow = $3, cod_photosource = $4, cod_photocredit = $5, cod_photocrediturl = $6 WHERE cod_id = $1',
+      [toId, key, r['cod_photoshow'], r['cod_photosource'], r['cod_photocredit'], r['cod_photocrediturl']],
+    );
   }
 
   private async systemAccount(db: Db): Promise<number> {

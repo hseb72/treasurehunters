@@ -6,6 +6,7 @@ import { NearbyResult } from '@shared/nearby';
 import { PhotoProposal } from '@shared/models';
 import { GuideInterest, GuideRequest, GuideUnderstanding, GuideUsage } from '@shared/guide';
 import { McpStats } from '@shared/mcp';
+import { HuntFile, HuntImportResult } from '@shared/seed';
 import { TeamRole } from '@shared/roles';
 import { StepReliability } from '@shared/gps';
 import {
@@ -93,6 +94,12 @@ export class HttpHuntApi extends HuntApi {
 
   getSteps(huntId: number): Observable<Step[]> {
     return this.http.get<Step[]>(`${this.url}/hunts/${huntId}/steps`);
+  }
+  exportHunt(huntId: number): Observable<HuntFile> {
+    return this.http.get<HuntFile>(`${this.url}/hunts/${huntId}/export`);
+  }
+  importHunt(huntId: number, file: unknown, dryRun: boolean): Observable<HuntImportResult> {
+    return this.http.post<HuntImportResult>(`${this.url}/hunts/${huntId}/import${dryRun ? '?dryRun=1' : ''}`, file);
   }
   saveStep(step: Partial<Step> & { huntId: number }): Observable<Step> {
     const { id, huntId, order, token, answer, ...body } = step;
