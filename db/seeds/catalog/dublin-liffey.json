@@ -1,0 +1,94 @@
+{
+  "key": "dublin-liffey",
+  "name": "Dublin, de Trinity College à la Grande Poste",
+  "location": "Dublin, des deux rives de la Liffey",
+  "summary": "De Trinity College à O'Connell Street : Molly Malone et sa charrette, le château qui fut sept siècles le siège du pouvoir anglais, Temple Bar, le pont à un demi-penny et la Grande Poste de l'insurrection de 1916. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant l'entrée principale de Trinity College, sur College Green.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Trinity College",
+      "lat": 53.3444,
+      "lng": -6.2591,
+      "riddle": "Sortez par le grand porche vers le sud-ouest, traversez la « pelouse du collège » et prenez la rue d'un comté anglais. À environ 300 pas, une marchande de bronze pousse sa charrette de coques et de moules.",
+      "hints": [
+        "College Green, puis Suffolk Street.",
+        "Une chanson raconte qu'elle mourut de fièvre.",
+        "La statue de Molly Malone, Suffolk Street."
+      ],
+      "photo": "File:ImeldaCasey_TrinityatNight.jpg"
+    },
+    {
+      "title": "Statue de Molly Malone",
+      "lat": 53.34375,
+      "lng": -6.2609,
+      "arrival": "Trinity College a été fondé en 1592 par la reine Élisabeth Iʳᵉ ; il conserve le livre de Kells, un évangéliaire enluminé vers l'an 800. La statue de Molly Malone, de Jeanne Rynhart, illustre la chanson devenue l'hymne officieux de la ville.",
+      "riddle": "Partez vers l'ouest par la rue de la Trinité, puis remontez la grande rue d'un saint qui terrassa le dragon. À environ 850 pas, une forteresse qui fut pendant sept siècles le siège du pouvoir anglais en Irlande ouvre sa cour.",
+      "hints": [
+        "Trinity Street, puis South Great George's Street.",
+        "Il fut remis au gouvernement irlandais en 1922.",
+        "Le château de Dublin."
+      ],
+      "photo": "File:Molly_Malone_073007.JPG"
+    },
+    {
+      "title": "Château de Dublin",
+      "lat": 53.34266,
+      "lng": -6.267,
+      "arrival": "Le château de Dublin fut le siège de l'administration britannique en Irlande jusqu'en 1922. Le 16 janvier, Michael Collins vint en prendre possession ; on raconte qu'au reproche d'arriver avec sept minutes de retard, il répondit qu'on avait attendu sept cents ans.",
+      "riddle": "Partez vers le nord-est par la rue de la « Dame », qui doit en réalité son nom à un barrage sur la rivière, puis descendez la ruelle qui porte le nom du quartier. À environ 800 pas, une petite place pavée, au cœur du quartier des pubs, s'ouvre près de la Liffey.",
+      "hints": [
+        "Dame Street, puis Temple Lane South.",
+        "Le quartier doit son nom à la famille Temple.",
+        "Temple Bar Square."
+      ],
+      "photo": "File:Dublin_castle.JPG"
+    },
+    {
+      "title": "Temple Bar",
+      "lat": 53.34549,
+      "lng": -6.26312,
+      "arrival": "Le quartier de Temple Bar doit son nom à la famille de sir William Temple, qui y possédait des terres au XVIIᵉ siècle ; un « bar » désignait un chemin au bord de l'eau. Dame Street, elle, tient son nom du barrage de la rivière Poddle.",
+      "riddle": "Faites quelques pas vers le nord jusqu'au quai du vainqueur de Waterloo, né à Dublin. À environ 200 pas, une passerelle de fonte blanche enjambe la Liffey ; il fallut longtemps payer une pièce d'un demi-sou pour la traverser.",
+      "hints": [
+        "Wellington Quay longe la Liffey.",
+        "Le péage a été supprimé en 1919.",
+        "Le Ha'penny Bridge."
+      ],
+      "photo": "File:Temple_Bar_Square.jpg"
+    },
+    {
+      "title": "Ha'penny Bridge",
+      "lat": 53.34633,
+      "lng": -6.2631,
+      "arrival": "Le Ha'penny Bridge, construit en 1816 en fonte coulée en Angleterre, remplaçait des bacs. Son péage d'un demi-penny lui a donné son nom ; il fut supprimé en 1919.",
+      "riddle": "Partez vers le nord par la « promenade des célibataires », puis remontez la large avenue du « Libérateur ». À environ 700 pas, un bâtiment à colonnade servit de quartier général aux insurgés de Pâques 1916 ; on voit encore des impacts de balles sur ses colonnes.",
+      "hints": [
+        "Bachelors Walk, puis O'Connell Street.",
+        "Patrick Pearse y lut la proclamation de la République.",
+        "La Grande Poste, GPO, O'Connell Street."
+      ],
+      "photo": "File:HalfPennyBridge.jpg"
+    },
+    {
+      "title": "Grande Poste",
+      "lat": 53.34929,
+      "lng": -6.26105,
+      "arrival": "Bravo ! Le lundi de Pâques 1916, les insurgés firent de la Grande Poste leur quartier général ; Patrick Pearse y lut la proclamation de la République irlandaise. Détruit pendant les combats, le bâtiment a été reconstruit. O'Connell Street porte le nom de Daniel O'Connell, surnommé « le Libérateur ».",
+      "photo": "File:General_Post_Office_Dublin_20060803.jpg"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "key": "athenes-plaka",
+  "name": "Athènes, de Syntagma à Monastiráki",
+  "location": "Athènes, Plaka",
+  "summary": "Au pied de l'Acropole : les evzones de la tombe du Soldat inconnu, l'arc d'Hadrien et ses deux inscriptions, le monument de Lysicrate où logea Byron, la tour des Vents, la bibliothèque d'Hadrien et la place Monastiráki. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la tombe du Soldat inconnu, au pied du Parlement, place Syntagma (métro Syntagma). La relève des evzones a lieu toutes les heures.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Tombe du Soldat inconnu",
+      "lat": 37.97535,
+      "lng": 23.73635,
+      "riddle": "Descendez vers le sud-ouest par l'avenue de la première reine de la Grèce indépendante, le long du Jardin national. À environ 1 400 pas, une porte romaine de marbre se dresse au bord de l'avenue ; ses deux faces portent deux inscriptions qui se contredisent.",
+      "hints": [
+        "L'avenue Vasilíssis Amalías, du nom de la reine Amélie.",
+        "D'un côté : « Ici est Athènes, l'ancienne cité de Thésée » ; de l'autre : « Ici est la cité d'Hadrien, et non de Thésée ».",
+        "L'arc d'Hadrien."
+      ],
+      "photo": "File:Tomb_of_Unknown_at_Syntagma_Square.jpg"
+    },
+    {
+      "title": "Arc d'Hadrien",
+      "lat": 37.97016,
+      "lng": 23.73215,
+      "arrival": "Devant le Parlement, les evzones, en jupe plissée et chaussures à pompons, gardent la tombe du Soldat inconnu. L'arc d'Hadrien a été élevé vers 131 en l'honneur de l'empereur ; ses inscriptions séparaient l'ancienne ville de Thésée de la nouvelle ville d'Hadrien.",
+      "riddle": "Partez vers le nord-ouest par la rue qui porte, en grec, le nom de votre but. À environ 450 pas, sur une petite place de Plaka, un élégant édicule rond à colonnes corinthiennes célèbre la victoire d'un chœur au théâtre, en 334 avant J.-C.",
+      "hints": [
+        "La rue Lysikrátous.",
+        "Lord Byron logea tout près, au couvent des Capucins.",
+        "Le monument de Lysicrate."
+      ],
+      "photo": "File:Attica_06-13_Athens_24_Arch_of_Hadrian.jpg"
+    },
+    {
+      "title": "Monument de Lysicrate",
+      "lat": 37.97108,
+      "lng": 23.72994,
+      "arrival": "Le monument de Lysicrate, élevé vers 334 avant J.-C., portait le trépied de bronze gagné par le chœur que ce riche citoyen avait financé. Au XVIIᵉ siècle, des capucins français l'intégrèrent à leur couvent, où Lord Byron séjourna en 1810. On l'appelait alors la « lanterne de Démosthène ».",
+      "riddle": "Montez vers le nord-ouest par les ruelles de Plaka, puis suivez la rue du général qui rétablit la démocratie à Athènes en 403 avant notre ère. À environ 850 pas, une tour octogonale de marbre porte sur chaque face un personnage ailé qui souffle.",
+      "hints": [
+        "La rue Thrasyvoúlou descend vers l'Agora romaine.",
+        "C'était à la fois une horloge à eau, des cadrans solaires et une girouette.",
+        "La tour des Vents."
+      ],
+      "photo": "File:Choragic_Monument_of_Lysicrates.jpg"
+    },
+    {
+      "title": "Tour des Vents",
+      "lat": 37.9742,
+      "lng": 23.72703,
+      "arrival": "La tour des Vents, construite vers le Iᵉʳ siècle avant J.-C. par l'astronome Andronicos de Cyrrhus, réunissait cadrans solaires, horloge à eau et girouette. Chacune de ses huit faces représente un vent ; Borée, le vent du nord, souffle dans une conque.",
+      "riddle": "Partez vers le nord par la rue de l'empereur qui fit bâtir l'arc du départ. À environ 300 pas, une longue façade de colonnes corinthiennes marque une ancienne cour où l'on venait lire et étudier.",
+      "hints": [
+        "La rue Adrianoú.",
+        "Elle date de 132.",
+        "La bibliothèque d'Hadrien."
+      ]
+    },
+    {
+      "title": "Bibliothèque d'Hadrien",
+      "lat": 37.9754,
+      "lng": 23.72657,
+      "arrival": "La bibliothèque d'Hadrien, construite en 132, entourait une grande cour bordée de colonnes ; on y conservait des rouleaux de papyrus.",
+      "riddle": "Faites quelques pas vers le nord-ouest par la rue d'une fille du premier roi légendaire d'Athènes. À environ 250 pas, une place animée tient son nom d'un petit monastère.",
+      "hints": [
+        "La rue Pandróssou, du nom de Pandrose, fille de Cécrops.",
+        "Une mosquée ottomane du XVIIIᵉ siècle la borde.",
+        "La place Monastiráki."
+      ],
+      "photo": "File:Βιβλιοθήκη_Αδριανού_4165.jpg"
+    },
+    {
+      "title": "Place Monastiraki",
+      "lat": 37.97636,
+      "lng": 23.72595,
+      "arrival": "Bravo ! La place Monastiráki doit son nom à l'église de la Pantanassa, reste d'un monastère. La mosquée Tzistarakis, de 1759, la borde ; au-dessus, l'Acropole domine la ville.",
+      "photo": "File:2018-07-25_Monastiraki_Square,_Athens.jpg"
+    }
+  ]
+}

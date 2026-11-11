@@ -1,0 +1,95 @@
+{
+  "key": "riga-vecriga",
+  "name": "Riga, de la maison des Têtes noires à Milda",
+  "location": "Riga, Vecrīga",
+  "summary": "La vieille ville hanséatique de Riga : la maison des Têtes noires et le premier sapin de Noël, le clocher de Saint-Pierre, la cathédrale du Dôme et son orgue géant, les Trois Frères, la porte suédoise et le monument de la Liberté. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous devant la maison des Têtes noires, place de l'Hôtel-de-Ville.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Maison des Têtes noires",
+      "lat": 56.94714,
+      "lng": 24.10692,
+      "riddle": "Faites quelques pas vers l'est par la rue des seigneurs. À environ 300 pas, un clocher de bois et de cuivre de plus de cent vingt mètres domine la vieille ville ; on y monte en ascenseur.",
+      "hints": [
+        "Kungu iela, la « rue des Seigneurs ».",
+        "Il est dédié à l'apôtre porte-clés.",
+        "L'église Saint-Pierre."
+      ],
+      "photo": "File:House_of_Blackheads_and_St._Peter's_Church_Tower,_Riga,_Latvia_-_Diliff.jpg"
+    },
+    {
+      "title": "Église Saint-Pierre",
+      "lat": 56.94752,
+      "lng": 24.10932,
+      "arrival": "La maison des Têtes noires, d'une confrérie de marchands célibataires, date de 1334 ; détruite pendant la guerre, elle a été reconstruite en 1999. Selon une tradition de la ville, ces marchands auraient décoré ici le premier sapin de Noël, en 1510. Le clocher de Saint-Pierre culmine à 123 mètres.",
+      "riddle": "Partez vers le nord-ouest par la rue de la chaux, puis par la rue des marchands. À environ 650 pas, le plus grand sanctuaire médiéval des pays baltes abrite un orgue géant de 1884.",
+      "hints": [
+        "Kaļķu iela, puis Tirgoņu iela.",
+        "Il a été fondé en 1211.",
+        "La cathédrale du Dôme, place du Dôme."
+      ],
+      "photo": "File:Iglesia_de_San_Pedro,_Riga,_Letonia,_2012-08-07,_DD_32.JPG"
+    },
+    {
+      "title": "Cathédrale du Dôme",
+      "lat": 56.94911,
+      "lng": 24.10474,
+      "arrival": "La cathédrale du Dôme, fondée en 1211, est la plus grande église médiévale des pays baltes. Son orgue de 1884 compte plus de six mille tuyaux ; Franz Liszt composa une œuvre pour son inauguration.",
+      "riddle": "Partez vers le nord par la rue du château, puis par la « petite rue du château ». À environ 300 pas, un trio de maisons accolées, de siècles différents, réunit les plus anciennes demeures de la ville.",
+      "hints": [
+        "Pils iela, puis Mazā Pils iela.",
+        "La plus ancienne date du XVᵉ siècle.",
+        "Les Trois Frères, Mazā Pils iela 17, 19 et 21."
+      ],
+      "photo": "File:2025_Riga_Cathedral_(02).jpg"
+    },
+    {
+      "title": "Trois Frères",
+      "lat": 56.95035,
+      "lng": 24.10429,
+      "arrival": "Les Trois Frères, aux numéros 17, 19 et 21, sont les plus anciennes maisons d'habitation de Riga ; la plus ancienne remonte au XVᵉ siècle. Elles abritent le musée de l'Architecture.",
+      "riddle": "Partez vers le nord-est par la rue des brasseurs. À environ 350 pas, une porte percée dans une maison est le seul passage conservé de l'enceinte ; elle date de l'époque où Riga appartenait à un royaume du Nord.",
+      "hints": [
+        "Aldaru iela, la « rue des Brasseurs ».",
+        "Elle a été percée en 1698.",
+        "La porte suédoise."
+      ],
+      "photo": "File:3_Brueder.jpg"
+    },
+    {
+      "title": "Porte suédoise",
+      "lat": 56.95145,
+      "lng": 24.10638,
+      "arrival": "La porte suédoise a été percée en 1698, quand Riga appartenait à la Suède, pour relier la ville aux casernes. C'est la seule porte de l'enceinte qui subsiste.",
+      "riddle": "Partez vers l'est par la rue de la tour, puis traversez le parc du canal. À environ 850 pas, une haute colonne porte une jeune femme qui lève trois étoiles d'or ; deux soldats montent la garde à son pied.",
+      "hints": [
+        "Torņa iela, la « rue de la Tour ».",
+        "Les trois étoiles figurent les régions historiques du pays.",
+        "Le monument de la Liberté."
+      ],
+      "photo": "File:Svenskporten_Riga.jpg"
+    },
+    {
+      "title": "Monument de la Liberté",
+      "lat": 56.95151,
+      "lng": 24.11338,
+      "arrival": "Bravo ! Le monument de la Liberté, inauguré en 1935, honore les soldats de la guerre d'indépendance. La jeune femme, surnommée Milda, lève trois étoiles qui figurent les régions de la Lettonie. Le monument survécut à l'occupation soviétique ; une garde d'honneur y est relevée régulièrement.",
+      "photo": "File:Freedom_Monument,_Riga_(09.09.2022).01.jpg"
+    }
+  ]
+}

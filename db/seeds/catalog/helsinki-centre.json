@@ -1,0 +1,93 @@
+{
+  "key": "helsinki-centre",
+  "name": "Helsinki, de la place du Sénat à la gare",
+  "location": "Helsinki, Kruununhaka et Esplanadi",
+  "summary": "La « ville blanche du Nord » : la cathédrale et la place du Sénat, le marché du port, la cathédrale orthodoxe Ouspenski, Havis Amanda modelée à Paris, la statue du poète Runeberg et la gare d'Eliel Saarinen. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous en haut des marches de la cathédrale, place du Sénat (tram Senaatintori).",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Cathédrale d'Helsinki",
+      "lat": 60.1697,
+      "lng": 24.9522,
+      "riddle": "Descendez l'escalier vers le sud, traversez la rue du tsar Alexandre et gagnez le port par l'« esplanade nord ». À environ 550 pas, au bord de l'eau, des étals vendent poissons, baies et souvenirs ; les bateaux pour la forteresse de Suomenlinna partent d'ici.",
+      "hints": [
+        "Aleksanterinkatu, puis Pohjoisesplanadi, « l'esplanade nord ».",
+        "Les Finlandais l'appellent Kauppatori.",
+        "La place du Marché."
+      ],
+      "photo": "File:Lutheran_Cathedral_Helsinki.jpg"
+    },
+    {
+      "title": "Place du Marché",
+      "lat": 60.1672,
+      "lng": 24.95327,
+      "arrival": "La place du Sénat et la cathédrale luthérienne ont été dessinées par l'architecte allemand Carl Ludvig Engel au XIXᵉ siècle, quand Helsinki devint la capitale du grand-duché de Finlande, rattaché à l'Empire russe. La statue d'Alexandre II, au centre de la place, honore le tsar qui rétablit la Diète finlandaise.",
+      "riddle": "Partez vers l'est, franchissez le pont vers l'île des Genévriers et suivez la rue du canal. À environ 800 pas, sur un rocher, un sanctuaire de brique rouge coiffé de bulbes dorés est l'un des plus grands lieux de culte orthodoxes d'Europe occidentale.",
+      "hints": [
+        "Katajanokka, « l'île des Genévriers », puis Kanavakatu, « rue du Canal ».",
+        "Il a été consacré en 1868.",
+        "La cathédrale Ouspenski."
+      ],
+      "photo": "File:Market_Square_in_Helsinki,_Finland,_2024_May.jpg"
+    },
+    {
+      "title": "Cathédrale Ouspenski",
+      "lat": 60.16846,
+      "lng": 24.95993,
+      "arrival": "La cathédrale Ouspenski, consacrée en 1868, est dédiée à la Dormition de la Vierge, « Ouspénié » en russe. Sa brique rouge viendrait de la forteresse de Bomarsund, détruite par les Français et les Britanniques pendant la guerre de Crimée.",
+      "riddle": "Revenez vers l'ouest jusqu'au fond du port, au début de l'esplanade. À environ 950 pas, une jeune femme nue sort des flots sur une fontaine, entourée d'otaries ; chaque 30 avril, les étudiants la coiffent d'une casquette blanche.",
+      "hints": [
+        "Elle est à l'entrée de l'Esplanadi, face au port.",
+        "Son sculpteur, Ville Vallgren, l'a modelée à Paris.",
+        "Havis Amanda."
+      ]
+    },
+    {
+      "title": "Havis Amanda",
+      "lat": 60.16759,
+      "lng": 24.9514,
+      "arrival": "Havis Amanda, de Ville Vallgren, a été inaugurée en 1908 ; le sculpteur l'avait réalisée à Paris, et sa nudité fit scandale. La veille du 1ᵉʳ mai, les étudiants la lavent et la coiffent de leur casquette blanche.",
+      "riddle": "Partez vers l'ouest dans le parc de l'esplanade. À environ 400 pas, la statue du poète national, auteur des paroles de l'hymne finlandais, domine la promenade ; c'est son fils qui l'a sculptée.",
+      "hints": [
+        "Le parc de l'Esplanadi.",
+        "Le poète s'appelait Johan Ludvig.",
+        "La statue de Runeberg."
+      ],
+      "photo": "File:\"Havis_Amanda\",_la_statue_de_la_fontaine_de_Vallgren_(Helsinki)_(2744386193).jpg"
+    },
+    {
+      "title": "Statue de Runeberg",
+      "lat": 60.16746,
+      "lng": 24.94758,
+      "arrival": "Johan Ludvig Runeberg, qui écrivait en suédois, est l'auteur du poème devenu l'hymne national, Notre pays. Sa statue, par son fils Walter Runeberg, date de 1885. Le 5 février, jour de sa naissance, on mange une pâtisserie qui porte son nom.",
+      "riddle": "Remontez vers le nord-ouest par la rue du « centre ». À environ 1 200 pas, un édifice de granit à tour d'horloge, où arrivent les trains, dessiné par Eliel Saarinen, est gardée par quatre géants de pierre qui portent des globes lumineux.",
+      "hints": [
+        "La Keskuskatu, « rue du Centre ».",
+        "Elle a été achevée en 1919.",
+        "La gare centrale d'Helsinki."
+      ],
+      "photo": "File:Estatua_de_Johan_Ludvig_Runeberg,_Esplanadi,_Helsinki,_Finlandia,_2012-08-14,_DD_02.JPG"
+    },
+    {
+      "title": "Gare centrale",
+      "lat": 60.17155,
+      "lng": 24.9406,
+      "arrival": "Bravo ! La gare d'Eliel Saarinen, achevée en 1919, est un chef-d'œuvre de l'Art nouveau nordique. Ses quatre géants de granit portent des lanternes sphériques. Saarinen partit ensuite pour les États-Unis, où son fils Eero devint lui aussi un grand architecte.",
+      "photo": "File:Helsinki_Central_railway_station_in_Finland,_2021_July.jpg"
+    }
+  ]
+}

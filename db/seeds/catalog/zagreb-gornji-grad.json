@@ -1,0 +1,94 @@
+{
+  "key": "zagreb-gornji-grad",
+  "name": "Zagreb, de la place Jelačić à la ville haute",
+  "location": "Zagreb, Kaptol et Gornji grad",
+  "summary": "Zagreb, née de deux villes rivales : la place Ban-Jelačić, le marché de Dolac sous ses parasols rouges, la cathédrale de Kaptol, la porte de pierre et sa Vierge sauvée des flammes, l'église Saint-Marc au toit de blasons et la tour Lotrščak, dont le canon tonne à midi. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la statue équestre du ban Jelačić, place Ban-Jelačić (tram Trg bana Jelačića). Ça monte vers la ville haute.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place Ban-Jelačić",
+      "lat": 45.81309,
+      "lng": 15.97717,
+      "riddle": "Montez vers le nord par la ruelle « sous le mur ». À environ 250 pas, sur une terrasse, des parasols rouges abritent les étals de fruits, de légumes et de fleurs de la ville.",
+      "hints": [
+        "Pod zidom, « sous le mur ».",
+        "Le rouge des parasols reprend celui des costumes traditionnels.",
+        "Le marché de Dolac."
+      ],
+      "photo": "File:Zagreb_(29255640143).jpg"
+    },
+    {
+      "title": "Marché de Dolac",
+      "lat": 45.81429,
+      "lng": 15.97724,
+      "arrival": "La place porte le nom du ban Josip Jelačić, gouverneur de Croatie en 1848 ; sa statue, retirée par le régime communiste en 1947, a été réinstallée en 1990. Le marché de Dolac, le « ventre de Zagreb », est ouvert depuis 1930.",
+      "riddle": "Partez vers l'est jusqu'à la colline des chanoines. À environ 400 pas, deux flèches néo-gothiques de plus de cent mètres dominent la ville ; un séisme les a fait vaciller en 2020.",
+      "hints": [
+        "Kaptol, le quartier du chapitre des chanoines.",
+        "Le séisme de 1880 l'avait déjà gravement endommagée.",
+        "La cathédrale de Zagreb."
+      ],
+      "photo": "File:Dolac_01.JPG"
+    },
+    {
+      "title": "Cathédrale de Zagreb",
+      "lat": 45.81446,
+      "lng": 15.97986,
+      "arrival": "La cathédrale de l'Assomption a été reconstruite en style néo-gothique après le séisme de 1880, avec deux flèches de 108 mètres ; celui de mars 2020 a brisé le sommet de l'une d'elles. Zagreb est née de la réunion de deux villes : Kaptol, la ville des chanoines, et Gradec, la ville des bourgeois.",
+      "riddle": "Partez vers l'ouest, traversez la rue d'un historien bâtie sur un ancien ruisseau, puis grimpez les « petits escaliers ». À environ 750 pas, un passage voûté de l'ancienne enceinte abrite une chapelle où brûlent des cierges devant une image de la Vierge.",
+      "hints": [
+        "Tkalčićeva, puis Male stube, « les petits escaliers ».",
+        "L'image a survécu à l'incendie de 1731.",
+        "La porte de pierre, Kamenita vrata."
+      ],
+      "photo": "File:Záhřeb,_katedrála_1.jpg"
+    },
+    {
+      "title": "Porte de pierre",
+      "lat": 45.81572,
+      "lng": 15.97528,
+      "arrival": "La porte de pierre est la seule porte conservée de Gradec. En 1731, un grand incendie détruisit la porte et les maisons voisines, mais une peinture de la Vierge à l'Enfant fut retrouvée intacte dans les cendres ; on vient depuis y prier et allumer des cierges.",
+      "riddle": "Montez vers le nord-ouest par la rue de l'abbesse, à environ 300 pas. Un sanctuaire gothique au toit de tuiles vernissées montre les blasons de la Croatie, de la Dalmatie, de la Slavonie et de la ville.",
+      "hints": [
+        "Opatička ulica, « rue de l'Abbesse ».",
+        "Il est dédié à l'évangéliste au lion.",
+        "L'église Saint-Marc."
+      ],
+      "photo": "File:Stone_Gate_(Kamenita_Vrata).jpg"
+    },
+    {
+      "title": "Église Saint-Marc",
+      "lat": 45.81639,
+      "lng": 15.97363,
+      "arrival": "Le toit de l'église Saint-Marc, refait en 1880, porte en tuiles vernissées les armes du royaume de Croatie, Dalmatie et Slavonie et celles de Zagreb. La place est bordée par le Parlement et le gouvernement croates.",
+      "riddle": "Descendez vers le sud par la rue des deux frères qui évangélisèrent les Slaves, jusqu'à la promenade d'un évêque mécène. À environ 400 pas, une tour médiévale tire chaque jour un coup de canon à midi.",
+      "hints": [
+        "La rue Cyrille-et-Méthode, puis la promenade Strossmayer.",
+        "Le funiculaire de la ville part juste à côté.",
+        "La tour Lotrščak."
+      ],
+      "photo": "File:Zagreb_Church_of_St._Mark_(34411766366).jpg"
+    },
+    {
+      "title": "Tour Lotrščak",
+      "lat": 45.81463,
+      "lng": 15.97326,
+      "arrival": "Bravo ! Depuis 1877, le canon de la tour Lotrščak, du XIIIᵉ siècle, tire chaque jour à midi. À côté, le funiculaire, en service depuis 1890, est l'un des plus courts du monde : 66 mètres.",
+      "photo": "File:Kula_Lotrscak_0707.JPG"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "key": "varsovie-stare-miasto",
+  "name": "Varsovie, de la Vieille Ville à Marie Curie",
+  "location": "Varsovie, Vieille et Nouvelle Ville",
+  "summary": "La vieille ville de Varsovie, détruite en 1944 et reconstruite d'après les tableaux de Bellotto : la colonne de Sigismond, la Sirène, la Barbacane, le Petit Insurgé, la maison natale de Marie Curie et la place du marché de la Nouvelle Ville. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous au pied de la colonne de Sigismond, place du Château.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Colonne de Sigismond",
+      "lat": 52.24725,
+      "lng": 21.01338,
+      "riddle": "Partez vers le nord par la rue de la bière ou par la rue de saint Jean. À environ 600 pas, sur la place du marché, une femme à queue de poisson brandit une épée et un bouclier : c'est l'emblème de la ville.",
+      "hints": [
+        "Piwna, « rue de la Bière », ou Świętojańska, « rue Saint-Jean ».",
+        "On l'appelle Syrenka.",
+        "La Sirène, place du Marché de la Vieille Ville."
+      ],
+      "photo": "File:Kolumna_Zygmunta_III_Wazy_2020.jpg"
+    },
+    {
+      "title": "Sirène de Varsovie",
+      "lat": 52.24979,
+      "lng": 21.01217,
+      "arrival": "La colonne de Sigismond, élevée en 1644 en l'honneur du roi qui fit de Varsovie la capitale, est le plus ancien monument profane de la ville. Détruite à 85 % en 1944, la vieille ville a été reconstruite d'après les tableaux de Bernardo Bellotto, neveu de Canaletto ; elle est inscrite au patrimoine mondial. La Sirène, armée d'une épée, est l'emblème de Varsovie.",
+      "riddle": "Partez vers le nord-ouest par la rue qui mène à la ville nouvelle. À environ 350 pas, un ouvrage fortifié de brique rouge, en demi-cercle, gardait l'entrée nord de la vieille ville.",
+      "hints": [
+        "Nowomiejska, la rue de la Ville-Nouvelle.",
+        "Il a été construit au XVIᵉ siècle par un architecte vénitien.",
+        "La Barbacane."
+      ],
+      "photo": "File:Syrenka_Warszawska.jpg"
+    },
+    {
+      "title": "Barbacane",
+      "lat": 52.25059,
+      "lng": 21.01002,
+      "arrival": "La Barbacane, construite en 1548, protégeait la porte nord de la vieille ville. Démolie au XIXᵉ siècle puis ruinée pendant la guerre, elle a été reconstruite dans les années 1950.",
+      "riddle": "Longez vers le sud le chemin « entre les murs », les deux enceintes de la ville. À environ 300 pas, un enfant de bronze coiffé d'un casque trop grand tient un pistolet-mitrailleur.",
+      "hints": [
+        "Międzymurze, « entre les murs ».",
+        "Il rend hommage aux enfants combattants de 1944.",
+        "Le monument du Petit Insurgé."
+      ],
+      "photo": "File:Barbakan_w_Warszawie_-_03.jpg"
+    },
+    {
+      "title": "Petit Insurgé",
+      "lat": 52.24927,
+      "lng": 21.00962,
+      "arrival": "Le monument du Petit Insurgé, inauguré en 1983, rend hommage aux enfants qui combattirent pendant l'insurrection de Varsovie, d'août à octobre 1944, contre l'occupant allemand.",
+      "riddle": "Remontez vers le nord par la « longue rue », puis par la rue Freta, au-delà de la Barbacane. À environ 500 pas, au numéro 16, une petite fille naquit en 1867 ; elle reçut plus tard deux prix Nobel, dans deux sciences différentes.",
+      "hints": [
+        "Długa, « la longue rue », puis Freta.",
+        "Elle découvrit le polonium, qu'elle nomma d'après son pays natal.",
+        "La maison natale de Marie Curie, 16 rue Freta."
+      ],
+      "photo": "File:Pomnik_Malego_Powstanca.JPG"
+    },
+    {
+      "title": "Maison natale de Marie Curie",
+      "lat": 52.25153,
+      "lng": 21.00852,
+      "address": "16, rue Freta",
+      "arrival": "Maria Skłodowska est née ici le 7 novembre 1867. Partie étudier à Paris, elle épousa Pierre Curie et reçut le prix Nobel de physique en 1903, puis celui de chimie en 1911 : la première personne à en recevoir deux. Elle nomma le polonium d'après la Pologne.",
+      "riddle": "Continuez vers le nord sur la même rue, à environ 350 pas, jusqu'à la place carrée du quartier bâti hors des remparts au XIVᵉ siècle, avec son puits de fonte.",
+      "hints": [
+        "Toujours la rue Freta.",
+        "Ce quartier est plus récent que la vieille ville, d'où son nom.",
+        "La place du Marché de la Nouvelle Ville."
+      ],
+      "photo": "File:Kamienica_Łyszkiewicza_w_Warszawie_2020.jpg"
+    },
+    {
+      "title": "Place du Marché de la Nouvelle Ville",
+      "lat": 52.25304,
+      "lng": 21.00836,
+      "arrival": "Bravo ! La Nouvelle Ville, fondée à la fin du XIVᵉ siècle hors des remparts, fut longtemps une ville distincte, avec son propre hôtel de ville. Sa place est ornée d'un puits de fonte du XIXᵉ siècle.",
+      "photo": "File:Rynek_Nowego_Miasta_w_Warszawie_2017.jpg"
+    }
+  ]
+}

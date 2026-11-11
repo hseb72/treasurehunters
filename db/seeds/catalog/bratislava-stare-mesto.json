@@ -1,0 +1,94 @@
+{
+  "key": "bratislava-stare-mesto",
+  "name": "Bratislava, de la porte Saint-Michel aux sacres",
+  "location": "Bratislava, Staré Mesto",
+  "summary": "La petite vieille ville de Bratislava, l'ancienne Presbourg : la porte Saint-Michel, le palais primatial où fut signée la paix avec Napoléon après Austerlitz, la fontaine de Roland, le badaud de bronze Čumil, la place Hviezdoslav et la cathédrale des sacres hongrois. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous sous la porte Saint-Michel, côté rue Michalská.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 45,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Porte Saint-Michel",
+      "lat": 48.14517,
+      "lng": 17.10674,
+      "riddle": "Passez sous la tour vers le sud-est, suivez la rue des serruriers, puis traversez la place des franciscains. À environ 550 pas, une demeure rose du XVIIIᵉ siècle, couronnée d'un chapeau de cardinal, abrite le salon des glaces où l'on signa une paix avec Napoléon.",
+      "hints": [
+        "La Zámočnícka, « rue des Serruriers », puis la place des Franciscains.",
+        "La paix fut signée en décembre 1805, après Austerlitz.",
+        "Le palais primatial."
+      ],
+      "photo": "File:Bratislava,_Michalská_veža,_Slovensko.jpg"
+    },
+    {
+      "title": "Palais primatial",
+      "lat": 48.14374,
+      "lng": 17.10956,
+      "arrival": "La porte Saint-Michel est la seule porte conservée de l'enceinte médiévale. Dans le salon des glaces du palais primatial, construit pour l'archevêque d'Esztergom, la France et l'Autriche signèrent la paix de Presbourg le 26 décembre 1805, après Austerlitz. Un chapeau de cardinal couronne le fronton.",
+      "riddle": "Faites quelques pas vers l'ouest jusqu'à la place principale. À environ 200 pas, un chevalier de pierre monte la garde sur une fontaine Renaissance ; non loin, un soldat de Napoléon s'accoude à un banc.",
+      "hints": [
+        "Hlavné námestie, « la place principale ».",
+        "La fontaine date de 1572.",
+        "La fontaine de Roland."
+      ],
+      "photo": "File:Palacio_primacial,_Bratislava,_Eslovaquia,_2020-02-01,_DD_30.jpg"
+    },
+    {
+      "title": "Fontaine de Roland",
+      "lat": 48.14336,
+      "lng": 17.10816,
+      "arrival": "La fontaine de Roland, dite aussi de Maximilien, date de 1572 ; la statue représenterait le roi Maximilien II en chevalier. Sur la même place, devant l'ambassade de France, un soldat napoléonien de bronze s'appuie sur un banc.",
+      "riddle": "Partez vers le sud-est par la porte des pêcheurs, jusqu'à la rue des seigneurs. À environ 150 pas, un ouvrier de bronze sort à mi-corps d'une bouche d'égout, accoudé, et regarde passer les gens.",
+      "hints": [
+        "Rybárska brána, « porte des Pêcheurs », puis la Panská, « rue des Seigneurs ».",
+        "Son nom signifie « le badaud ».",
+        "Čumil, à l'angle de la Panská et de la Laurinská."
+      ],
+      "photo": "File:Bratislava_079.jpg"
+    },
+    {
+      "title": "Čumil",
+      "lat": 48.14284,
+      "lng": 17.10886,
+      "arrival": "Čumil, « le badaud », sculpté par Viktor Hulík, est installé depuis 1997. Un panneau « Man at work » le signale aux voitures, qui l'ont plusieurs fois abîmé.",
+      "riddle": "Descendez vers le sud par la même porte des pêcheurs, jusqu'à une longue place-promenade plantée d'arbres. À environ 300 pas, elle porte le nom du grand poète slovaque dont la statue la domine, devant le Théâtre national.",
+      "hints": [
+        "La place s'étire sur les anciens fossés jusqu'au théâtre.",
+        "Son vrai nom était Pavol Országh.",
+        "La place Hviezdoslav."
+      ]
+    },
+    {
+      "title": "Place Hviezdoslav",
+      "lat": 48.14157,
+      "lng": 17.10861,
+      "arrival": "La place Hviezdoslav, sur l'emplacement des anciens fossés, porte le nom du poète Pavol Országh, dit Hviezdoslav. Elle est bordée par le Théâtre national slovaque, de 1886.",
+      "riddle": "Partez vers l'ouest jusqu'à la place d'un archevêque, à environ 550 pas. Un sanctuaire gothique dont la flèche porte une couronne dorée a vu couronner onze rois de Hongrie.",
+      "hints": [
+        "Par la Strakova, jusqu'à la place Rudnay.",
+        "De 1563 à 1830, Presbourg fut la ville des couronnements hongrois.",
+        "La cathédrale Saint-Martin."
+      ],
+      "photo": "File:BA_hviezdoslav.JPG"
+    },
+    {
+      "title": "Cathédrale Saint-Martin",
+      "lat": 48.14198,
+      "lng": 17.10489,
+      "arrival": "Bravo ! De 1563 à 1830, onze rois et huit reines de Hongrie ont été couronnés dans la cathédrale Saint-Martin, dont Marie-Thérèse en 1741. Une réplique dorée de la couronne de saint Étienne coiffe sa flèche.",
+      "photo": "File:Bratislava-Dom-sv-Martina.jpg"
+    }
+  ]
+}

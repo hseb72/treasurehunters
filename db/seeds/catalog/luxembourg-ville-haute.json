@@ -1,0 +1,92 @@
+{
+  "key": "luxembourg-ville-haute",
+  "name": "Luxembourg, du palais au rocher du Bock",
+  "location": "Luxembourg, Ville-Haute",
+  "summary": "La forteresse surnommée le « Gibraltar du Nord » : la place d'Armes, le palais grand-ducal, les casemates du Bock où naquit la ville en 963, le chemin de la Corniche, « le plus beau balcon d'Europe », la cathédrale Notre-Dame et la Gëlle Fra.",
+  "startText": "Rendez-vous au centre de la place d'Armes (bus Hamilius). Les casemates se visitent à certaines heures.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 50,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Place d'Armes",
+      "lat": 49.61124,
+      "lng": 6.12954,
+      "riddle": "Partez vers l'est par la rue du curé, traversez la place du roi Guillaume et suivez la rue de la reine. À environ 500 pas, une façade Renaissance gardée par une sentinelle abrite le bureau du souverain.",
+      "hints": [
+        "La rue du Curé, la place Guillaume-II, puis la rue de la Reine.",
+        "Il a servi d'hôtel de ville jusqu'en 1795.",
+        "Le palais grand-ducal, rue du Marché-aux-Herbes."
+      ],
+      "photo": "File:Place_d'Armes_Luxembourg.jpg"
+    },
+    {
+      "title": "Palais grand-ducal",
+      "lat": 49.61094,
+      "lng": 6.13287,
+      "arrival": "La place d'Armes, ancien terrain d'exercice de la garnison, est surnommée le « salon de la ville ». Le palais grand-ducal, hôtel de ville de 1572 jusqu'à la Révolution, est aujourd'hui le bureau du grand-duc.",
+      "riddle": "Continuez vers l'est par la rue de l'eau, puis par la rue du comte qui fonda la ville en 963. À environ 550 pas, sur un éperon rocheux, une porte s'ouvre sur des galeries creusées dans la roche, où l'on pouvait abriter des milliers de soldats.",
+      "hints": [
+        "La rue de l'Eau, puis la rue Sigefroi.",
+        "Leur réseau souterrain dépassait vingt kilomètres.",
+        "Les casemates du Bock."
+      ],
+      "photo": "File:Palacio_Gran_Ducal_de_Luxemburgo.jpg"
+    },
+    {
+      "title": "Casemates du Bock",
+      "lat": 49.61166,
+      "lng": 6.13669,
+      "arrival": "En 963, le comte Sigefroi acquit le rocher du Bock pour y bâtir un château : c'est la naissance de Luxembourg. Les Espagnols, puis Vauban, firent creuser plus de vingt kilomètres de galeries ; la forteresse était surnommée le « Gibraltar du Nord ». Les casemates sont inscrites au patrimoine mondial.",
+      "riddle": "Revenez vers le sud-ouest par la rue d'un ancien bourgmestre, puis longez les remparts au-dessus de la vallée de l'Alzette. À environ 350 pas, un sentier suspendu offre une vue plongeante sur le quartier du Grund ; un écrivain l'a appelé « le plus beau balcon d'Europe ».",
+      "hints": [
+        "La rue Sosthène-Weis, puis le long du rempart.",
+        "L'écrivain s'appelait Batty Weber.",
+        "Le chemin de la Corniche."
+      ],
+      "photo": "File:Luxembourg_City_Bock4_fromCorniche.jpg"
+    },
+    {
+      "title": "Chemin de la Corniche",
+      "lat": 49.61077,
+      "lng": 6.13474,
+      "arrival": "Le chemin de la Corniche suit les remparts du XVIIᵉ siècle. L'écrivain luxembourgeois Batty Weber le surnomma « le plus beau balcon d'Europe ». En contrebas, le Grund s'étend au bord de l'Alzette.",
+      "riddle": "Partez vers le sud-ouest par la rue du Saint-Esprit, puis par la place d'une abbaye à la claire fontaine. À environ 500 pas, l'ancienne église des jésuites, à la flèche effilée, abrite dans sa crypte les tombeaux de la famille grand-ducale.",
+      "hints": [
+        "La rue du Saint-Esprit, puis la place de Clairefontaine.",
+        "Elle est dédiée à la Consolatrice des affligés.",
+        "La cathédrale Notre-Dame."
+      ]
+    },
+    {
+      "title": "Cathédrale Notre-Dame",
+      "lat": 49.60981,
+      "lng": 6.13156,
+      "arrival": "La cathédrale Notre-Dame a été construite par les jésuites à partir de 1613. Elle est dédiée à Notre-Dame Consolatrice des affligés, patronne du pays ; sa crypte abrite les tombeaux de la famille grand-ducale.",
+      "riddle": "Partez vers l'ouest par le boulevard d'un président américain, jusqu'au bord du ravin de la Pétrusse. À environ 350 pas, un obélisque est couronné d'une femme dorée qui tend une couronne de laurier.",
+      "hints": [
+        "Le boulevard Franklin-D.-Roosevelt, puis la place de la Constitution.",
+        "Son nom luxembourgeois signifie « la femme dorée ».",
+        "La Gëlle Fra, monument du Souvenir."
+      ],
+      "photo": "File:Luxembourg_City_Eurotrip_(133169443).jpeg"
+    },
+    {
+      "title": "Gëlle Fra",
+      "lat": 49.60927,
+      "lng": 6.12936,
+      "arrival": "Bravo ! La Gëlle Fra, « la femme dorée », de Claus Cito, a été inaugurée en 1923 en hommage aux Luxembourgeois morts pendant la Première Guerre mondiale. Abattue par les nazis en 1940, elle fut retrouvée en 1980 sous une tribune du stade et remise en place en 1985."
+    }
+  ]
+}

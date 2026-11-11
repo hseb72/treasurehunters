@@ -1,0 +1,94 @@
+{
+  "key": "vilnius-senamiestis",
+  "name": "Vilnius, de la cathédrale à la porte de l'Aurore",
+  "location": "Vilnius, vieille ville",
+  "summary": "La vieille ville baroque de Vilnius : la dalle « miracle » de la Voie balte, le palais où dormit Napoléon en 1812, l'université des jésuites, l'église Sainte-Anne que l'Empereur voulait emporter à Paris, l'hôtel de ville et la porte de l'Aurore. Les rues se devinent en traduisant leur nom.",
+  "startText": "Rendez-vous sur la place de la Cathédrale, près de la dalle marquée « Stebuklas », entre la cathédrale et le clocher.",
+  "travel": "walk",
+  "difficulty": "easy",
+  "durationMinutes": 60,
+  "audience": [
+    "family",
+    "friends",
+    "couple",
+    "solo"
+  ],
+  "setting": "outdoor",
+  "practical": [
+    "cafe",
+    "stroller"
+  ],
+  "minAge": null,
+  "steps": [
+    {
+      "title": "Dalle Stebuklas",
+      "lat": 54.68566,
+      "lng": 25.28699,
+      "riddle": "Partez vers le sud par la rue de la fonderie. À environ 600 pas, une résidence classique sur une place pavée abrite le chef de l'État ; Napoléon y dormit en 1812, en route vers Moscou.",
+      "hints": [
+        "Liejyklos gatvė, « rue de la Fonderie ».",
+        "Le tsar Alexandre Iᵉʳ y avait séjourné juste avant lui.",
+        "Le palais présidentiel, place Daukantas."
+      ]
+    },
+    {
+      "title": "Palais présidentiel",
+      "lat": 54.68297,
+      "lng": 25.28638,
+      "arrival": "La dalle Stebuklas, « miracle », marque l'extrémité de la Voie balte : le 23 août 1989, près de deux millions de personnes se donnèrent la main de Tallinn à Vilnius pour réclamer l'indépendance. On dit qu'un vœu s'exauce si l'on y tourne sur soi-même. Napoléon logea dans ce palais en juin 1812 ; le tsar Alexandre Iᵉʳ venait de le quitter.",
+      "riddle": "Faites quelques pas vers l'est par la rue qui porte le nom de votre but. Derrière une porte, une enfilade de cours appartient à l'un des plus anciens établissements d'enseignement supérieur d'Europe de l'Est, fondé en 1579.",
+      "hints": [
+        "Universiteto gatvė.",
+        "Les jésuites l'ont fondée.",
+        "L'université de Vilnius."
+      ],
+      "photo": "File:Vilnius_presidential_palace.jpg"
+    },
+    {
+      "title": "Université de Vilnius",
+      "lat": 54.68282,
+      "lng": 25.28783,
+      "arrival": "L'université de Vilnius, fondée par les jésuites en 1579, compte treize cours ; l'église Saint-Jean, en son cœur, est flanquée d'un haut clocher.",
+      "riddle": "Partez vers l'est par la rue du château, puis par la rue de saint Michel. À environ 700 pas, un sanctuaire gothique de brique, ciselé comme une dentelle, aurait tant plu à Napoléon qu'il aurait voulu l'emporter à Paris dans le creux de sa main.",
+      "hints": [
+        "Pilies gatvė, « rue du Château », puis Šv. Mykolo gatvė.",
+        "Il a été bâti à la fin du XVᵉ siècle.",
+        "L'église Sainte-Anne."
+      ],
+      "photo": "File:Senamiestis,_Vilnius,_Lithuania_-_panoramio_(165).jpg"
+    },
+    {
+      "title": "Église Sainte-Anne",
+      "lat": 54.68302,
+      "lng": 25.29321,
+      "arrival": "L'église Sainte-Anne, de la fin du XVᵉ siècle, est un chef-d'œuvre du gothique flamboyant de brique. Selon la légende, Napoléon aurait dit qu'il voulait l'emporter à Paris dans le creux de sa main.",
+      "riddle": "Partez vers le sud-ouest par la rue des Russes, puis par la rue de la tour. À environ 1 400 pas, sur une grande place triangulaire, un édifice classique à colonnade a servi de mairie, puis de théâtre et de salle de concert.",
+      "hints": [
+        "Rusų gatvė, puis Bokšto gatvė.",
+        "Il a été reconstruit à la fin du XVIIIᵉ siècle par Laurynas Gucevičius.",
+        "L'hôtel de ville de Vilnius."
+      ],
+      "photo": "File:St._Anne's_Church_Exterior_3,_Vilnius,_Lithuania_-_Diliff.jpg"
+    },
+    {
+      "title": "Hôtel de ville de Vilnius",
+      "lat": 54.6781,
+      "lng": 25.2869,
+      "arrival": "L'hôtel de ville, rebâti à la fin du XVIIIᵉ siècle par l'architecte Laurynas Gucevičius dans le style classique, sert aujourd'hui aux réceptions officielles et aux concerts.",
+      "riddle": "Montez vers le sud par la « grande rue », puis par la rue qui porte le nom de votre but. À environ 900 pas, la seule porte de l'enceinte encore debout abrite, dans une chapelle au-dessus du passage, une icône de la Vierge vénérée par les catholiques et les orthodoxes.",
+      "hints": [
+        "Didžioji gatvė, puis Aušros Vartų gatvė.",
+        "On voit l'icône depuis la rue, par une fenêtre de la chapelle.",
+        "La porte de l'Aurore."
+      ],
+      "photo": "File:Vilniaus_Rotuse_by_Augustas_Didzgalvis.jpg"
+    },
+    {
+      "title": "Porte de l'Aurore",
+      "lat": 54.67431,
+      "lng": 25.28956,
+      "arrival": "Bravo ! La porte de l'Aurore, du début du XVIᵉ siècle, est la seule des portes de l'enceinte qui subsiste. Sa chapelle abrite l'icône de la Vierge de Miséricorde, du XVIIᵉ siècle, vénérée par les catholiques et les orthodoxes.",
+      "photo": "File:Ausros_vartai.jpg"
+    }
+  ]
+}
