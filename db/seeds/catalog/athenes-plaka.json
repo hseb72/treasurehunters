@@ -67,7 +67,14 @@
         "La rue Adrianoú.",
         "Elle date de 132.",
         "La bibliothèque d'Hadrien."
-      ]
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "vents",
+        "shift": 6,
+        "hint": "Chaque lettre a avancé de 6 rangs : reculez d'autant."
+      }
     },
     {
       "title": "Bibliothèque d'Hadrien",
@@ -87,6 +94,12 @@
       "lat": 37.97636,
       "lng": 23.72595,
       "arrival": "Bravo ! La place Monastiráki doit son nom à l'église de la Pantanassa, reste d'un monastère. La mosquée Tzistarakis, de 1759, la borde ; au-dessus, l'Acropole domine la ville.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Monument de Lysicrate » : « Au XVIIᵉ siècle, des capucins français l'intégrèrent à leur couvent, où Lord Byron séjourna en ····. »",
+        "answer": "1810",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Monument de Lysicrate »."
+      },
       "photo": "File:2018-07-25_Monastiraki_Square,_Athens.jpg"
     }
   ]

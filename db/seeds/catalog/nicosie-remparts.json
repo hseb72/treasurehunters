@@ -65,7 +65,13 @@
         "Irakleous, puis Adamantiou Korai.",
         "Il célèbre la libération des combattants de 1955-1959.",
         "Le monument de la Liberté, bastion Podocataro."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      }
     },
     {
       "title": "Monument de la Liberté",
@@ -83,7 +89,13 @@
       "title": "Porte de Famagouste",
       "lat": 35.1743,
       "lng": 33.3712,
-      "arrival": "Bravo ! La porte de Famagouste, la Porta Giuliana des Vénitiens, était la principale des trois portes de la ville. Son long passage voûté accueille aujourd'hui un centre culturel."
+      "arrival": "Bravo ! La porte de Famagouste, la Porta Giuliana des Vénitiens, était la principale des trois portes de la ville. Son long passage voûté accueille aujourd'hui un centre culturel.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Rue Ledra » : « La rue Ledra est coupée depuis ···· par la ligne verte, qui divise Nicosie, souvent appelée la dernière capitale divisée d'Europe. »",
+        "answer": "1974",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Rue Ledra »."
+      }
     }
   ]
 }

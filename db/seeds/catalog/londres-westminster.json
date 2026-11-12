@@ -68,6 +68,12 @@
         "C'est là qu'Eliza Doolittle vend ses fleurs dans Pygmalion, puis My Fair Lady.",
         "Covent Garden, la piazza."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "nelson",
+        "hint": "Le mot commence par « N »."
+      },
       "photo": "File:Nelson's_Column,_Trafalgar_Square,_London.JPG"
     },
     {
@@ -87,7 +93,13 @@
       "title": "Somerset House",
       "lat": 51.511,
       "lng": -0.1174,
-      "arrival": "Bravo ! Somerset House a été reconstruite à partir de 1776 à l'emplacement du palais d'un duc de Somerset, pour loger des administrations. Le Strand, « le rivage », longeait la Tamise jusqu'à la construction des quais, au XIXᵉ siècle."
+      "arrival": "Bravo ! Somerset House a été reconstruite à partir de 1776 à l'emplacement du palais d'un duc de Somerset, pour loger des administrations. Le Strand, « le rivage », longeait la Tamise jusqu'à la construction des quais, au XIXᵉ siècle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue de Churchill » : « L'abbaye de Westminster accueille les couronnements depuis celui de Guillaume le Conquérant, le jour de Noël ···· : un Normand venu de France. »",
+        "answer": "1066",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue de Churchill »."
+      }
     }
   ]
 }

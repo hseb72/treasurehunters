@@ -55,6 +55,13 @@
         "Il a été bâti à la fin du XVᵉ siècle.",
         "L'église Sainte-Anne."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "université",
+        "shift": 2,
+        "hint": "Chaque lettre a avancé de 2 rangs : reculez d'autant."
+      },
       "photo": "File:Senamiestis,_Vilnius,_Lithuania_-_panoramio_(165).jpg"
     },
     {
@@ -88,6 +95,12 @@
       "lat": 54.67431,
       "lng": 25.28956,
       "arrival": "Bravo ! La porte de l'Aurore, du début du XVIᵉ siècle, est la seule des portes de l'enceinte qui subsiste. Sa chapelle abrite l'icône de la Vierge de Miséricorde, du XVIIᵉ siècle, vénérée par les catholiques et les orthodoxes.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais présidentiel » : « La dalle Stebuklas, « miracle », marque l'extrémité de la Voie balte : le 23 août ····, près de deux millions de personnes se donnèrent la main de Tallinn à Vilnius pour réclamer l'indépendance. »",
+        "answer": "1989",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais présidentiel »."
+      },
       "photo": "File:Ausros_vartai.jpg"
     }
   ]

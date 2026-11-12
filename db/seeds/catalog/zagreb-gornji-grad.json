@@ -68,6 +68,12 @@
         "Il est dédié à l'évangéliste au lion.",
         "L'église Saint-Marc."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "pierre",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Stone_Gate_(Kamenita_Vrata).jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 45.81463,
       "lng": 15.97326,
       "arrival": "Bravo ! Depuis 1877, le canon de la tour Lotrščak, du XIIIᵉ siècle, tire chaque jour à midi. À côté, le funiculaire, en service depuis 1890, est l'un des plus courts du monde : 66 mètres.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Marché de Dolac » : « Le marché de Dolac, le « ventre de Zagreb », est ouvert depuis ····. »",
+        "answer": "1930",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Marché de Dolac »."
+      },
       "photo": "File:Kula_Lotrscak_0707.JPG"
     }
   ]

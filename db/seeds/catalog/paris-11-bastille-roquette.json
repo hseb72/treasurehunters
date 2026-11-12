@@ -67,7 +67,13 @@
         "Le village est Charonne : suivez la rue de Charonne.",
         "Sa sainte patronne porte un nom de fleur ; l'enfant est Louis XVII.",
         "L'église Sainte-Marguerite, 36 rue Saint-Bernard."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "dalles",
+        "hint": "Le mot commence par « D »."
+      }
     },
     {
       "title": "Église Sainte-Marguerite",
@@ -88,6 +94,12 @@
       "lat": 48.852,
       "lng": 2.37373,
       "arrival": "Bravo ! Édifiée au début du XVIIIᵉ siècle, la fontaine Trogneux distribuait l'eau aux habitants du faubourg Saint-Antoine, quartier des menuisiers et des ébénistes qui fut aux avant-postes des journées révolutionnaires.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Le Balajo » : « Ouvert en ···· par Jo France, le « bal à Jo » a fait danser le Paris populaire sur la java et le musette. »",
+        "answer": "1936",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Le Balajo »."
+      },
       "photo": "File:Fontaine_Trogneux.jpg"
     }
   ]

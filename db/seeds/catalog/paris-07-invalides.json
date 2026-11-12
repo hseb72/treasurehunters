@@ -67,6 +67,12 @@
         "L'ingénieur a fortifié les frontières du royaume.",
         "Le Dôme des Invalides, côté place Vauban."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "invalides",
+        "hint": "Le mot commence par « I »."
+      },
       "photo": "File:Hôtel_des_Invalides_-_20150801_16h09_(10630).jpg"
     },
     {
@@ -86,6 +92,12 @@
       "lat": 48.85285,
       "lng": 2.3029,
       "arrival": "Vous êtes arrivés ! Fondée en 1751 par Louis XV, à l'instigation de Madame de Pompadour et du financier Joseph Pâris-Duverney, l'École militaire formait de jeunes officiers. Napoléon Bonaparte en sortit lieutenant en 1785, à seize ans. Devant vous, le Champ-de-Mars et la tour Eiffel.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais Bourbon » : « Le palais fut construit à partir de ···· pour Louise-Françoise de Bourbon, fille de Louis XIV et de Madame de Montespan. »",
+        "answer": "1722",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais Bourbon »."
+      },
       "photo": "File:Place_Joffre_Paris.jpg"
     }
   ]

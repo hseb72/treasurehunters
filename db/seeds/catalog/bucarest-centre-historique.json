@@ -66,6 +66,12 @@
         "Le prince est Vlad III, qui inspira Dracula.",
         "La Cour princière, Curtea Veche."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "stavropoleos",
+        "hint": "Le mot commence par « S »."
+      },
       "photo": "File:4,_Strada_Stavropoleos,_Bucharest_(Romania).jpg"
     },
     {
@@ -86,6 +92,12 @@
       "lat": 44.42952,
       "lng": 26.10184,
       "arrival": "Bravo ! L'auberge de Manuc a été construite en 1808 par un marchand arménien, Manuc Bei. En 1812, la Russie et l'Empire ottoman y négocièrent le traité de Bucarest. Elle accueille toujours restaurants et voyageurs.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais CEC » : « Le palais de la Caisse d'épargne (CEC), achevé en ····, est l'œuvre du Français Paul Gottereau. »",
+        "answer": "1900",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais CEC »."
+      },
       "photo": "File:RO_B_Manuc_Inn.jpg"
     }
   ]

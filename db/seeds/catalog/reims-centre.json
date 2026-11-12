@@ -55,6 +55,12 @@
         "On l'appelle un cryptoportique.",
         "Le cryptoportique, place du Forum."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "reims",
+        "hint": "Le mot commence par « R »."
+      },
       "photo": "File:Hôtel_de_Ville_de_Reims,_Southeast_View_20140306_1.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 49.2543,
       "lng": 4.0332,
       "arrival": "Bravo ! Commencée en 1211, la cathédrale de Reims a vu le sacre de la plupart des rois de France, de Louis VIII à Charles X ; Jeanne d'Arc y conduisit Charles VII en 1429. Gravement touchée par les obus en 1914, elle a été restaurée. Cherchez, au portail nord de la façade, l'Ange au sourire.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Hôtel de ville de Reims » : « Il fut incendié en mai ····, pendant les bombardements de la Grande Guerre, puis reconstruit. »",
+        "answer": "1917",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Hôtel de ville de Reims »."
+      },
       "photo": "File:Reims_Cathedral_016_8341.jpg"
     }
   ]

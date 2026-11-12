@@ -87,7 +87,13 @@
       "title": "Mémorial Jean Moulin",
       "lat": 45.79938,
       "lng": 4.84611,
-      "arrival": "Vous êtes arrivés. Le 21 juin 1943, Jean Moulin et plusieurs chefs de la Résistance furent arrêtés ici, dans la maison du docteur Dugoujon, par la Gestapo de Klaus Barbie. Torturé, Jean Moulin mourut quelques semaines plus tard. Ses cendres reposent au Panthéon depuis 1964."
+      "arrival": "Vous êtes arrivés. Le 21 juin 1943, Jean Moulin et plusieurs chefs de la Résistance furent arrêtés ici, dans la maison du docteur Dugoujon, par la Gestapo de Klaus Barbie. Torturé, Jean Moulin mourut quelques semaines plus tard. Ses cendres reposent au Panthéon depuis 1964.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Musée Jean-Couty » : « Sa maison-atelier de Saint-Rambert est devenue un musée en ····. »",
+        "answer": "2017",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Musée Jean-Couty »."
+      }
     }
   ]
 }

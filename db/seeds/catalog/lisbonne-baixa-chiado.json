@@ -68,6 +68,12 @@
         "Il perdit son œil en Afrique du Nord.",
         "La statue de Camões, praça Luís de Camões."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "pessoa",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Café_A_Brasileira_e_envolventes_8539.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 38.71546,
       "lng": -9.14404,
       "arrival": "Bravo ! Le belvédère de São Pedro de Alcântara domine la Baixa et fait face au château Saint-Georges, sur la colline opposée. Juste à côté arrive l'ascensor da Glória, un funiculaire inauguré en 1885.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Elevador de Santa Justa » : « Le 1ᵉʳ novembre ····, un séisme, un raz-de-marée et des incendies détruisirent le centre de Lisbonne. »",
+        "answer": "1755",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Elevador de Santa Justa »."
+      },
       "photo": "File:JardimSPedroAlcantara.JPG"
     }
   ]

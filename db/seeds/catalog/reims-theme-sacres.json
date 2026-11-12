@@ -54,6 +54,13 @@
         "Son nom vient de la lettre grecque en forme de T.",
         "Le palais du Tau."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "jésuites",
+        "shift": 6,
+        "hint": "Chaque lettre a avancé de 6 rangs : reculez d'autant."
+      },
       "photo": "File:Ancien_Collège_des_Jésuites_006.JPG"
     },
     {
@@ -86,6 +93,12 @@
       "lat": 49.25364,
       "lng": 4.03226,
       "arrival": "Bravo ! Le 17 juillet 1429, Jeanne d'Arc assista dans la cathédrale au sacre de Charles VII, qu'elle avait conduit jusqu'à Reims à travers un pays tenu par les Anglais et les Bourguignons. Cette statue de Paul Dubois a été inaugurée en 1896.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais du Tau » : « Avec la cathédrale et Saint-Remi, il est inscrit au patrimoine mondial depuis ····. »",
+        "answer": "1991",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais du Tau »."
+      },
       "photo": "File:Joan_of_Arc,_Place_du_Parvis,_Reims(1).jpg"
     }
   ]

@@ -67,6 +67,12 @@
         "L'eau venait d'Uzès, par le pont du Gard.",
         "Le castellum aquae, rue de la Lampèze."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "auguste",
+        "hint": "Le mot commence par « A »."
+      },
       "photo": "File:Porte_d'Auguste_in_Nimes_02.jpg"
     },
     {
@@ -87,6 +93,12 @@
       "lat": 43.83819,
       "lng": 4.35613,
       "arrival": "Bravo ! Construite au début du Iᵉʳ siècle, la Maison Carrée était dédiée à Caius et Lucius César, petits-fils d'Auguste. C'est l'un des temples romains les mieux conservés au monde ; elle est inscrite au patrimoine mondial depuis 2023. Thomas Jefferson s'en inspira pour le Capitole de Virginie.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Fontaine Pradier » : « La fontaine de l'esplanade, inaugurée en ····, est l'œuvre de James Pradier. »",
+        "answer": "1851",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Fontaine Pradier »."
+      },
       "photo": "File:Maison_carrée_01.jpg"
     }
   ]

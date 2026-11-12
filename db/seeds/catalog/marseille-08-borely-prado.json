@@ -69,6 +69,12 @@
         "On y trouve des serres et des plantes du monde entier.",
         "Le jardin botanique Édouard-Marie-Heckel."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "borély",
+        "hint": "Le mot commence par « B »."
+      },
       "photo": "File:Château_Borély.JPG"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 43.26924,
       "lng": 5.39491,
       "arrival": "Bravo ! Ouvert en 1937, le Vélodrome devait accueillir des courses cyclistes, d'où son nom. Il a reçu des matchs de la Coupe du monde dès 1938, et sa grande toiture ondulée a été ajoutée lors de la rénovation des années 2010. C'est le stade de l'Olympique de Marseille.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Escale Borély » : « Les plages du Prado ont été créées dans les années ····, en partie avec les déblais du creusement du métro. »",
+        "answer": "1970",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Escale Borély »."
+      },
       "photo": "File:Stade_Vélodrome_closeup.jpg"
     }
   ]

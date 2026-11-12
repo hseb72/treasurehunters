@@ -66,6 +66,12 @@
         "Le marbrier s'appelait Jules.",
         "Le musée Cantini, 19 rue Grignan."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "préfecture",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Préfecture-région-Marseille.jpg"
     },
     {
@@ -99,6 +105,12 @@
       "lat": 43.28395,
       "lng": 5.37124,
       "arrival": "Bravo ! Construite à partir de 1853 sur les plans d'Henri-Jacques Espérandieu, la basilique remplace une chapelle du Moyen Âge. Sa Vierge dorée, la « Bonne Mère », mesure plus de onze mètres. À l'intérieur, des ex-voto de marins et de familles remercient pour des vœux exaucés ; les murs gardent des impacts des combats de la Libération, en août 1944.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Notre-Dame-du-Mont » : « L'église Notre-Dame-du-Mont a été reconstruite à partir de ····. »",
+        "answer": "1824",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Notre-Dame-du-Mont »."
+      },
       "photo": "File:Notre-damedelagarde.JPG"
     }
   ]

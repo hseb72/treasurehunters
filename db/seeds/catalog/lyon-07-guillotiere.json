@@ -65,7 +65,13 @@
         "Le chimiste est Marcellin Berthelot : l'avenue Berthelot.",
         "Jean Moulin aurait été interrogé dans ce bâtiment.",
         "Le Centre d'histoire de la Résistance et de la Déportation, 14 avenue Berthelot."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "lumière",
+        "hint": "Le mot commence par « L »."
+      }
     },
     {
       "title": "Centre d'histoire de la Résistance",
@@ -85,7 +91,13 @@
       "title": "Place Jean-Macé",
       "lat": 45.74562,
       "lng": 4.8421,
-      "arrival": "Bravo ! Jean Macé fonda en 1866 la Ligue de l'enseignement, qui milita pour l'école gratuite, obligatoire et laïque. La place est aujourd'hui un carrefour très animé du 7ᵉ arrondissement."
+      "arrival": "Bravo ! Jean Macé fonda en 1866 la Ligue de l'enseignement, qui milita pour l'école gratuite, obligatoire et laïque. La place est aujourd'hui un carrefour très animé du 7ᵉ arrondissement.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Place Gabriel-Péri » : « Gabriel Péri, journaliste et député communiste, fut fusillé comme otage par les nazis en décembre ····. »",
+        "answer": "1941",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Place Gabriel-Péri »."
+      }
     }
   ]
 }

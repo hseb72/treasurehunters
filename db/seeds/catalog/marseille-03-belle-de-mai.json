@@ -79,13 +79,26 @@
         "Le peintre est Émile Loubon : prenez la rue Loubon.",
         "Son nom évoque une usine abandonnée.",
         "La Friche la Belle de Mai, rue Jobin."
-      ]
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "charles",
+        "shift": 2,
+        "hint": "Chaque lettre a avancé de 2 rangs : reculez d'autant."
+      }
     },
     {
       "title": "La Friche la Belle de Mai",
       "lat": 43.31104,
       "lng": 5.39206,
-      "arrival": "Bravo ! Cette ancienne manufacture de tabac de la Seita est devenue, à partir de 1992, la Friche la Belle de Mai : ateliers d'artistes, salles de spectacle, expositions, et un toit-terrasse d'où l'on voit toute la ville."
+      "arrival": "Bravo ! Cette ancienne manufacture de tabac de la Seita est devenue, à partir de 1992, la Friche la Belle de Mai : ateliers d'artistes, salles de spectacle, expositions, et un toit-terrasse d'où l'on voit toute la ville.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Monument au maréchal Leclerc » : « Philippe Leclerc de Hauteclocque, à la tête de la 2ᵉ division blindée, libéra Paris en août ···· puis Strasbourg en novembre. »",
+        "answer": "1944",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Monument au maréchal Leclerc »."
+      }
     }
   ]
 }

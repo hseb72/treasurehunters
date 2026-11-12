@@ -68,6 +68,12 @@
         "Le maire s'appelait Nicolas Fay de Sathonay.",
         "La place Sathonay."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "voraces",
+        "hint": "Le mot commence par « V »."
+      },
       "photo": "File:Cour_des_Voraces_-_Escalier_central_avec_vue_sur_l'escalier_monumental.jpg"
     },
     {
@@ -87,7 +93,13 @@
       "title": "Fresque des Lyonnais",
       "lat": 45.76811,
       "lng": 4.82803,
-      "arrival": "Bravo ! Peinte en 1994, cette fresque en trompe-l'œil réunit une trentaine de Lyonnais célèbres, d'hier et d'aujourd'hui : Paul Bocuse, les frères Lumière, Antoine de Saint-Exupéry et son Petit Prince, l'abbé Pierre… Saurez-vous les reconnaître tous ?"
+      "arrival": "Bravo ! Peinte en 1994, cette fresque en trompe-l'œil réunit une trentaine de Lyonnais célèbres, d'hier et d'aujourd'hui : Paul Bocuse, les frères Lumière, Antoine de Saint-Exupéry et son Petit Prince, l'abbé Pierre… Saurez-vous les reconnaître tous ?",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cour des Voraces » : « Cet immeuble des années ···· est traversé par une traboule ; son escalier à six étages est l'un des plus spectaculaires de Lyon. »",
+        "answer": "1840",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cour des Voraces »."
+      }
     }
   ]
 }

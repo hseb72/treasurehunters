@@ -80,6 +80,12 @@
         "Il lança : « De l'audace, encore de l'audace, toujours de l'audace ! »",
         "La statue de Danton, carrefour de l'Odéon."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "conciergerie",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:Paris_Conciergerie_265.jpg"
     },
     {
@@ -99,6 +105,12 @@
       "lat": 48.85292,
       "lng": 2.33915,
       "arrival": "Bravo ! Au numéro 8 de ce passage, Jean-Paul Marat faisait imprimer son journal, L'Ami du peuple. Le café Procope, ouvert en 1686 et fréquenté par les révolutionnaires, y a une seconde entrée.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Salle du Manège » : « Le manège des Tuileries, construit pour les leçons d'équitation du jeune Louis XV, accueillit l'Assemblée nationale à partir de novembre ····, puis la Législative et la Convention. »",
+        "answer": "1789",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Salle du Manège »."
+      },
       "photo": "File:Le_Procope_1,_Paris_2010.jpg"
     }
   ]

@@ -66,7 +66,13 @@
         "Le roi est Henri IV : le boulevard Henri-IV.",
         "Il dépend de la faculté de médecine.",
         "Le jardin des plantes de Montpellier, boulevard Henri-IV."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      }
     },
     {
       "title": "Jardin des plantes",
@@ -99,6 +105,12 @@
       "lat": 43.61113,
       "lng": 3.87241,
       "arrival": "Bravo ! Élevé à partir de 1691 sur les plans d'Augustin-Charles d'Aviler, l'arc de triomphe célèbre Louis XIV : ses bas-reliefs évoquent le canal du Midi, la révocation de l'édit de Nantes et les victoires du roi.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Opéra Comédie » : « Après l'incendie du théâtre précédent, l'Opéra Comédie a été reconstruit sur les plans de Joseph Cassien-Bernard, élève de Charles Garnier, et inauguré en ····. »",
+        "answer": "1888",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Opéra Comédie »."
+      },
       "photo": "File:Arc_triomphe_de_Montpellier.jpg"
     }
   ]

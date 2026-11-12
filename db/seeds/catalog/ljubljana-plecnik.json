@@ -69,6 +69,13 @@
         "Son nom slovène est Čevljarski most.",
         "Le pont des Cordonniers."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "robba",
+        "shift": 6,
+        "hint": "Chaque lettre a avancé de 6 rangs : reculez d'autant."
+      },
       "photo": "File:Robbafountain.jpg"
     },
     {
@@ -89,6 +96,12 @@
       "lat": 46.0471,
       "lng": 14.50298,
       "arrival": "Bravo ! De 1809 à 1813, Ljubljana fut la capitale des Provinces illyriennes de Napoléon ; le français y devint langue officielle et le slovène entra à l'école. Le monument, dessiné par Plečnik, a été inauguré en 1929 ; il porte le visage de Napoléon.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Pont des Dragons » : « À côté, le Triple Pont de Jože Plečnik ajouta en ···· deux passerelles au vieux pont. »",
+        "answer": "1932",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Pont des Dragons »."
+      },
       "photo": "File:Ilirski_steber.jpg"
     }
   ]

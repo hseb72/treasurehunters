@@ -68,6 +68,12 @@
         "Le sculpteur s'appelait Pierre-Jean David.",
         "La galerie David d'Angers, rue Toussaint."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "ralliement",
+        "hint": "Le mot commence par « R »."
+      },
       "photo": "File:Angers_-_Tramway_-_Place_du_Ralliement.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 47.47029,
       "lng": -0.54551,
       "arrival": "Bravo ! Le jardin du Mail, devant l'hôtel de ville, doit son nom au jeu de mail, ancêtre du croquet, qu'on y pratiquait autrefois.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cathédrale Saint-Maurice » : « Il abrite la tenture de l'Apocalypse, commandée vers ···· par Louis Iᵉʳ d'Anjou : c'est le plus grand ensemble de tapisseries médiévales conservé. »",
+        "answer": "1375",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cathédrale Saint-Maurice »."
+      },
       "photo": "File:Kiosque_à_musique_du_Mail,_Angers.jpg"
     }
   ]

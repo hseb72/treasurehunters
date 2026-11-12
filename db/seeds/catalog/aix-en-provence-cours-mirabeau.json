@@ -68,6 +68,12 @@
         "L'horloge date de 1661.",
         "L'hôtel de ville d'Aix-en-Provence."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "albertas",
+        "hint": "Le mot commence par « A »."
+      },
       "photo": "File:Place_d'Albertas.jpg"
     },
     {
@@ -87,6 +93,12 @@
       "lat": 43.53181,
       "lng": 5.44722,
       "arrival": "Bravo ! La cathédrale Saint-Sauveur réunit des parties de toutes les époques, du baptistère paléochrétien au gothique. Elle abrite le triptyque du Buisson ardent, peint par Nicolas Froment pour le roi René à la fin du XVᵉ siècle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Fontaine Moussue » : « La Rotonde, construite en ····, est surmontée de trois statues : la Justice regarde le cours Mirabeau, l'Agriculture la route de Marseille et les Beaux-Arts celle d'Avignon. »",
+        "answer": "1860",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Fontaine Moussue »."
+      },
       "photo": "File:Aix-en-Provence_Cathedrale_Saint-Sauveur_1_20061227.jpg"
     }
   ]

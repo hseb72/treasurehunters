@@ -67,6 +67,12 @@
         "Il porte le nom de l'abbé bâtisseur de l'an mille.",
         "La porte Guillaume."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:Cathédrale_St_Bénigne_-_Dijon.jpg"
     },
     {
@@ -86,7 +92,13 @@
       "title": "Jardin Darcy",
       "lat": 47.32443,
       "lng": 5.03201,
-      "arrival": "Bravo ! Le jardin porte le nom d'Henry Darcy, l'ingénieur qui dota Dijon d'un réseau d'eau potable dès 1840 ; ses expériences lui ont permis d'énoncer la loi de Darcy, sur l'écoulement de l'eau dans le sol. L'ours blanc de l'entrée est une copie de celui de François Pompon, sculpteur né en Côte-d'Or."
+      "arrival": "Bravo ! Le jardin porte le nom d'Henry Darcy, l'ingénieur qui dota Dijon d'un réseau d'eau potable dès 1840 ; ses expériences lui ont permis d'énoncer la loi de Darcy, sur l'écoulement de l'eau dans le sol. L'ours blanc de l'entrée est une copie de celui de François Pompon, sculpteur né en Côte-d'Or.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Notre-Dame de Dijon » : « Le Jacquemart a été rapporté de Courtrai par le duc Philippe le Hardi en ····. »",
+        "answer": "1382",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Notre-Dame de Dijon »."
+      }
     }
   ]
 }

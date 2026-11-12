@@ -68,6 +68,13 @@
         "Son nom évoque les bains voisins.",
         "La mosquée Banya Bachi."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "rotonde",
+        "shift": 6,
+        "hint": "Chaque lettre a avancé de 6 rangs : reculez d'autant."
+      },
       "photo": "File:StGeorgeRotundaSofia.JPG"
     },
     {
@@ -88,6 +95,12 @@
       "lat": 42.70022,
       "lng": 23.32093,
       "arrival": "Bravo ! La synagogue de Sofia, inaugurée en 1909, est l'une des plus grandes synagogues séfarades d'Europe. En 1943, sous la pression de l'opinion, de l'Église orthodoxe et de députés, la Bulgarie renonça à déporter les Juifs de son territoire d'avant-guerre.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Église russe » : « L'église russe Saint-Nicolas, achevée en ····, servait la communauté de l'ambassade de Russie. »",
+        "answer": "1914",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Église russe »."
+      },
       "photo": "File:Sofia_Synagogue_11c.jpg"
     }
   ]

@@ -67,7 +67,13 @@
         "Vincent de Paul fut curé de Clichy en 1612 : suivez l'avenue de Clichy.",
         "L'autre entrée donne sur la rue de la Jonquière ; son nom est un bouquet.",
         "La Cité des Fleurs."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "brochant",
+        "hint": "Le mot commence par « B »."
+      }
     },
     {
       "title": "Cité des Fleurs",
@@ -99,6 +105,12 @@
       "lat": 48.8951,
       "lng": 2.3112,
       "arrival": "Bravo ! Conçu par Renzo Piano et ouvert en 2018, le Tribunal de Paris a regroupé des juridictions jusque-là dispersées, notamment dans l'île de la Cité. Le parvis porte le nom de Robert Badinter, garde des Sceaux qui fit abolir la peine de mort en 1981.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Église Sainte-Marie-des-Batignolles » : « Les Batignolles étaient un village indépendant jusqu'à leur rattachement à Paris en ····. »",
+        "answer": "1860",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Église Sainte-Marie-des-Batignolles »."
+      },
       "photo": "File:Rue_du_Bastion_Paris.jpg"
     }
   ]

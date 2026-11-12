@@ -55,6 +55,12 @@
         "Elle servait aussi de logis à l'évêque.",
         "La porte Saint-Pierre."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:Cathédrale_Saint-Pierre_de_Nantes_-_façade.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 47.21537,
       "lng": -1.55396,
       "arrival": "Bravo ! Le beffroi de l'église Sainte-Croix, surmonté d'anges sonnant de la trompette, abrite l'horloge qui ornait autrefois la tour du Bouffay, le premier château des ducs.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue d'Anne de Bretagne » : « Anne de Bretagne est née en ···· au château que vous venez de quitter, agrandi par son père, le duc François II. »",
+        "answer": "1477",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue d'Anne de Bretagne »."
+      },
       "photo": "File:Nantes_eglise_sainte_croix.JPG"
     }
   ]

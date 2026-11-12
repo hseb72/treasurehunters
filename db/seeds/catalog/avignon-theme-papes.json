@@ -66,6 +66,12 @@
         "Il ferme à la tombée de la nuit.",
         "Le jardin du rocher des Doms."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:France_Avignon_Notre_Dame_des_Doms.jpg"
     },
     {
@@ -99,6 +105,12 @@
       "lat": 43.95375,
       "lng": 4.80509,
       "arrival": "Bravo ! Selon la légende, un jeune berger, Bénezet, reçut du ciel l'ordre de construire ce pont, commencé en 1177. Emporté à plusieurs reprises par les crues du Rhône, il a été abandonné au XVIIᵉ siècle ; il en reste quatre arches et une chapelle. On ne dansait pas sur le pont, trop étroit, mais plutôt dessous, sur l'île de la Barthelasse.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais des Papes » : « Depuis ····, sa cour d'honneur accueille le festival d'Avignon fondé par Jean Vilar. »",
+        "answer": "1947",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais des Papes »."
+      },
       "photo": "File:Le_pont_d'Avignon_depuis_l'île_de_la_Barthelasse.jpg"
     }
   ]

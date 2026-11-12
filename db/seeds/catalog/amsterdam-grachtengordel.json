@@ -67,6 +67,13 @@
         "Il flotte sur le Singel depuis le XIXᵉ siècle.",
         "Le marché aux fleurs, Singel."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "béguinage",
+        "shift": 20,
+        "hint": "Chaque lettre a avancé de 20 rangs : reculez d'autant."
+      },
       "photo": "File:Begijnhof_Amsterdam_P1020930.JPG"
     },
     {
@@ -100,6 +107,12 @@
       "lat": 52.36599,
       "lng": 4.89661,
       "arrival": "Bravo ! La statue de Rembrandt, par Louis Royer, a été érigée en 1852 sur l'ancien marché au beurre, qui prit plus tard le nom du peintre.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Monument national du Dam » : « Le palais royal, construit au XVIIᵉ siècle comme hôtel de ville, devint palais en ···· pour Louis Bonaparte, frère de Napoléon et roi de Hollande. »",
+        "answer": "1808",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Monument national du Dam »."
+      },
       "photo": "File:NieuwRembrandtplein.JPG"
     }
   ]

@@ -66,7 +66,14 @@
         "Le maréchal est Jean de Lattre de Tassigny : l'avenue de Lattre-de-Tassigny.",
         "Il porte le nom du quartier.",
         "Le cimetière militaire de Mazargues."
-      ]
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "obélisque",
+        "shift": 8,
+        "hint": "Chaque lettre a avancé de 8 rangs : reculez d'autant."
+      }
     },
     {
       "title": "Cimetière militaire de Mazargues",
@@ -85,7 +92,13 @@
       "title": "Église Saint-Roch de Mazargues",
       "lat": 43.24576,
       "lng": 5.40447,
-      "arrival": "Bravo ! Saint Roch, pèlerin du XIVᵉ siècle, était invoqué contre la peste ; on le représente souvent montrant une plaie à la jambe, accompagné d'un chien qui lui apportait du pain. Son culte était très vivant en Provence, si souvent frappée par les épidémies."
+      "arrival": "Bravo ! Saint Roch, pèlerin du XIVᵉ siècle, était invoqué contre la peste ; on le représente souvent montrant une plaie à la jambe, accompagné d'un chien qui lui apportait du pain. Son culte était très vivant en Provence, si souvent frappée par les épidémies.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cité radieuse » : « Inaugurée en ····, l'Unité d'habitation de Le Corbusier compte plus de trois cents logements, une rue commerçante à mi-hauteur et une école sur le toit. »",
+        "answer": "1952",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cité radieuse »."
+      }
     }
   ]
 }

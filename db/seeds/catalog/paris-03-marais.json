@@ -72,6 +72,12 @@
         "Dans sa cour trône une statue de Louis XIV par Coysevox.",
         "Le musée Carnavalet, 23 rue de Sévigné."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "picasso",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Paris_3e_Hôtel_Salé_640.jpg"
     },
     {
@@ -106,6 +112,12 @@
       "lat": 48.8642,
       "lng": 2.36262,
       "arrival": "Vous avez trouvé ! Ici s'élevait la tour du Temple, où la famille royale fut enfermée en août 1792 ; Louis XVI n'en sortit que pour être jugé. Napoléon fit raser la tour en 1808. La halle actuelle, de 1863, accueillait un marché aux vêtements.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Maison de Nicolas Flamel » : « Nicolas Flamel, écrivain public et libraire, fit bâtir cette maison en ···· pour loger des pauvres, en échange de prières. »",
+        "answer": "1407",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Maison de Nicolas Flamel »."
+      },
       "photo": "File:Carreau_du_Temple,_Paris_9_April_2014.jpg"
     }
   ]

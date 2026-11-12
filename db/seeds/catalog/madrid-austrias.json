@@ -68,6 +68,12 @@
         "Il a été consacré par le pape Jean-Paul II.",
         "La cathédrale de l'Almudena."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "villa",
+        "hint": "Le mot commence par « V »."
+      },
       "photo": "File:2012-04-30_Plaza_de_la_Villa_Madrid_anagoria_01.JPG"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 40.41833,
       "lng": -3.7122,
       "arrival": "Bravo ! Fondue par Pietro Tacca vers 1640, la statue de Philippe IV fut l'une des premières au monde à tenir sur les deux seules pattes arrière du cheval. Selon la tradition, Galilée conseilla de faire l'arrière plein et l'avant creux pour qu'elle tienne debout. Vélasquez avait fourni un portrait du roi pour modèle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Kilomètre zéro » : « L'ours qui grimpe à l'arbousier est l'emblème de Madrid ; la statue date de ····. »",
+        "answer": "1967",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Kilomètre zéro »."
+      },
       "photo": "File:Ecuestre_de_Felipe_IV-2014_02.JPG"
     }
   ]

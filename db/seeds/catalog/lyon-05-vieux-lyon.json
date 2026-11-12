@@ -68,7 +68,13 @@
         "Elle porte le même nom que la rue.",
         "On l'appelle la primatiale : son archevêque est primat des Gaules.",
         "La cathédrale Saint-Jean, place Saint-Jean."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "traboule",
+        "hint": "Le mot commence par « T »."
+      }
     },
     {
       "title": "Cathédrale Saint-Jean",
@@ -101,6 +107,12 @@
       "lat": 45.76234,
       "lng": 4.82199,
       "arrival": "Bravo ! La basilique a été construite à partir de 1872 sur les plans de Pierre Bossan, pour remercier la Vierge d'avoir épargné Lyon pendant la guerre de 1870. Chaque 8 décembre, la fête des Lumières rappelle l'inauguration, en 1852, de la statue dorée de la Vierge sur la chapelle voisine.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cathédrale Saint-Jean » : « Commencée vers ····, la primatiale Saint-Jean mêle art roman et gothique. »",
+        "answer": "1175",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cathédrale Saint-Jean »."
+      },
       "photo": "File:France-003038_-_Basilica_of_Notre-Dame_de_Fourvière_(15939822990).jpg"
     }
   ]

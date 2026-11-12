@@ -66,6 +66,13 @@
         "Il est dédié à la Vierge.",
         "La cathédrale Sainte-Marie, Toomkirik."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "belvédère",
+        "shift": 9,
+        "hint": "Chaque lettre a avancé de 9 rangs : reculez d'autant."
+      },
       "photo": "File:Tallinn,_Estonia_(7952111308).jpg"
     },
     {
@@ -86,6 +93,12 @@
       "lat": 59.43575,
       "lng": 24.73932,
       "arrival": "Bravo ! La cathédrale Alexandre-Nevski a été bâtie en 1900, quand l'Estonie appartenait à l'Empire russe, face au château qui abrite aujourd'hui le Parlement. Jugée symbole de la domination russe, elle faillit être démolie dans les années 1920.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Place de l'Hôtel-de-Ville » : « L'hôtel de ville, achevé en ····, est le plus ancien hôtel de ville gothique d'Europe du Nord. »",
+        "answer": "1404",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Place de l'Hôtel-de-Ville »."
+      },
       "photo": "File:Alexander-Newski-Kathedrale_full_pc.jpg"
     }
   ]

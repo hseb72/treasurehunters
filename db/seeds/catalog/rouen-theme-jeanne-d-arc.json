@@ -67,6 +67,13 @@
         "Le dragon de saint Romain s'appelait la Gargouille.",
         "L'Historial Jeanne d'Arc, 7 rue Saint-Romain."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "shift": 23,
+        "hint": "Chaque lettre a avancé de 23 rangs : reculez d'autant."
+      },
       "photo": "File:Cathédrale_de_Rouen.jpg"
     },
     {
@@ -88,6 +95,12 @@
       "lat": 49.44247,
       "lng": 1.09836,
       "arrival": "Bravo ! Le 24 mai 1431, dans le cimetière de l'abbaye Saint-Ouen, Jeanne, menacée du bûcher, signa une abjuration. Elle se rétracta quelques jours plus tard et fut condamnée comme relapse. L'abbatiale gothique a été commencée en 1318.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Place du Vieux-Marché » : « La tour Jeanne-d'Arc est le donjon du château construit par Philippe Auguste au début du XIIIᵉ siècle ; Jeanne, prisonnière des Anglais, y fut menacée de la torture en mai ····. »",
+        "answer": "1431",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Place du Vieux-Marché »."
+      },
       "photo": "File:Abbatiale_Saint-Ouen_vue_depuis_la_cathédrale_Notre-Dame_de_Rouen.jpg"
     }
   ]
