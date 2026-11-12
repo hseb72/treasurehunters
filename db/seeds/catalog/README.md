@@ -8,3 +8,8 @@ Un fichier JSON par Secret Track, au format `SeedHunt` (`shared/seed.ts`), décr
 Import en production (le dossier est livré dans l'image, sous /app/db) :
 
     kubectl -n api-treasurehunters exec deploy/api -- node dist/server/src/seed-catalog.js /app/db/seeds/catalog
+
+Un lieu (pas le départ) peut porter une épreuve d'arrivée (`puzzle` : `type` parmi `question`,
+`lock`, `cipher`, `anagram`, `rebus`, `prompt`, `answer`, `hint`, `shift` pour un message
+chiffré). Elle est offerte aux joueurs ; une copie du parcours ne la garde que si l'organisateur
+possède le pack de son type.

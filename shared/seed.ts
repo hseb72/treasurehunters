@@ -20,6 +20,11 @@ export interface SeedStep {
   riddle?: string;
   /** Trois jokers de cette énigme, du plus discret au plus direct. */
   hints?: string[];
+  /**
+   * Épreuve d'arrivée (§ 17), réponse comprise, pas pour le départ. Offerte aux joueurs du
+   * parcours ; un organisateur qui le copie ne la garde que s'il possède le pack de son type.
+   */
+  puzzle?: Puzzle;
   /** Photo libre de Wikimedia Commons (« File:… »), montrée aux joueurs ; celle du départ fait la couverture. */
   photo?: string;
 }

@@ -38,6 +38,18 @@ describe('contrôle des parcours d’initialisation', () => {
     expect(errors).toMatch(/trop loin/);
     expect(errors).toMatch(/pas d'énigme après l'arrivée/);
   });
+
+  it('accepte des épreuves d’arrivée bien rédigées, jamais au départ', () => {
+    const s = example();
+    s.steps[1]!.puzzle = { type: 'lock', prompt: 'L’année gravée sur l’arc ?', answer: '1691' };
+    s.steps[3]!.puzzle = { type: 'anagram', prompt: 'Remettez les lettres dans l’ordre.', answer: 'botanique' };
+    expect(checkSeed(s).errors).toEqual([]);
+    s.steps[0]!.puzzle = { type: 'question', prompt: 'Combien de Grâces ?', answer: '3' };
+    s.steps[2]!.puzzle = { type: 'cipher', prompt: 'Déchiffrez.', answer: 'roi soleil' }; // sans décalage
+    const errors = checkSeed(s).errors.join('\n');
+    expect(errors).toMatch(/pas d'épreuve d'arrivée au départ/);
+    expect(errors).toMatch(/décalage/);
+  });
 });
 
 describe('import des parcours d’initialisation', () => {
@@ -81,6 +93,35 @@ describe('import des parcours d’initialisation', () => {
     expect(old.cat_withdrawn).not.toBeNull();
     expect(old.cat_seed).toBeNull();
     expect((await client(ctx.app).get(`/api/catalog/${r.catalogId}`)).body).toMatchObject({ summary: 'Nouvelle présentation.', seed: true });
+  });
+
+  it('offre ses épreuves aux joueurs, mais ne les recopie qu’avec le pack', async () => {
+    // Ailleurs que l'exemple déjà au catalogue, pour ne pas le copier (§ 48).
+    const base = checkSeed(example()).seed!;
+    const seed = { ...base, key: 'test-epreuves', steps: base.steps.map((s) => ({ ...s, lng: s.lng + 0.05 })) };
+    seed.steps[2]!.puzzle = { type: 'cipher', prompt: 'Déchiffrez le message du roi.', answer: 'soleil', shift: 3 };
+    const { catalogId } = await ctx.app.service.importSeed(seed);
+
+    // Les joueurs ont l'épreuve sans rien posséder.
+    const zoe = await loginAs(ctx.app, 'zoe@example.com');
+    const hunt = (await zoe.post(`/api/catalog/${catalogId}/play`)).body;
+    await zoe.post(`/api/hunts/${hunt.id}/self-start`);
+    await zoe.post(`/api/hunts/${hunt.id}/checkin`, { lat: seed.steps[1]!.lat, lng: seed.steps[1]!.lng, accuracy: 5 });
+    expect((await zoe.post(`/api/hunts/${hunt.id}/checkin`, { lat: seed.steps[2]!.lat, lng: seed.steps[2]!.lng, accuracy: 5 })).body.outcome).toBe('puzzle');
+    expect((await zoe.post(`/api/hunts/${hunt.id}/puzzle`, { answer: 'Soleil' })).status).toBe(200);
+
+    // Copié sans le pack : averti, puis sans l'épreuve.
+    const tom = await loginAs(ctx.app, 'tom@example.com');
+    expect((await tom.get(`/api/catalog/${catalogId}`)).body.copyWithout).toEqual(['Codes secrets']);
+    const puzzles = async (huntId: number) => ((await tom.get(`/api/hunts/${huntId}/steps`)).body as { puzzle: unknown }[]).map((s) => s.puzzle);
+    const bare = (await tom.post(`/api/catalog/${catalogId}/copy`)).body;
+    expect((await puzzles(bare.id)).every((p) => p === null)).toBe(true);
+
+    // Avec le pack, la copie la garde.
+    await tom.post('/api/store/pack:codes/acquire');
+    expect((await tom.get(`/api/catalog/${catalogId}`)).body.copyWithout).toEqual([]);
+    const full = (await tom.post(`/api/catalog/${catalogId}/copy`)).body;
+    expect((await puzzles(full.id))[2]).toMatchObject({ type: 'cipher', answer: 'soleil' });
   });
 
   it('ne laisse rien derrière un import qui échoue', async () => {

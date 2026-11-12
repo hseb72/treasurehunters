@@ -2135,7 +2135,8 @@ export class Service {
 
   /**
    * Une énigme d'arrivée se pose sur une étape du parcours (pas le départ), bien rédigée, d'un
-   * type que l'organisateur possède (pack de la boutique) ou que l'étape avait déjà.
+   * type que l'organisateur possède (pack de la boutique) ou que l'étape avait déjà. Les parcours
+   * d'initialisation (§ 51), sous le compte « SecretTracks », posent tous les types.
    */
   private async checkPuzzle(db: Db, me: number, step: Step, data: StepInput): Promise<void> {
     if (!data.puzzle) return;
@@ -2143,10 +2144,26 @@ export class Service {
     const problem = puzzleProblem(data.puzzle);
     if (problem) throw badRequest(problem);
     if (step.puzzle?.type === data.puzzle.type) return;
-    const pack = productById(puzzleType(data.puzzle.type).pack)!;
+    if ((await hunterById(db, me))?.email === SYSTEM_EMAIL) return;
+    if (await this.lacksPack(db, await this.ownedProducts(db, me), data.puzzle)) {
+      throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${productById(puzzleType(data.puzzle.type).pack)!.name} » : obtenez-le d’abord dans la boutique.`);
+    }
+  }
+
+  /** Le joueur n'a ni le pack du type de l'énigme, ni le pack de créateur (§ 19) d'où elle vient. */
+  private async lacksPack(db: Db, owned: ReadonlySet<string>, puzzle: Puzzle): Promise<boolean> {
+    return !owns(owned, puzzleType(puzzle.type).pack) && !(await this.fromCreatorPack(db, owned, puzzle));
+  }
+
+  /**
+   * Épreuves d'un parcours d'initialisation (§ 51) que le joueur ne garderait pas en le copiant :
+   * offertes pour y jouer, elles demandent le pack de leur type pour être réutilisées.
+   */
+  private async seedPuzzlesWithoutPack(db: Db, me: number | null, steps: { puzzle?: Puzzle | null }[]): Promise<Set<Puzzle>> {
     const owned = await this.ownedProducts(db, me);
-    // Une énigme tirée d'un pack de créateur obtenu (§ 19) se pose sans le pack de son type.
-    if (!owns(owned, pack.id) && !(await this.fromCreatorPack(db, owned, data.puzzle))) throw forbidden(`« ${puzzleType(data.puzzle.type).name} » vient du pack « ${pack.name} » : obtenez-le d’abord dans la boutique.`);
+    const lacking = new Set<Puzzle>();
+    for (const s of steps) if (s.puzzle && (await this.lacksPack(db, owned, s.puzzle))) lacking.add(s.puzzle);
+    return lacking;
   }
 
   private async fromCreatorPack(db: Db, owned: ReadonlySet<string>, puzzle: Puzzle): Promise<boolean> {
@@ -2474,7 +2491,7 @@ export class Service {
 
   async catalogEntry(viewer: Viewer, id: number): Promise<CatalogDetail> {
     const [entry] = await catalogEntries(this.pool, 'c.cat_id = $1', [id]);
-    const r = await one(this.pool, 'SELECT cat_sample_order, cat_sample, cat_hunt_hun FROM th_catalog WHERE cat_id = $1', [id]);
+    const r = await one(this.pool, 'SELECT cat_sample_order, cat_sample, cat_hunt_hun, cat_seed, cat_content FROM th_catalog WHERE cat_id = $1', [id]);
     if (!entry || !r || (entry.withdrawn && entry.authorId !== viewer)) throw notFound('Cette Secret Track n’est pas au catalogue.');
     const reviews = await rows(
       this.pool,
@@ -2514,9 +2531,12 @@ export class Service {
        WHERE eh.cat_id = $1 AND ${SESSION} ORDER BY sh.hun_begin LIMIT 20`,
       [id, viewer],
     );
+    // Packs d'épreuves qu'une copie de ce parcours d'initialisation ne garderait pas (§ 51).
+    const lacking = r['cat_seed'] ? await this.seedPuzzlesWithoutPack(this.pool, viewer, (r['cat_content'] as CatalogContent).steps) : new Set<Puzzle>();
     return {
       ...entry,
       owned,
+      copyWithout: [...new Set([...lacking].map((p) => productById(puzzleType(p.type).pack)!.name))],
       sessions: sessions.map((x) => ({
         huntId: x['hun_id'],
         name: x['hun_name'],
@@ -2826,7 +2846,7 @@ export class Service {
    * joueur, dans une semaine. Pour la jouer en autonomie : une chasse surprise ouverte un an.
    */
   private async instantiate(db: Db, me: number, id: number, play: boolean): Promise<number> {
-    const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr, cat_validation FROM th_catalog WHERE cat_id = $1', [id]);
+    const r = await one(db, 'SELECT cat_content, cat_withdrawn, cat_travel, cat_difficulty, cat_duration, cat_price, cat_author_htr, cat_validation, cat_seed FROM th_catalog WHERE cat_id = $1', [id]);
     if (!r || r['cat_withdrawn']) throw notFound('Cette Secret Track n’est pas au catalogue.');
     if (play && r['cat_validation'] !== 'geo') throw conflict('Cette Secret Track se joue avec des QR codes posés par un organisateur : elle ne se joue pas en autonomie.');
     // Chasse payante (§ 20) : achetée une fois, copiée ou jouée autant qu'on veut ; gratuite sans paiement activé.
@@ -2835,6 +2855,9 @@ export class Service {
       if (!bought) throw new HttpError(402, `Cette Secret Track est payante : achetez-la pour la ${play ? 'jouer' : 'copier'}.`);
     }
     const content = r['cat_content'] as CatalogContent;
+    // Parcours d'initialisation copié (§ 51) : ses épreuves sont offertes pour y jouer, pas pour
+    // les réutiliser ; la copie garde celles dont l'organisateur possède le pack, pas les autres.
+    const dropped = !play && r['cat_seed'] ? await this.seedPuzzlesWithoutPack(db, me, content.steps) : new Set<Puzzle>();
     const begin = play ? new Date() : new Date(Date.now() + 7 * 86_400_000);
     const data: Partial<Hunt> = {
       ...content.hunt,
@@ -2876,7 +2899,7 @@ export class Service {
           s.longitude,
           s.address,
           s.entrances?.length ? JSON.stringify(s.entrances) : null,
-          s.puzzle ? JSON.stringify(s.puzzle) : null,
+          s.puzzle && !dropped.has(s.puzzle) ? JSON.stringify(s.puzzle) : null,
           // Photo de la version (§ 47), partagée par toutes ses parties.
           s.photo?.key ?? null,
           s.photo?.show ?? null,
@@ -3157,7 +3180,7 @@ export class Service {
 
   /**
    * Parcours d'initialisation (§ 51) : crée la Secret Track sous le compte « SecretTracks », avec
-   * ses lieux, énigmes, jokers et photos libres, puis la partage au catalogue, marquée de sa clé.
+   * ses lieux, énigmes, jokers, épreuves d'arrivée et photos libres, puis la partage au catalogue, marquée de sa clé.
    * Une clé déjà importée est laissée telle quelle, sauf `replace` (l'ancienne version est retirée).
    */
   async importSeed(seed: SeedHunt, opts: { replace?: boolean } = {}): Promise<{ status: 'imported' | 'replaced' | 'skipped'; catalogId: number; warnings: string[] }> {
@@ -3190,10 +3213,10 @@ export class Service {
       const ids: number[] = [start!.id];
       await this.updateStep(sys, start!.id, { ...place(seed.steps[0]!), instructions: seed.steps[0]!.riddle!, hints: seed.steps[0]!.hints! });
       for (const s of seed.steps.slice(1, last)) {
-        const step = await this.createStep(sys, hunt.id, { ...place(s), arrival: s.arrival!, instructions: s.riddle!, hints: s.hints! });
+        const step = await this.createStep(sys, hunt.id, { ...place(s), arrival: s.arrival!, instructions: s.riddle!, hints: s.hints!, puzzle: s.puzzle ?? null });
         ids.push(step.id);
       }
-      await this.updateStep(sys, finish!.id, { ...place(seed.steps[last]!), arrival: seed.steps[last]!.arrival! });
+      await this.updateStep(sys, finish!.id, { ...place(seed.steps[last]!), arrival: seed.steps[last]!.arrival!, puzzle: seed.steps[last]!.puzzle ?? null });
       ids.push(finish!.id);
       // Photos libres : une photo indisponible n'empêche pas l'import, elle est signalée.
       for (const [i, s] of seed.steps.entries()) {

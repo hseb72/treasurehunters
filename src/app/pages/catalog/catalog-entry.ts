@@ -218,6 +218,23 @@ export class CatalogEntryPage {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
+    // Parcours d'initialisation : ses épreuves sont offertes pour jouer, pas pour être recopiées.
+    const without = this.entry.value()?.copyWithout ?? [];
+    if (without.length) {
+      this.confirm
+        .ask({
+          title: 'Copier sans certaines épreuves ?',
+          message: `Les épreuves d’arrivée de ce parcours sont offertes pour y jouer. Celles des packs ${without.map((n) => `« ${n} »`).join(' et ')}, que vous n’avez pas, ne seront pas dans votre copie : obtenez-les d’abord dans la boutique pour les garder.`,
+          confirm: 'Copier sans elles',
+        })
+        .pipe(filter(Boolean))
+        .subscribe(() => this.doCopy());
+      return;
+    }
+    this.doCopy();
+  }
+
+  private doCopy(): void {
     this.busy.set(true);
     this.api.copyFromCatalog(this.id()).subscribe({
       next: (hunt) => {
