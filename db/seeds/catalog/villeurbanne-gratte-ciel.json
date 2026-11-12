@@ -54,7 +54,13 @@
         "La rue du 4-Août-1789.",
         "Il dirigea l'Organisation internationale du travail de 1919 à 1932.",
         "La place Albert-Thomas."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "gratte-ciel",
+        "hint": "Le mot commence par « G »."
+      }
     },
     {
       "title": "Place Albert-Thomas",
@@ -84,7 +90,13 @@
       "title": "Le Rize",
       "lat": 45.75977,
       "lng": 4.884,
-      "arrival": "Bravo ! Le Rize réunit les archives municipales, une médiathèque et des expositions sur l'histoire et les mémoires de Villeurbanne, ville ouvrière qui a accueilli des vagues successives d'immigrants. Son nom rappelle la Rize, un ancien cours d'eau qui traversait la commune."
+      "arrival": "Bravo ! Le Rize réunit les archives municipales, une médiathèque et des expositions sur l'histoire et les mémoires de Villeurbanne, ville ouvrière qui a accueilli des vagues successives d'immigrants. Son nom rappelle la Rize, un ancien cours d'eau qui traversait la commune.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais du Travail » : « Conçu par Môrice Leroux et inauguré en ····, le palais du Travail réunissait des salles syndicales, un dispensaire, une piscine et une salle de spectacle. »",
+        "answer": "1934",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais du Travail »."
+      }
     }
   ]
 }

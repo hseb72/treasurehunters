@@ -79,13 +79,25 @@
         "La place porte le nom de l'ancienne usine.",
         "La Cité du design, place de la Manufacture-d'Armes."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:Saint-etienne_cathedrale.JPG"
     },
     {
       "title": "Cité du design",
       "lat": 45.44987,
       "lng": 4.3842,
-      "arrival": "Bravo ! La Manufacture d'armes de Saint-Étienne a produit des armes pendant plus d'un siècle. Une partie de ses bâtiments accueille depuis 2009 la Cité du design. Saint-Étienne, ville d'armes, de cycles et de rubans, est devenue « ville créative de design » de l'UNESCO en 2010."
+      "arrival": "Bravo ! La Manufacture d'armes de Saint-Étienne a produit des armes pendant plus d'un siècle. Une partie de ses bâtiments accueille depuis 2009 la Cité du design. Saint-Étienne, ville d'armes, de cycles et de rubans, est devenue « ville créative de design » de l'UNESCO en 2010.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cathédrale Saint-Charles » : « Achevée au début du XXᵉ siècle, l'église Saint-Charles-Borromée est devenue cathédrale en ····, lors de la création du diocèse de Saint-Étienne. »",
+        "answer": "1971",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cathédrale Saint-Charles »."
+      }
     }
   ]
 }

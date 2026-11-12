@@ -54,6 +54,12 @@
         "Il est dédié à un officier romain martyr de la légion thébaine.",
         "L'église Saint-Maurice."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "tour",
+        "hint": "Le mot commence par « T »."
+      },
       "photo": "File:Lille_noble_tour.jpg"
     },
     {
@@ -99,7 +105,13 @@
       "title": "Maison de Gilles de la Boë",
       "lat": 50.641,
       "lng": 3.065,
-      "arrival": "Bravo ! Construite en 1636 pour le marchand Gilles de la Boë, cette maison est l'un des plus beaux exemples du baroque flamand à Lille. La place porte le nom de Louise de Bettignies, qui dirigea un réseau de renseignement pendant la Première Guerre mondiale et mourut en captivité en 1918."
+      "arrival": "Bravo ! Construite en 1636 pour le marchand Gilles de la Boë, cette maison est l'un des plus beaux exemples du baroque flamand à Lille. La place porte le nom de Louise de Bettignies, qui dirigea un réseau de renseignement pendant la Première Guerre mondiale et mourut en captivité en 1918.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Beffroi de l'hôtel de ville » : « Le beffroi de l'hôtel de ville, d'Émile Dubuisson, achevé en ····, mesure 104 mètres. »",
+        "answer": "1932",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Beffroi de l'hôtel de ville »."
+      }
     }
   ]
 }

@@ -64,6 +64,13 @@
         "L'apôtre des nations est Paul.",
         "L'église Saint-Paul de la Viste."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "guillermy",
+        "shift": 10,
+        "hint": "Chaque lettre a avancé de 10 rangs : reculez d'autant."
+      },
       "photo": "File:Guillermy-vue-est2.JPG"
     },
     {
@@ -77,6 +84,12 @@
         "Il porte le nom d'une famille du quartier.",
         "Le parc Brégante."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "viste",
+        "hint": "Le mot commence par « V »."
+      },
       "photo": "File:Église_de_la_Viste_4.jpg"
     },
     {

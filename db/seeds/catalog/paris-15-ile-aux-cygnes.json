@@ -68,6 +68,12 @@
         "On peut y monter, contre paiement, pour voir tout l'ouest de la ville.",
         "Le Ballon de Paris, parc André-Citroën, côté Seine."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "mirabeau",
+        "hint": "Le mot commence par « M »."
+      },
       "photo": "File:Pont_Mirabeau_from_Ballon_Generali,_Paris_7_August_2016.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 48.8405,
       "lng": 2.2775,
       "arrival": "Bravo ! Le parc a été dessiné par les paysagistes Gilles Clément et Alain Provost avec les architectes Patrick Berger, Jean-Paul Viguier et Jean-François Jodry. Les deux grandes serres dominent la perspective qui descend jusqu'à la Seine.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue de la Liberté » : « Offerte à la Ville de Paris par la communauté américaine en ····, pour le centenaire de la Révolution, cette réduction de l'œuvre de Bartholdi regarde vers New York. »",
+        "answer": "1889",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue de la Liberté »."
+      },
       "photo": "File:Ballon_de_Paris_@_Parc_André_Citroën_@_Paris_(33145680103).jpg"
     }
   ]

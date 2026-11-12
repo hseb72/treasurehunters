@@ -70,7 +70,14 @@
         "L'astronome est Jean-Baptiste Delambre : suivez la rue Delambre.",
         "Ses piliers intérieurs ont été peints par des artistes du quartier.",
         "La Coupole, 102 boulevard du Montparnasse."
-      ]
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "montparnasse",
+        "shift": 12,
+        "hint": "Chaque lettre a avancé de 12 rangs : reculez d'autant."
+      }
     },
     {
       "title": "La Coupole",
@@ -91,7 +98,13 @@
       "lat": 48.83583,
       "lng": 2.3247,
       "address": "86, rue Daguerre",
-      "arrival": "Bravo ! Agnès Varda s'installa au 86 rue Daguerre en 1951 et y vécut jusqu'à sa mort, en 2019. Dans Daguerréotypes (1975), elle filma les commerçants de sa rue. Elle repose au cimetière du Montparnasse, que vous avez croisé."
+      "arrival": "Bravo ! Agnès Varda s'installa au 86 rue Daguerre en 1951 et y vécut jusqu'à sa mort, en 2019. Dans Daguerréotypes (1975), elle filma les commerçants de sa rue. Elle repose au cimetière du Montparnasse, que vous avez croisé.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Observatoire de Paris » : « Fondé en ···· sous Louis XIV, c'est l'un des plus anciens observatoires encore en activité. »",
+        "answer": "1667",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Observatoire de Paris »."
+      }
     }
   ]
 }

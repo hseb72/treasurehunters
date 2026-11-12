@@ -55,6 +55,12 @@
         "Le tableau représente la décollation de saint Jean-Baptiste.",
         "La co-cathédrale Saint-Jean."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "barrakka",
+        "hint": "Le mot commence par « B »."
+      },
       "photo": "File:Upper_barrakka_gardens-IMG_1669.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 35.90198,
       "lng": 14.51881,
       "arrival": "Bravo ! Le fort Saint-Elme, en étoile, garde l'entrée des deux ports. En 1565, sa petite garnison résista plus d'un mois aux Ottomans, donnant aux secours le temps d'arriver : le Grand Siège fut levé en septembre. Le fort abrite aujourd'hui le musée national de la Guerre.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Porte de la ville » : « La fontaine des Tritons, de Vincent Apap, a été inaugurée en ····. »",
+        "answer": "1959",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Porte de la ville »."
+      },
       "photo": "File:Fort_St._Elmo;_Valletta,_Malta.jpg"
     }
   ]

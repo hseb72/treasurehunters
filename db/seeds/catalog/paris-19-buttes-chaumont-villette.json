@@ -68,6 +68,12 @@
         "La sphère reflète le ciel et les promeneurs.",
         "La Géode, devant la Cité des sciences."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "villette",
+        "hint": "Le mot commence par « V »."
+      },
       "photo": "File:P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG"
     },
     {
@@ -86,7 +92,13 @@
       "title": "Philharmonie de Paris",
       "lat": 48.89192,
       "lng": 2.39414,
-      "arrival": "Bravo ! Inaugurée en janvier 2015, la Philharmonie de Jean Nouvel abrite une grande salle où le public entoure l'orchestre. Sa façade est couverte de plaques d'aluminium en forme d'oiseaux."
+      "arrival": "Bravo ! Inaugurée en janvier 2015, la Philharmonie de Jean Nouvel abrite une grande salle où le public entoure l'orchestre. Sa façade est couverte de plaques d'aluminium en forme d'oiseaux.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Temple de la Sibylle » : « Le parc des Buttes-Chaumont, inauguré en ···· pour l'Exposition universelle, a été creusé dans d'anciennes carrières de gypse. »",
+        "answer": "1867",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Temple de la Sibylle »."
+      }
     }
   ]
 }

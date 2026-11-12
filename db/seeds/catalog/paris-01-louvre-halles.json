@@ -68,6 +68,12 @@
         "Le massacre est celui de la Saint-Barthélemy.",
         "L'église Saint-Germain-l'Auxerrois, place du Louvre."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "louvre",
+        "hint": "Le mot commence par « L »."
+      },
       "photo": "File:Louvre_Cour_Carrée_June_2010.jpg"
     },
     {
@@ -101,6 +107,12 @@
       "lat": 48.86303,
       "lng": 2.34497,
       "arrival": "Bravo ! L'Écoute, d'Henri de Miller, prête l'oreille à la ville depuis 1986. Derrière elle, Saint-Eustache : Molière y fut baptisé en 1622, et la messe d'enterrement de la mère de Mozart y fut célébrée en 1778.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Pont des Arts » : « Fragilisé, il a été reconstruit dans les années ···· avec sept arches au lieu de neuf. »",
+        "answer": "1980",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Pont des Arts »."
+      },
       "photo": "File:St.-Eustache.jpg"
     }
   ]

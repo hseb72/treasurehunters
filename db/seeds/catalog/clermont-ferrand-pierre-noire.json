@@ -68,6 +68,12 @@
         "L'évêque s'appelait Jacques d'Amboise.",
         "La fontaine d'Amboise, place de la Poterne."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "cathédrale",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:Cathedrale_vue_de_montjuzet_detail.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 45.78068,
       "lng": 3.08963,
       "arrival": "Bravo ! Construite au XIIᵉ siècle, Notre-Dame-du-Port est l'une des grandes églises romanes d'Auvergne. Elle est inscrite au patrimoine mondial de l'UNESCO au titre des chemins de Saint-Jacques-de-Compostelle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue de Vercingétorix » : « Œuvre d'Auguste Bartholdi, l'auteur de la statue de la Liberté, la statue équestre de Vercingétorix a été inaugurée en ····. »",
+        "answer": "1903",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue de Vercingétorix »."
+      },
       "photo": "File:F08.N.-D._du_Port.0050.jpg"
     }
   ]

@@ -69,6 +69,12 @@
         "Elle découvrit le polonium, qu'elle nomma d'après son pays natal.",
         "La maison natale de Marie Curie, 16 rue Freta."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "insurgé",
+        "hint": "Le mot commence par « I »."
+      },
       "photo": "File:Pomnik_Malego_Powstanca.JPG"
     },
     {
@@ -90,6 +96,12 @@
       "lat": 52.25304,
       "lng": 21.00836,
       "arrival": "Bravo ! La Nouvelle Ville, fondée à la fin du XIVᵉ siècle hors des remparts, fut longtemps une ville distincte, avec son propre hôtel de ville. Sa place est ornée d'un puits de fonte du XIXᵉ siècle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Sirène de Varsovie » : « La colonne de Sigismond, élevée en ···· en l'honneur du roi qui fit de Varsovie la capitale, est le plus ancien monument profane de la ville. »",
+        "answer": "1644",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Sirène de Varsovie »."
+      },
       "photo": "File:Rynek_Nowego_Miasta_w_Warszawie_2017.jpg"
     }
   ]

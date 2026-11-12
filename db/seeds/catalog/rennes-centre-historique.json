@@ -79,13 +79,25 @@
         "La rue de la Monnaie.",
         "Il est dédié à l'apôtre porte-clés.",
         "La cathédrale Saint-Pierre."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "mordelaises",
+        "hint": "Le mot commence par « M »."
+      }
     },
     {
       "title": "Cathédrale Saint-Pierre",
       "lat": 48.1116,
       "lng": -1.68338,
       "arrival": "Bravo ! La cathédrale Saint-Pierre a été reconstruite de la fin du XVIIIᵉ siècle au milieu du XIXᵉ, après l'effondrement de l'ancienne. L'intérieur, tout de dorures, contraste avec la façade austère.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Parlement de Bretagne » : « Il a été restauré et a rouvert en ····. »",
+        "answer": "1999",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Parlement de Bretagne »."
+      },
       "photo": "File:Cathedral_Rennes.jpg"
     }
   ]

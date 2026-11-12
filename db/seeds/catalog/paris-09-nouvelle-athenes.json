@@ -56,6 +56,12 @@
         "L'homme d'État est Adolphe Thiers ; une station de métro porte le nom de la place.",
         "La place Saint-Georges."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "romantique",
+        "hint": "Le mot commence par « R »."
+      },
       "photo": "File:Paris_Musée_vie_romantique_2012.jpg"
     },
     {
@@ -103,6 +109,12 @@
       "lng": 2.34492,
       "address": "32, rue Richer",
       "arrival": "Bravo ! Ouvertes en 1869, les Folies Bergère furent l'un des premiers music-halls de Paris. Manet y a situé son dernier grand tableau, Un bar aux Folies Bergère (1882), et Joséphine Baker y triompha en 1926.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Musée de la Vie romantique » : « Le peintre Ary Scheffer s'installa ici en ····. »",
+        "answer": "1830",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Musée de la Vie romantique »."
+      },
       "photo": "File:Folies_Bergère,_Paris_6_February_2016.jpg"
     }
   ]

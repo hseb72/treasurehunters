@@ -55,6 +55,13 @@
         "L'aviateur a écrit Vol de nuit.",
         "La statue de Saint-Exupéry et du Petit Prince, angle ouest de la place Bellecour."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "célestins",
+        "shift": 5,
+        "hint": "Chaque lettre a avancé de 5 rangs : reculez d'autant."
+      },
       "photo": "File:Lyon_2e_-_Place_des_Célestins_-_Théâtre_des_Célestins.jpg"
     },
     {
@@ -87,6 +94,12 @@
       "lat": 45.75941,
       "lng": 4.83606,
       "arrival": "Bravo ! L'Hôtel-Dieu a soigné les Lyonnais pendant plus de huit siècles. François Rabelais y fut médecin en 1532, l'année où il publia Pantagruel. Sa façade sur le Rhône et son dôme sont de Soufflot, l'architecte du Panthéon de Paris. L'hôpital a fermé en 2010 ; il abrite aujourd'hui un hôtel, des boutiques et des restaurants.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue de Saint-Exupéry » : « Antoine de Saint-Exupéry est né à Lyon le 29 juin ····, à quelques rues d'ici. »",
+        "answer": "1900",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue de Saint-Exupéry »."
+      },
       "photo": "File:Lyon_(52164665586).jpg"
     }
   ]

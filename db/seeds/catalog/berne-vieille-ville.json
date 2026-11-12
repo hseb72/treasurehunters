@@ -69,6 +69,12 @@
         "Il publia E = mc² la même année.",
         "La maison d'Einstein, Kramgasse 49."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "zytglogge",
+        "hint": "Le mot commence par « Z »."
+      },
       "photo": "File:Zytglogge_01.jpg"
     },
     {
@@ -103,6 +109,12 @@
       "lat": 46.94768,
       "lng": 7.45919,
       "arrival": "Bravo ! Selon la légende, le duc Berthold V de Zähringen nomma la ville, fondée en 1191, d'après le premier animal qu'il abattrait à la chasse : un ours. Des ours vivent ici depuis le XVIᵉ siècle. En 1798, les soldats français qui prirent Berne emmenèrent les ours à Paris, au Jardin des plantes.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Käfigturm » : « Le Palais fédéral, achevé en ····, abrite le Parlement et le gouvernement suisses. »",
+        "answer": "1902",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Käfigturm »."
+      },
       "photo": "File:Baerenpark_Bern_01_09.jpg"
     }
   ]

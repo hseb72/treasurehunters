@@ -55,6 +55,12 @@
         "Le roi est mort devant Tunis, pendant une croisade.",
         "L'église Saint-Louis-des-Chartrons."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "rostrales",
+        "hint": "Le mot commence par « R »."
+      },
       "photo": "File:Le_monument_aux_Girondins_(Bordeaux).JPG"
     },
     {
@@ -99,7 +105,13 @@
       "title": "Hangar 14",
       "lat": 44.85451,
       "lng": -0.56469,
-      "arrival": "Bravo ! Le Hangar 14 est l'un des anciens entrepôts du port de la Lune, ainsi nommé pour la courbe en croissant que dessine ici la Garonne. Depuis 2007, le port de la Lune est inscrit au patrimoine mondial de l'UNESCO."
+      "arrival": "Bravo ! Le Hangar 14 est l'un des anciens entrepôts du port de la Lune, ainsi nommé pour la courbe en croissant que dessine ici la Garonne. Depuis 2007, le port de la Lune est inscrit au patrimoine mondial de l'UNESCO.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Place de la Bourse » : « Le pont de pierre, voulu par Napoléon et achevé en ····, fut le premier pont sur la Garonne à Bordeaux ; on dit que ses dix-sept arches rappellent les lettres de « Napoléon Bonaparte ». »",
+        "answer": "1822",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Place de la Bourse »."
+      }
     }
   ]
 }

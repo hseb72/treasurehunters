@@ -68,6 +68,12 @@
         "Elle porte le nom d'une grande famille bretonne.",
         "La tour Tanguy."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "recouvrance",
+        "hint": "Le mot commence par « R »."
+      },
       "photo": "File:Brest_harbour2.JPG"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 48.38982,
       "lng": -4.49995,
       "arrival": "Bravo ! Construits au XIXᵉ siècle à l'emplacement d'un couvent de capucins, ces ateliers de la marine ont été transformés en lieu public. Depuis 2016, un téléphérique urbain, le premier de ce type en France, les relie au centre-ville au-dessus de la Penfeld.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Rue de Siam » : « En juin ····, les ambassadeurs du roi Narai de Siam débarquèrent à Brest et remontèrent cette rue avant de gagner Versailles. »",
+        "answer": "1686",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Rue de Siam »."
+      },
       "photo": "File:Ateliers_Plateau_des_capucins_2006.jpg"
     }
   ]

@@ -55,6 +55,12 @@
         "Son surnom : le Crayon.",
         "La tour Part-Dieu, rue Servient."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "guichard",
+        "hint": "Le mot commence par « G »."
+      },
       "photo": "File:Place_Guichard_(2022).jpg"
     },
     {
@@ -88,7 +94,13 @@
       "lat": 45.7634,
       "lng": 4.85042,
       "address": "102, cours Lafayette",
-      "arrival": "Bravo ! Les halles de la Part-Dieu ont ouvert en 1971. En 2006, elles ont pris le nom de Paul Bocuse, le grand chef de Collonges-au-Mont-d'Or. On y trouve quenelles, saucissons et fromages de la région."
+      "arrival": "Bravo ! Les halles de la Part-Dieu ont ouvert en 1971. En 2006, elles ont pris le nom de Paul Bocuse, le grand chef de Collonges-au-Mont-d'Or. On y trouve quenelles, saucissons et fromages de la région.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Tour Part-Dieu » : « Achevée en ···· sur des plans de l'architecte Araldo Cossutta, la tour Part-Dieu mesure 165 mètres. »",
+        "answer": "1977",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Tour Part-Dieu »."
+      }
     }
   ]
 }

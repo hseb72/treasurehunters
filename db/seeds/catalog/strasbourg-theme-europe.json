@@ -67,7 +67,13 @@
         "Le quai Ernest-Bevin.",
         "Son architecte, Richard Rogers, a aussi dessiné le Centre Pompidou avec Renzo Piano.",
         "Le palais des droits de l'homme."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "europe",
+        "hint": "Le mot commence par « E »."
+      }
     },
     {
       "title": "Palais des droits de l'homme",
@@ -85,7 +91,13 @@
       "title": "Bâtiment Louise-Weiss",
       "lat": 48.59748,
       "lng": 7.76989,
-      "arrival": "Bravo ! Inauguré en 1999, le bâtiment Louise-Weiss accueille les sessions plénières du Parlement européen, douze fois par an. Louise Weiss, journaliste et militante de l'Europe, présida comme doyenne la première séance du Parlement élu au suffrage universel, en 1979."
+      "arrival": "Bravo ! Inauguré en 1999, le bâtiment Louise-Weiss accueille les sessions plénières du Parlement européen, douze fois par an. Louise Weiss, journaliste et militante de l'Europe, présida comme doyenne la première séance du Parlement élu au suffrage universel, en 1979.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Église Saint-Paul » : « Annexée par l'Empire allemand en ····, Strasbourg devint capitale de l'Alsace-Lorraine allemande. »",
+        "answer": "1871",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Église Saint-Paul »."
+      }
     }
   ]
 }

@@ -67,7 +67,13 @@
         "La place du Grand-Couvent, puis la place Vincent-Raspail.",
         "Son nom complet évoque le siège de l'évêque.",
         "La cathédrale Notre-Dame-de-la-Seds."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "dauphins",
+        "hint": "Le mot commence par « D »."
+      }
     },
     {
       "title": "Cathédrale Notre-Dame-de-la-Seds",
@@ -99,6 +105,12 @@
       "lat": 43.12131,
       "lng": 5.93725,
       "arrival": "Bravo ! La porte d'Italie, dans les remparts de la ville, ouvrait la route vers l'Italie. En 1793, lors du siège de Toulon tenu par les Anglais, le jeune Bonaparte se fit remarquer en commandant l'artillerie : il y gagna ses galons de général.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Musée national de la Marine » : « La porte monumentale de l'Arsenal, élevée en ····, ouvre aujourd'hui sur le musée national de la Marine. »",
+        "answer": "1738",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Musée national de la Marine »."
+      },
       "photo": "File:Toulon_095.jpg"
     }
   ]

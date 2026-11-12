@@ -68,6 +68,12 @@
         "Le cabaret s'appelait la Pomme de Pin ; la place est au départ de la rue Mouffetard.",
         "La place de la Contrescarpe."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "panthéon",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Paris_75005_Place_du_Panthéon_20160417_(3).jpg"
     },
     {
@@ -101,6 +107,12 @@
       "lng": 2.3543,
       "address": "2 bis, place du Puits-de-l'Ermite",
       "arrival": "Bravo ! Inaugurée en 1926, la Grande Mosquée rend hommage aux soldats musulmans tombés pendant la Première Guerre mondiale.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Église Saint-Julien-le-Pauvre » : « Bâtie à la fin du XIIᵉ siècle, en même temps que Notre-Dame, elle est affectée depuis ···· au culte melkite grec-catholique. »",
+        "answer": "1889",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Église Saint-Julien-le-Pauvre »."
+      },
       "photo": "File:Grande_Mosquée_de_Paris.JPG"
     }
   ]

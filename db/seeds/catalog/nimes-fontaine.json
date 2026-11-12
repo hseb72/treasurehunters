@@ -66,6 +66,13 @@
         "La déesse est la sœur d'Apollon.",
         "Le temple de Diane."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "jardins",
+        "shift": 15,
+        "hint": "Chaque lettre a avancé de 15 rangs : reculez d'autant."
+      },
       "photo": "File:NimesJardins.jpg"
     },
     {
@@ -86,6 +93,12 @@
       "lat": 43.84308,
       "lng": 4.34947,
       "arrival": "Bravo ! La tour Magne faisait partie de l'enceinte construite sous Auguste. En 1601, un jardinier, François Traucat, persuadé d'après une prophétie de Nostradamus qu'un trésor y était caché, obtint d'Henri IV l'autorisation de fouiller à ses frais : il ne trouva rien et faillit faire s'écrouler la tour.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Cathédrale Notre-Dame-et-Saint-Castor » : « La fontaine de la place du Marché, œuvre de Martial Raysse (····), reprend l'emblème de Nîmes : un crocodile enchaîné à un palmier. »",
+        "answer": "1987",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Cathédrale Notre-Dame-et-Saint-Castor »."
+      },
       "photo": "File:281_Tour_Magne_NIM_1008.jpg"
     }
   ]

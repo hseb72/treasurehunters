@@ -67,6 +67,13 @@
         "Adam Clark n'avait aucun lien de parenté avec William Tierney Clark, l'auteur des plans du pont.",
         "La borne du kilomètre zéro, Clark Ádám tér."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "széchenyi",
+        "shift": 9,
+        "hint": "Chaque lettre a avancé de 9 rangs : reculez d'autant."
+      },
       "photo": "File:Hungary,_Pest.jpg"
     },
     {
@@ -87,6 +94,12 @@
       "lat": 47.5023,
       "lng": 19.0347,
       "arrival": "Bravo ! Le Bastion des Pêcheurs, achevé en 1902 par Frigyes Schulek, n'a jamais servi à la défense : c'est une terrasse panoramique. Ses sept tours évoquent les sept tribus magyares ; son nom rappelle la corporation des pêcheurs, chargée au Moyen Âge de défendre ce pan des remparts.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Chaussures au bord du Danube » : « Le Parlement, achevé en ···· sur les plans d'Imre Steindl, est le plus grand bâtiment de Hongrie ; il garde la Sainte Couronne. »",
+        "answer": "1904",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Chaussures au bord du Danube »."
+      },
       "photo": "File:Halászbástya_épülete_díszlépcsővel_(103._számú_műemlék)_28.jpg"
     }
   ]

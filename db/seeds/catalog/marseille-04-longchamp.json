@@ -55,7 +55,13 @@
         "Le boulevard du Jardin-Zoologique, puis l'avenue des Chartreux.",
         "La place porte aussi le nom d'un résistant, Pierre Brossolette.",
         "Le carrefour des Cinq-Avenues."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "observatoire",
+        "hint": "Le mot commence par « O »."
+      }
     },
     {
       "title": "Les Cinq-Avenues",
@@ -86,7 +92,13 @@
       "title": "Hôtel du Département",
       "lat": 43.31502,
       "lng": 5.40591,
-      "arrival": "Bravo ! Inauguré en 1994, l'hôtel du Département des Bouches-du-Rhône, de l'architecte britannique William Alsop, est surnommé le « Vaisseau bleu » pour sa couleur et sa silhouette de paquebot."
+      "arrival": "Bravo ! Inauguré en 1994, l'hôtel du Département des Bouches-du-Rhône, de l'architecte britannique William Alsop, est surnommé le « Vaisseau bleu » pour sa couleur et sa silhouette de paquebot.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Palais Longchamp » : « Inauguré en ···· et dessiné par Henri-Jacques Espérandieu, le palais Longchamp est un château d'eau monumental : il célèbre l'arrivée de l'eau de la Durance par le canal de Marseille. »",
+        "answer": "1869",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Palais Longchamp »."
+      }
     }
   ]
 }

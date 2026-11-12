@@ -68,6 +68,12 @@
         "Plus de deux mille blasons y sont accrochés.",
         "Riddarhuset, la maison de la Noblesse."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "trotzig",
+        "hint": "Le mot commence par « T »."
+      },
       "photo": "File:Marten-Trotzigs-Graend.jpg"
     },
     {
@@ -88,6 +94,12 @@
       "lat": 59.32468,
       "lng": 18.0646,
       "arrival": "Bravo ! L'église de Riddarholmen est la nécropole des rois de Suède depuis le XVIIᵉ siècle. On y trouve notamment les tombeaux de Gustave II Adolphe et de Charles XIV Jean, le Français Bernadotte. Sa flèche de fonte date du milieu du XIXᵉ siècle.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Storkyrkan » : « Le palais royal, reconstruit après l'incendie du château des Trois Couronnes en ····, compte plus de six cents pièces. »",
+        "answer": "1697",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Storkyrkan »."
+      },
       "photo": "File:Riddarholmskyrkan_juni_2005.jpg"
     }
   ]

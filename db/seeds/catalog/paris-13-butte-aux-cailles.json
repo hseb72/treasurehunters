@@ -55,6 +55,12 @@
         "La place porte le nom d'un poète, auteur des Poèmes saturniens.",
         "La place Paul-Verlaine, devant la piscine de la Butte-aux-Cailles."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "mairie",
+        "hint": "Le mot commence par « M »."
+      },
       "photo": "File:Paris-XIIIe-mairie.jpg"
     },
     {
@@ -87,6 +93,12 @@
       "lat": 48.8227,
       "lng": 2.34482,
       "arrival": "Vous êtes arrivés ! La Cité florale a été construite à partir de 1928 sur un ancien pré de la vallée de la Bièvre. Ses maisons basses s'alignent le long des rues des Glycines, des Iris, des Orchidées ou des Volubilis. Respectez la tranquillité des habitants.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Place Paul-Verlaine » : « Le puits artésien, foré à la fin du XIXᵉ siècle, alimente la fontaine de la place et la piscine de la Butte-aux-Cailles, ouverte en ····. »",
+        "answer": "1924",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Place Paul-Verlaine »."
+      },
       "photo": "File:La_cité_fleurie_dans_le_13_ieme_arrondissement_de_Paris.jpg"
     }
   ]

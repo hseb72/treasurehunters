@@ -55,7 +55,13 @@
         "Le chevalier s'appelait Bayard.",
         "Un des plus anciens cafés de France la borde.",
         "La place Saint-André."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "appartement",
+        "hint": "Le mot commence par « A »."
+      }
     },
     {
       "title": "Place Saint-André",
@@ -100,7 +106,13 @@
       "title": "Musée de Grenoble",
       "lat": 45.19497,
       "lng": 5.73225,
-      "arrival": "Bravo ! Le musée de Grenoble s'est installé en 1994 dans ce bâtiment moderne, au bord de l'Isère, à côté de la tour de l'Isle, du XIVᵉ siècle. Il fut l'un des premiers musées français à collectionner l'art moderne."
+      "arrival": "Bravo ! Le musée de Grenoble s'est installé en 1994 dans ce bâtiment moderne, au bord de l'Isère, à côté de la tour de l'Isle, du XIVᵉ siècle. Il fut l'un des premiers musées français à collectionner l'art moderne.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Maison natale de Stendhal » : « Henri Beyle, qui prit le nom de plume de Stendhal, est né ici le 23 janvier ····. »",
+        "answer": "1783",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Maison natale de Stendhal »."
+      }
     }
   ]
 }

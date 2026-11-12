@@ -77,7 +77,13 @@
         "Le boulevard de la Falaise.",
         "Il porte le nom du rocher qui le soutient.",
         "Le jardin de la Falaise."
-      ]
+      ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "mistral",
+        "hint": "Le mot commence par « M »."
+      }
     },
     {
       "title": "Jardin de la Falaise",
@@ -107,7 +113,13 @@
       "title": "Viaduc des Riaux",
       "lat": 43.36487,
       "lng": 5.3056,
-      "arrival": "Bravo ! Le viaduc des Riaux porte la ligne de chemin de fer de la Côte Bleue, qui longe la mer jusqu'à Miramas. Le vallon des Riaux abritait aussi une grande usine métallurgique, dont il reste le pavillon d'entrée."
+      "arrival": "Bravo ! Le viaduc des Riaux porte la ligne de chemin de fer de la Côte Bleue, qui longe la mer jusqu'à Miramas. Le vallon des Riaux abritait aussi une grande usine métallurgique, dont il reste le pavillon d'entrée.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Jardin de la Falaise » : « Paul Cézanne a peint L'Estaque à de nombreuses reprises à partir des années ····. »",
+        "answer": "1870",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Jardin de la Falaise »."
+      }
     }
   ]
 }

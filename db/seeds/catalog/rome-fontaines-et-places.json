@@ -68,6 +68,12 @@
         "Elle est l'œuvre du Bernin, en 1651.",
         "La fontaine des Quatre-Fleuves, piazza Navona."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "panthéon",
+        "hint": "Le mot commence par « P »."
+      },
       "photo": "File:Pantheon_(Rome)_-_Right_side_and_front.jpg"
     },
     {
@@ -101,6 +107,12 @@
       "lat": 41.896,
       "lng": 12.47684,
       "arrival": "Bravo ! Le largo di Torre Argentina conserve quatre temples républicains et une partie de la curie de Pompée, où Jules César fut assassiné le 15 mars 44 avant J.-C. Son nom vient d'Argentoratum, l'actuelle Strasbourg, ville natale d'un évêque qui habitait là au XVIᵉ siècle. Un refuge soigne les chats qui vivent parmi les ruines.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Fontaine de Trevi » : « La Barcaccia, une barque à demi noyée, a été sculptée vers ···· par Pietro Bernini, peut-être avec son fils Gian Lorenzo : la faible pression de l'eau imposait une fontaine basse. »",
+        "answer": "1627",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Fontaine de Trevi »."
+      },
       "photo": "File:Largo_di_Torre_Argentina_4.jpg"
     }
   ]

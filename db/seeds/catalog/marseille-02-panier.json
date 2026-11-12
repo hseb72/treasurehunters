@@ -67,6 +67,12 @@
         "Les Marseillais l'appellent simplement la Major.",
         "La cathédrale de la Major, parvis Saint-Laurent."
       ],
+      "puzzle": {
+        "type": "anagram",
+        "prompt": "Remettez ces lettres dans l'ordre : elles forment un mot du nom du lieu où vous êtes.",
+        "answer": "charité",
+        "hint": "Le mot commence par « C »."
+      },
       "photo": "File:La_Vieille_Charité.jpg"
     },
     {
@@ -87,6 +93,12 @@
       "lat": 43.29545,
       "lng": 5.36181,
       "arrival": "Bravo ! Louis XIV fit renforcer le fort Saint-Jean à partir de 1660, après une révolte des Marseillais : ses canons visaient autant la ville que la mer. Depuis 2013, une passerelle le relie au MuCEM, le musée des civilisations de l'Europe et de la Méditerranée de Rudy Ricciotti.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Maison Diamantée » : « Avec l'hôtel de ville, elle fait partie des rares bâtiments épargnés lorsque l'occupant allemand dynamita le quartier du Vieux-Port, en février ····. »",
+        "answer": "1943",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Maison Diamantée »."
+      },
       "photo": "File:Marseille-Fort_Saint-Jean.JPG"
     }
   ]

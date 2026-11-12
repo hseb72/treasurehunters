@@ -70,6 +70,13 @@
         "Elle passe au pied de la demeure.",
         "La rue Berton, en contrebas de la maison de Balzac."
       ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "balzac",
+        "shift": 9,
+        "hint": "Chaque lettre a avancé de 9 rangs : reculez d'autant."
+      },
       "photo": "File:Maison_de_Balzac,_Paris_16e_5.jpg"
     },
     {
@@ -90,6 +97,12 @@
       "lng": 2.2799,
       "address": "116, avenue du Président-Kennedy",
       "arrival": "Bravo ! Inaugurée par le général de Gaulle le 14 décembre 1963, la Maison de la Radio, dessinée par Henry Bernard, réunit les studios et l'auditorium de Radio France. Devant vous, l'île aux Cygnes et sa petite statue de la Liberté.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Statue de Benjamin Franklin » : « Le square porte le nom de la victoire franco-américaine de Yorktown, en ····. »",
+        "answer": "1781",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Statue de Benjamin Franklin »."
+      },
       "photo": "File:GD-FR-Paris-Maison_de_la_Radio.jpg"
     }
   ]

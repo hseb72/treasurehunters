@@ -68,7 +68,14 @@
         "Suivez le Rhône vers l'amont.",
         "La grille fait face à la place du Général-Leclerc.",
         "La porte des Enfants-du-Rhône, entrée du parc de la Tête d'Or."
-      ]
+      ],
+      "puzzle": {
+        "type": "cipher",
+        "prompt": "Ce message a été chiffré en décalant chaque lettre dans l'alphabet. Déchiffrez-le avec la roue : c'est un mot du nom du lieu où vous êtes.",
+        "answer": "morand",
+        "shift": 18,
+        "hint": "Chaque lettre a avancé de 18 rangs : reculez d'autant."
+      }
     },
     {
       "title": "Porte des Enfants-du-Rhône",
@@ -87,6 +94,12 @@
       "lat": 45.78057,
       "lng": 4.8518,
       "arrival": "Bravo ! Inauguré en 1924, ce monument dessiné par l'architecte lyonnais Tony Garnier rappelle le souvenir des Lyonnais tombés pendant la Grande Guerre. On y accède par un passage souterrain sous le lac.",
+      "puzzle": {
+        "type": "lock",
+        "prompt": "Le trésor est sous cadenas. Son code est l'année effacée de ce message, lu en arrivant à « Église Saint-Pothin » : « Construite à partir de ···· sur les plans de Christophe Crépet, l'église est dédiée à saint Pothin, premier évêque de Lyon, mort en 177 lors de la persécution des chrétiens. »",
+        "answer": "1843",
+        "hint": "Relisez dans votre carnet de route le message d'arrivée de « Église Saint-Pothin »."
+      },
       "photo": "File:Monument_aux_morts_-_(Parc_de_la_Tête_d'Or)_-_DSC05274.jpg"
     }
   ]
