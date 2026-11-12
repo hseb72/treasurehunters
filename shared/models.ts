@@ -599,6 +599,11 @@ export interface CatalogDetail extends CatalogEntry {
   huntId: number | null;
   /** Le lecteur a acheté cette chasse (§ 20). */
   owned: boolean;
+  /**
+   * Parcours d'initialisation (§ 51) : packs d'épreuves que le lecteur ne possède pas. Offertes
+   * pour jouer, leurs épreuves ne passent pas dans sa copie.
+   */
+  copyWithout: string[];
   /** Parties en autonomie du lecteur (§ 13.5), la plus récente d'abord. */
   myPlays: AutonomyPlay[];
   /** Problèmes signalés et pas encore traités par l'auteur (§ 22). */

@@ -1,15 +1,24 @@
 /**
  * Contrôle d'un parcours d'initialisation (§ 51) avant import : forme du fichier, puis ce qui
  * rendrait le parcours injouable — un lieu trop loin du précédent, une énigme qui nomme le lieu
- * qu'elle fait trouver, des jokers manquants.
+ * qu'elle fait trouver, des jokers manquants, une épreuve d'arrivée mal rédigée.
  */
 import { z } from 'zod';
 import { AUDIENCE_IDS, PRACTICAL_IDS, SETTING_IDS } from '../../../shared/practical.js';
 import { distanceMeters } from '../../../shared/rules.js';
-import { PUZZLE_TYPE_IDS } from '../../../shared/puzzles.js';
+import { PUZZLE_TYPE_IDS, puzzleProblem } from '../../../shared/puzzles.js';
 import { HUNT_FILE_FORMAT, HuntFile, SEED_KEY, SEED_MAX_LEG_KM, SEED_MAX_STEPS, SEED_MIN_STEPS, SeedHunt } from '../../../shared/seed.js';
 
 const text = (max: number) => z.string().trim().min(1).max(max);
+
+/** Épreuve d'arrivée (§ 17) : les longueurs de l'éditeur. */
+const puzzleSchema = z.object({
+  type: z.enum(PUZZLE_TYPE_IDS),
+  prompt: text(1000),
+  answer: text(200),
+  hint: z.string().trim().max(500).nullable().optional(),
+  shift: z.number().int().min(1).max(25).optional(),
+});
 
 const stepSchema = z.object({
   title: text(80),
@@ -19,6 +28,7 @@ const stepSchema = z.object({
   arrival: text(600).optional(),
   riddle: text(600).optional(),
   hints: z.array(text(200)).optional(),
+  puzzle: puzzleSchema.optional(),
   photo: z
     .string()
     .regex(/^File:[^|#<>[\]{}]{1,240}$/)
@@ -99,6 +109,13 @@ export function checkSeed(raw: unknown): SeedCheck {
   const seed = parsed.data as SeedHunt;
   const errors = playabilityProblems(seed.steps, seed.travel);
   if (seed.sampleOrder !== undefined && seed.sampleOrder >= seed.steps.length - 1) errors.push('sampleOrder : choisissez une énigme du parcours (avant l’arrivée).');
+  // Épreuves d'arrivée : jamais au départ, rédigées comme dans l'éditeur.
+  seed.steps.forEach((s, i) => {
+    if (!s.puzzle) return;
+    if (i === 0) errors.push(`départ (${s.title}) : pas d'épreuve d'arrivée au départ.`);
+    const problem = puzzleProblem(s.puzzle);
+    if (problem) errors.push(`${s.title} : épreuve — ${problem}`);
+  });
   return { seed, errors };
 }
 
@@ -126,14 +143,7 @@ export const huntFileSchema = z.object({
         arrival: longText(5000),
         riddle: longText(5000),
         hints: z.array(text(2000)).max(3).optional().default([]),
-        puzzle: z
-          .object({
-            type: z.enum(PUZZLE_TYPE_IDS),
-            prompt: text(1000),
-            answer: text(200),
-            hint: z.string().trim().max(500).nullable().optional(),
-            shift: z.number().int().min(1).max(25).optional(),
-          })
+        puzzle: puzzleSchema
           .nullable()
           .optional()
           .default(null),

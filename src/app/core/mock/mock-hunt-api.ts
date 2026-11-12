@@ -1641,6 +1641,7 @@ export class MockHuntApi extends HuntApi {
         mine: me !== null && this.db.teams.some((t) => t.huntId === h.id && t.members.some((m) => m.hunterId === me)),
       })),
       owned: me !== null && !!this.purchases.get(me)?.has(`hunt:c${id}`),
+      copyWithout: [],
       openReports: this.reports
         .filter((r) => r.status === 'open' && hunts.has(r.huntId))
         .reverse()
